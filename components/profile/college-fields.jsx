@@ -48,7 +48,7 @@ export function CollegeFields({ control, register, setValue, errors, colleges, a
         />
       </Field>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field id="departmentId" label="Department" optional>
           <Controller
             control={control}
@@ -101,7 +101,7 @@ export function CollegeFields({ control, register, setValue, errors, colleges, a
         </Field>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Field id="graduationYear" label={accountType === "alumni" ? "Graduation year" : "Expected graduation"} optional error={errors.graduationYear?.message}>
           <Input id="graduationYear" type="number" inputMode="numeric" min={1960} max={2100} placeholder="2027" aria-describedby="graduationYear-desc" {...register("graduationYear")} />
         </Field>

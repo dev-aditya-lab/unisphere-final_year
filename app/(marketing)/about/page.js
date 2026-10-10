@@ -47,7 +47,7 @@ export default function AboutPage() {
         <h2>The team</h2>
         <p>UniSphere was designed and built by four RGEC students:</p>
       </div>
-      <ul className="mt-4 grid gap-3 sm:grid-cols-2" aria-label="The UniSphere team">
+      <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="The UniSphere team">
         {TEAM.map((name) => (
           <li key={name} className="surface flex items-center gap-3 p-4">
             <span aria-hidden="true" className="bg-accent text-accent-foreground flex size-10 items-center justify-center rounded-full text-sm font-bold">

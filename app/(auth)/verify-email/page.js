@@ -33,12 +33,12 @@ export default async function VerifyEmailPage({ searchParams }) {
         <ResendVerification email={email} />
         <p className="text-muted-foreground max-w-xs text-xs">
           Not there after a minute? Check spam, or make sure the address is spelled correctly. If you already have an account, you can{" "}
-          <Link href="/forgot-password" className="text-primary font-medium hover:underline">
+          <Link href="/forgot-password" className="text-blue-text font-medium hover:underline">
             reset your password
           </Link>
           .
         </p>
-        <Link href="/login" className="text-primary text-sm font-semibold hover:underline">
+        <Link href="/login" className="text-blue-text text-sm font-semibold hover:underline">
           Back to log in
         </Link>
       </div>

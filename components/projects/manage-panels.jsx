@@ -43,7 +43,7 @@ function Person({ person, sub }) {
         {person.username ? (
           <Link href={`/u/${person.username}`} className="flex items-center gap-1 truncate text-sm font-semibold hover:underline">
             {person.full_name}
-            {person.verified && <BadgeCheck className="text-primary size-3.5" aria-label="Verified" />}
+            {person.verified && <BadgeCheck className="text-teal-text size-3.5" aria-label="Verified" />}
           </Link>
         ) : (
           <span className="text-sm font-semibold">{person.full_name}</span>
@@ -197,7 +197,7 @@ export function SuggestionsPanel({ projectId, project }) {
           {pending ? <Loader2 className="animate-spin" /> : <Sparkles />} Find teammates
         </Button>
       )}
-      {error && <p role="alert" className="text-destructive text-sm">{error}</p>}
+      {error && <p role="alert" className="text-destructive-text text-sm">{error}</p>}
       {data && data.items.length === 0 && <p className="text-sm">No matches yet. Add required skills and open roles, or ask people to list their skills.</p>}
       {data && data.items.length > 0 && (
         <ul className="divide-y rounded-lg border">
@@ -211,7 +211,7 @@ export function SuggestionsPanel({ projectId, project }) {
                 </div>
               </div>
               <p className="text-sm">
-                {c.source === "ai" && <Sparkles className="text-primary mr-1 inline size-3.5" aria-label="AI-written" />}
+                {c.source === "ai" && <Sparkles className="text-teal-text mr-1 inline size-3.5" aria-label="AI-written" />}
                 {c.why}
               </p>
               {c.availability && <p className="text-muted-foreground text-xs">Availability: {c.availability.replace("_", " ")}</p>}

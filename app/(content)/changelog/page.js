@@ -17,7 +17,7 @@ export default async function ChangelogPage() {
     <article className="mx-auto max-w-3xl py-2">
       <p className="eyebrow mb-2">Changelog</p>
       <h1 className="text-4xl font-extrabold sm:text-5xl">What&rsquo;s new</h1>
-      <p className="text-muted-foreground mt-4 text-lg">Every release, newest first. See what we are working on next on the <Link href="/roadmap" className="text-primary font-semibold hover:underline">roadmap</Link>.</p>
+      <p className="text-muted-foreground mt-4 text-lg">Every release, newest first. See what we are working on next on the <Link href="/roadmap" className="text-blue-text font-semibold hover:underline">roadmap</Link>.</p>
       {releases.length === 0 ? (
         <p className="surface text-muted-foreground mt-10 p-6 text-sm">No releases published yet.</p>
       ) : (

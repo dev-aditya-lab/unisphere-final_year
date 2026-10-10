@@ -5,6 +5,7 @@ import { CategoryBadge } from "@/components/posts/category-badge";
 import { PostActions } from "@/components/posts/post-actions";
 import { RichText } from "@/components/posts/rich-text";
 import { excerpt } from "@/lib/text";
+import { CATEGORY_BY_VALUE } from "@/lib/content/post-meta";
 import { privateFileUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
@@ -70,7 +71,10 @@ export function PostCard({ post, viewerId, full = false, onDeleted, className, h
   }
 
   return (
-    <article className={cn("surface p-4 sm:p-5", className)} aria-label={post.title || `Post by ${post.author_name}`}>
+    <article
+      className={cn("surface-raised tone-stripe p-4 sm:p-5", CATEGORY_BY_VALUE[post.category]?.tone ?? "tone-stone", className)}
+      aria-label={post.title || `Post by ${post.author_name}`}
+    >
       {isRepost && (
         <p className="text-muted-foreground mb-2 flex items-center gap-1.5 text-xs font-medium">
           <Repeat2 className="size-3.5" aria-hidden="true" />
@@ -100,7 +104,7 @@ export function PostCard({ post, viewerId, full = false, onDeleted, className, h
       {!isPlainRepost && (
         <div className="mt-3">
           {post.title && (
-            <Heading className="font-heading text-lg leading-snug font-bold">
+            <Heading className="font-heading text-xl leading-snug font-bold tracking-tight">
               {full ? post.title : (
                 <Link href={href} className="hover:underline">
                   {post.title}
@@ -110,7 +114,7 @@ export function PostCard({ post, viewerId, full = false, onDeleted, className, h
           )}
           <RichText text={long ? excerpt(post.body, 500) : post.body} className={cn("text-[15px] leading-relaxed", post.title && "mt-1.5")} />
           {long && (
-            <Link href={href} className="text-primary mt-1 inline-block text-sm font-semibold hover:underline">
+            <Link href={href} className="text-blue-text mt-1 inline-block text-sm font-bold hover:underline">
               Read more
             </Link>
           )}

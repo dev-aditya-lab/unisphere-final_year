@@ -34,10 +34,10 @@ export function SummarizeDiscussion({ postId }) {
         </p>
       )}
       {result && (
-        <section className="bg-accent/40 rounded-lg border p-4" aria-label="Discussion summary" aria-live="polite">
+        <section className="bg-teal/10 border-teal/40 rounded-xl border border-dashed p-4" aria-label="Discussion summary" aria-live="polite">
           <div className="mb-2 flex items-center justify-between">
             <p className="flex items-center gap-1.5 text-xs font-semibold">
-              <Sparkles className="text-primary size-3.5" aria-hidden="true" /> Summary <span className="text-muted-foreground font-normal">· AI-generated, may miss nuance</span>
+              <Sparkles className="text-teal-text size-3.5" aria-hidden="true" /> Summary <span className="text-muted-foreground font-normal">· AI-generated, may miss nuance</span>
             </p>
             <Button type="button" variant="ghost" size="icon-xs" onClick={() => setResult(null)} aria-label="Dismiss summary">
               <X />

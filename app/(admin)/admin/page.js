@@ -47,7 +47,7 @@ export default async function AdminOverviewPage({ searchParams }) {
       <PageHeader eyebrow="Admin console" title="Overview" description={scope ? "What needs attention, and how the community is doing." : "What needs your attention."} />
 
       {queues.length > 0 && (
-        <section aria-label="Waiting for review" className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <section aria-label="Waiting for review" className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {queues.map((q) => (
             <StatCard key={q.href} label={q.label} value={fmtNumber(q.value)} href={q.href} tone="warn" hint={q.value === 0 ? "All clear" : "Open the queue"} />
           ))}
@@ -67,12 +67,12 @@ export default async function AdminOverviewPage({ searchParams }) {
             <StatCard label="Reports filed" value={fmtNumber(overview.reports_period)} hint={`${fmtNumber(overview.reports_resolved_period)} resolved`} />
             <StatCard label="Restricted / suspended" value={fmtNumber(overview.suspended_members)} />
           </section>
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <TimeSeriesChart title="New members per day" series={series.members} />
             <TimeSeriesChart title="Posts per day" series={series.posts} color="var(--chart-2)" />
           </div>
           <p className="mt-4 text-sm">
-            <Link href={`/admin/analytics?from=${range.from}&to=${range.to}${scope.college ? `&college=${scope.college}` : ""}`} className="text-primary inline-flex items-center gap-1 font-semibold hover:underline">
+            <Link href={`/admin/analytics?from=${range.from}&to=${range.to}${scope.college ? `&college=${scope.college}` : ""}`} className="text-blue-text inline-flex items-center gap-1 font-semibold hover:underline">
               Full analytics <ArrowRight className="size-4" aria-hidden="true" />
             </Link>
           </p>

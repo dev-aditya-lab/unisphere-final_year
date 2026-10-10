@@ -34,7 +34,7 @@ export function CollegeForm({ college, canEdit }) {
   }
 
   return (
-    <form onSubmit={save} className="grid gap-3 sm:grid-cols-2">
+    <form onSubmit={save} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <div className="space-y-1.5"><Label htmlFor={`n-${college.id}`} className="text-[13px] font-semibold">Name</Label><input id={`n-${college.id}`} value={v.name} onChange={set("name")} disabled={!canEdit} className={field} /></div>
       <div className="space-y-1.5"><Label htmlFor={`s-${college.id}`} className="text-[13px] font-semibold">Short name</Label><input id={`s-${college.id}`} value={v.shortName} onChange={set("shortName")} disabled={!canEdit} className={field} /></div>
       <div className="space-y-1.5"><Label htmlFor={`c-${college.id}`} className="text-[13px] font-semibold">City</Label><input id={`c-${college.id}`} value={v.city} onChange={set("city")} disabled={!canEdit} className={field} /></div>
@@ -46,7 +46,7 @@ export function CollegeForm({ college, canEdit }) {
         </select>
       </div>
       <label className="flex items-center gap-2 text-sm sm:col-span-2"><input type="checkbox" checked={v.isActive} onChange={set("isActive")} disabled={!canEdit} className="size-4" /> Active (members can choose this college when signing up)</label>
-      {error && <p role="alert" className="text-destructive text-sm sm:col-span-2">{error}</p>}
+      {error && <p role="alert" className="text-destructive-text text-sm sm:col-span-2">{error}</p>}
       {canEdit && <div className="sm:col-span-2"><Button type="submit" size="sm" disabled={pending}>{pending ? "Saving…" : "Save college"}</Button></div>}
     </form>
   );

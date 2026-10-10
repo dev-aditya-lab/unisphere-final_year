@@ -42,7 +42,7 @@ export function ForgotPasswordForm({ expired }) {
         <p className="text-muted-foreground mt-2 text-sm">
           If an account exists for <strong className="text-foreground">{sent}</strong>, we have sent a link to reset your password. It expires soon and works once.
         </p>
-        <Link href="/login" className="text-primary mt-6 inline-block text-sm font-semibold hover:underline">
+        <Link href="/login" className="text-blue-text mt-6 inline-block text-sm font-semibold hover:underline">
           Back to log in
         </Link>
       </div>
@@ -65,7 +65,7 @@ export function ForgotPasswordForm({ expired }) {
       </form>
       <p className="text-muted-foreground mt-6 text-center text-sm">
         Remembered it?{" "}
-        <Link href="/login" className="text-primary font-semibold hover:underline">
+        <Link href="/login" className="text-blue-text font-semibold hover:underline">
           Log in
         </Link>
       </p>

@@ -25,7 +25,7 @@ export function ProjectCard({ project, className }) {
       </div>
       <p className="text-muted-foreground mt-0.5 flex items-center gap-1 text-xs">
         by {project.owner_name}
-        {project.owner_verified && <BadgeCheck className="text-primary size-3.5" aria-label="Verified" />}
+        {project.owner_verified && <BadgeCheck className="text-teal-text size-3.5" aria-label="Verified" />}
       </p>
       {(project.tagline || project.problem) && <p className="mt-2 text-sm">{project.tagline || excerpt(project.problem, 160)}</p>}
       {skills.length > 0 && (
@@ -45,9 +45,9 @@ export function ProjectCard({ project, className }) {
           {project.member_count} of {project.team_size} members
         </span>
         {project.looking_for_members && project.open_roles?.length > 0 ? (
-          <span className="text-success font-semibold">Open roles: {project.open_roles.map((r) => r.title).slice(0, 2).join(", ")}</span>
+          <span className="text-success-text font-semibold">Open roles: {project.open_roles.map((r) => r.title).slice(0, 2).join(", ")}</span>
         ) : project.looking_for_members ? (
-          <span className="text-success font-semibold">Looking for members</span>
+          <span className="text-success-text font-semibold">Looking for members</span>
         ) : null}
       </div>
     </article>

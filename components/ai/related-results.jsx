@@ -47,7 +47,7 @@ export function RelatedResults({ result, onImprove, improving }) {
                 by {r.author.name} · {timeAgo(r.createdAt)} · {r.reactions} reactions · {r.comments} comments
               </p>
               <p className="mt-2 text-sm">
-                <span className="text-muted-foreground flex items-center gap-1 text-xs font-semibold">
+                <span className={`flex items-center gap-1 text-xs font-bold ${r.source === "ai" ? "text-teal-text" : "text-muted-foreground"}`}>
                   {r.source === "ai" ? <Sparkles className="size-3" aria-hidden="true" /> : null}
                   {r.source === "ai" ? "Why it is related (AI)" : "Why it matched"}
                 </span>
@@ -87,10 +87,10 @@ export function RelatedResults({ result, onImprove, improving }) {
                 <div className="min-w-0 text-sm">
                   <Link href={`/u/${p.username}`} target="_blank" rel="noopener" className="flex items-center gap-1 font-semibold hover:underline">
                     {p.full_name}
-                    {p.verified && <BadgeCheck className="text-primary size-3.5" aria-label="Verified" />}
+                    {p.verified && <BadgeCheck className="text-teal-text size-3.5" aria-label="Verified" />}
                   </Link>
                   <p className="text-muted-foreground text-xs">{p.reason}</p>
-                  {p.open_to_collaboration && <p className="text-success mt-0.5 text-xs font-medium">Open to collaborate</p>}
+                  {p.open_to_collaboration && <p className="text-success-text mt-0.5 text-xs font-medium">Open to collaborate</p>}
                 </div>
               </li>
             ))}
@@ -103,7 +103,7 @@ export function RelatedResults({ result, onImprove, improving }) {
           type="button"
           onClick={onImprove}
           disabled={improving}
-          className="text-primary flex items-center gap-1.5 text-sm font-semibold hover:underline disabled:opacity-60"
+          className="text-blue-text flex items-center gap-1.5 text-sm font-semibold hover:underline disabled:opacity-60"
         >
           <Lightbulb className="size-4" aria-hidden="true" />
           {improving ? "Thinking…" : "Suggest ways to improve or extend my idea"}

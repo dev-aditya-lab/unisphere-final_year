@@ -20,7 +20,7 @@ export default async function RegisterPage() {
         </FormAlert>
         <p className="text-muted-foreground mt-6 text-center text-sm">
           Already a member?{" "}
-          <Link href="/login" className="text-primary font-semibold hover:underline">
+          <Link href="/login" className="text-blue-text font-semibold hover:underline">
             Log in
           </Link>
         </p>

@@ -89,7 +89,7 @@ export function LoginForm({ next, flash }) {
           label="Password"
           error={errors.password?.message}
           labelAction={
-            <Link href="/forgot-password" className="text-primary text-xs font-medium hover:underline">
+            <Link href="/forgot-password" className="text-blue-text text-xs font-medium hover:underline">
               Forgot password?
             </Link>
           }
@@ -109,7 +109,7 @@ export function LoginForm({ next, flash }) {
 
       <p className="text-muted-foreground mt-6 text-center text-sm">
         New to UniSphere?{" "}
-        <Link href="/register" className="text-primary font-semibold hover:underline">
+        <Link href="/register" className="text-blue-text font-semibold hover:underline">
           Create an account
         </Link>
       </p>

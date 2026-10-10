@@ -35,7 +35,7 @@ export default async function SecuritySettingsPage() {
       <section className="surface p-5 sm:p-6">
         <h2 className="text-lg font-bold">Your data</h2>
         <p className="text-muted-foreground mt-1 text-sm">Download a copy of what you have posted and set on UniSphere as a JSON file. You can do this up to three times an hour.</p>
-        <a href="/api/account/export" download className="text-primary mt-3 inline-block text-sm font-semibold hover:underline">Download my data</a>
+        <a href="/api/account/export" download className="text-blue-text mt-3 inline-block text-sm font-semibold hover:underline">Download my data</a>
       </section>
       <ChangePasswordCard />
       <SessionsCard />

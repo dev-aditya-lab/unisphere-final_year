@@ -116,7 +116,7 @@ export function ProfileForm({ profile, classInfo, colleges }) {
         <Field id="headline" label="Headline" optional error={errors.headline?.message}>
           <Input id="headline" maxLength={120} aria-describedby="headline-desc" {...register("headline")} />
         </Field>
-        <Field id="bio" label="Bio" optional error={errors.bio?.message} hint="Up to 600 characters. Shown on your public profile.">
+        <Field id="bio" label="Bio" optional error={errors.bio?.message} hint="Up to 600 characters. Shown on your profile.">
           <Textarea id="bio" rows={4} maxLength={600} aria-describedby="bio-desc" {...register("bio")} />
         </Field>
         <Field id="accountType" label="Account type" hint="Changing this removes an existing verification badge.">
@@ -188,7 +188,7 @@ export function ProfileForm({ profile, classInfo, colleges }) {
 
       {(accountType === "alumni" || accountType === "faculty" || accountType === "staff" || openToMentoring) && (
         <Section id="mentoring" title="Experience & mentoring" description="Mentoring is optional. Your contact details are never shared automatically.">
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Field id="jobTitle" label="Role" optional error={errors.jobTitle?.message}>
               <Input id="jobTitle" aria-describedby="jobTitle-desc" {...register("jobTitle")} />
             </Field>
@@ -209,7 +209,7 @@ export function ProfileForm({ profile, classInfo, colleges }) {
       )}
 
       <Section id="links" title="Links" description="GitHub and portfolio links appear on your profile.">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field id="githubUrl" label="GitHub" optional error={errors.githubUrl?.message}>
             <Input id="githubUrl" type="url" inputMode="url" placeholder="https://github.com/you" aria-describedby="githubUrl-desc" {...register("githubUrl")} />
           </Field>

@@ -77,7 +77,7 @@ export default async function CommunityPage({ params }) {
           )}
         </TabsContent>
         <TabsContent value="members" className="pt-4">
-          <ul className="surface grid gap-3 p-4 sm:grid-cols-2">
+          <ul className="surface grid grid-cols-1 gap-3 p-4 sm:grid-cols-2">
             {members.filter((m) => m.status === "active").map((m) => (
               <li key={m.user_id} className="flex items-center gap-2.5">
                 <UserAvatar name={m.person.full_name} avatarKey={m.person.avatar_key} size="sm" />

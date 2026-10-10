@@ -91,17 +91,15 @@ test.describe.serial("social flow between two members", () => {
     expect((await admin.from("profiles").select("connection_count").eq("id", alice.id).single()).data.connection_count).toBe(1);
   });
 
-  test("public profile pages expose only what the owner allows", async ({ browser, request }) => {
-    // alice's profile is college-visible: logged-out visitors get a 404, not her data
-    let res = await request.get(`/u/${alice.username}`);
-    expect(res.status()).toBe(404);
-    await admin.from("profiles").update({ visibility: "public", bio: "Robotics tinkerer" }).eq("id", alice.id);
-    res = await request.get(`/u/${alice.username}`);
-    expect(res.status()).toBe(200);
-    const html = await res.text();
-    expect(html).toContain("Robotics tinkerer");
-    expect(html).toContain('rel="canonical"');
-    expect(html).not.toContain(alice.email);
+  test("profiles are members-only: a logged-out visitor never sees them, whatever the owner chose", async ({ request }) => {
+    // UniSphere is a closed network: even a profile set to "All members" is not visible outside it.
+    for (const visibility of ["college", "public"]) {
+      await admin.from("profiles").update({ visibility, bio: "Robotics tinkerer" }).eq("id", alice.id);
+      const res = await request.get(`/u/${alice.username}`, { maxRedirects: 0 });
+      expect(res.status()).toBe(307);
+      expect(res.headers().location).toContain("/login");
+      expect(await res.text()).not.toContain("Robotics tinkerer");
+    }
     await admin.from("profiles").update({ visibility: "college" }).eq("id", alice.id);
   });
 

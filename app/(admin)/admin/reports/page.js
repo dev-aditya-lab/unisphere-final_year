@@ -53,7 +53,7 @@ export default async function ReportsPage({ searchParams }) {
             <td className="text-muted-foreground px-4 py-3">{r.assignee_name ?? "—"}</td>
             <td className="text-muted-foreground px-4 py-3 whitespace-nowrap">{fmtDateTime(r.created_at)}</td>
             <td className="px-4 py-3 text-right">
-              <Link href={`/admin/reports/${r.id}`} className="text-primary font-semibold hover:underline">
+              <Link href={`/admin/reports/${r.id}`} className="text-blue-text font-semibold hover:underline">
                 Review<span className="sr-only"> report from {fmtDateTime(r.created_at)}</span>
               </Link>
             </td>

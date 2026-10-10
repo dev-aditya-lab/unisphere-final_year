@@ -28,6 +28,24 @@ copies, restart at will and keep the worker as a thin loop with no business logi
 6. Side effects (notifications, audit log, counters) happen in the database in the same transaction (`notify()`,
    `write_audit_log()`, triggers), so they cannot be skipped or half-applied.
 
+## Sessions (why members stay signed in)
+
+A returning member must not be logged out by a refresh, a browser restart or relaunching the installed app.
+
+- The session is Supabase Auth's cookie (`@supabase/ssr`), **persistent** (400-day `maxAge`; the real lifetime is
+  governed by Supabase's refresh-token rules), `SameSite=Lax`, `Secure` on HTTPS, never in `localStorage`.
+  `lib/supabase/cookie-options.js` holds the one set of options shared by the browser client, the server client
+  and the proxy, so they can never fork the cookie.
+- Refresh tokens **rotate on use**. `proxy.js` refreshes via `updateSession()` and writes the refreshed cookies onto
+  *every* response it returns (pass-through, redirect, rewrite, maintenance). A refreshed token that never reaches
+  the browser is what causes "random" logouts; `tests/e2e/session.spec.js` asserts it on a redirect.
+- The headers forwarded to the app are built **after** the refresh so server components see the new cookies.
+- An unreachable auth server is not a logout: the proxy does not redirect, `getAuthUser()` falls back to the
+  verified JWT claims, and otherwise throws `AuthUnavailableError` so the error screen offers "Try again".
+- Logging out ends the session on **this device only** (`scope: "local"`). "Sign out other sessions" in
+  Settings → Security is the explicit way to end the rest. The service worker is told to drop user caches.
+- Onboarding completion is a database fact (`profiles.onboarded_at`), not client state.
+
 ## Route groups
 
 | Group | Purpose | Shell |
@@ -77,7 +95,9 @@ never act outside their college, and the same function backs RLS policies, RPCs 
 ## Frontend conventions
 
 - JavaScript only, no TypeScript. Server Components by default; `"use client"` only for interactivity.
-- Design tokens (CSS variables) in `app/globals.css`; flat, border-led surfaces; light and dark themes; reduced motion respected.
+- Design system ("campus zine": paper, ink, one coral): tokens in `app/globals.css`, primitives in `components/ui`,
+  motion language in `lib/motion.js`; see `docs/DESIGN.md`. Light and dark are designed separately; reduced motion
+  is respected. Never hard-code a colour: use the semantic tokens and the `tone-*` utilities.
 - Forms: React Hook Form + Zod for rich forms, plain controlled forms for small ones; every error is shown next to the
   field and as an `aria-live` message.
 - Accessibility: skip link, labelled controls, focus rings, semantic landmarks. `tests/e2e/phase6.spec.js` runs axe

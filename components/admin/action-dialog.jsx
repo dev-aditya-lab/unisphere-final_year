@@ -43,7 +43,7 @@ export function ActionDialog({
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setError(null); }}>
       <DialogTrigger asChild>
-        <Button variant={destructive ? "outline" : variant} size={size} disabled={disabled} className={destructive ? "text-destructive hover:text-destructive" : undefined}>
+        <Button variant={destructive ? "outline" : variant} size={size} disabled={disabled} className={destructive ? "text-destructive-text hover:text-destructive-text" : undefined}>
           {Icon && <Icon aria-hidden="true" />}
           {label}
         </Button>
@@ -63,7 +63,7 @@ export function ActionDialog({
           </div>
         )}
         {error && (
-          <p role="alert" className="text-destructive text-sm">
+          <p role="alert" className="text-destructive-text text-sm">
             {error}
           </p>
         )}

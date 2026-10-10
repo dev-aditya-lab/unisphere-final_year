@@ -50,7 +50,7 @@ function CommentForm({ postId, parentId = null, viewer, onAdded, onCancel, autoF
           aria-invalid={Boolean(error)}
         />
         {error && (
-          <p role="alert" className="text-destructive text-xs font-medium">
+          <p role="alert" className="text-destructive-text text-xs font-medium">
             {error}
           </p>
         )}
@@ -246,7 +246,7 @@ export function CommentsSection({ postId, initialComments, viewer }) {
           <CommentForm postId={postId} viewer={viewer} onAdded={(c) => c && setComments((prev) => [...prev, c])} />
         ) : (
           <p className="text-muted-foreground text-sm">
-            <Link href="/login" className="text-primary font-semibold hover:underline">
+            <Link href="/login" className="text-blue-text font-semibold hover:underline">
               Log in
             </Link>{" "}
             to join the conversation.

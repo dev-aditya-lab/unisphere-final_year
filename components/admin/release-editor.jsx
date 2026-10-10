@@ -43,7 +43,7 @@ export function ReleaseEditor({ release = null, suggestedVersion = "0.9.0" }) {
   const uid = release?.id ?? "new";
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-[8rem_1fr]">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[8rem_1fr]">
         <div className="space-y-1.5"><Label htmlFor={`v-${uid}`} className="text-[13px] font-semibold">Version</Label><input id={`v-${uid}`} value={version} onChange={(e) => setVersion(e.target.value)} className={`${field} w-full font-mono`} /></div>
         <div className="space-y-1.5"><Label htmlFor={`t-${uid}`} className="text-[13px] font-semibold">Title</Label><input id={`t-${uid}`} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} className={`${field} w-full`} /></div>
       </div>
@@ -61,7 +61,7 @@ export function ReleaseEditor({ release = null, suggestedVersion = "0.9.0" }) {
         ))}
         <Button type="button" size="sm" variant="outline" onClick={() => setItems((l) => [...l, { kind: "new", text: "" }])}><Plus /> Add a change</Button>
       </fieldset>
-      {error && <p role="alert" className="text-destructive text-sm">{error}</p>}
+      {error && <p role="alert" className="text-destructive-text text-sm">{error}</p>}
       <div className="flex flex-wrap gap-2">
         {published ? (
           <Button onClick={() => save(true)} disabled={pending}>{pending ? "Saving…" : "Save changes"}</Button>
@@ -70,7 +70,7 @@ export function ReleaseEditor({ release = null, suggestedVersion = "0.9.0" }) {
             <Button variant="outline" onClick={() => save(false)} disabled={pending}>Save draft</Button>
             <Button onClick={() => save(true)} disabled={pending}>{pending ? "Publishing…" : "Publish"}</Button>
             {release && (
-              <Button variant="ghost" className="text-destructive" disabled={pending} onClick={() => startTransition(async () => { const r = await deleteReleaseAction({ id: release.id }); r.ok ? (toast.success("Draft deleted."), router.refresh()) : toast.error(r.error); })}>Delete draft</Button>
+              <Button variant="ghost" className="text-destructive-text" disabled={pending} onClick={() => startTransition(async () => { const r = await deleteReleaseAction({ id: release.id }); r.ok ? (toast.success("Draft deleted."), router.refresh()) : toast.error(r.error); })}>Delete draft</Button>
             )}
           </>
         )}

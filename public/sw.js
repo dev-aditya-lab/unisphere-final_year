@@ -9,7 +9,7 @@
  * private. Those always come from the network, so nothing personal is ever left in a shared device's
  * cache after logging out.
  */
-const VERSION = "v1";
+const VERSION = "v2";
 const STATIC_CACHE = `unisphere-static-${VERSION}`;
 const SHELL = ["/logo-mark.png", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/badge-96.png"];
 // Next.js dev files are not content-hashed, so on localhost they must never be served from cache.
@@ -18,11 +18,11 @@ const LOCAL = ["localhost", "127.0.0.1", "[::1]"].includes(self.location.hostnam
 const OFFLINE_HTML = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>You are offline · UniSphere</title>
 <style>
-:root{color-scheme:light dark;--bg:#f7f5ef;--fg:#17243a;--muted:#5b667b;--primary:#3546a8;--card:#fff;--border:#e3e6ed}
-@media (prefers-color-scheme:dark){:root{--bg:#0e1626;--fg:#e8ecf4;--muted:#9aa6bf;--primary:#7b97ff;--card:#141f35;--border:#253250}}
+:root{color-scheme:light dark;--bg:#fbf6ec;--fg:#1b1812;--muted:#675f52;--primary:#1b1812;--card:#fffefb;--border:#e4d9c6}
+@media (prefers-color-scheme:dark){:root{--bg:#14120f;--fg:#f5efe3;--muted:#b6ad9d;--primary:#f5efe3;--card:#1d1a16;--border:#38322a}}
 *{box-sizing:border-box}body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 main{max-width:26rem;text-align:center}img{width:64px;height:64px;border-radius:16px}h1{font-size:1.6rem;margin:18px 0 8px}p{color:var(--muted);margin:0 0 12px}
-button{margin-top:10px;background:var(--primary);color:#fff;border:0;border-radius:8px;padding:11px 20px;font:600 15px system-ui;cursor:pointer}
+button{margin-top:10px;background:var(--primary);color:var(--bg);border:0;border-radius:8px;padding:11px 20px;font:600 15px system-ui;cursor:pointer}
 button:focus-visible{outline:3px solid var(--primary);outline-offset:3px}.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:22px;font-size:14px;text-align:left}
 </style></head><body><main>
 <img src="/icons/icon-192.png" alt="" width="64" height="64">
@@ -48,7 +48,12 @@ self.addEventListener("activate", (event) => {
 
 // The page asks for the new worker to take over when the member taps "Reload" on the update notice.
 self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
+  if (!event.data) return;
+  if (event.data.type === "SKIP_WAITING") self.skipWaiting();
+  // Sent on log out: drop everything except the public static cache.
+  if (event.data.type === "CLEAR_USER_CACHES") {
+    event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== STATIC_CACHE).map((k) => caches.delete(k)))));
+  }
 });
 
 const isStaticAsset = (path) => path.startsWith("/_next/static/") || /^\/icons\//.test(path) || /\.(?:png|jpe?g|webp|svg|ico|woff2?)$/i.test(path);

@@ -53,7 +53,7 @@ export function RequestMentorshipButton({ mentorId, mentorName }) {
             <Textarea id="m-message" rows={5} maxLength={600} value={message} onChange={(e) => setMessage(e.target.value)} aria-invalid={Boolean(error)} />
             <p className="text-muted-foreground text-xs">{message.length} / 600</p>
           </div>
-          {error && <p role="alert" className="text-destructive text-sm">{error}</p>}
+          {error && <p role="alert" className="text-destructive-text text-sm">{error}</p>}
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <Button onClick={send} disabled={pending || message.trim().length < 10}>{pending ? "Sending…" : "Send request"}</Button>

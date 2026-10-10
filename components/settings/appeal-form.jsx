@@ -35,7 +35,7 @@ export function AppealForm({ actionId }) {
       <Label htmlFor={id} className="text-[13px] font-semibold">Tell the reviewer what you think was wrong</Label>
       <Textarea id={id} value={message} onChange={(e) => setMessage(e.target.value)} rows={4} maxLength={2000} aria-invalid={Boolean(error) || undefined} />
       <p className="text-muted-foreground text-xs">A different moderator reads this. You can appeal each decision once, within 30 days.</p>
-      {error && <p role="alert" className="text-destructive text-sm">{error}</p>}
+      {error && <p role="alert" className="text-destructive-text text-sm">{error}</p>}
       <div className="flex gap-2">
         <Button type="submit" size="sm" disabled={pending || message.trim().length < 10}>{pending ? "Sending…" : "Send appeal"}</Button>
         <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>Cancel</Button>

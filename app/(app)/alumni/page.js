@@ -91,14 +91,14 @@ export default async function AlumniPage({ searchParams }) {
               Try removing a filter. Alumni appear once they join and set their account type to Alumni, and mentors once they turn on “Open to mentoring”.
             </EmptyState>
           ) : (
-            <ul className="grid gap-4 md:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {people.map((p) => (
                 <li key={p.id} className="surface flex flex-col p-4">
                   <div className="flex items-start gap-3">
                     <Link href={`/u/${p.username}`} aria-label={`${p.full_name}'s profile`}><UserAvatar name={p.full_name} avatarKey={p.avatar_key} size="lg" /></Link>
                     <div className="min-w-0">
                       <Link href={`/u/${p.username}`} className="font-heading flex items-center gap-1 font-bold hover:underline">
-                        {p.full_name}{p.verified && <BadgeCheck className="text-primary size-4" aria-label="Verified" />}
+                        {p.full_name}{p.verified && <BadgeCheck className="text-teal-text size-4" aria-label="Verified" />}
                       </Link>
                       <p className="text-muted-foreground text-sm">
                         {[p.job_title, p.company].filter(Boolean).join(" at ") || p.headline || (p.account_type === "alumni" ? "Alumnus" : "Member")}

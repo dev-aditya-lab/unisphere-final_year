@@ -16,12 +16,12 @@ export const MARKETING_LINKS = [
 export async function SiteHeader() {
   const user = await getAuthUser();
   return (
-    <header className="bg-background/85 supports-[backdrop-filter]:bg-background/70 sticky top-0 z-40 border-b backdrop-blur">
+    <header className="bg-background/85 supports-[backdrop-filter]:bg-background/75 pt-safe sticky top-0 z-40 border-b backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 sm:px-6">
         <Logo />
         <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
           {MARKETING_LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className="text-muted-foreground hover:text-foreground rounded-md px-3 py-2 text-sm font-medium transition-colors">
+            <Link key={l.href} href={l.href} className="text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg px-3 py-2 text-sm font-semibold transition-colors">
               {l.label}
             </Link>
           ))}
@@ -37,7 +37,7 @@ export async function SiteHeader() {
               <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
                 <Link href="/login">Log in</Link>
               </Button>
-              <Button asChild size="sm">
+              <Button asChild size="sm" variant="hot">
                 <Link href="/register">Join UniSphere</Link>
               </Button>
             </>
@@ -56,14 +56,14 @@ export async function SiteHeader() {
               <nav aria-label="Mobile" className="flex flex-col gap-1 px-4">
                 {MARKETING_LINKS.map((l) => (
                   <SheetClose asChild key={l.href}>
-                    <Link href={l.href} className="hover:bg-muted rounded-md px-3 py-2.5 text-base font-medium">
+                    <Link href={l.href} className="hover:bg-accent rounded-lg px-3 py-3 text-base font-semibold">
                       {l.label}
                     </Link>
                   </SheetClose>
                 ))}
                 {!user && (
                   <SheetClose asChild>
-                    <Link href="/login" className="hover:bg-muted rounded-md px-3 py-2.5 text-base font-medium">
+                    <Link href="/login" className="hover:bg-accent rounded-lg px-3 py-3 text-base font-semibold">
                       Log in
                     </Link>
                   </SheetClose>

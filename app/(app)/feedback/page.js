@@ -39,9 +39,9 @@ export default async function FeedbackPage({ searchParams }) {
       <PageHeader
         eyebrow="Help shape UniSphere" title="Feedback & ideas"
         description="Report a bug, suggest a feature, or vote on what to build next. See what is coming on the public roadmap."
-        actions={<><Link href="/roadmap" className="text-primary text-sm font-semibold hover:underline">Roadmap</Link><Link href="/changelog" className="text-primary text-sm font-semibold hover:underline">What&rsquo;s new</Link></>}
+        actions={<><Link href="/roadmap" className="text-blue-text text-sm font-semibold hover:underline">Roadmap</Link><Link href="/changelog" className="text-blue-text text-sm font-semibold hover:underline">What&rsquo;s new</Link></>}
       />
-      <div className="grid gap-6 lg:grid-cols-[1fr_24rem]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_24rem]">
         <div>
           <FilterTabs label="Feedback views" basePath="/feedback" param="tab" current={tab} options={TABS} />
           {tab === "ideas" ? (

@@ -59,7 +59,7 @@ export default function FeaturesPage() {
         {GROUPS.map((g) => (
           <section key={g.title} aria-labelledby={g.title.replace(/\s+/g, "-")}>
             <h2 id={g.title.replace(/\s+/g, "-")} className="border-b pb-3 text-2xl">{g.title}</h2>
-            <dl className="mt-6 grid gap-x-10 gap-y-6 md:grid-cols-3">
+            <dl className="mt-6 grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
               {g.items.map(([t, d]) => (
                 <div key={t}>
                   <dt className="font-heading font-bold">{t}</dt>

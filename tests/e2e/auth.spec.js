@@ -104,8 +104,12 @@ test("forgot-password gives the same response for unknown emails", async ({ page
   await expect(page.getByRole("heading", { name: "Check your inbox" })).toBeVisible();
 });
 
-test("unknown routes render the branded 404", async ({ page }) => {
-  const res = await page.goto("/definitely-not-a-page");
+test("unknown routes render the branded 404 (private ones ask a visitor to log in first)", async ({ page }) => {
+  // Under a public section a missing page is a real 404.
+  const res = await page.goto("/about/definitely-not-a-page");
   expect(res.status()).toBe(404);
   await expect(page.getByText("We could not find that page")).toBeVisible();
+  // Anywhere else a logged-out visitor learns nothing about which pages exist: they are sent to log in.
+  await page.goto("/definitely-not-a-page");
+  await expect(page).toHaveURL(/\/login\?next=/);
 });

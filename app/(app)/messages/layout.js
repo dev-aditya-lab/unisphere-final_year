@@ -12,7 +12,7 @@ export default async function MessagesLayout({ children }) {
   const { user } = await requireProfile();
   const conversations = await listConversations(user.id);
   return (
-    <div className="surface grid h-[calc(100dvh-9.5rem)] min-h-[28rem] overflow-hidden md:grid-cols-[20rem_minmax(0,1fr)] lg:h-[calc(100dvh-8rem)]">
+    <div className="surface grid grid-cols-1 h-[calc(100dvh-9.5rem)] min-h-[28rem] overflow-hidden md:grid-cols-[20rem_minmax(0,1fr)] lg:h-[calc(100dvh-8rem)]">
       <section aria-label="Inbox" className="min-h-0 overflow-y-auto border-r max-md:[&:has(+[data-open=true])]:hidden">
         <h1 className="font-heading border-b p-3 text-lg font-bold">Messages</h1>
         <ConversationList conversations={conversations} userId={user.id} />

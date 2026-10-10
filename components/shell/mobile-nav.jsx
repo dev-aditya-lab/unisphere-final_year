@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { motion } from "motion/react";
+import { Menu, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "@/components/ui/sheet";
 import { Logo } from "@/components/brand/logo";
 import { NavLinks } from "@/components/shell/nav-links";
 import { NavIcon } from "@/components/shell/nav-icons";
+import { CountBadge } from "@/components/motion/count-badge";
 import { MOBILE_BOTTOM_HREFS } from "@/lib/nav";
+import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 export function MobileDrawer({ items, counts }) {
@@ -21,7 +24,7 @@ export function MobileDrawer({ items, counts }) {
           <Menu />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-72 overflow-y-auto p-0">
+      <SheetContent side="left" className="bg-sidebar w-[19rem] overflow-y-auto p-0">
         <SheetHeader className="border-b p-4 text-left">
           <SheetTitle asChild>
             <div>
@@ -38,41 +41,72 @@ export function MobileDrawer({ items, counts }) {
   );
 }
 
+function Tab({ item, count, active, indicatorId }) {
+  const { href, label, icon } = item;
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "relative flex h-full flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors",
+        active ? "text-foreground" : "text-muted-foreground",
+      )}
+    >
+      {active && (
+        <motion.span
+          layoutId={indicatorId}
+          aria-hidden="true"
+          transition={EASE.spring}
+          className="bg-coral absolute top-0 h-[3px] w-8 rounded-b-full"
+        />
+      )}
+      <span className="relative">
+        <NavIcon name={icon} className={cn("size-[22px] transition-transform duration-150", active && "scale-110")} aria-hidden="true" />
+        <CountBadge value={count ?? 0} label="unread" className="absolute -top-2 -right-3 h-4 min-w-4 px-1 text-[10px]" />
+      </span>
+      {label}
+    </Link>
+  );
+}
+
+/** Phone navigation: four destinations and a raised "post" button in the middle, clear of the home indicator. */
 export function BottomNav({ items, counts = {} }) {
   const pathname = usePathname();
+  const indicatorId = useId();
   const bottom = MOBILE_BOTTOM_HREFS.map((href) => items.find((i) => i.href === href)).filter(Boolean);
   if (bottom.length < 2) return null;
+  const mid = Math.ceil(bottom.length / 2);
+  const left = bottom.slice(0, mid);
+  const right = bottom.slice(mid);
+  const isActive = (href) => pathname === href || pathname.startsWith(`${href}/`);
   return (
     <nav
       aria-label="Quick navigation"
-      className="bg-card/95 supports-[backdrop-filter]:bg-card/85 fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+      className="bg-card/95 supports-[backdrop-filter]:bg-card/90 pl-safe pr-safe fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur-md lg:hidden"
     >
-      <ul className="mx-auto grid max-w-lg" style={{ gridTemplateColumns: `repeat(${bottom.length}, minmax(0, 1fr))` }}>
-        {bottom.map(({ href, label, icon }) => {
-          const active = pathname === href || pathname.startsWith(`${href}/`);
-          const count = counts[href];
-          return (
-            <li key={href}>
-              <Link
-                href={href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "relative flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium",
-                  active ? "text-primary" : "text-muted-foreground",
-                )}
-              >
-                <NavIcon name={icon} className="size-5" aria-hidden="true" />
-                {label}
-                {count > 0 && (
-                  <span className="bg-primary text-primary-foreground absolute top-1 left-1/2 ml-2 min-w-4 rounded-full px-1 text-center text-[10px] leading-4 font-semibold">
-                    {count > 9 ? "9+" : count}
-                  </span>
-                )}
-              </Link>
+      <div className="pb-safe">
+        <ul className="mx-auto grid h-16 max-w-lg grid-cols-5">
+          {left.map((item) => (
+            <li key={item.href}>
+              <Tab item={item} count={counts[item.href]} active={isActive(item.href)} indicatorId={indicatorId} />
             </li>
-          );
-        })}
-      </ul>
+          ))}
+          <li className="relative">
+            <Link
+              href="/feed#compose"
+              aria-label="Write a post"
+              className="border-foreground bg-accent-hot text-accent-hot-foreground absolute -top-5 left-1/2 grid size-14 -translate-x-1/2 place-items-center rounded-2xl border shadow-[2px_2px_0_0_var(--hard)] transition-transform duration-150 active:translate-x-[calc(-50%+2px)] active:translate-y-0.5 active:shadow-none"
+            >
+              <Plus className="size-7" strokeWidth={2.75} aria-hidden="true" />
+            </Link>
+          </li>
+          {right.map((item) => (
+            <li key={item.href}>
+              <Tab item={item} count={counts[item.href]} active={isActive(item.href)} indicatorId={indicatorId} />
+            </li>
+          ))}
+        </ul>
+      </div>
     </nav>
   );
 }

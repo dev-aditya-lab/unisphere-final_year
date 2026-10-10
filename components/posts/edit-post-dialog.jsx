@@ -50,7 +50,7 @@ export function EditPostDialog({ open, onOpenChange, post }) {
         {error && <FormAlert>{error}</FormAlert>}
         <div className="space-y-4">
           {!isRepost && (
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field id="edit-category" label="Type">
                 <Select value={category} onValueChange={setCategory}>
                   <SelectTrigger id="edit-category" className="w-full">

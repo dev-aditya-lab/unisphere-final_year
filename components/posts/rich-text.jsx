@@ -13,21 +13,21 @@ export function RichText({ text, className }) {
       {tokens.map((t, i) => {
         if (t.type === "hashtag") {
           return (
-            <Link key={i} href={`/explore?tag=${encodeURIComponent(t.value)}`} className="text-primary font-medium hover:underline">
+            <Link key={i} href={`/explore?tag=${encodeURIComponent(t.value)}`} className="text-blue-text font-medium hover:underline">
               #{t.value}
             </Link>
           );
         }
         if (t.type === "mention") {
           return (
-            <Link key={i} href={`/u/${t.value}`} className="text-primary font-medium hover:underline">
+            <Link key={i} href={`/u/${t.value}`} className="text-blue-text font-medium hover:underline">
               @{t.value}
             </Link>
           );
         }
         if (t.type === "url") {
           return (
-            <a key={i} href={t.value} target="_blank" rel="noopener noreferrer nofollow ugc" className="text-primary break-all underline underline-offset-2">
+            <a key={i} href={t.value} target="_blank" rel="noopener noreferrer nofollow ugc" className="text-blue-text break-all underline underline-offset-2">
               {t.value}
             </a>
           );

@@ -88,7 +88,7 @@ export function RegisterForm() {
           <PasswordInput id="password" autoComplete="new-password" aria-invalid={Boolean(errors.password)} aria-describedby="password-rules" {...register("password")} />
           <ul id="password-rules" className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
             {rules.map((r) => (
-              <li key={r.text} className={cn("flex items-center gap-1.5", r.ok ? "text-success" : "text-muted-foreground")}>
+              <li key={r.text} className={cn("flex items-center gap-1.5", r.ok ? "text-success-text" : "text-muted-foreground")}>
                 <span aria-hidden="true" className={cn("size-1.5 rounded-full", r.ok ? "bg-success" : "bg-muted-foreground/50")} />
                 {r.text}
                 <span className="sr-only">{r.ok ? "(met)" : "(not met)"}</span>
@@ -143,13 +143,13 @@ export function RegisterForm() {
             />
             <Label htmlFor="acceptTerms" className="text-muted-foreground block text-[13px] leading-snug font-normal">
               I agree to the{" "}
-              <Link href="/terms" target="_blank" className="text-primary font-medium hover:underline">Terms</Link>,{" "}
-              <Link href="/privacy" target="_blank" className="text-primary font-medium hover:underline">Privacy Policy</Link> and{" "}
-              <Link href="/guidelines" target="_blank" className="text-primary font-medium hover:underline">Community Guidelines</Link>.
+              <Link href="/terms" target="_blank" className="text-blue-text font-medium hover:underline">Terms</Link>,{" "}
+              <Link href="/privacy" target="_blank" className="text-blue-text font-medium hover:underline">Privacy Policy</Link> and{" "}
+              <Link href="/guidelines" target="_blank" className="text-blue-text font-medium hover:underline">Community Guidelines</Link>.
             </Label>
           </div>
           {errors.acceptTerms && (
-            <p id="acceptTerms-desc" role="alert" className="text-destructive text-xs font-medium">
+            <p id="acceptTerms-desc" role="alert" className="text-destructive-text text-xs font-medium">
               {errors.acceptTerms.message}
             </p>
           )}
@@ -162,7 +162,7 @@ export function RegisterForm() {
 
       <p className="text-muted-foreground mt-6 text-center text-sm">
         Already have an account?{" "}
-        <Link href="/login" className="text-primary font-semibold hover:underline">
+        <Link href="/login" className="text-blue-text font-semibold hover:underline">
           Log in
         </Link>
       </p>

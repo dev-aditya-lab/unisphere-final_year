@@ -36,7 +36,7 @@ export default async function ProjectsPage({ searchParams }) {
         title="Projects"
         description="Find a project to join, or start one and recruit teammates."
         actions={
-          <Button asChild>
+          <Button asChild variant="hot">
             <Link href="/projects/new">
               <Plus /> New project
             </Link>
@@ -50,7 +50,7 @@ export default async function ProjectsPage({ searchParams }) {
           <ul className="mt-2 space-y-1 text-sm">
             {invitations.map((i) => (
               <li key={i.id}>
-                <Link href={`/projects/${i.project.slug}`} className="text-primary font-semibold hover:underline">{i.project.name}</Link>
+                <Link href={`/projects/${i.project.slug}`} className="text-blue-text font-semibold hover:underline">{i.project.name}</Link>
                 <span className="text-muted-foreground"> from {i.project.owner_name}{i.role_label ? ` · ${i.role_label}` : ""}</span>
               </li>
             ))}
@@ -86,7 +86,7 @@ export default async function ProjectsPage({ searchParams }) {
           {tab === "mine" ? "Create a project or request to join one." : "Try fewer filters, or start the first project in this area."}
         </EmptyState>
       ) : (
-        <ul className="grid gap-4 md:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {list.map((p) => (
             <li key={p.id}>
               <ProjectCard project={p} className="h-full" />

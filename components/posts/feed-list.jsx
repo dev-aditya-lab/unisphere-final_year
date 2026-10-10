@@ -60,7 +60,7 @@ export function FeedList({ initialItems, initialCursor, scope, category, viewerI
         {cursor ? (
           <div className="flex flex-col items-center gap-2">
             {error && (
-              <p role="alert" className="text-destructive text-sm">
+              <p role="alert" className="text-destructive-text text-sm">
                 {error}
               </p>
             )}

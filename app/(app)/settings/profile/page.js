@@ -25,10 +25,10 @@ export default async function ProfileSettingsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-muted-foreground text-sm">Your public page is at <span className="text-foreground font-mono">/u/{profile.username}</span>.</p>
+        <p className="text-muted-foreground text-sm">Your profile page is at <span className="text-foreground font-mono">/u/{profile.username}</span>, visible to the members you allow.</p>
         <Button asChild variant="outline" size="sm">
           <Link href={`/u/${profile.username}`}>
-            <Eye /> Preview public profile
+            <Eye /> Preview your profile
           </Link>
         </Button>
       </div>

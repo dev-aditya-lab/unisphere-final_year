@@ -48,13 +48,13 @@ export function FeedbackForm({ initialKind = "feature", fromPath = null }) {
       <h2 id="feedback-form-title" className="font-heading text-lg font-bold">Tell the team</h2>
       <fieldset>
         <legend className="sr-only">What kind of message is this?</legend>
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           {FEEDBACK_KINDS.map((k) => {
             const Icon = ICONS[k.value];
             return (
               <label key={k.value} className={cn("hover:bg-muted/60 flex cursor-pointer items-center gap-2 rounded-md border p-2.5 text-sm font-medium has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/40", kind === k.value && "border-primary bg-accent/50")}>
                 <input type="radio" name="kind" value={k.value} checked={kind === k.value} onChange={() => setKind(k.value)} className="sr-only" />
-                <Icon className="text-primary size-4 shrink-0" aria-hidden="true" /> {k.label}
+                <Icon className="text-coral-text size-4 shrink-0" aria-hidden="true" /> {k.label}
               </label>
             );
           })}
@@ -65,16 +65,16 @@ export function FeedbackForm({ initialKind = "feature", fromPath = null }) {
       <div className="space-y-1.5">
         <Label htmlFor="fb-title" className="text-[13px] font-semibold">{kind === "bug" ? "What went wrong?" : kind === "feature" ? "Your idea in one line" : "Summary"}</Label>
         <input id="fb-title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} className={field} required aria-invalid={Boolean(errors.title) || undefined} />
-        {errors.title && <p className="text-destructive text-xs">{errors.title}</p>}
+        {errors.title && <p className="text-destructive-text text-xs">{errors.title}</p>}
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="fb-body" className="text-[13px] font-semibold">
           {kind === "bug" ? "What did you do, what did you expect, and what happened instead?" : kind === "feature" ? "Why would it help?" : "Details"}
         </Label>
         <Textarea id="fb-body" value={body} onChange={(e) => setBody(e.target.value)} rows={5} maxLength={4000} required aria-invalid={Boolean(errors.body) || undefined} />
-        {errors.body && <p className="text-destructive text-xs">{errors.body}</p>}
+        {errors.body && <p className="text-destructive-text text-xs">{errors.body}</p>}
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="fb-area" className="text-[13px] font-semibold">Where?</Label>
           <select id="fb-area" value={area} onChange={(e) => setArea(e.target.value)} className={field}>
@@ -95,7 +95,7 @@ export function FeedbackForm({ initialKind = "feature", fromPath = null }) {
           To help us reproduce it we attach the page you were on{fromPath ? ` (${fromPath})` : ""}, the app version, your browser and your screen size. Never include passwords or private messages here.
         </p>
       )}
-      {errors._form && <p role="alert" className="text-destructive text-sm">{errors._form}</p>}
+      {errors._form && <p role="alert" className="text-destructive-text text-sm">{errors._form}</p>}
       <Button type="submit" disabled={pending || title.trim().length < 5 || body.trim().length < 10}>{pending ? "Sending…" : "Send"}</Button>
     </form>
   );

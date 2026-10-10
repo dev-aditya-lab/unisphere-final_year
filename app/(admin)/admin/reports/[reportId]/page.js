@@ -58,13 +58,13 @@ export default async function ReportDetailPage({ params }) {
         }
       />
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-5">
           <Panel
             title="What was reported"
             description="A snapshot taken when the report was filed. Treat it as untrusted text."
             actions={link && (
-              <Link href={link.href} target="_blank" className="text-primary inline-flex items-center gap-1 text-sm font-semibold hover:underline">
+              <Link href={link.href} target="_blank" className="text-blue-text inline-flex items-center gap-1 text-sm font-semibold hover:underline">
                 {link.label} <ExternalLink className="size-3.5" aria-hidden="true" />
               </Link>
             )}
@@ -131,7 +131,7 @@ export default async function ReportDetailPage({ params }) {
                   {owner.protected && <StatusBadge value="protected" className="uppercase" />}
                 </div>
                 <p className="text-muted-foreground mt-2 text-xs">Joined {fmtDateTime(owner.created_at)}</p>
-                <Link href={`/admin/users/${owner.id}`} className="text-primary mt-2 inline-block text-[13px] font-semibold hover:underline">
+                <Link href={`/admin/users/${owner.id}`} className="text-blue-text mt-2 inline-block text-[13px] font-semibold hover:underline">
                   Open member record
                 </Link>
               </div>

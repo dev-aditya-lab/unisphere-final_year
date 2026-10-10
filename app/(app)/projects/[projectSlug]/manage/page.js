@@ -55,7 +55,7 @@ export default async function ManageProjectPage({ params }) {
           <ProjectForm project={project} ai={ai} />
           {me.role === "owner" && (
             <div className="border-destructive/30 mt-6 rounded-lg border p-4">
-              <p className="text-destructive text-sm font-bold">Danger zone</p>
+              <p className="text-destructive-text text-sm font-bold">Danger zone</p>
               <p className="text-muted-foreground mb-3 text-sm">Only the owner can delete the project.</p>
               <DeleteProjectButton projectId={project.id} name={project.name} />
             </div>

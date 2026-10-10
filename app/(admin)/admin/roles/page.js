@@ -26,7 +26,7 @@ export default async function RolesPage() {
   return (
     <>
       <PageHeader eyebrow="Community" title="Staff & roles" description="Who can do what. Every grant and removal is recorded in the audit log, and you cannot grant a role to yourself." />
-      <div className="grid gap-5 lg:grid-cols-[1fr_22rem]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_22rem]">
         <DataTable
           caption="Staff role assignments"
           columns={["Person", "Role", "Scope", "Since", ""]}

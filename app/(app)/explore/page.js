@@ -20,7 +20,7 @@ export default async function ExplorePage({ searchParams }) {
     const posts = await getPostsByHashtag(tag);
     return (
       <div className="mx-auto max-w-2xl">
-        <PageHeader eyebrow="Hashtag" title={`#${tag}`} description="Posts you are allowed to see that use this tag." actions={<Link href="/explore" className="text-primary text-sm font-semibold hover:underline">All of Explore</Link>} />
+        <PageHeader eyebrow="Hashtag" title={`#${tag}`} description="Posts you are allowed to see that use this tag." actions={<Link href="/explore" className="text-blue-text text-sm font-semibold hover:underline">All of Explore</Link>} />
         {posts.length === 0 ? (
           <EmptyState icon={Hash} title="Nothing here yet">
             No visible posts use #{tag}. Be the first to start the conversation.
@@ -73,14 +73,14 @@ export default async function ExplorePage({ searchParams }) {
           <h2 id="collab-title" className="eyebrow flex items-center gap-2">
             <Handshake className="size-3.5" aria-hidden="true" /> Open to collaborate at your college
           </h2>
-          <Link href="/search?type=people&collab=1" className="text-primary text-sm font-semibold hover:underline">
+          <Link href="/search?type=people&collab=1" className="text-blue-text text-sm font-semibold hover:underline">
             See more
           </Link>
         </div>
         {collaborators.length === 0 ? (
           <p className="text-muted-foreground text-sm">Nobody from your college has marked themselves open to collaboration yet.</p>
         ) : (
-          <ul className="grid gap-3 md:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {collaborators.map((p) => (
               <li key={p.id}>
                 <PersonCard person={p} actions={<QuickConnect personId={p.id} />} />

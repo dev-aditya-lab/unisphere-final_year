@@ -18,7 +18,7 @@ export default async function ContactPage() {
         {support_email && (
           <>
             {" "}
-            You can also write to <a className="text-primary underline underline-offset-2" href={`mailto:${support_email}`}>{support_email}</a>.
+            You can also write to <a className="text-blue-text underline underline-offset-2" href={`mailto:${support_email}`}>{support_email}</a>.
           </>
         )}
       </p>

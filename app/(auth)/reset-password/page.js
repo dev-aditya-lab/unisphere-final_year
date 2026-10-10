@@ -19,7 +19,7 @@ export default async function ResetPasswordPage() {
         <FormAlert variant="warning" className="mt-6">
           This password reset link is no longer valid. Request a new one to continue.
         </FormAlert>
-        <Link href="/forgot-password" className="text-primary mt-6 inline-block text-sm font-semibold hover:underline">
+        <Link href="/forgot-password" className="text-blue-text mt-6 inline-block text-sm font-semibold hover:underline">
           Request a new link
         </Link>
       </div>

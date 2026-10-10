@@ -56,7 +56,7 @@ export default async function EventPage({ params }) {
           {event.location && <div className="flex items-center gap-1.5"><dt className="sr-only">Where</dt><MapPin className="text-muted-foreground size-4" aria-hidden="true" /><dd>{event.location}</dd></div>}
           {event.mode !== "in_person" && event.online_url && (
             <div className="flex items-center gap-1.5"><dt className="sr-only">Online</dt><Video className="text-muted-foreground size-4" aria-hidden="true" />
-              <dd>{user ? <a href={event.online_url} target="_blank" rel="noopener noreferrer nofollow" className="text-primary font-medium hover:underline">Join link <ExternalLink className="inline size-3" /></a> : <Link href={`/login?next=/events/${event.slug}`} className="text-primary font-medium hover:underline">Log in to see the join link</Link>}</dd></div>
+              <dd>{user ? <a href={event.online_url} target="_blank" rel="noopener noreferrer nofollow" className="text-blue-text font-medium hover:underline">Join link <ExternalLink className="inline size-3" /></a> : <Link href={`/login?next=/events/${event.slug}`} className="text-blue-text font-medium hover:underline">Log in to see the join link</Link>}</dd></div>
           )}
           <div className="flex items-center gap-1.5"><dt className="sr-only">Attendance</dt><Users className="text-muted-foreground size-4" aria-hidden="true" /><dd>{event.going_count} going{event.capacity ? ` of ${event.capacity} seats` : ""}{event.interested_count ? ` · ${event.interested_count} interested` : ""}</dd></div>
         </dl>

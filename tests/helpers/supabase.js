@@ -57,4 +57,19 @@ export async function cleanupUsers() {
 export async function setSetting(key, value) {
   const { error } = await admin.from("system_settings").update({ value }).eq("key", key);
   if (error) throw error;
+  await dropSettingsCache();
+}
+
+/** The app caches settings in Redis for 30 s; a test that edits the table directly must drop that cache too. */
+async function dropSettingsCache() {
+  if (!process.env.REDIS_URL) return;
+  try {
+    const { default: Redis } = await import("ioredis");
+    const redis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 1, lazyConnect: true });
+    await redis.connect();
+    await redis.del("unisphere:cache:settings:all", "unisphere:cache:flags:all");
+    redis.disconnect();
+  } catch {
+    /* no Redis: the app has no shared cache to drop */
+  }
 }

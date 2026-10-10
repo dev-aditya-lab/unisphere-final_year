@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { motion } from "motion/react";
+import { queueCelebration } from "@/components/motion/celebrate";
+import { EASE } from "@/lib/motion";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -68,6 +71,7 @@ export function OnboardingForm({ profile, colleges }) {
     startTransition(async () => {
       const res = await saveOnboardingAction(values);
       if (res.ok) {
+        queueCelebration("onboarded");
         router.replace(HOME_PATH);
         router.refresh();
         return;
@@ -84,15 +88,26 @@ export function OnboardingForm({ profile, colleges }) {
   const last = step === STEPS.length - 1;
 
   return (
-    <div className="surface p-6 sm:p-8">
+    <div className="surface-raised p-6 sm:p-8">
+      <div className="bg-sunken mb-5 h-1.5 overflow-hidden rounded-full" aria-hidden="true">
+        <motion.div
+          className="bg-accent-hot h-full origin-left rounded-full"
+          initial={false}
+          animate={{ scaleX: (step + 1) / STEPS.length }}
+          transition={EASE.springSoft}
+        />
+      </div>
+      <p className="sr-only" role="status">
+        Step {step + 1} of {STEPS.length}: {STEPS[step].title}
+      </p>
       <ol className="mb-8 flex items-center gap-2" aria-label="Progress">
         {STEPS.map((s, i) => (
           <li key={s.id} className="flex flex-1 items-center gap-2" aria-current={i === step ? "step" : undefined}>
             <span
               className={cn(
-                "flex size-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
+                "flex size-8 shrink-0 items-center justify-center rounded-lg border text-sm font-bold transition-colors",
                 i < step && "border-primary bg-primary text-primary-foreground",
-                i === step && "border-primary text-primary",
+                i === step && "border-foreground bg-sun text-foreground shadow-[2px_2px_0_0_var(--hard)]",
                 i > step && "text-muted-foreground",
               )}
             >
@@ -109,7 +124,7 @@ export function OnboardingForm({ profile, colleges }) {
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <input type="hidden" {...register("accountType")} />
 
-        <div className={cn("space-y-4", step !== 0 && "hidden")}>
+        <div className={cn("page-enter space-y-4", step !== 0 && "hidden")}>
           <h2 className="text-xl font-bold">Tell us about yourself</h2>
           <Field id="fullName" label="Full name" required error={errors.fullName?.message}>
             <Input id="fullName" autoComplete="name" aria-describedby="fullName-desc" {...register("fullName")} />
@@ -123,12 +138,12 @@ export function OnboardingForm({ profile, colleges }) {
           </p>
         </div>
 
-        <div className={cn("space-y-4", step !== 1 && "hidden")}>
+        <div className={cn("page-enter space-y-4", step !== 1 && "hidden")}>
           <h2 className="text-xl font-bold">Where do you study or work?</h2>
           <CollegeFields control={control} register={register} setValue={setValue} errors={errors} colleges={colleges} accountType={accountType} />
         </div>
 
-        <div className={cn("space-y-5", step !== 2 && "hidden")}>
+        <div className={cn("page-enter space-y-5", step !== 2 && "hidden")}>
           <h2 className="text-xl font-bold">What are you good at and curious about?</h2>
           <Field id="skills" label="Skills" optional error={errors.skills?.message} hint="Press Enter after each one. Matches are based only on what you list.">
             <Controller
@@ -144,7 +159,7 @@ export function OnboardingForm({ profile, colleges }) {
               render={({ field }) => <TagInput id="interests" label="Interests" value={field.value} onChange={field.onChange} suggestions={INTEREST_SUGGESTIONS} placeholder="e.g. Sustainability" />}
             />
           </Field>
-          <div className="flex items-start justify-between gap-4 rounded-md border p-3">
+          <div className="bg-sunken flex items-start justify-between gap-4 rounded-xl p-3.5">
             <div>
               <Label htmlFor="openToCollaboration" className="text-sm font-semibold">
                 Open to collaboration
@@ -164,11 +179,11 @@ export function OnboardingForm({ profile, colleges }) {
             <ArrowLeft /> Back
           </Button>
           {last ? (
-            <SubmitButton pending={pending} pendingText="Saving…">
+            <SubmitButton pending={pending} pendingText="Saving…" variant="hot">
               Finish setup <Check />
             </SubmitButton>
           ) : (
-            <Button type="button" onClick={next}>
+            <Button type="button" variant="hot" onClick={next}>
               Continue <ArrowRight />
             </Button>
           )}

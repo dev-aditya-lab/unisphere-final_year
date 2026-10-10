@@ -48,12 +48,12 @@ export function AnnouncementForm({ colleges }) {
       <div className="space-y-1.5">
         <Label htmlFor="ann-title" className="text-[13px] font-semibold">Title</Label>
         <input id="ann-title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={140} className={field} required />
-        {errors.title && <p className="text-destructive text-xs">{errors.title}</p>}
+        {errors.title && <p className="text-destructive-text text-xs">{errors.title}</p>}
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="ann-body" className="text-[13px] font-semibold">Message</Label>
         <Textarea id="ann-body" value={body} onChange={(e) => setBody(e.target.value)} rows={6} maxLength={5000} required />
-        {errors.body && <p className="text-destructive text-xs">{errors.body}</p>}
+        {errors.body && <p className="text-destructive-text text-xs">{errors.body}</p>}
       </div>
       <div className="flex flex-wrap items-end gap-4">
         <label className="flex items-center gap-2 text-sm">
@@ -64,7 +64,7 @@ export function AnnouncementForm({ colleges }) {
           <input type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} className="border-input bg-card h-9 rounded-md border px-2 text-sm" />
         </label>
       </div>
-      {errors._form && <p role="alert" className="text-destructive text-sm">{errors._form}</p>}
+      {errors._form && <p role="alert" className="text-destructive-text text-sm">{errors._form}</p>}
       <Button type="submit" disabled={pending || !title.trim() || !body.trim()}>{pending ? "Publishing…" : "Publish to the college"}</Button>
       <p className="text-muted-foreground text-xs">Everyone in the college is notified. You cannot unsend a notification, so double-check the text.</p>
     </form>

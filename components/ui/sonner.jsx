@@ -19,6 +19,9 @@ const Toaster = ({
     <Sonner
       theme={theme}
       className="toaster group"
+      position="bottom-center"
+      offset={{ bottom: "calc(env(safe-area-inset-bottom) + 76px)" }}
+      mobileOffset={{ bottom: "calc(env(safe-area-inset-bottom) + 76px)" }}
       icons={{
         success: <CircleCheckIcon className="size-4" />,
         info: <InfoIcon className="size-4" />,
@@ -31,7 +34,13 @@ const Toaster = ({
           "--normal-bg": "var(--popover)",
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)"
+          "--border-radius": "var(--radius)",
+          "--success-bg": "var(--success-soft)",
+          "--success-text": "var(--success-text)",
+          "--success-border": "transparent",
+          "--error-bg": "var(--destructive-soft)",
+          "--error-text": "var(--destructive-text)",
+          "--error-border": "transparent"
         }
       }
       {...props} />

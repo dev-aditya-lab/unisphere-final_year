@@ -57,7 +57,7 @@ export default async function RosterPage({ searchParams }) {
         <StatCard label="Verified members" value={fmtNumber(stats.verified_members)} hint="By any method" />
       </section>
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_22rem]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_22rem]">
         <div>
           <FilterTabs label="List views" basePath="/admin/roster" param="status" current={status} options={VIEWS} extra={{ college: college.id, q }} />
           <form method="get" className="mb-4 flex gap-2" role="search" aria-label="Search the list">

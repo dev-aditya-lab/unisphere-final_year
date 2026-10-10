@@ -38,7 +38,7 @@ export async function VerificationGate({ profile }) {
           <VerificationClient status={profile.verification_status} college={college} latest={latest} />
         </section>
         <p className="text-muted-foreground mt-5 text-center text-sm">
-          Wrong college or account type? <Link href="/settings/profile" className="text-primary font-semibold hover:underline">Edit your profile</Link>. Need help? <Link href="/contact" className="text-primary font-semibold hover:underline">Contact us</Link>.
+          Wrong college or account type? <Link href="/settings/profile" className="text-blue-text font-semibold hover:underline">Edit your profile</Link>. Need help? <Link href="/contact" className="text-blue-text font-semibold hover:underline">Contact us</Link>.
         </p>
       </main>
     </div>

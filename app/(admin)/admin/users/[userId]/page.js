@@ -39,18 +39,18 @@ export default async function MemberPage({ params }) {
         description={`@${p.username} · ${d.email}`}
         actions={<><StatusBadge value={p.status} /><StatusBadge value={p.verification_status} /></>}
       />
-      <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-5">
           <Panel title="Account">
             <div className="flex items-start gap-4">
               <UserAvatar name={p.full_name} avatarKey={p.avatar_key} size="lg" />
-              <dl className="grid flex-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+              <dl className="grid grid-cols-1 flex-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
                 <div><dt className="eyebrow">Account type</dt><dd className="capitalize">{p.account_type}</dd></div>
                 <div><dt className="eyebrow">Joined</dt><dd>{fmtDateTime(p.created_at)}</dd></div>
                 <div><dt className="eyebrow">Email confirmed</dt><dd>{d.email_confirmed_at ? fmtDateTime(d.email_confirmed_at) : "Not yet"}</dd></div>
                 <div><dt className="eyebrow">Last sign-in</dt><dd>{fmtDateTime(d.last_sign_in_at)}</dd></div>
                 <div><dt className="eyebrow">Onboarded</dt><dd>{p.onboarded_at ? fmtDateTime(p.onboarded_at) : "No"}</dd></div>
-                <div><dt className="eyebrow">Profile</dt><dd><Link href={`/u/${p.username}`} className="text-primary font-semibold hover:underline">View public profile</Link></dd></div>
+                <div><dt className="eyebrow">Profile</dt><dd><Link href={`/u/${p.username}`} className="text-blue-text font-semibold hover:underline">View public profile</Link></dd></div>
               </dl>
             </div>
             <dl className="mt-4 grid grid-cols-2 gap-3 border-t pt-4 text-sm sm:grid-cols-5">
@@ -124,7 +124,7 @@ export default async function MemberPage({ params }) {
                 ))}
               </ul>
             )}
-            <p className="mt-3 text-xs"><Link href="/admin/roles" className="text-primary font-semibold hover:underline">Manage staff &amp; roles</Link></p>
+            <p className="mt-3 text-xs"><Link href="/admin/roles" className="text-blue-text font-semibold hover:underline">Manage staff &amp; roles</Link></p>
           </Panel>
         </aside>
       </div>

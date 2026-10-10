@@ -3,99 +3,192 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   UniSphere design tokens
-   Brand palette: Ink Navy #17243A · Deep Indigo #3546A8 · Electric Blue #5277F4
-                  Warm Ivory #F7F5EF · Muted Slate #778196 · Border #E3E6ED
-   Muted *text* uses a darker slate than the brand slate so it passes WCAG AA.
-   Blue is reserved for primary actions, links and selected states.
+   UniSphere design system, version 2: "campus zine"
+   ─────────────────────────────────────────────────────────────────────────────
+   A warm paper-and-ink base with loud, friendly spot colour, the way a student magazine or a club poster is made.
+     Ink      the text and the main buttons: a warm near-black, never pure #000
+     Paper    the page: a warm off-white. Cards are brighter than the page, never boxed twice
+     Coral    the one hot accent: the primary call to action, active states, notification counts
+     Sun      highlights, achievements, celebration
+     Teal     intelligence: anything the AI did, plus success
+     Blue     the brand blue from the logo: links, focus and information
+   Each content type (project, idea, question…) owns a hue so the feed can be read at a glance.
+
+   Rules: text colours always come from the `*-text` tokens (AA on paper and on their own tint); the plain hues are
+   for fills, strokes and large display type. Dark mode is designed separately, not inverted: it is a warm charcoal
+   with separated elevation steps, softer hues and no pure white.
    ───────────────────────────────────────────────────────────────────────────── */
 :root {
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 
-  --background: #f7f5ef;
-  --foreground: #17243a;
-  --card: #ffffff;
-  --card-foreground: #17243a;
-  --popover: #ffffff;
-  --popover-foreground: #17243a;
+  /* surfaces */
+  --background: #fbf6ec;
+  --foreground: #1b1812;
+  --card: #fffefb;
+  --card-foreground: #1b1812;
+  --popover: #fffefb;
+  --popover-foreground: #1b1812;
+  --sunken: #f3ecdd;           /* wells, table headers, code, inputs at rest */
+  --raised: #ffffff;
 
-  --primary: #3546a8;
-  --primary-foreground: #ffffff;
-  --secondary: #eeebe2;
-  --secondary-foreground: #17243a;
-  --muted: #efece4;
-  --muted-foreground: #5b667b;
-  --accent: #e9edfb;
-  --accent-foreground: #2a3a8f;
+  /* actions */
+  --primary: #1b1812;
+  --primary-foreground: #fbf6ec;
+  --secondary: #f1e8d6;
+  --secondary-foreground: #1b1812;
+  --accent: #f1e8d6;           /* quiet hover / selected backgrounds */
+  --accent-foreground: #1b1812;
+  --hot: #ff5a36;              /* the call-to-action accent */
+  --hot-foreground: #1b1812;
+  --hot-text: #c3330f;
+  --hot-soft: #ffe4db;
 
-  --destructive: #c53d4a;
-  --success: #21865b;
-  --warning: #b7791f;
-  --warning-text: #7a4e0d;
-  /* Text colours for tinted badges: the plain status colours fall below 4.5:1 on their own 10-12% tint. */
-  --success-text: #17694a;
-  --destructive-text: #a8283a;
+  /* text */
+  --muted: #f3ecdd;
+  --muted-foreground: #675f52;
+  --faint: #8a8172;            /* decorative only: placeholders, dividers' labels */
 
-  --border: #e3e6ed;
-  --input: #8b95aa;
-  --ring: #5277f4;
+  /* lines and focus */
+  --border: #e4d9c6;
+  --border-strong: #c9bba2;
+  --input: #bcae94;
+  --ring: #2f4fd8;
 
-  --brand-slate: #778196;
-  --brand-electric: #5277f4;
+  /* status */
+  --destructive: #d83a3a;
+  --destructive-text: #a82020;
+  --destructive-soft: #fde5e3;
+  --success: #12936f;
+  --success-text: #0b6a50;
+  --success-soft: #d9f3ea;
+  --warning: #e8a317;
+  --warning-text: #7a4e00;
+  --warning-soft: #fff0c4;
+  --info: #2f4fd8;
+  --info-text: #2a44b8;
+  --info-soft: #e4eaff;
 
-  --chart-1: #3546a8;
-  --chart-2: #21865b;
-  --chart-3: #b7791f;
-  --chart-4: #c53d4a;
-  --chart-5: #778196;
+  /* the hue wheel: fills and strokes */
+  --stone: #8a8172;
+  --teal: #12a58a;
+  --sun: #ffc83d;
+  --blue: #2f4fd8;
+  --leaf: #4f9a2b;
+  --coral: #ff5a36;
+  --rose: #e0407a;
+  --plum: #8a4bb8;
 
-  --sidebar: #fbfaf6;
+  /* the same hues as text (>= 4.5:1 on paper and on a 14% tint of themselves) */
+  --stone-text: #5e5649;
+  --teal-text: #0b6b5a;
+  --sun-text: #7a4e00;
+  --blue-text: #2a44b8;
+  --leaf-text: #3b6f1d;
+  --coral-text: #b72f0c;
+  --rose-text: #a8225a;
+  --plum-text: #6c3796;
+
+  --chart-1: #2f4fd8;
+  --chart-2: #12a58a;
+  --chart-3: #ff5a36;
+  --chart-4: #e8a317;
+  --chart-5: #8a4bb8;
+
+  --sidebar: #f6efe1;
+
+  /* depth */
+  --shadow-card: 0 1px 0 rgb(27 24 18 / 0.04), 0 10px 28px -16px rgb(27 24 18 / 0.2);
+  --shadow-pop: 0 2px 0 rgb(27 24 18 / 0.06), 0 18px 40px -18px rgb(27 24 18 / 0.35);
+  --hard: var(--foreground);   /* the colour of the offset "sticker" shadow on primary actions */
+  --lift-shadow: 3px 3px 0 0 var(--hard);
+
+  /* motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 380ms;
 }
 
 .dark {
-  --background: #0e1626;
-  --foreground: #e8ecf4;
-  --card: #141f35;
-  --card-foreground: #e8ecf4;
-  --popover: #172340;
-  --popover-foreground: #e8ecf4;
+  /* A warm charcoal with four clearly separated steps, so layers read without borders or glows. */
+  --background: #14120f;
+  --foreground: #f5efe3;
+  --card: #1d1a16;
+  --card-foreground: #f5efe3;
+  --popover: #25211c;
+  --popover-foreground: #f5efe3;
+  --sunken: #100e0b;
+  --raised: #2a2621;
 
-  --primary: #7b97ff;
-  --primary-foreground: #0b1222;
-  --secondary: #1b2842;
-  --secondary-foreground: #e8ecf4;
-  --muted: #1a2740;
-  --muted-foreground: #9aa6bf;
-  --accent: #1f2e57;
-  --accent-foreground: #c9d4ff;
+  --primary: #f5efe3;
+  --primary-foreground: #14120f;
+  --secondary: #2a2621;
+  --secondary-foreground: #f5efe3;
+  --accent: #2a2621;
+  --accent-foreground: #f5efe3;
+  --hot: #ff7a59;
+  --hot-foreground: #1b1008;
+  --hot-text: #ff9b80;
+  --hot-soft: #3a1f17;
 
-  --destructive: #ee6f7b;
-  --success: #3fb585;
-  --warning: #e0a948;
-  --warning-text: #e9b95d;
-  --success-text: #3fb585;
-  --destructive-text: #ee6f7b;
+  --muted: #211e19;
+  --muted-foreground: #b6ad9d;
+  --faint: #8c8374;
 
-  --border: #253250;
-  --input: #55668f;
-  --ring: #7b97ff;
+  --border: #38322a;
+  --border-strong: #52493d;
+  --input: #5b5144;
+  --ring: #8fa8ff;
 
-  --brand-slate: #9aa6bf;
-  --brand-electric: #7b97ff;
+  --destructive: #ff6b6b;
+  --destructive-text: #ff9a9a;
+  --destructive-soft: #3b1b1b;
+  --success: #3dd6b0;
+  --success-text: #6fe3c5;
+  --success-soft: #12342c;
+  --warning: #ffc24a;
+  --warning-text: #ffd27a;
+  --warning-soft: #3a2d0e;
+  --info: #8fa8ff;
+  --info-text: #b3c3ff;
+  --info-soft: #1d2547;
 
-  --chart-1: #7b97ff;
-  --chart-2: #3fb585;
-  --chart-3: #e0a948;
-  --chart-4: #ee6f7b;
-  --chart-5: #9aa6bf;
+  --stone: #a49b8b;
+  --teal: #3dd6b0;
+  --sun: #ffd166;
+  --blue: #8fa8ff;
+  --leaf: #8fd35f;
+  --coral: #ff7a59;
+  --rose: #ff7fab;
+  --plum: #c79bff;
 
-  --sidebar: #101a2e;
+  --stone-text: #c7bfb0;
+  --teal-text: #6fe3c5;
+  --sun-text: #ffd985;
+  --blue-text: #b3c3ff;
+  --leaf-text: #b4e48d;
+  --coral-text: #ff9b80;
+  --rose-text: #ffa6c4;
+  --plum-text: #dcbfff;
+
+  --chart-1: #8fa8ff;
+  --chart-2: #3dd6b0;
+  --chart-3: #ff7a59;
+  --chart-4: #ffc24a;
+  --chart-5: #c79bff;
+
+  --sidebar: #18150f;
+
+  --shadow-card: 0 1px 0 rgb(0 0 0 / 0.3), 0 14px 32px -18px rgb(0 0 0 / 0.8);
+  --shadow-pop: 0 2px 0 rgb(0 0 0 / 0.4), 0 22px 48px -20px rgb(0 0 0 / 0.9);
+  --lift-shadow: 3px 3px 0 0 color-mix(in srgb, var(--coral) 70%, transparent);
 }
 
 @theme inline {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-heading: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-heading: var(--font-display), var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -103,25 +196,57 @@
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+  --color-sunken: var(--sunken);
+  --color-raised: var(--raised);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-warning-text: var(--warning-text);
-  --color-success-text: var(--success-text);
-  --color-destructive-text: var(--destructive-text);
+  --color-accent-hot: var(--hot);
+  --color-accent-hot-foreground: var(--hot-foreground);
+  --color-hot-text: var(--hot-text);
+  --color-hot-soft: var(--hot-soft);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-faint: var(--faint);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-slate-brand: var(--brand-slate);
-  --color-electric: var(--brand-electric);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-text: var(--destructive-text);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-success: var(--success);
+  --color-success-text: var(--success-text);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-text: var(--warning-text);
+  --color-warning-soft: var(--warning-soft);
+  --color-info: var(--info);
+  --color-info-text: var(--info-text);
+  --color-info-soft: var(--info-soft);
+
+  --color-stone: var(--stone);
+  --color-teal: var(--teal);
+  --color-sun: var(--sun);
+  --color-blue: var(--blue);
+  --color-leaf: var(--leaf);
+  --color-coral: var(--coral);
+  --color-rose: var(--rose);
+  --color-plum: var(--plum);
+  --color-stone-text: var(--stone-text);
+  --color-teal-text: var(--teal-text);
+  --color-sun-text: var(--sun-text);
+  --color-blue-text: var(--blue-text);
+  --color-leaf-text: var(--leaf-text);
+  --color-coral-text: var(--coral-text);
+  --color-rose-text: var(--rose-text);
+  --color-plum-text: var(--plum-text);
+
+  --color-electric: var(--blue);
   --color-sidebar: var(--sidebar);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -129,12 +254,21 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
 
-  --radius-sm: calc(var(--radius) - 3px);
-  --radius-md: calc(var(--radius) - 1px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
+
+  --animate-pop: pop var(--dur-base) var(--ease-out);
+  --animate-rise: rise var(--dur-slow) var(--ease-out) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
 }
 
+/* ── Base ───────────────────────────────────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -143,32 +277,65 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-size: 0.9375rem;
     line-height: 1.6;
+    font-feature-settings: "ss01", "cv11";
     text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
+    /* the installed app should not bounce or pull-to-refresh by accident */
+    overscroll-behavior-y: none;
   }
 
+  /* Display type: Bricolage Grotesque. Headings are heavy but not shouty: 700 for pages, 800 only for display. */
   h1, h2, h3, h4 {
     font-family: var(--font-heading);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 1.12;
     text-wrap: balance;
   }
+  h1 { font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem); }
+  h2 { font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem); }
+  h3 { font-size: 1.0625rem; letter-spacing: -0.015em; }
+  h4 { font-size: 0.9375rem; letter-spacing: -0.01em; }
 
   p { text-wrap: pretty; }
+  a { text-underline-offset: 3px; }
 
   ::selection {
-    background: color-mix(in srgb, var(--brand-electric) 28%, transparent);
+    background: color-mix(in srgb, var(--coral) 35%, transparent);
   }
 
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* Native controls that are not shadcn components (GET filter forms) still match the system. */
+  select {
+    height: 2.5rem;
+    border: 1px solid var(--input);
+    border-radius: var(--radius-lg);
+    background-color: var(--card);
+    padding: 0 0.75rem;
+    font: inherit;
+    color: var(--foreground);
+  }
+  select:hover { border-color: color-mix(in srgb, var(--foreground) 40%, transparent); }
+  select:focus-visible { outline: none; border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 35%, transparent); }
+  input[type="checkbox"], input[type="radio"] { accent-color: var(--coral); width: 1.0625rem; height: 1.0625rem; }
+
+  button, [role="button"], a, summary, label, input[type="checkbox"], input[type="radio"] {
+    touch-action: manipulation;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -179,34 +346,191 @@
       transition-duration: 0.01ms !important;
     }
   }
+
+  /* The installed app: no text-size jumps, content respects notches and the home indicator. */
+  @media (display-mode: standalone) {
+    body { -webkit-user-select: none; user-select: none; }
+    input, textarea, [contenteditable], article, .selectable { -webkit-user-select: text; user-select: text; }
+  }
 }
 
+/* ── Type roles ──────────────────────────────────────────────────────────────── */
 @layer components {
-  /* Small mono label used for section markers: the editorial "dateline" of the UI. */
+  /* Marketing display headline. */
+  .display {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: clamp(2.6rem, 1.4rem + 5.2vw, 5.4rem);
+    line-height: 0.96;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
+  .display-sm {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3.2rem);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+  .lede { font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.25rem); line-height: 1.55; color: var(--muted-foreground); }
+  .meta { font-size: 0.8125rem; line-height: 1.4; color: var(--muted-foreground); }
+  .caption { font-size: 0.75rem; line-height: 1.35; color: var(--muted-foreground); }
+
+  /* Small label above a section: the editorial "kicker", with a coral marker. */
   .eyebrow {
-    @apply font-mono text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .eyebrow::before {
+    content: "";
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 1px;
+    background: var(--coral);
+    transform: rotate(45deg);
+    flex: none;
   }
 
-  .prose-uni {
-    @apply text-[15px] leading-7;
-  }
-  .prose-uni h2 { @apply mt-10 mb-3 text-xl; }
-  .prose-uni h3 { @apply mt-6 mb-2 text-base; }
-  .prose-uni p { @apply mb-4; }
-  .prose-uni ul { @apply mb-4 list-disc pl-5; }
-  .prose-uni ol { @apply mb-4 list-decimal pl-5; }
-  .prose-uni li { @apply mb-1.5; }
-  .prose-uni a { @apply text-primary underline underline-offset-2; }
-  .prose-uni strong { @apply font-semibold; }
+  .prose-uni { font-size: 0.9375rem; line-height: 1.75; }
+  .prose-uni h2 { margin: 2.5rem 0 0.75rem; font-size: 1.25rem; }
+  .prose-uni h3 { margin: 1.5rem 0 0.5rem; }
+  .prose-uni p { margin-bottom: 1rem; }
+  .prose-uni ul { margin-bottom: 1rem; list-style: disc; padding-left: 1.25rem; }
+  .prose-uni ol { margin-bottom: 1rem; list-style: decimal; padding-left: 1.25rem; }
+  .prose-uni li { margin-bottom: 0.375rem; }
+  .prose-uni a { color: var(--blue-text); text-decoration: underline; }
+  .prose-uni strong { font-weight: 700; }
 
   .skip-link {
-    @apply bg-primary text-primary-foreground fixed top-3 left-3 z-[100] -translate-y-20 rounded-md px-3 py-2 text-sm font-semibold focus:translate-y-0;
+    @apply bg-primary text-primary-foreground fixed top-3 left-3 z-[100] -translate-y-20 rounded-lg px-3 py-2 text-sm font-semibold focus:translate-y-0;
   }
 }
 
-/* Reusable "paper" card surface: border-led, no drop shadows. */
+/* ── Surfaces ────────────────────────────────────────────────────────────────── */
+/* Bright panel on the warm page. Used sparingly: not every block is a card. */
 @utility surface {
   background: var(--card);
   border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+}
+/* A panel with real depth, for things that float above the page. */
+@utility surface-raised {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+}
+/* A well: recessed, for filters, composers and inline controls. */
+@utility surface-sunken {
+  background: var(--sunken);
+  border: 1px solid transparent;
   border-radius: var(--radius-lg);
+}
+/* Tactile hover: the element lifts and a hard offset shadow appears, like a sticker being peeled. */
+@utility lift {
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  &:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--lift-shadow);
+    border-color: var(--foreground);
+  }
+  &:active {
+    transform: translate(0, 0);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+/* Press feedback for custom clickable elements. */
+@utility press {
+  transition: transform var(--dur-fast) var(--ease-out);
+  &:active { transform: scale(0.97); }
+}
+
+/* Content-type tones. Set `tone-<hue>` on any element, then use the helpers below on it or its children. */
+@utility tone-stone { --tone: var(--stone); --tone-text: var(--stone-text); }
+@utility tone-teal { --tone: var(--teal); --tone-text: var(--teal-text); }
+@utility tone-sun { --tone: var(--sun); --tone-text: var(--sun-text); }
+@utility tone-blue { --tone: var(--blue); --tone-text: var(--blue-text); }
+@utility tone-leaf { --tone: var(--leaf); --tone-text: var(--leaf-text); }
+@utility tone-coral { --tone: var(--coral); --tone-text: var(--coral-text); }
+@utility tone-rose { --tone: var(--rose); --tone-text: var(--rose-text); }
+@utility tone-plum { --tone: var(--plum); --tone-text: var(--plum-text); }
+@utility tone-chip {
+  background: color-mix(in srgb, var(--tone, var(--stone)) 15%, var(--card));
+  color: var(--tone-text, var(--stone-text));
+}
+@utility tone-panel {
+  background: color-mix(in srgb, var(--tone, var(--stone)) 13%, var(--card));
+  border: 1px solid color-mix(in srgb, var(--tone, var(--stone)) 40%, var(--border));
+}
+@utility tone-stripe {
+  box-shadow: inset 3px 0 0 var(--tone, var(--stone));
+}
+@utility tone-dot {
+  background: var(--tone, var(--stone));
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+/* Safe areas for notched phones and the installed app. */
+@utility pt-safe { padding-top: env(safe-area-inset-top); }
+@utility pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+@utility pl-safe { padding-left: env(safe-area-inset-left); }
+@utility pr-safe { padding-right: env(safe-area-inset-right); }
+
+/* ── Keyframes ───────────────────────────────────────────────────────────────── */
+@keyframes pop {
+  0% { transform: scale(0.92); opacity: 0; }
+  60% { transform: scale(1.03); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+@keyframes orbit {
+  to { transform: rotate(360deg); }
+}
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.28); }
+  60% { transform: scale(0.94); }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
+@keyframes check-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* A route change fades the new page in. CSS only, so it is visible in the server HTML and costs no JavaScript. */
+.page-enter {
+  animation: rise var(--dur-slow) var(--ease-out) backwards;
+}
+
+/* Skeleton shimmer: low contrast, and a still block when motion is reduced. */
+.skeleton {
+  border-radius: var(--radius-md);
+  background-color: var(--muted);
+  background-image: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--foreground) 6%, transparent) 50%, transparent 80%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
 }

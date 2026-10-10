@@ -1,26 +1,52 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { WifiOff } from "lucide-react";
 import { toast } from "sonner";
+
+/**
+ * Removes anything this device may have kept for the signed-in member (called when they log out). The service
+ * worker never stores private pages or API responses, so this is belt and braces: it drops every cache except the
+ * public static one, and tells the worker to do the same.
+ */
+export async function clearUserCaches() {
+  try {
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.filter((k) => !k.startsWith("unisphere-static-")).map((k) => caches.delete(k)));
+    }
+    const reg = await navigator.serviceWorker?.getRegistration();
+    reg?.active?.postMessage({ type: "CLEAR_USER_CACHES" });
+  } catch {
+    /* nothing to clear, or the browser forbids it */
+  }
+}
 
 /**
  * Registers the service worker (production, or locally with NEXT_PUBLIC_PWA_DEV=true), offers a one-tap
  * update when a new version is waiting, and shows a small banner while the device is offline.
  */
-export function PwaProvider() {
-  const [online, setOnline] = useState(true);
+function subscribeOnline(callback) {
+  window.addEventListener("online", callback);
+  window.addEventListener("offline", callback);
+  return () => {
+    window.removeEventListener("online", callback);
+    window.removeEventListener("offline", callback);
+  };
+}
 
+export function PwaProvider() {
+  const online = useSyncExternalStore(subscribeOnline, () => navigator.onLine, () => true);
+  const wasOffline = useRef(false);
+
+  // "Back online" is only worth saying when the member actually saw the offline banner.
   useEffect(() => {
-    const sync = () => setOnline(navigator.onLine);
-    sync();
-    window.addEventListener("online", sync);
-    window.addEventListener("offline", sync);
-    return () => {
-      window.removeEventListener("online", sync);
-      window.removeEventListener("offline", sync);
-    };
-  }, []);
+    if (!online) wasOffline.current = true;
+    else if (wasOffline.current) {
+      wasOffline.current = false;
+      toast.success("Back online");
+    }
+  }, [online]);
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
@@ -62,9 +88,12 @@ export function PwaProvider() {
 
   if (online) return null;
   return (
-    <div role="status" className="bg-foreground text-background fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-2 px-4 py-1.5 text-center text-[13px] font-medium">
-      <WifiOff className="size-3.5 shrink-0" aria-hidden="true" />
-      You are offline. Some things will not load or send until you reconnect.
+    <div
+      role="status"
+      className="bg-foreground text-background fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-2 px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 text-center text-[13px] font-semibold"
+    >
+      <WifiOff className="size-4 shrink-0" aria-hidden="true" />
+      You are offline. Posts and messages will not load or send until you reconnect.
     </div>
   );
 }

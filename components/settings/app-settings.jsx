@@ -71,7 +71,7 @@ export function AppSettings({ pushConfigured, vapidPublicKey }) {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-start gap-3">
-          <Smartphone className="text-primary mt-0.5 size-5 shrink-0" aria-hidden="true" />
+          <Smartphone className="text-coral-text mt-0.5 size-5 shrink-0" aria-hidden="true" />
           <div>
             <p className="font-semibold">Install the app</p>
             <p className="text-muted-foreground text-sm">
@@ -84,7 +84,7 @@ export function AppSettings({ pushConfigured, vapidPublicKey }) {
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-5">
         <div className="flex items-start gap-3">
-          <BellRing className="text-primary mt-0.5 size-5 shrink-0" aria-hidden="true" />
+          <BellRing className="text-coral-text mt-0.5 size-5 shrink-0" aria-hidden="true" />
           <div>
             <p className="font-semibold">Push notifications</p>
             <p className="text-muted-foreground text-sm">

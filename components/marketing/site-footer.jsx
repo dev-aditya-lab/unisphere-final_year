@@ -39,19 +39,19 @@ const COLUMNS = [
 
 export function SiteFooter() {
   return (
-    <footer className="mt-24 border-t">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_repeat(4,1fr)]">
+    <footer className="bg-sunken pb-safe mt-24 border-t">
+      <div className="mx-auto grid grid-cols-1 max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_repeat(4,1fr)]">
         <div className="max-w-xs">
           <Logo />
           <p className="text-muted-foreground mt-3 text-sm">{APP_TAGLINE}</p>
         </div>
         {COLUMNS.map((col) => (
           <nav key={col.title} aria-label={col.title}>
-            <h2 className="eyebrow mb-3 !font-sans !text-[11px] font-semibold">{col.title}</h2>
+            <h2 className="eyebrow mb-3 font-sans">{col.title}</h2>
             <ul className="space-y-2">
               {col.links.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+                  <Link href={l.href} className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors">
                     {l.label}
                   </Link>
                 </li>

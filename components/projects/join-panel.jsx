@@ -49,7 +49,7 @@ export function JoinPanel({ project, viewerId, myRole, request, invitation }) {
   if (myRole) {
     return (
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-success flex items-center gap-1.5 text-sm font-semibold">
+        <span className="text-success-text flex items-center gap-1.5 text-sm font-semibold">
           <Check className="size-4" aria-hidden="true" /> You are on this team ({myRole})
         </span>
         {myRole !== "owner" && (
@@ -125,7 +125,7 @@ export function JoinPanel({ project, viewerId, myRole, request, invitation }) {
             </Label>
             <Textarea id="join-message" rows={4} maxLength={500} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Mention relevant skills or what you would like to contribute." />
           </div>
-          {error && <p role="alert" className="text-destructive text-sm">{error}</p>}
+          {error && <p role="alert" className="text-destructive-text text-sm">{error}</p>}
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <Button disabled={pending} onClick={() => run(() => requestToJoinAction({ projectId: project.id, roleId: roleId === "any" ? null : roleId, message: message || undefined }), "Request sent")}>

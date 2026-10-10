@@ -3,7 +3,9 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bookmark, Flag, Link2, MessageCircle, MoreHorizontal, Pencil, Repeat2, Share2, SmilePlus, ThumbsUp, Trash2 } from "lucide-react";
+import { Bookmark, Check, Flag, Heart, Link2, MessageCircle, MoreHorizontal, Pencil, Repeat2, Share2, SmilePlus, Trash2 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { PopIcon } from "@/components/motion/pop-icon";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -58,6 +60,7 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
   const [reportOpen, setReportOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   function react(next) {
     const prev = { reaction, count };
@@ -94,6 +97,8 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
     try {
       await navigator.clipboard.writeText(postUrl(post));
       toast.success("Link copied");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
     } catch {
       toast.error("Could not copy the link");
     }
@@ -123,7 +128,6 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
     } else toast.error(res.error);
   }
 
-  const ReactionIcon = reaction ? ThumbsUp : ThumbsUp;
   const btn = "text-muted-foreground hover:text-foreground h-8 gap-1.5 px-2 text-xs font-medium";
 
   return (
@@ -135,12 +139,14 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
             <Button
               variant="ghost"
               size="sm"
-              className={cn(btn, reaction && "text-primary hover:text-primary")}
+              className={cn(btn, reaction && "text-coral-text hover:text-coral-text")}
               onClick={() => react(reaction ?? "like")}
               aria-pressed={Boolean(reaction)}
               aria-label={reaction ? `You reacted: ${REACTION_LABEL[reaction]}. Click to remove` : "Like"}
             >
-              <ReactionIcon className={cn("size-4", reaction && "fill-current")} aria-hidden="true" />
+              <PopIcon active={Boolean(reaction)}>
+                <Heart className={cn("size-4", reaction && "fill-current")} aria-hidden="true" />
+              </PopIcon>
               <span>{reaction ? REACTION_LABEL[reaction] : "Like"}</span>
               {count > 0 && <span className="tabular-nums">· {compactNumber(count)}</span>}
             </Button>
@@ -163,7 +169,7 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
       ) : (
         <Button asChild variant="ghost" size="sm" className={btn}>
           <Link href={loginHref}>
-            <ThumbsUp className="size-4" aria-hidden="true" />
+            <Heart className="size-4" aria-hidden="true" />
             Like {count > 0 && <span className="tabular-nums">· {compactNumber(count)}</span>}
           </Link>
         </Button>
@@ -206,12 +212,25 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
 
       <div className="ml-auto flex items-center">
         {viewerId && (
-          <Button variant="ghost" size="icon-sm" className={cn("text-muted-foreground", bookmarked && "text-primary")} onClick={toggleBookmark} aria-pressed={bookmarked} aria-label={bookmarked ? "Remove bookmark" : "Bookmark"}>
-            <Bookmark className={cn("size-4", bookmarked && "fill-current")} />
+          <Button variant="ghost" size="icon-sm" className={cn("text-muted-foreground", bookmarked && "text-sun-text")} onClick={toggleBookmark} aria-pressed={bookmarked} aria-label={bookmarked ? "Remove bookmark" : "Bookmark"}>
+            <PopIcon active={bookmarked}>
+              <Bookmark className={cn("size-4", bookmarked && "fill-current")} />
+            </PopIcon>
           </Button>
         )}
         <Button variant="ghost" size="icon-sm" className="text-muted-foreground" onClick={copyLink} aria-label="Copy link to post">
-          <Share2 className="size-4" />
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={copied ? "done" : "share"}
+              initial={{ scale: 0.4, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.4, opacity: 0 }}
+              transition={{ duration: 0.14 }}
+              className="grid place-items-center"
+            >
+              {copied ? <Check className="text-success-text size-4" /> : <Share2 className="size-4" />}
+            </motion.span>
+          </AnimatePresence>
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -273,7 +292,7 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Keep it</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive hover:bg-destructive/90 text-white" onClick={doDelete}>
+            <AlertDialogAction className="bg-destructive-text text-background hover:bg-destructive-text/90" onClick={doDelete}>
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

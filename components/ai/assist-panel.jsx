@@ -21,10 +21,10 @@ function AssistButton({ icon: Icon = Wand2, busy, disabled, onClick, children })
 
 function SuggestionShell({ title, onDismiss, children }) {
   return (
-    <section className="bg-accent/40 rounded-lg border p-3.5" aria-label={title}>
+    <section className="bg-teal/10 border-teal/40 rounded-xl border border-dashed p-3.5" aria-label={title}>
       <div className="mb-2 flex items-center justify-between gap-2">
         <p className="flex items-center gap-1.5 text-xs font-semibold">
-          <Sparkles className="text-primary size-3.5" aria-hidden="true" />
+          <Sparkles className="text-teal-text size-3.5" aria-hidden="true" />
           {title}
           <span className="text-muted-foreground font-normal">· AI suggestion, review before using</span>
         </p>
@@ -107,7 +107,7 @@ export function AssistPanel({ ai, category, title, body, setTitle, setBody, setC
   return (
     <div className="space-y-3" data-testid="ai-assist">
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="AI assist">
-        <span className="text-muted-foreground flex items-center gap-1.5 text-xs font-semibold">
+        <span className="text-teal-text flex items-center gap-1.5 text-xs font-bold">
           <Sparkles className="size-3.5" aria-hidden="true" /> AI assist
         </span>
         {ai.assist && (
@@ -296,7 +296,7 @@ export function AssistPanel({ ai, category, title, body, setTitle, setBody, setC
           )}
           {improvements && (
             <div className="mt-4 space-y-3 border-t pt-3 text-sm">
-              <p className="flex items-center gap-1.5 text-xs font-semibold"><Sparkles className="text-primary size-3.5" aria-hidden="true" /> Directions to consider</p>
+              <p className="flex items-center gap-1.5 text-xs font-semibold"><Sparkles className="text-teal-text size-3.5" aria-hidden="true" /> Directions to consider</p>
               <ul className="space-y-2">
                 {improvements.directions.map((d) => (
                   <li key={d.title}><strong>{d.title}.</strong> <span className="text-muted-foreground">{d.description}</span></li>

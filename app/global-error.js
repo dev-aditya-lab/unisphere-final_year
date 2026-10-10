@@ -5,14 +5,14 @@
 export default function GlobalError({ reset }) {
   return (
     <html lang="en">
-      <body style={{ margin: 0, fontFamily: "system-ui, sans-serif", background: "#F7F5EF", color: "#17243A" }}>
+      <body style={{ margin: 0, fontFamily: "system-ui, sans-serif", background: "#FBF6EC", color: "#1B1812" }}>
         <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, textAlign: "center" }}>
           <div style={{ maxWidth: 440 }}>
             <h1 style={{ fontSize: 28, margin: 0 }}>UniSphere hit a problem</h1>
-            <p style={{ color: "#5B667B", lineHeight: 1.6 }}>Something went wrong while loading the page. Please try again.</p>
+            <p style={{ color: "#675F52", lineHeight: 1.6 }}>Something went wrong while loading the page. Please try again.</p>
             <button
               onClick={() => reset()}
-              style={{ background: "#3546A8", color: "#fff", border: 0, borderRadius: 8, padding: "10px 18px", fontWeight: 600, cursor: "pointer" }}
+              style={{ background: "#FF5A36", color: "#1B1812", border: "1px solid #1B1812", boxShadow: "2px 2px 0 #1B1812", borderRadius: 10, padding: "11px 20px", fontWeight: 600, cursor: "pointer" }}
             >
               Try again
             </button>

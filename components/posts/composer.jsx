@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
@@ -28,6 +28,7 @@ const MAX = 10000;
 export function Composer({ profile, defaultCategory = "general", defaultVisibility = "college", lockCategory = false, ai = null, onCreated, autoFocus = false, community = null }) {
   const router = useRouter();
   const fileInput = useRef(null);
+  const bodyRef = useRef(null);
   const [category, setCategory] = useState(defaultCategory);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -40,6 +41,19 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
   const [focused, setFocused] = useState(autoFocus);
 
   const meta = CATEGORY_BY_VALUE[category];
+
+  // The "write a post" buttons link to /feed#compose: open and focus the composer when that hash is present.
+  useEffect(() => {
+    if (community) return;
+    const focusIfRequested = () => {
+      if (window.location.hash !== "#compose") return;
+      setFocused(true);
+      requestAnimationFrame(() => bodyRef.current?.focus({ preventScroll: false }));
+    };
+    focusIfRequested();
+    window.addEventListener("hashchange", focusIfRequested);
+    return () => window.removeEventListener("hashchange", focusIfRequested);
+  }, [community]);
   const showTitle = meta.titleRequired || title.length > 0 || category === "questions";
   const expanded = focused || body.length > 0 || attachments.length > 0;
 
@@ -78,7 +92,7 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
   }
 
   return (
-    <form onSubmit={submit} className="surface p-4 sm:p-5" aria-label="Create a post">
+    <form id={community ? undefined : "compose"} onSubmit={submit} className="surface-raised scroll-mt-20 p-4 sm:p-5" aria-label="Create a post">
       <div className="flex gap-3">
         <UserAvatar name={profile.full_name} avatarKey={profile.avatar_key} size="md" className="mt-0.5 hidden sm:flex" />
         <div className="min-w-0 flex-1 space-y-3">
@@ -100,7 +114,7 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
                 className="font-heading text-base font-semibold"
               />
               {fieldErrors.title && (
-                <p id="composer-title-error" role="alert" className="text-destructive mt-1 text-xs font-medium">
+                <p id="composer-title-error" role="alert" className="text-destructive-text mt-1 text-xs font-medium">
                   {fieldErrors.title}
                 </p>
               )}
@@ -113,6 +127,7 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
             </label>
             <Textarea
               id="composer-body"
+              ref={bodyRef}
               value={body}
               maxLength={MAX}
               rows={expanded ? 5 : 2}
@@ -124,7 +139,7 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
               className="resize-y"
             />
             {fieldErrors.body ? (
-              <p id="composer-body-error" role="alert" className="text-destructive mt-1 text-xs font-medium">
+              <p id="composer-body-error" role="alert" className="text-destructive-text mt-1 text-xs font-medium">
                 {fieldErrors.body}
               </p>
             ) : (
@@ -196,7 +211,7 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
               <span className={cn("text-muted-foreground ml-auto text-xs tabular-nums", body.length > MAX - 200 && "text-warning-text")}>
                 {body.length.toLocaleString()} / {MAX.toLocaleString()}
               </span>
-              <Button type="submit" size="sm" disabled={pending || uploading > 0 || !body.trim()}>
+              <Button type="submit" variant="hot" size="sm" disabled={pending || uploading > 0 || !body.trim()}>
                 {pending ? "Posting…" : "Post"}
               </Button>
             </div>

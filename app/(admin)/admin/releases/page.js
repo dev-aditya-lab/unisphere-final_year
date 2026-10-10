@@ -15,7 +15,7 @@ export default async function AdminReleasesPage() {
         eyebrow="Product" title="Releases & changelog"
         description={`Release notes shown on the public changelog and RSS feed. The running build is v${APP_VERSION}. Published releases stay editable but cannot be deleted.`}
       />
-      <div className="grid gap-5 lg:grid-cols-[1fr_26rem]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_26rem]">
         <section aria-label="Releases" className="space-y-3">
           {releases.map((r) => (
             <details key={r.id} className="surface group" open={!r.published_at}>

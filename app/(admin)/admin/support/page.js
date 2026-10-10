@@ -32,7 +32,7 @@ export default async function SupportPage({ searchParams }) {
               <Panel title={m.subject} description={`${m.name} · ${fmtDateTime(m.created_at)}`} actions={<StatusBadge value={m.status} />}>
                 <p className="text-sm break-words whitespace-pre-wrap">{m.message}</p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <a href={`mailto:${encodeURIComponent(m.email)}?subject=${encodeURIComponent(`Re: ${m.subject}`)}`} className="text-primary text-sm font-semibold hover:underline">
+                  <a href={`mailto:${encodeURIComponent(m.email)}?subject=${encodeURIComponent(`Re: ${m.subject}`)}`} className="text-blue-text text-sm font-semibold hover:underline">
                     Reply to {m.email}
                   </a>
                   <SupportActions id={m.id} status={m.status} />

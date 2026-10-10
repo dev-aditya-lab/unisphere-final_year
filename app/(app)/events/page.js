@@ -32,7 +32,7 @@ export default async function EventsPage({ searchParams }) {
   return (
     <div className="mx-auto max-w-4xl">
       <PageHeader eyebrow="Campus" title="Events" description="Workshops, hackathons, talks and meetups. Times are shown in each event's own timezone."
-        actions={<Button asChild><Link href="/events/new"><Plus /> Create event</Link></Button>} />
+        actions={<Button asChild variant="hot"><Link href="/events/new"><Plus /> Create event</Link></Button>} />
       <nav aria-label="Event lists" className="mb-5 flex gap-1 border-b">
         {TABS.map(([id, label]) => (
           <Link key={id} href={id === "upcoming" ? "/events" : `/events?tab=${id}`} aria-current={scope === id ? "page" : undefined}

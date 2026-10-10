@@ -40,7 +40,7 @@ export default async function AppealsPage({ searchParams }) {
                 description={`${a.college_name ?? "No college"} · filed ${fmtDateTime(a.created_at)} · ${a.prior_actions} moderation action(s) on record`}
                 actions={<StatusBadge value={a.status} />}
               >
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <p className="eyebrow mb-1">The decision</p>
                     <p className="text-sm"><span className="font-semibold capitalize">{a.action.replace(/_/g, " ")}</span> by {a.actor_name ?? "staff"} · {fmtDateTime(a.action_at)}</p>

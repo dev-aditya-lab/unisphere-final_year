@@ -59,8 +59,8 @@ export function UsernameField({ register, value, error, currentUsername, id = "u
         />
         <span className="absolute inset-y-0 right-3 flex items-center" aria-live="polite">
           {state.status === "checking" && <Loader2 className="text-muted-foreground size-4 animate-spin" aria-label="Checking" />}
-          {state.status === "available" && debounced !== currentUsername && <Check className="text-success size-4" aria-label="Available" />}
-          {showTaken && <X className="text-destructive size-4" aria-label="Unavailable" />}
+          {state.status === "available" && debounced !== currentUsername && <Check className="text-success-text size-4" aria-label="Available" />}
+          {showTaken && <X className="text-destructive-text size-4" aria-label="Unavailable" />}
         </span>
       </div>
     </Field>

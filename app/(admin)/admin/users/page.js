@@ -71,7 +71,7 @@ export default async function UsersPage({ searchParams }) {
             <td className="text-muted-foreground px-4 py-3 text-xs">{u.roles.length ? u.roles.map((r) => ROLE_LABEL[r] ?? r).join(", ") : "—"}</td>
             <td className="text-muted-foreground px-4 py-3 whitespace-nowrap">{fmtDate(u.created_at)}</td>
             <td className="px-4 py-3 text-right">
-              <Link href={`/admin/users/${u.id}`} className="text-primary font-semibold hover:underline">
+              <Link href={`/admin/users/${u.id}`} className="text-blue-text font-semibold hover:underline">
                 Open<span className="sr-only"> {u.full_name}</span>
               </Link>
             </td>

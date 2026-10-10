@@ -81,6 +81,16 @@ Legend: ✅ done and verified · 🟡 partly done · ⬜ not started
 - ✅ Health endpoint `/api/health` (liveness) and `?deep=1` (database)
 - ✅ Full test pass: lint clean, 245 unit and integration tests, Playwright e2e across every phase, production build passes
 
+## Redesign: "campus zine" UI ✅ (in progress items marked)
+- ✅ Auth persistence: refreshed cookies on every proxy response, headers rebuilt after refresh, shared persistent cookie options, outage ≠ logout, per-device logout; `tests/e2e/session.spec.js` (reload, browser restart, PWA start URL, expired token, redirect refresh, logout, other device, revoked session)
+- ✅ Design foundations: new type (Bricolage Grotesque + Plus Jakarta Sans), semantic colour tokens, separately designed dark mode, motion tokens, safe-area utilities, theme switcher with system preference and `theme-color` sync
+- ✅ Primitives restyled: button (hot/ink/outline/…), badge (tone/hot/info), inputs, select, tabs, switch, checkbox, radio, dialog (bottom sheet on phones), sheet, menus, popover, toasts, alert, progress, skeleton, card
+- ✅ Shell: sidebar with sliding sticker indicator and count badges, top bar, mobile tab bar with raised post button, drawer, page transition per route group, offline banner and "back online"
+- ✅ Screens: landing (editorial rewrite), auth, onboarding (progress, celebration), feed (type-coloured posts, animated like/bookmark/copy), profile (generated cover art), projects/events/communities/opportunities lists, 404/403/error, empty states, loading skeletons per group
+- ✅ Celebrations: onboarding, project published, verified (confetti, reduced-motion aware)
+- ✅ PWA: manifest and icons in the new palette, offline page, cache v2, caches cleared on logout
+- ✅ Docs: `docs/DESIGN.md`, "Sessions" in `docs/ARCHITECTURE.md`
+
 ## External setup still required
 - **Deploy**: choose a host and domain, then follow `docs/DEPLOYMENT.md`. Nothing is deployed yet.
 - **Supabase (hosted)**: create the project, `supabase db push`, set Site URL and redirect URLs, custom SMTP (Resend) and the templates in `supabase/templates/`.

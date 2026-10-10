@@ -54,7 +54,7 @@ export default async function ConnectionsPage({ searchParams }) {
 
       {tab === "connections" &&
         (connections.length === 0 ? (
-          <EmptyState icon={Link2} title="No connections yet" action={<Link className="text-primary text-sm font-semibold hover:underline" href="/connections?tab=suggestions">See suggestions</Link>}>
+          <EmptyState icon={Link2} title="No connections yet" action={<Link className="text-blue-text text-sm font-semibold hover:underline" href="/connections?tab=suggestions">See suggestions</Link>}>
             Connect with classmates, seniors and alumni to see their posts and message them.
           </EmptyState>
         ) : (

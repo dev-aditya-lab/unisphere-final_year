@@ -43,7 +43,7 @@ export function SettingRow({ name, meta, value, updatedAt, disabled }) {
     <div className="py-4 first:pt-0 last:pb-0">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <label htmlFor={id} className={`text-sm font-semibold ${meta.danger ? "text-destructive" : ""}`}>{meta.label}</label>
+          <label htmlFor={id} className={`text-sm font-semibold ${meta.danger ? "text-destructive-text" : ""}`}>{meta.label}</label>
           {meta.hint && <p id={`${id}-hint`} className="text-muted-foreground text-[13px]">{meta.hint}</p>}
           {updatedAt && <p className="text-muted-foreground text-xs">Last changed {updatedAt}</p>}
         </div>
@@ -63,7 +63,7 @@ export function SettingRow({ name, meta, value, updatedAt, disabled }) {
           )}
         </div>
       )}
-      {error && <p role="alert" className="text-destructive mt-1 text-sm">{error}</p>}
+      {error && <p role="alert" className="text-destructive-text mt-1 text-sm">{error}</p>}
     </div>
   );
 }

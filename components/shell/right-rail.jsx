@@ -62,7 +62,7 @@ export async function RightRail({ showPeople = true, showTrending = true }) {
                     <div className="min-w-0 flex-1 leading-tight">
                       <Link href={`/u/${p.username}`} className="flex items-center gap-1 truncate text-sm font-semibold hover:underline">
                         {p.full_name}
-                        {p.verified && <BadgeCheck className="text-primary size-3.5 shrink-0" aria-label="Verified" />}
+                        {p.verified && <BadgeCheck className="text-teal-text size-3.5 shrink-0" aria-label="Verified" />}
                       </Link>
                       <p className="text-muted-foreground truncate text-xs">{reason}</p>
                     </div>

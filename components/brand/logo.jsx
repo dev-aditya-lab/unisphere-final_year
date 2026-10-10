@@ -12,7 +12,7 @@ export function LogoMark({ className, tile = false, priority = false }) {
     <span
       className={cn(
         "inline-flex shrink-0 items-center justify-center rounded-lg",
-        tile ? "bg-[#F7F5EF] p-0.5" : "dark:bg-[#F7F5EF] dark:p-0.5",
+        tile ? "bg-[#FBF6EC] p-0.5" : "dark:bg-[#FBF6EC] dark:p-0.5",
         className ?? "size-8",
       )}
     >
@@ -25,7 +25,7 @@ export function Logo({ className, href = "/", showWordmark = true, markClassName
   const content = (
     <>
       <LogoMark className={markClassName} tile={tile} priority={priority} />
-      {showWordmark && <span className="font-heading text-[1.15rem] font-extrabold tracking-tight">UniSphere</span>}
+      {showWordmark && <span className="font-heading text-[1.2rem] font-extrabold tracking-tight">UniSphere</span>}
     </>
   );
   if (!href) return <span className={cn("inline-flex items-center gap-2", className)}>{content}</span>;

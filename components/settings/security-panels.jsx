@@ -104,7 +104,7 @@ export function DeleteAccountCard({ pendingRequest }) {
   if (pendingRequest) {
     return (
       <section className="border-destructive/30 rounded-lg border p-5 sm:p-6">
-        <h2 className="text-destructive text-lg font-bold">Account deletion scheduled</h2>
+        <h2 className="text-destructive-text text-lg font-bold">Account deletion scheduled</h2>
         <p className="text-muted-foreground mt-1 text-sm">
           Your account will be removed after {new Date(pendingRequest.scheduled_for).toLocaleDateString("en-IN", { dateStyle: "long" })}. Until then you can cancel.
         </p>
@@ -128,7 +128,7 @@ export function DeleteAccountCard({ pendingRequest }) {
 
   return (
     <section className="border-destructive/30 rounded-lg border p-5 sm:p-6">
-      <h2 className="text-destructive text-lg font-bold">Delete account</h2>
+      <h2 className="text-destructive-text text-lg font-bold">Delete account</h2>
       <p className="text-muted-foreground mt-1 text-sm">
         Requests a permanent deletion of your profile and personal data after a 14-day grace period. Some content may be kept in anonymised form where required for community safety.
       </p>

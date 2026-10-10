@@ -28,7 +28,7 @@ export default async function OpportunitiesPage({ searchParams }) {
   return (
     <div className="mx-auto max-w-4xl">
       <PageHeader eyebrow="Campus" title="Opportunities" description="Internships, research, competitions and more, shared by your community. Applications happen on the organiser's own page."
-        actions={<Button asChild><Link href="/opportunities/new"><Plus /> Share an opportunity</Link></Button>} />
+        actions={<Button asChild variant="hot"><Link href="/opportunities/new"><Plus /> Share an opportunity</Link></Button>} />
       <form method="get" action="/opportunities" role="search" className="surface mb-5 flex flex-wrap items-center gap-2 p-3">
         <label htmlFor="o-q" className="sr-only">Search opportunities</label>
         <input id="o-q" name="q" defaultValue={q} placeholder="Search" maxLength={80} className="border-input bg-card focus-visible:border-ring focus-visible:ring-ring/40 h-9 min-w-44 flex-1 rounded-md border px-3 text-sm outline-none focus-visible:ring-[3px]" />

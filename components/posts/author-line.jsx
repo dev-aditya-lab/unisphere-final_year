@@ -17,7 +17,7 @@ export function AuthorLine({ name, username, avatarKey, verified, accountType, c
           <Link href={`/u/${username}`} className="truncate hover:underline">
             {name}
           </Link>
-          {verified && <BadgeCheck className="text-primary size-3.5 shrink-0" aria-label="Verified member" />}
+          {verified && <BadgeCheck className="text-teal-text size-3.5 shrink-0" aria-label="Verified member" />}
           {showType && accountType && accountType !== "student" && (
             <span className="text-muted-foreground bg-muted rounded px-1.5 py-px text-[10px] font-semibold tracking-wide uppercase">{TYPE_LABEL[accountType]}</span>
           )}

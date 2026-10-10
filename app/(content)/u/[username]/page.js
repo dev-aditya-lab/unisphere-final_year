@@ -1,3 +1,4 @@
+import { CoverArt } from "@/components/profile/cover-art";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { BadgeCheck, Building2, ExternalLink, GraduationCap, Handshake, Link2, Trophy, Briefcase, Users } from "lucide-react";
@@ -103,7 +104,7 @@ export default async function ProfilePage({ params, searchParams }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={cover} alt="" className="size-full object-cover" />
           ) : (
-            <div aria-hidden="true" className="from-accent to-muted size-full bg-gradient-to-br" />
+            <CoverArt seed={profile.username} className="size-full" />
           )}
         </div>
         <div className="px-5 pb-5 sm:px-6">
@@ -122,7 +123,7 @@ export default async function ProfilePage({ params, searchParams }) {
           <div className="mt-3">
             <h1 id="profile-name" className="flex items-center gap-2 text-2xl font-extrabold">
               {profile.full_name}
-              {profile.verification_status === "verified" && <BadgeCheck className="text-primary size-5" aria-label="Verified member" />}
+              {profile.verification_status === "verified" && <BadgeCheck className="text-teal-text size-5" aria-label="Verified member" />}
             </h1>
             <p className="text-muted-foreground text-sm">
               @{profile.username} · {TYPE_LABEL[profile.account_type]}

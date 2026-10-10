@@ -52,7 +52,7 @@ export function RosterImport({ collegeId }) {
         <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()}><Upload aria-hidden="true" /> Load a CSV file</Button>
         <Button type="submit" size="sm" disabled={pending || !text.trim()}>{pending ? "Importing…" : "Import"}</Button>
       </div>
-      {error && <p role="alert" className="text-destructive text-sm">{error}</p>}
+      {error && <p role="alert" className="text-destructive-text text-sm">{error}</p>}
       {summary && (
         <p role="status" className="bg-muted rounded-md px-3 py-2 text-[13px]">
           {summary.added} added, {summary.duplicates} already on the list{summary.invalid ? `, ${summary.invalid} line(s) skipped as invalid (first lines: ${summary.invalidLines.join(", ")})` : ""}.

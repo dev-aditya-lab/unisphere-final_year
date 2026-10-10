@@ -45,16 +45,16 @@ export function OpportunityForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="surface space-y-4 p-5">
       {serverError && <FormAlert>{serverError}</FormAlert>}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field id="title" label="Title" required error={errors.title?.message}><Input id="title" maxLength={140} aria-describedby="title-desc" {...register("title")} /></Field>
         <Field id="organization" label="Organization" required error={errors.organization?.message}><Input id="organization" maxLength={120} aria-describedby="organization-desc" {...register("organization")} /></Field>
       </div>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {sel("kind", "Type", OPPORTUNITY_KINDS.map((k) => [k.value, k.label]))}
         {sel("mode", "Work mode", [["on_site", "On site"], ["remote", "Remote"], ["hybrid", "Hybrid"]])}
         {sel("visibility", "Who can see it", [["college", "My college"], ["public", "All members"]])}
       </div>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Field id="location" label="Location" optional error={errors.location?.message}><Input id="location" maxLength={120} aria-describedby="location-desc" {...register("location")} /></Field>
         <Field id="stipend" label="Stipend / pay" optional error={errors.stipend?.message}><Input id="stipend" maxLength={80} placeholder="e.g. ₹20,000 / month" aria-describedby="stipend-desc" {...register("stipend")} /></Field>
         <Field id="deadline" label="Apply by" optional error={errors.deadline?.message}><Input id="deadline" type="date" aria-describedby="deadline-desc" {...register("deadline")} /></Field>

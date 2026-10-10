@@ -27,11 +27,16 @@ function prefersDark() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
+// The browser chrome (address bar, the installed app's title bar) follows these; keep them in step with the
+// chosen theme, which can differ from the operating system's preference.
+const CHROME_COLOR = { light: "#FBF6EC", dark: "#14120F" };
+
 function apply(theme) {
   const dark = theme === "dark" || (theme === "system" && prefersDark());
   const root = document.documentElement;
   root.classList.toggle("dark", dark);
   root.style.colorScheme = dark ? "dark" : "light";
+  document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", dark ? CHROME_COLOR.dark : CHROME_COLOR.light));
 }
 
 function subscribe(cb) {

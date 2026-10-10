@@ -70,7 +70,7 @@ function AddDialog({ title, description, trigger, schema, defaults, action, chil
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-4">
-          {serverError && <p role="alert" className="text-destructive text-sm">{serverError}</p>}
+          {serverError && <p role="alert" className="text-destructive-text text-sm">{serverError}</p>}
           {children(form)}
           <DialogFooter>
             <SubmitButton pending={pending} pendingText="Saving…">
@@ -111,7 +111,7 @@ export function AchievementsCard({ items }) {
               <Field id="ach-desc" label="Description" optional error={errors.description?.message}>
                 <Textarea id="ach-desc" rows={3} aria-describedby="ach-desc-desc" {...register("description")} />
               </Field>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field id="ach-date" label="Date" optional error={errors.achievedOn?.message}>
                   <Input id="ach-date" type="date" aria-describedby="ach-date-desc" {...register("achievedOn")} />
                 </Field>
@@ -172,7 +172,7 @@ export function ExperiencesCard({ items }) {
               <Field id="exp-org" label="Organization" required error={errors.organization?.message}>
                 <Input id="exp-org" aria-describedby="exp-org-desc" {...register("organization")} />
               </Field>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field id="exp-start" label="Start" optional error={errors.startDate?.message}>
                   <Input id="exp-start" type="date" aria-describedby="exp-start-desc" {...register("startDate")} />
                 </Field>

@@ -41,7 +41,7 @@ export function ReportDialog({ open, onOpenChange, targetType, targetId }) {
           <DialogTitle>Report this {TARGET_LABEL[targetType]}</DialogTitle>
           <DialogDescription>Reports are confidential. A moderator reviews every report, and the person is not told who reported them.</DialogDescription>
         </DialogHeader>
-        <RadioGroup value={category} onValueChange={setCategory} aria-label="Reason for report" className="grid gap-1.5 sm:grid-cols-2">
+        <RadioGroup value={category} onValueChange={setCategory} aria-label="Reason for report" className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
           {REPORT_CATEGORIES.map((c) => (
             <Label key={c.value} htmlFor={`report-${c.value}`} className="hover:bg-muted flex cursor-pointer items-center gap-2 rounded-md border p-2.5 text-sm font-normal">
               <RadioGroupItem id={`report-${c.value}`} value={c.value} />
@@ -56,7 +56,7 @@ export function ReportDialog({ open, onOpenChange, targetType, targetId }) {
           <Textarea id="report-details" rows={3} maxLength={1000} value={details} onChange={(e) => setDetails(e.target.value)} />
         </div>
         {error && (
-          <p role="alert" className="text-destructive text-sm">
+          <p role="alert" className="text-destructive-text text-sm">
             {error}
           </p>
         )}

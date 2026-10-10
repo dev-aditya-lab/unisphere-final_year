@@ -30,7 +30,7 @@ export default async function AnnouncementsPage() {
         eyebrow="Community" title="Announcements"
         description="Official messages to everyone in a college. Each member gets an in-app notification (and an email if they opted in), so use them sparingly."
       />
-      <div className="grid gap-5 lg:grid-cols-[1fr_24rem]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_24rem]">
         <section aria-label="Published announcements" className="space-y-3">
           {(rows ?? []).length === 0 && <div className="surface text-muted-foreground p-8 text-center text-sm">No announcements yet.</div>}
           {(rows ?? []).map((a) => (

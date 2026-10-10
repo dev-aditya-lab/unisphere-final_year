@@ -23,7 +23,7 @@ export default async function RoadmapPage() {
       <p className="text-muted-foreground mt-4 max-w-2xl text-lg">
         Most of this list started as an idea from a member. It is not a promise or a schedule, and it changes as we learn. Have something to add? Suggest it inside UniSphere and vote on what you want most.
       </p>
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
+      <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
         {COLUMNS.map((col) => {
           const list = items.filter((i) => i.status === col.status);
           return (

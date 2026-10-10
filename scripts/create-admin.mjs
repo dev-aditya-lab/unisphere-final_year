@@ -1,5 +1,5 @@
 // Creates (or resets) a global administrator in the database that .env.local points at.
-//   npm run create-admin -- you@example.com "Your Name"
+//   npm run create-admin -- you@example.com "Your Name" [--new-password]
 // The generated password is written to .env.local as a comment, never printed.
 import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
@@ -10,9 +10,15 @@ const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const secret = process.env.SUPABASE_SECRET_KEY;
 if (!url || !secret) throw new Error("NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY must be set in .env.local");
 
-const email = (process.argv[2] ?? "admin@unisphere.local").toLowerCase();
-const fullName = process.argv[3] ?? "UniSphere Admin";
-const password = `Us-${randomBytes(9).toString("base64url")}-9!`;
+const positional = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const email = (positional[0] ?? "admin@unisphere.local").toLowerCase();
+const fullName = positional[1] ?? "UniSphere Admin";
+// Re-running keeps the password already recorded for this email, so the credentials in .env.local stay valid.
+// Pass --new-password to rotate it.
+const env = readFileSync(".env.local", "utf8");
+const recorded = env.match(/^# Email:\s+(\S+)\r?\n# Password:\s+(\S+)/m);
+const reuse = recorded && recorded[1].toLowerCase() === email && !process.argv.includes("--new-password");
+const password = reuse ? recorded[2] : `Us-${randomBytes(9).toString("base64url")}-9!`;
 
 const db = createClient(url, secret, { auth: { persistSession: false, autoRefreshToken: false } });
 

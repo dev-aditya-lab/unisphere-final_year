@@ -32,7 +32,7 @@ export default async function AuditPage({ searchParams }) {
       <PageHeader
         eyebrow="Insights & system" title="Audit log"
         description="An append-only record of staff actions and sensitive changes. Entries cannot be edited or deleted, even by an administrator. Secrets and message text are never stored."
-        actions={<a href={csv} className="text-primary text-sm font-semibold hover:underline">Download CSV</a>}
+        actions={<a href={csv} className="text-blue-text text-sm font-semibold hover:underline">Download CSV</a>}
       />
       <form method="get" className="surface mb-5 flex flex-wrap items-end gap-3 p-3" aria-label="Filter the audit log">
         <label className="text-[13px]">
@@ -56,7 +56,7 @@ export default async function AuditPage({ searchParams }) {
             <td className="px-4 py-3 text-xs">
               {r.target_type && <span className="capitalize">{r.target_type}</span>}
               {r.target_id && (r.target_type === "user" ? (
-                <Link href={`/admin/users/${r.target_id}`} className="text-primary block font-mono hover:underline">{r.target_id.slice(0, 8)}…</Link>
+                <Link href={`/admin/users/${r.target_id}`} className="text-blue-text block font-mono hover:underline">{r.target_id.slice(0, 8)}…</Link>
               ) : <span className="text-muted-foreground block font-mono">{String(r.target_id).slice(0, 18)}</span>)}
             </td>
             <td className="text-muted-foreground max-w-sm px-4 py-3 text-xs break-words">{summary(r.metadata)}</td>

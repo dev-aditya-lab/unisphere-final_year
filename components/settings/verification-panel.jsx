@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { queueCelebration } from "@/components/motion/celebrate";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { BadgeCheck, Clock, IdCard, Paperclip, Ticket, UserCheck } from "lucide-react";
@@ -34,7 +35,7 @@ function StudentIdMethod({ collegeName, onDone }) {
     startTransition(async () => {
       const res = await verifyStudentIdAction(values);
       if (res.ok) {
-        toast.success("You are verified!");
+        queueCelebration("verified");
         form.reset();
         onDone();
       } else setError(res.fieldErrors?.studentId ?? res.error);
@@ -154,7 +155,7 @@ export function VerificationPanel({ status, college, latest, refresh }) {
   if (status === "verified") {
     return (
       <div className="flex items-start gap-3">
-        <BadgeCheck className="text-primary mt-0.5 size-6 shrink-0" aria-hidden="true" />
+        <BadgeCheck className="text-teal-text mt-0.5 size-6 shrink-0" aria-hidden="true" />
         <div>
           <p className="font-semibold">Verified member of {college.name}</p>
           <p className="text-muted-foreground text-sm">A verified badge appears on your profile and posts. Changing your college or account type removes it.</p>

@@ -51,7 +51,7 @@ export function ContactForm() {
   if (done) {
     return (
       <div className="surface flex items-start gap-3 p-6" role="status">
-        <CheckCircle2 className="text-success mt-0.5 size-6 shrink-0" aria-hidden="true" />
+        <CheckCircle2 className="text-success-text mt-0.5 size-6 shrink-0" aria-hidden="true" />
         <div>
           <p className="font-semibold">Message sent</p>
           <p className="text-muted-foreground text-sm">{done}</p>
@@ -63,7 +63,7 @@ export function ContactForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="surface space-y-4 p-5 sm:p-6">
       {serverError && <FormAlert>{serverError}</FormAlert>}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field id="name" label="Name" required error={errors.name?.message}>
           <Input id="name" autoComplete="name" aria-describedby="name-desc" {...register("name")} />
         </Field>

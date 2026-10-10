@@ -17,7 +17,7 @@ function Check({ ok, label, detail }) {
   const Icon = ok ? CheckCircle2 : CircleAlert;
   return (
     <li className="flex items-start gap-2.5 py-2 text-sm">
-      <Icon className={ok ? "text-success mt-0.5 size-4 shrink-0" : "text-warning-text mt-0.5 size-4 shrink-0"} aria-hidden="true" />
+      <Icon className={ok ? "text-success-text mt-0.5 size-4 shrink-0" : "text-warning-text mt-0.5 size-4 shrink-0"} aria-hidden="true" />
       <div><p className="font-medium">{label}</p>{detail && <p className="text-muted-foreground text-[13px]">{detail}</p>}</div>
     </li>
   );
@@ -46,7 +46,7 @@ export default async function AiStatusPage({ searchParams }) {
         <StatCard label="Failures" value={fmtNumber(Object.entries(stats.by_status ?? {}).filter(([k]) => ["error", "timeout", "invalid_output"].includes(k)).reduce((s, [, n]) => s + n, 0))} tone="warn" />
       </section>
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Panel title="Configuration">
           <ul className="divide-y">
             <Check ok={master} label="Master switch" detail={master ? "AI features are on (Settings & flags)." : "AI features are switched off in Settings & flags."} />
@@ -77,13 +77,13 @@ export default async function AiStatusPage({ searchParams }) {
         </Panel>
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-3">
+      <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <BreakdownBars title="Outcomes" data={stats.by_status} color="var(--chart-2)" empty="No AI requests in this period." />
         <BreakdownBars title="Requests by task" data={Object.fromEntries((stats.by_task ?? []).map((t) => [t.task, t.total]))} />
         <BreakdownBars title="Requests by model" data={Object.fromEntries((stats.by_model ?? []).map((m) => [`${m.provider} · ${m.model}`, m.total]))} color="var(--chart-5)" />
       </div>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Panel title="Background jobs (embeddings)">
           <dl className="grid grid-cols-4 gap-3 text-sm">
             {["pending", "processing", "done", "failed"].map((k) => (

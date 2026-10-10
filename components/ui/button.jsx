@@ -3,33 +3,45 @@ import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils"
 import { Slot } from "radix-ui"
 
+/**
+ * Buttons are tactile: a small, confident press. `hot` is the one loud action on a screen (publish, post, join):
+ * a coral face with an ink outline and an offset shadow that the button pushes into when pressed. Everything else
+ * is quieter. Motion is transform-only and is switched off for reduced-motion members by the global rule.
+ */
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-semibold whitespace-nowrap transition-colors outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "relative inline-flex shrink-0 select-none items-center justify-center gap-2 rounded-lg text-sm font-semibold whitespace-nowrap outline-none transition-[transform,box-shadow,background-color,border-color,color,opacity] duration-150 ease-out focus-visible:ring-[3px] focus-visible:ring-ring/45 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default:
+          "border border-primary bg-primary text-primary-foreground hover:-translate-y-px hover:shadow-[0_3px_0_0_color-mix(in_srgb,var(--foreground)_30%,transparent)] active:translate-y-0 active:scale-[0.985] active:shadow-none",
+        hot:
+          "border border-[var(--hard)] bg-accent-hot text-accent-hot-foreground shadow-[2px_2px_0_0_var(--hard)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_0_var(--hard)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
+          "border border-destructive-text bg-destructive-text text-background hover:brightness-110 active:scale-[0.985]",
         outline:
-          "border bg-background hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border border-border-strong bg-card text-foreground hover:border-foreground/70 hover:bg-accent active:scale-[0.985]",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/70 active:scale-[0.985]",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
-        ink: "bg-foreground text-background hover:bg-foreground/90",
-        soft: "bg-accent text-accent-foreground hover:bg-accent/70",
+          "border border-transparent text-foreground hover:bg-accent active:scale-[0.97]",
+        link: "text-foreground underline decoration-border-strong decoration-2 underline-offset-4 hover:decoration-coral",
+        ink:
+          "border border-primary bg-primary text-primary-foreground hover:-translate-y-px hover:shadow-[0_3px_0_0_color-mix(in_srgb,var(--foreground)_30%,transparent)] active:translate-y-0 active:scale-[0.985] active:shadow-none",
+        soft:
+          "border border-transparent bg-accent text-accent-foreground hover:bg-accent/70 active:scale-[0.985]",
+        success:
+          "border border-success-text bg-success-text text-background hover:brightness-110 active:scale-[0.985]",
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
-        "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
-        "icon-sm": "size-8",
-        "icon-lg": "size-10",
+        default: "h-10 px-4 has-[>svg]:px-3.5",
+        xs: "h-7 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-9 gap-1.5 px-3 has-[>svg]:px-2.5",
+        lg: "h-12 px-6 text-base has-[>svg]:px-5 [&_svg:not([class*='size-'])]:size-[18px]",
+        icon: "size-10",
+        "icon-xs": "size-7 rounded-md [&_svg:not([class*='size-'])]:size-3.5",
+        "icon-sm": "size-9",
+        "icon-lg": "size-12",
       },
     },
     defaultVariants: {
@@ -37,7 +49,7 @@ const buttonVariants = cva(
       size: "default",
     },
   }
-)
+);
 
 function Button({
   className,

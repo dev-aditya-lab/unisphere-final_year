@@ -17,7 +17,7 @@ export default function ErrorPage({ error, reset }) {
       title="That did not work"
       actions={
         <>
-          <Button onClick={() => reset()}>Try again</Button>
+          <Button variant="hot" onClick={() => reset()}>Try again</Button>
           <Button asChild variant="outline">
             <Link href="/">Go home</Link>
           </Button>
@@ -25,7 +25,7 @@ export default function ErrorPage({ error, reset }) {
       }
     >
       <p>An unexpected error occurred. Your data is safe. Please try again, and contact support if it keeps happening.</p>
-      {error?.digest && <p className="font-mono text-xs">Reference: {error.digest}</p>}
+      {error?.digest && <p className="text-xs font-semibold">Reference: {error.digest}</p>}
     </SystemPage>
   );
 }

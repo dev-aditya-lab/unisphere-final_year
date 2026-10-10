@@ -1,8 +1,9 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
-import { Moon, Sun, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,20 +14,34 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const subscribe = () => () => {};
+const ICON = { light: Sun, dark: Moon, system: Monitor };
 
 export function ThemeToggle({ className }) {
   const { theme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(subscribe, () => true, () => false);
+  const shown = mounted ? theme : "system";
+  const Icon = ICON[shown];
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className={className} aria-label="Change theme">
-          {mounted && theme === "dark" ? <Moon /> : <Sun />}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={shown}
+              initial={{ rotate: -70, scale: 0.5, opacity: 0 }}
+              animate={{ rotate: 0, scale: 1, opacity: 1 }}
+              exit={{ rotate: 70, scale: 0.5, opacity: 0 }}
+              transition={{ duration: 0.16 }}
+              className="grid place-items-center"
+            >
+              <Icon />
+            </motion.span>
+          </AnimatePresence>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-36">
-        <DropdownMenuRadioGroup value={mounted ? theme : "system"} onValueChange={setTheme}>
+      <DropdownMenuContent align="end" className="w-44">
+        <DropdownMenuRadioGroup value={shown} onValueChange={setTheme}>
           <DropdownMenuRadioItem value="light">
             <Sun className="size-4" /> Light
           </DropdownMenuRadioItem>
@@ -34,7 +49,7 @@ export function ThemeToggle({ className }) {
             <Moon className="size-4" /> Dark
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="system">
-            <Monitor className="size-4" /> System
+            <Monitor className="size-4" /> Match device
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>

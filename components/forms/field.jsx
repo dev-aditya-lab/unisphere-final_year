@@ -12,7 +12,7 @@ export function Field({ id, label, hint, error, required, optional, className, c
         {label && (
           <Label htmlFor={id} className="text-[13px] font-semibold">
             {label}
-            {required && <span aria-hidden="true" className="text-destructive"> *</span>}
+            {required && <span aria-hidden="true" className="text-destructive-text"> *</span>}
             {optional && <span className="text-muted-foreground ml-1 text-xs font-normal">(optional)</span>}
           </Label>
         )}
@@ -25,7 +25,7 @@ export function Field({ id, label, hint, error, required, optional, className, c
         </p>
       )}
       {error && (
-        <p id={`${id}-desc`} role="alert" className="text-destructive text-xs font-medium">
+        <p id={`${id}-desc`} role="alert" className="text-destructive-text text-xs font-medium">
           {error}
         </p>
       )}

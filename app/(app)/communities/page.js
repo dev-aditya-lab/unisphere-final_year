@@ -27,7 +27,7 @@ export default async function CommunitiesPage({ searchParams }) {
   return (
     <div className="mx-auto max-w-5xl">
       <PageHeader eyebrow="Campus" title="Clubs & communities" description="Join student chapters, clubs and interest groups. Official college groups carry a badge."
-        actions={<Button asChild><Link href="/communities/new"><Plus /> New community</Link></Button>} />
+        actions={<Button asChild variant="hot"><Link href="/communities/new"><Plus /> New community</Link></Button>} />
       <nav aria-label="Community lists" className="mb-5 flex gap-1 border-b">
         {[["all", "Discover"], ["mine", "My communities"]].map(([id, label]) => (
           <Link key={id} href={id === "mine" ? "/communities?tab=mine" : "/communities"} aria-current={(id === "mine") === mine ? "page" : undefined}
@@ -48,7 +48,7 @@ export default async function CommunitiesPage({ searchParams }) {
           {mine ? "Browse Discover to find clubs and groups to join." : "Be the first to create a club or interest group for your campus."}
         </EmptyState>
       ) : (
-        <ul className="grid gap-4 md:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {list.map((c) => (
             <li key={c.id}>
               <article className="surface h-full p-4 sm:p-5">

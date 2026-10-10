@@ -5,7 +5,7 @@ import { mkdirSync } from "node:fs";
 import sharp from "sharp";
 
 const SOURCE = "public/unisphereLogo.png";
-const IVORY = { r: 247, g: 245, b: 239, alpha: 1 };
+const IVORY = { r: 251, g: 246, b: 236, alpha: 1 };
 mkdirSync("public/icons", { recursive: true });
 
 /** The logo centred on a solid ivory tile. `scale` is how much of the tile the logo may fill. */

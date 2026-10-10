@@ -17,6 +17,7 @@ import { FormAlert } from "@/components/forms/form-alert";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { TagInput } from "@/components/forms/tag-input";
 import { createProjectAction, updateProjectAction } from "@/lib/actions/projects";
+import { queueCelebration } from "@/components/motion/celebrate";
 import { assistAction } from "@/lib/actions/ai";
 import { projectSchema, PROJECT_STATUSES } from "@/lib/validators/project";
 
@@ -85,7 +86,8 @@ export function ProjectForm({ project = null, ai = null }) {
     startTransition(async () => {
       const res = editing ? await updateProjectAction({ projectId: project.id, input: values }) : await createProjectAction(values);
       if (res.ok) {
-        toast.success(editing ? "Project updated" : "Project created");
+        if (editing) toast.success("Project updated");
+        else queueCelebration("project-published");
         router.push(`/projects/${res.slug}`);
         router.refresh();
       } else {
@@ -100,9 +102,9 @@ export function ProjectForm({ project = null, ai = null }) {
       {serverError && <FormAlert>{serverError}</FormAlert>}
 
       {ai?.assist && (
-        <section className="bg-accent/40 rounded-lg border p-4" aria-label="Draft with AI">
+        <section className="bg-teal/10 border-teal/40 rounded-xl border border-dashed p-4" aria-label="Draft with AI">
           <p className="flex items-center gap-1.5 text-sm font-semibold">
-            <Sparkles className="text-primary size-4" aria-hidden="true" /> Draft from a rough description
+            <Sparkles className="text-teal-text size-4" aria-hidden="true" /> Draft from a rough description
             <span className="text-muted-foreground text-xs font-normal">· AI suggestion, you review every field</span>
           </p>
           <Textarea className="mt-2" rows={3} value={draftText} onChange={(e) => setDraftText(e.target.value)} maxLength={4000} aria-label="Describe your project in your own words" placeholder="Describe what you want to build, who it helps and what help you need…" />
@@ -145,7 +147,7 @@ export function ProjectForm({ project = null, ai = null }) {
         <Field id="requiredSkills" label="Skills the team needs" optional error={errors.requiredSkills?.message} hint="Used to suggest teammates who list these skills.">
           <Controller control={control} name="requiredSkills" render={({ field }) => <TagInput id="requiredSkills" label="Required skills" value={field.value} onChange={field.onChange} max={15} placeholder="e.g. UI design, Python" />} />
         </Field>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Field id="teamSize" label="Team size" error={errors.teamSize?.message}>
             <Input id="teamSize" type="number" min={1} max={30} aria-describedby="teamSize-desc" {...register("teamSize")} />
           </Field>
@@ -178,7 +180,7 @@ export function ProjectForm({ project = null, ai = null }) {
             />
           </Field>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field id="repoUrl" label="Repository" optional error={errors.repoUrl?.message}>
             <Input id="repoUrl" type="url" placeholder="https://github.com/…" aria-describedby="repoUrl-desc" {...register("repoUrl")} />
           </Field>

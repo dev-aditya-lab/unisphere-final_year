@@ -38,15 +38,18 @@ export async function proxy(request) {
   // A fresh nonce per request. Next.js reads it from the request's CSP header and tags its own scripts with it.
   const nonce = newNonce();
   const csp = buildCsp({ nonce, isDev: process.env.NODE_ENV === "development" });
-  const secure = (res) => {
-    res.headers.set("Content-Security-Policy", csp);
-    return res;
-  };
-  const { getResponse, claims, supabase } = await updateSession(request, {
+  const session = await updateSession(request, {
     "x-pathname": pathname + search,
     "x-nonce": nonce,
     "Content-Security-Policy": csp,
   });
+  // Every response the proxy returns carries the refreshed session cookies and the CSP.
+  const secure = (res) => {
+    session.finish(res);
+    res.headers.set("Content-Security-Policy", csp);
+    return res;
+  };
+  const { claims, supabase, unavailable } = session;
   const signedIn = Boolean(claims?.sub);
 
   if (await isMaintenanceMode()) {
@@ -64,12 +67,14 @@ export async function proxy(request) {
         const url = request.nextUrl.clone();
         url.pathname = "/maintenance";
         url.search = "";
-        return secure(NextResponse.rewrite(url, { status: 503, headers: { "Retry-After": "300" } }));
+        return secure(NextResponse.rewrite(url, { status: 503, headers: { "Retry-After": "300" }, request: { headers: session.requestHeaders } }));
       }
     }
   }
 
-  if (!pathname.startsWith("/api/")) {
+  if (!pathname.startsWith("/api/") && !unavailable) {
+    // `unavailable`: the auth server could not be reached. That is not "logged out", so nobody is redirected;
+    // the page decides (and shows a retry screen instead of the login form).
     if (!signedIn && isProtectedPath(pathname)) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
@@ -84,7 +89,7 @@ export async function proxy(request) {
     }
   }
 
-  return secure(getResponse());
+  return secure(session.next());
 }
 
 export const config = {

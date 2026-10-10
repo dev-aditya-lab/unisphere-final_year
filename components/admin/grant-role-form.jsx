@@ -59,7 +59,7 @@ export function GrantRoleForm({ colleges, canGrantAdmin }) {
           </select>
         </div>
       )}
-      {error && <p role="alert" className="text-destructive text-sm">{error}</p>}
+      {error && <p role="alert" className="text-destructive-text text-sm">{error}</p>}
       <Button type="submit" disabled={pending || !username.trim()}>{pending ? "Granting…" : "Grant role"}</Button>
     </form>
   );

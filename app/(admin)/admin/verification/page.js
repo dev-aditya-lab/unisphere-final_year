@@ -36,13 +36,13 @@ export default async function VerificationPage({ searchParams }) {
                 description={`${v.college_name} · wants to be verified as ${v.account_type} · ${fmtDateTime(v.created_at)}`}
                 actions={<StatusBadge value={v.status} />}
               >
-                <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+                <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
                   <div><dt className="eyebrow">Method</dt><dd className="capitalize">{v.method.replace(/_/g, " ")}</dd></div>
                   {v.supporting_info && <div className="sm:col-span-2"><dt className="eyebrow">What they told us</dt><dd className="break-words whitespace-pre-wrap">{v.supporting_info}</dd></div>}
                   {v.document_file_id && (
                     <div className="sm:col-span-2">
                       <dt className="eyebrow">Document</dt>
-                      <dd><a href={`/api/files/${v.document_file_id}`} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline">Open the uploaded document (opens in a new tab)</a></dd>
+                      <dd><a href={`/api/files/${v.document_file_id}`} target="_blank" rel="noopener noreferrer" className="text-blue-text font-semibold hover:underline">Open the uploaded document (opens in a new tab)</a></dd>
                     </div>
                   )}
                   {v.rejection_reason && <div className="sm:col-span-2"><dt className="eyebrow">Message sent to the member</dt><dd className="break-words whitespace-pre-wrap">{v.rejection_reason}</dd></div>}

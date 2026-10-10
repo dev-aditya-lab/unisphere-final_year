@@ -35,7 +35,7 @@ test.describe.serial("profile settings", () => {
     expect(data).toMatchObject({ headline: "Embedded systems tinkerer", skills: ["C++"], github_url: "https://github.com/example" });
 
     await page.goto("/settings/privacy");
-    await page.getByLabel("Public").check();
+    await page.getByLabel("All members").check();
     await page.getByRole("button", { name: "Save privacy settings" }).click();
     await expect(page.getByText("Privacy settings saved.")).toBeVisible();
     const { data: vis } = await admin.from("profiles").select("visibility").eq("id", u.id).single();

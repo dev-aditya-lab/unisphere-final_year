@@ -31,18 +31,18 @@ export async function ogImage({ label = "Ramgarh Engineering College", title, by
   const long = (title ?? "").length > 70;
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#F7F5EF", color: "#17243A", padding: "64px 72px", borderLeft: "16px solid #3546A8" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#FBF6EC", color: "#1B1812", padding: "64px 72px", borderLeft: "16px solid #FF5A36" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           {/* eslint-disable-next-line @next/next/no-img-element -- satori (ImageResponse) renders plain <img> only */}
           {mark && <img src={mark} width={64} height={64} alt="" />}
           <div style={{ display: "flex", fontSize: 34, fontWeight: 800 }}>UniSphere</div>
-          <div style={{ display: "flex", marginLeft: 12, padding: "6px 16px", borderRadius: 8, background: "#E9EDFB", color: "#2A3A8F", fontSize: 24, fontWeight: 700 }}>{clip(label, 40)}</div>
+          <div style={{ display: "flex", marginLeft: 12, padding: "6px 16px", borderRadius: 8, background: "#FFC83D", color: "#1B1812", fontSize: 24, fontWeight: 700 }}>{clip(label, 40)}</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ display: "flex", fontSize: long ? 56 : 74, fontWeight: 800, lineHeight: 1.08, letterSpacing: -1.5 }}>{clip(title || "Your campus. Your people. Your next idea.", 120)}</div>
-          {byline && <div style={{ display: "flex", fontSize: 30, color: "#5B667B" }}>{clip(byline, 90)}</div>}
+          {byline && <div style={{ display: "flex", fontSize: 30, color: "#675F52" }}>{clip(byline, 90)}</div>}
         </div>
-        <div style={{ display: "flex", fontSize: 26, color: "#5B667B" }}>The campus network of Ramgarh Engineering College</div>
+        <div style={{ display: "flex", fontSize: 26, color: "#675F52" }}>The campus network of Ramgarh Engineering College</div>
       </div>
     ),
     { ...OG_SIZE },

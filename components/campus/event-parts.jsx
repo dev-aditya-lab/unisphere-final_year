@@ -66,14 +66,14 @@ export function EventForm({ event = null, communities = [] }) {
       <section className="surface space-y-4 p-5">
         <Field id="title" label="Title" required error={errors.title?.message}><Input id="title" maxLength={140} aria-describedby="title-desc" {...register("title")} /></Field>
         <Field id="description" label="Description" optional error={errors.description?.message}><Textarea id="description" rows={5} maxLength={5000} aria-describedby="description-desc" {...register("description")} /></Field>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {sel("kind", "Type", EVENT_KINDS.map((k) => [k.value, k.label]))}
           {sel("mode", "Format", [["in_person", "In person"], ["online", "Online"], ["hybrid", "Hybrid"]])}
         </div>
       </section>
       <section className="surface space-y-4 p-5">
         <h2 className="text-lg font-bold">When</h2>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Field id="startsLocal" label="Starts" required error={errors.startsLocal?.message}><Input id="startsLocal" type="datetime-local" aria-describedby="startsLocal-desc" {...register("startsLocal")} /></Field>
           <Field id="endsLocal" label="Ends" optional error={errors.endsLocal?.message}><Input id="endsLocal" type="datetime-local" aria-describedby="endsLocal-desc" {...register("endsLocal")} /></Field>
           {sel("timezone", "Timezone", tzOptions.map((z) => [z, z.replace("_", " ")]))}
@@ -87,12 +87,12 @@ export function EventForm({ event = null, communities = [] }) {
       </section>
       <section className="surface space-y-4 p-5">
         <h2 className="text-lg font-bold">Registration & visibility</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {sel("registrationMode", "Registration", [["in_platform", "RSVP on UniSphere"], ["external", "External link"], ["none", "No registration"]])}
           {regMode === "in_platform" && <Field id="capacity" label="Capacity" optional error={errors.capacity?.message} hint="Extra people join a waitlist."><Input id="capacity" type="number" min={1} aria-describedby="capacity-desc" {...register("capacity")} /></Field>}
           {regMode === "external" && <Field id="registrationUrl" label="Registration link" required error={errors.registrationUrl?.message}><Input id="registrationUrl" type="url" placeholder="https://" aria-describedby="registrationUrl-desc" {...register("registrationUrl")} /></Field>}
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {sel("visibility", "Who can see it", [["college", "My college"], ["public", "All members"], ...(communities.length ? [["community", "A community's members"]] : [])])}
           {visibility === "community" && sel("communityId", "Community", communities.map((c) => [c.id, c.name]), { placeholder: "Choose a community" })}
         </div>
@@ -108,7 +108,7 @@ export function EventForm({ event = null, communities = [] }) {
 export function RsvpPanel({ event, viewerId, over }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  if (event.status === "cancelled") return <p className="text-destructive text-sm font-semibold">This event was cancelled.</p>;
+  if (event.status === "cancelled") return <p className="text-destructive-text text-sm font-semibold">This event was cancelled.</p>;
   if (event.registration_mode === "none") return <p className="text-muted-foreground text-sm">No registration needed. Just show up.</p>;
   if (event.registration_mode === "external") return <Button asChild><a href={event.registration_url} target="_blank" rel="noopener noreferrer nofollow">Register on the organiser&rsquo;s site</a></Button>;
   if (!viewerId) return <Button asChild><Link href={`/login?next=${encodeURIComponent(`/events/${event.slug}`)}`}>Log in to RSVP</Link></Button>;
@@ -188,8 +188,8 @@ export function EventManagePanel({ event, attendees }) {
 }
 
 export function EventStatusChip({ my_status }) {
-  if (my_status === "going") return <span className="text-success flex items-center gap-1 text-xs font-semibold"><UserCheck className="size-3.5" /> Going</span>;
+  if (my_status === "going") return <span className="text-success-text flex items-center gap-1 text-xs font-semibold"><UserCheck className="size-3.5" /> Going</span>;
   if (my_status === "waitlist") return <span className="text-warning-text flex items-center gap-1 text-xs font-semibold"><Clock className="size-3.5" /> Waitlist</span>;
-  if (my_status === "interested") return <span className="text-primary flex items-center gap-1 text-xs font-semibold"><Star className="size-3.5" /> Interested</span>;
+  if (my_status === "interested") return <span className="text-coral-text flex items-center gap-1 text-xs font-semibold"><Star className="size-3.5" /> Interested</span>;
   return null;
 }

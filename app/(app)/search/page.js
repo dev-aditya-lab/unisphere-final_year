@@ -136,11 +136,11 @@ export default async function SearchPage({ searchParams }) {
         ))}
       </nav>
 
-      {!limit.ok && <p role="alert" className="text-destructive mb-4 text-sm">You are searching very quickly. Please wait a moment and try again.</p>}
+      {!limit.ok && <p role="alert" className="text-destructive-text mb-4 text-sm">You are searching very quickly. Please wait a moment and try again.</p>}
 
       {!hasQuery ? (
         <EmptyState icon={SearchX} title="Start typing to search">
-          Search by a person&rsquo;s name or @username, a skill such as “Python”, or words from a post. Browse <Link className="text-primary font-semibold hover:underline" href="/explore">Explore</Link> for ideas on what to look at.
+          Search by a person&rsquo;s name or @username, a skill such as “Python”, or words from a post. Browse <Link className="text-blue-text font-semibold hover:underline" href="/explore">Explore</Link> for ideas on what to look at.
         </EmptyState>
       ) : people.length === 0 && posts.length === 0 && limit.ok ? (
         <EmptyState icon={SearchX} title="No results">
@@ -155,7 +155,7 @@ export default async function SearchPage({ searchParams }) {
                   People
                 </h2>
                 {type === "all" && (
-                  <Link href={tabHref("people")} className="text-primary text-sm font-semibold hover:underline">
+                  <Link href={tabHref("people")} className="text-blue-text text-sm font-semibold hover:underline">
                     See all people
                   </Link>
                 )}
@@ -176,7 +176,7 @@ export default async function SearchPage({ searchParams }) {
                   Posts
                 </h2>
                 {type === "all" && (
-                  <Link href={tabHref("posts")} className="text-primary text-sm font-semibold hover:underline">
+                  <Link href={tabHref("posts")} className="text-blue-text text-sm font-semibold hover:underline">
                     See all posts
                   </Link>
                 )}

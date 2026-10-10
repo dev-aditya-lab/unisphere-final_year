@@ -51,7 +51,7 @@ export function CommunityForm({ community = null }) {
       {serverError && <FormAlert>{serverError}</FormAlert>}
       <Field id="name" label="Name" required error={errors.name?.message}><Input id="name" maxLength={80} aria-describedby="name-desc" {...register("name")} /></Field>
       <Field id="description" label="Description" optional error={errors.description?.message}><Textarea id="description" rows={4} maxLength={1500} aria-describedby="description-desc" {...register("description")} /></Field>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {select("kind", "Type", COMMUNITY_KINDS.map((k) => [k.value, k.label]))}
         {select("visibility", "Who can find it", [["public", "All members"], ["college", "My college"], ["private", "Members only"]])}
         {select("joinPolicy", "How people join", [["open", "Open to all"], ["request", "By request"], ["invite", "Invite only"]])}

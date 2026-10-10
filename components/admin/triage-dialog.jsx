@@ -81,7 +81,7 @@ export function TriageDialog({ item, releases }) {
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={isPublic} onChange={(e) => setPublic(e.target.checked)} className="size-4" /> Visible on the idea board and roadmap (untick to hide)</label>
           )}
         </div>
-        {error && <p role="alert" className="text-destructive text-sm">{error}</p>}
+        {error && <p role="alert" className="text-destructive-text text-sm">{error}</p>}
         <DialogFooter>
           <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
           <Button onClick={save} disabled={pending}>{pending ? "Saving…" : "Save"}</Button>

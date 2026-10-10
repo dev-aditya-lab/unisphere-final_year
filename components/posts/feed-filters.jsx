@@ -21,7 +21,7 @@ export function FeedFilters({ scope, category, hideCategories = false }) {
   const params = useSearchParams();
   return (
     <div className="space-y-3">
-      <div role="tablist" aria-label="Feed" className="bg-muted inline-flex rounded-lg p-0.5">
+      <div role="tablist" aria-label="Feed" className="bg-sunken border-border inline-flex rounded-xl border p-1">
         {FEED_SCOPES.map((s) => (
           <Link
             key={s.value}
@@ -30,8 +30,10 @@ export function FeedFilters({ scope, category, hideCategories = false }) {
             href={href(pathname, params, { scope: s.value === "college" ? null : s.value })}
             scroll={false}
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-              scope === s.value ? "bg-card text-foreground border shadow-none" : "text-muted-foreground hover:text-foreground border border-transparent",
+              "rounded-lg border px-3 py-1.5 text-sm font-semibold transition-[color,background-color,box-shadow] duration-150",
+              scope === s.value
+                ? "border-border bg-card text-foreground shadow-[0_1px_0_0_var(--border-strong),0_4px_10px_-6px_rgb(0_0_0/0.3)]"
+                : "text-muted-foreground hover:text-foreground border-transparent",
             )}
           >
             {s.label}
@@ -39,28 +41,32 @@ export function FeedFilters({ scope, category, hideCategories = false }) {
         ))}
       </div>
       {!hideCategories && (
-      <nav aria-label="Filter by type" className="-mx-1 overflow-x-auto pb-1">
-        <ul className="flex min-w-max gap-1.5 px-1">
-          {[{ value: null, label: "All" }, ...POST_CATEGORIES].map((c) => {
-            const active = (category ?? null) === c.value;
-            return (
-              <li key={c.value ?? "all"}>
-                <Link
-                  href={href(pathname, params, { category: c.value })}
-                  scroll={false}
-                  aria-current={active ? "true" : undefined}
-                  className={cn(
-                    "block rounded-full border px-3 py-1 text-[13px] font-medium transition-colors",
-                    active ? "border-primary bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:border-foreground/30",
-                  )}
-                >
-                  {c.label}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+        <nav aria-label="Filter by type" className="scrollbar-none -mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+          <ul className="flex min-w-max gap-1.5">
+            {[{ value: null, label: "All", tone: "tone-stone" }, ...POST_CATEGORIES].map((c) => {
+              const active = (category ?? null) === c.value;
+              return (
+                <li key={c.value ?? "all"}>
+                  <Link
+                    href={href(pathname, params, { category: c.value })}
+                    scroll={false}
+                    aria-current={active ? "true" : undefined}
+                    className={cn(
+                      "press flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-semibold transition-colors duration-150",
+                      c.tone,
+                      active
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-card text-muted-foreground hover:border-foreground/50 hover:text-foreground",
+                    )}
+                  >
+                    {c.value && <span aria-hidden="true" className="tone-dot size-2 rounded-[2px]" />}
+                    {c.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
       )}
     </div>
   );

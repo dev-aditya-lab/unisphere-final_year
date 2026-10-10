@@ -37,7 +37,7 @@ export default async function AnalyticsPage({ searchParams }) {
       <PageHeader
         eyebrow="Insights & system" title="Analytics"
         description={`${range.from} to ${range.to} (UTC days)${scope.college ? ` · ${scope.options.find((c) => c.id === scope.college)?.name}` : " · all colleges"}. Counts only — message and post content is never used here.`}
-        actions={<a href={csv} className="text-primary text-sm font-semibold hover:underline">Download CSV</a>}
+        actions={<a href={csv} className="text-blue-text text-sm font-semibold hover:underline">Download CSV</a>}
       />
       <RangeFilter basePath="/admin/analytics" range={range} scope={scope} />
 
@@ -52,7 +52,7 @@ export default async function AnalyticsPage({ searchParams }) {
         <StatCard label="Events created" value={fmtNumber(o.events_period)} hint={`${fmtNumber(o.events_upcoming)} upcoming`} />
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <TimeSeriesChart title="New members" series={series.members} />
         <TimeSeriesChart title="Posts" series={series.posts} color="var(--chart-2)" />
         <TimeSeriesChart title="Comments" series={series.comments} color="var(--chart-3)" />
@@ -61,7 +61,7 @@ export default async function AnalyticsPage({ searchParams }) {
         <TimeSeriesChart title="Reports filed" series={series.reports} color="var(--chart-4)" />
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <BreakdownBars title="Posts by category" data={o.posts_by_category} labels={CATEGORY_LABELS} />
         <BreakdownBars title="Members by account type" data={o.members_by_type} color="var(--chart-2)" />
         <BreakdownBars title="Reports by reason" data={o.reports_by_category} color="var(--chart-4)" />

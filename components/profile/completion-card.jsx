@@ -15,11 +15,11 @@ export function CompletionCard({ profile }) {
         <span className="font-mono text-sm font-semibold">{percent}%</span>
       </div>
       <Progress value={percent} aria-label={`Profile ${percent}% complete`} className="mt-3 h-1.5" />
-      <ul className="mt-4 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+      <ul className="mt-4 grid grid-cols-1 gap-x-6 gap-y-1.5 sm:grid-cols-2">
         {items.map((i) => (
           <li key={i.key} className="flex items-center gap-2 text-sm">
             {i.complete ? (
-              <CheckCircle2 className="text-success size-4 shrink-0" aria-label="Done" />
+              <CheckCircle2 className="text-success-text size-4 shrink-0" aria-label="Done" />
             ) : (
               <Circle className="text-muted-foreground size-4 shrink-0" aria-label="To do" />
             )}

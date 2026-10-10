@@ -94,7 +94,7 @@ export default async function ProjectPage({ params }) {
       {project.problem && <Section title="Problem"><p className="text-[15px] leading-relaxed whitespace-pre-wrap">{project.problem}</p></Section>}
       {project.goals.length > 0 && (
         <Section title="Goals">
-          <ul className="space-y-1.5 text-[15px]">{project.goals.map((g) => <li key={g} className="flex gap-2"><Target className="text-primary mt-1 size-4 shrink-0" aria-hidden="true" />{g}</li>)}</ul>
+          <ul className="space-y-1.5 text-[15px]">{project.goals.map((g) => <li key={g} className="flex gap-2"><Target className="text-coral-text mt-1 size-4 shrink-0" aria-hidden="true" />{g}</li>)}</ul>
         </Section>
       )}
       {project.solution && <Section title="Proposed solution"><p className="text-[15px] leading-relaxed whitespace-pre-wrap">{project.solution}</p></Section>}
@@ -126,7 +126,7 @@ export default async function ProjectPage({ params }) {
       )}
 
       <Section title={`Team (${project.member_count} of ${project.team_size})`}>
-        <ul className="grid gap-3 sm:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {team.map((m) => (
             <li key={m.user_id} className="flex items-center gap-2.5">
               <UserAvatar name={m.person.full_name} avatarKey={m.person.avatar_key} size="sm" />
