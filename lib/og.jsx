@@ -1,5 +1,3 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { ImageResponse } from "next/og";
 
 export const OG_SIZE = { width: 1200, height: 630 };
@@ -7,11 +5,13 @@ export const OG_TYPE = "image/png";
 
 let logoData;
 async function logo() {
-  if (!logoData) {
+  if (logoData === undefined) {
     try {
-      logoData = `data:image/png;base64,${(await readFile(path.join(process.cwd(), "public", "logo-mark.png"))).toString("base64")}`;
+      // Bundled as an asset, so it also works on serverless hosts where public/ is not on the function's disk.
+      const bytes = Buffer.from(await (await fetch(new URL("../public/logo-mark.png", import.meta.url))).arrayBuffer());
+      logoData = `data:image/png;base64,${bytes.toString("base64")}`;
     } catch {
-      logoData = null;
+      logoData = null; // the card still renders, just without the mark
     }
   }
   return logoData;

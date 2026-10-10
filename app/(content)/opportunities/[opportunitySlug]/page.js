@@ -17,7 +17,7 @@ export async function generateMetadata({ params }) {
   const { opportunitySlug } = await params;
   const o = isValidSlug(opportunitySlug) ? await getOpportunityBySlug(opportunitySlug) : null;
   if (!o) return { title: "Opportunity not found", robots: { index: false, follow: false } };
-  const isPublic = o.visibility === "public" && o.status === "open";
+  const isPublic = false; // closed network: member content is never indexed or given a public preview
   return {
     title: `${o.title} at ${o.organization}`,
     description: excerpt(o.description || `${o.title} at ${o.organization}`, 160),

@@ -69,7 +69,7 @@ export function RegisterForm() {
   return (
     <div>
       <h1 className="text-3xl font-extrabold">Create your account</h1>
-      <p className="text-muted-foreground mt-2 text-sm">Join your campus community. It takes about two minutes.</p>
+      <p className="text-muted-foreground mt-2 text-sm">UniSphere is only for members of Ramgarh Engineering College. Create your account, then verify with your student ID.</p>
 
       {serverError && <FormAlert className="mt-6">{serverError}</FormAlert>}
 
@@ -80,7 +80,7 @@ export function RegisterForm() {
 
         <UsernameField register={register} value={username} error={errors.username?.message} />
 
-        <Field id="email" label="Email" error={errors.email?.message} hint="Any address works. You can verify your college email afterwards.">
+        <Field id="email" label="Email" error={errors.email?.message} hint="Use an address you check. You prove you are an RGEC member with your student ID after signing up.">
           <Input id="email" type="email" autoComplete="email" inputMode="email" aria-invalid={Boolean(errors.email)} aria-describedby="email-desc" {...register("email")} />
         </Field>
 

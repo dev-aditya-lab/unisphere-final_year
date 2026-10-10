@@ -30,6 +30,8 @@ export const metadata = {
     title: `${APP_NAME}: ${APP_TAGLINE}`,
     description: APP_DESCRIPTION,
   },
+  // A closed network: nothing is indexed unless a page explicitly opts in ((marketing) does).
+  robots: { index: false, follow: false },
   formatDetection: { telephone: false },
   appleWebApp: { capable: true, title: "UniSphere", statusBarStyle: "default" },
 };

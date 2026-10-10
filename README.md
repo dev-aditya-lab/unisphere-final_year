@@ -9,7 +9,8 @@ Designed and built by **Aditya Kumar Gupta, Sumit Jha, Sahil Nayak and Vishal Ku
 | --- | --- |
 | Stack | Next.js 16 (App Router, JavaScript), Tailwind CSS v4 + shadcn/ui, Supabase (Postgres, Auth, Realtime, RLS), Redis, Cloudflare R2, Resend, LangChain + Groq, Web Push |
 | Installable | Progressive Web App (offline screen, install prompt, push notifications) |
-| Verification | RGEC student ID, checked privately against the college's own list (stored only as keyed hashes) |
+| Access | **A closed network**: nothing is visible to logged-out visitors, or to accounts that are not verified RGEC members. Verification is by student ID, checked privately against the college's own list (stored only as keyed hashes) |
+| Deploys to | Vercel, Render (free plan) or any VPS: see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) |
 | Admin | Full console: moderation, appeals, student-ID list, roles, analytics, audit log, settings, feedback, releases |
 
 ## Quick start (local development)
@@ -81,8 +82,9 @@ docs/  store/         Documentation · store listing text and screenshots
   functions that re-check the caller's permission for the record's own college. The UI only hides what you cannot do.
 - **Honest degradation.** Redis, R2, email, AI, push and embeddings are optional. When one is missing the feature says
   so or falls back, rather than pretending to work.
-- **Private by default.** Content visibility is set per post and per profile; private content never reaches AI
-  providers, sitemaps or social previews.
+- **Closed by default.** UniSphere is for RGEC members only: no public feed, no public profiles, no search-engine
+  indexing of member content. Inside the network, visibility is still set per post and per profile, and private content
+  never reaches AI providers.
 - **No secrets in the browser.** Only `NEXT_PUBLIC_*` values ship to clients, and they are listed in `.env.example`.
 
 ## License

@@ -93,7 +93,7 @@ export function EventForm({ event = null, communities = [] }) {
           {regMode === "external" && <Field id="registrationUrl" label="Registration link" required error={errors.registrationUrl?.message}><Input id="registrationUrl" type="url" placeholder="https://" aria-describedby="registrationUrl-desc" {...register("registrationUrl")} /></Field>}
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          {sel("visibility", "Who can see it", [["college", "My college"], ["public", "Public"], ...(communities.length ? [["community", "A community's members"]] : [])])}
+          {sel("visibility", "Who can see it", [["college", "My college"], ["public", "All members"], ...(communities.length ? [["community", "A community's members"]] : [])])}
           {visibility === "community" && sel("communityId", "Community", communities.map((c) => [c.id, c.name]), { placeholder: "Choose a community" })}
         </div>
       </section>

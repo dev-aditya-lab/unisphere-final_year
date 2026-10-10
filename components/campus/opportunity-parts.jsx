@@ -52,7 +52,7 @@ export function OpportunityForm() {
       <div className="grid gap-4 sm:grid-cols-3">
         {sel("kind", "Type", OPPORTUNITY_KINDS.map((k) => [k.value, k.label]))}
         {sel("mode", "Work mode", [["on_site", "On site"], ["remote", "Remote"], ["hybrid", "Hybrid"]])}
-        {sel("visibility", "Who can see it", [["college", "My college"], ["public", "Public"]])}
+        {sel("visibility", "Who can see it", [["college", "My college"], ["public", "All members"]])}
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
         <Field id="location" label="Location" optional error={errors.location?.message}><Input id="location" maxLength={120} aria-describedby="location-desc" {...register("location")} /></Field>

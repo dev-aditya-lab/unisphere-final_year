@@ -171,7 +171,7 @@ describe("messaging", () => {
     expect((await a.client.from("message_attachments").insert({ message_id: msg.id, file_id: file.id })).error).toBeNull();
     expect((await b.client.from("files").select("id").eq("id", file.id)).data).toHaveLength(1);
     expect((await c.client.from("files").select("id").eq("id", file.id)).data).toHaveLength(0);
-    expect((await anon().from("files").select("id").eq("id", file.id)).data).toHaveLength(0);
+    expect((await anon().from("files").select("id").eq("id", file.id)).data ?? []).toHaveLength(0);
   });
 
   it("lets a participant report a message (snapshotted) but not one they cannot see", async () => {
@@ -206,7 +206,7 @@ describe("communities", () => {
     const post = await b.client.from("posts").insert({ author_id: b.id, slug: slug("cp"), body: "members only note", visibility: "college", community_id: community.id }).select("id, visibility").single();
     expect(post.error).toBeNull();
     expect(post.data.visibility).toBe("community"); // forced to members-only
-    const seen = async (u) => (await u.client.from("post_feed").select("id").eq("id", post.data.id)).data.length;
+    const seen = async (u) => ((await u.client.from("post_feed").select("id").eq("id", post.data.id)).data ?? []).length;
     expect(await seen(b)).toBe(1);
     expect(await seen(d)).toBe(0); // same college but not a member
     expect(await seen({ client: anon() })).toBe(0);
@@ -245,9 +245,10 @@ describe("events", () => {
     expect((await a.client.from("events").insert({ organizer_id: a.id, slug: slug("ev"), title: "Bad tz", starts_at: future(5), timezone: "Mars/Base" })).error).not.toBeNull();
     const pub = await makeEvent(a, { visibility: "public" });
     const college = await makeEvent(a);
-    const seen = async (client, id) => (await client.from("event_cards").select("id").eq("id", id)).data.length;
-    expect(await seen(anon(), pub.id)).toBe(1);
+    const seen = async (client, id) => ((await client.from("event_cards").select("id").eq("id", id)).data ?? []).length;
+    expect(await seen(anon(), pub.id)).toBe(0); // closed network: nothing is visible to logged-out visitors
     expect(await seen(anon(), college.id)).toBe(0);
+    expect(await seen(outsider.client, pub.id)).toBe(1); // "public" = every signed-in member
     expect(await seen(d.client, college.id)).toBe(1);
     expect(await seen(outsider.client, college.id)).toBe(0);
   });
@@ -320,8 +321,9 @@ describe("announcements and opportunities", () => {
     const mk = (u, patch = {}) => u.client.from("opportunities").insert({ poster_id: u.id, slug: slug("op"), title: `Intern ${tag}`, organization: "Acme", visibility: "college", ...patch }).select("id").single();
     const pub = (await mk(a, { visibility: "public" })).data;
     const col = (await mk(a)).data;
-    expect((await anon().from("opportunities").select("id").eq("id", pub.id)).data).toHaveLength(1);
-    expect((await anon().from("opportunities").select("id").eq("id", col.id)).data).toHaveLength(0);
+    expect((await anon().from("opportunities").select("id").eq("id", pub.id)).data ?? []).toHaveLength(0);
+    expect((await anon().from("opportunities").select("id").eq("id", col.id)).data ?? []).toHaveLength(0);
+    expect((await outsider.client.from("opportunities").select("id").eq("id", pub.id)).data).toHaveLength(1);
     expect((await d.client.from("opportunities").select("id").eq("id", col.id)).data).toHaveLength(1);
     expect((await outsider.client.from("opportunities").select("id").eq("id", col.id)).data).toHaveLength(0);
     expect((await b.client.from("opportunities").insert({ poster_id: a.id, slug: slug("op"), title: "Forged post", organization: "X" })).error).not.toBeNull();

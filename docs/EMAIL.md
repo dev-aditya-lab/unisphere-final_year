@@ -6,7 +6,7 @@ which makes problems easy to find.
 | Kind | Examples | Sent by | Configured in |
 | --- | --- | --- | --- |
 | **Authentication** | Confirm your email, reset password, change email | **Supabase Auth** | Supabase → Authentication → SMTP and Email Templates (locally: `supabase/config.toml`) |
-| **Application** | College-email codes, notification emails and digests, contact-form copies | **The app** (`lib/email`) | `RESEND_API_KEY`, `EMAIL_FROM` in the app environment |
+| **Application** | Notification emails and digests, contact-form copies | **The app** (`lib/email`) | `RESEND_API_KEY`, `EMAIL_FROM` in the app environment |
 
 Both need the **same verified sending domain** and, in practice, the same Resend API key.
 

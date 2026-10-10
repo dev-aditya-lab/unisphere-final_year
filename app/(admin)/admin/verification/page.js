@@ -22,7 +22,7 @@ export default async function VerificationPage({ searchParams }) {
     <>
       <PageHeader
         eyebrow="Review queues" title="College verification"
-        description="Confirm that a member really belongs to the college and account type they chose. Email-domain matches only prove membership — they never grant any staff access."
+        description="Confirm that a member really belongs to the college and account type they chose. Students on the college list verify themselves with their student ID, so this queue is mostly faculty, staff and students who are not on the list yet. Approving never grants any staff access."
       />
       <FilterTabs label="Verification views" basePath="/admin/verification" current={status} options={VIEWS} />
       {rows.length === 0 ? (
@@ -38,7 +38,6 @@ export default async function VerificationPage({ searchParams }) {
               >
                 <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
                   <div><dt className="eyebrow">Method</dt><dd className="capitalize">{v.method.replace(/_/g, " ")}</dd></div>
-                  {v.college_email && <div><dt className="eyebrow">College email</dt><dd className="break-all">{v.college_email} {v.email_verified_at ? "· code confirmed" : "· not confirmed"}</dd></div>}
                   {v.supporting_info && <div className="sm:col-span-2"><dt className="eyebrow">What they told us</dt><dd className="break-words whitespace-pre-wrap">{v.supporting_info}</dd></div>}
                   {v.document_file_id && (
                     <div className="sm:col-span-2">
@@ -49,7 +48,7 @@ export default async function VerificationPage({ searchParams }) {
                   {v.rejection_reason && <div className="sm:col-span-2"><dt className="eyebrow">Message sent to the member</dt><dd className="break-words whitespace-pre-wrap">{v.rejection_reason}</dd></div>}
                   {v.reviewer_notes && <div className="sm:col-span-2"><dt className="eyebrow">Internal notes</dt><dd className="break-words whitespace-pre-wrap">{v.reviewer_notes}</dd></div>}
                 </dl>
-                {(v.status === "pending" || v.status === "needs_info") && <VerificationReview id={v.id} emailRequiredButUnconfirmed={v.method === "email_domain" && !v.email_verified_at} />}
+                {(v.status === "pending" || v.status === "needs_info") && <VerificationReview id={v.id} />}
               </Panel>
             </li>
           ))}

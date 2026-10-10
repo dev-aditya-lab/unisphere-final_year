@@ -133,12 +133,17 @@ test.describe.serial("RGEC student ID, feedback, roadmap and changelog", () => {
     await dialog.getByRole("button", { name: "Save", exact: true }).click();
     await expect(dialog).toBeHidden({ timeout: 20_000 });
 
+    // the roadmap is for members only: a logged-out visitor is sent to the login page
     const anon = await (await browser.newContext()).newPage();
     await anon.goto("/roadmap");
-    const planned = anon.getByRole("region", { name: /Planned next/ });
+    await expect(anon).toHaveURL(/\/login/);
+    const reader = await (await browser.newContext()).newPage();
+    await login(reader, voter.email);
+    await reader.goto("/roadmap");
+    const planned = reader.getByRole("region", { name: /Planned next/ });
     await expect(planned.getByText(`Study group finder ${tag}`)).toBeVisible();
     await expect(planned.getByText("Great idea. Planned for after exams.")).toBeVisible();
-    await expect(anon.getByText(`Project page freezes ${tag}`)).toHaveCount(0);
+    await expect(reader.getByText(`Project page freezes ${tag}`)).toHaveCount(0);
 
     const member = await (await browser.newContext()).newPage();
     await login(member, s1.email);
@@ -148,7 +153,7 @@ test.describe.serial("RGEC student ID, feedback, roadmap and changelog", () => {
     await expect(member.getByText("Planned").first()).toBeVisible();
   });
 
-  test("the team publishes release notes to the public changelog and RSS feed", async ({ browser }) => {
+  test("the team publishes release notes to the members-only changelog", async ({ browser }) => {
     const page = await (await browser.newContext()).newPage();
     await login(page, product.email);
     await page.goto("/admin/releases");
@@ -163,12 +168,14 @@ test.describe.serial("RGEC student ID, feedback, roadmap and changelog", () => {
 
     const anon = await (await browser.newContext()).newPage();
     await anon.goto("/changelog");
-    await expect(anon.getByRole("heading", { name: `E2E release ${tag}` })).toBeVisible();
-    await expect(anon.getByText(`Faster study group search ${tag}`)).toBeVisible();
-    await expect(anon.getByRole("heading", { name: "Foundation" })).toBeVisible(); // the real history is there too
-    const rss = await anon.request.get("/changelog/rss.xml");
-    expect(rss.status()).toBe(200);
-    expect(rss.headers()["content-type"]).toContain("rss+xml");
-    expect(await rss.text()).toContain(`E2E release ${tag}`);
+    await expect(anon).toHaveURL(/\/login/); // members only
+
+    const reader = await (await browser.newContext()).newPage();
+    await login(reader, voter.email);
+    await reader.goto("/changelog");
+    await expect(reader.getByRole("heading", { name: `E2E release ${tag}` })).toBeVisible();
+    await expect(reader.getByText(`Faster study group search ${tag}`)).toBeVisible();
+    await expect(reader.getByRole("heading", { name: "Foundation" })).toBeVisible(); // the real history is there too
+    expect((await anon.request.get("/changelog/rss.xml", { maxRedirects: 0 })).status()).not.toBe(200); // no public feed any more
   });
 });

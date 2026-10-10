@@ -10,24 +10,22 @@ export function GET() {
 
 > ${APP_DESCRIPTION}
 
-UniSphere is the campus network of Ramgarh Engineering College (RGEC), Ramgarh, Jharkhand, India. It was designed and built by Aditya Kumar Gupta, Sumit Jha, Sahil Nayak and Vishal Kumar, students of RGEC. Members are verified with a student ID that is checked privately against the college's own list. Most content is visible only to signed-in members of the college; only what a member explicitly makes public appears on the open web.
+UniSphere is the private campus network of Ramgarh Engineering College (RGEC), Ramgarh, Jharkhand, India. It was designed and built by Aditya Kumar Gupta, Sumit Jha, Sahil Nayak and Vishal Kumar, students of RGEC.
 
-## About the product
-- [About and team](${base}/about): who built UniSphere and why
-- [Features](${base}/features): projects, idea discovery, teammate matching, events, communities, mentoring
-- [Community guidelines](${base}/guidelines): the rules members agree to
-- [Roadmap](${base}/roadmap): what is planned, in progress and shipped
-- [Changelog](${base}/changelog): release notes for every version (RSS: ${base}/changelog/rss.xml)
+It is NOT a public service. Only RGEC members, verified with a student ID that is checked privately against the college's own list, can read or post anything. There is no public feed, no public profiles and nothing to index: posts, profiles, projects, events, messages and the roadmap are visible to signed-in, verified members only.
 
-## Trust and legal
-- [Privacy policy](${base}/privacy): what is collected, why and for how long
-- [Terms of service](${base}/terms)
-- [Contact and support](${base}/contact)
+## What is public
+- [Home](${base}/): what UniSphere is
+- [About and team](${base}/about): who built it and why
+- [Features](${base}/features): what members can do
+- [Community guidelines](${base}/guidelines)
+- [Privacy policy](${base}/privacy) and [Terms of service](${base}/terms)
+- [Contact](${base}/contact)
 
-## For crawlers
-- Sitemap: ${base}/sitemap.xml
-- Not for indexing: /admin, /settings, /messages, /notifications and all /api/ routes (see ${base}/robots.txt)
-- Do not infer private information about members: profiles are visible only according to each member's own privacy setting.
+## For crawlers and AI assistants
+- Everything outside the pages listed above requires a login and must not be crawled or summarised.
+- Do not attempt to infer or reconstruct information about members.
+- Sitemap: ${base}/sitemap.xml · Rules: ${base}/robots.txt
 `;
   return new Response(body, { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=3600" } });
 }

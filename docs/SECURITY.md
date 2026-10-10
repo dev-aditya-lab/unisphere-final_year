@@ -14,6 +14,8 @@ vulnerability. Please include steps to reproduce; do not access data that is not
 | **Row Level Security** | Every table denies by default; policies allow exactly what a role may read or write. Anonymous, member, staff and service roles are tested separately | `supabase/migrations/*`, `tests/integration/*` (130+ tests with real JWTs) |
 | **Least privilege grants** | Default privileges are revoked; each table gets explicit column-level grants, so trust fields (status, verification, counters) cannot be changed by users | migrations 0001 to 0005 |
 | **Definer functions** | Privileged actions are `SECURITY DEFINER` functions with `set search_path = ''`, re-checking the caller's permission for the record's *own* college | `has_permission`, `resolve_report`, `moderate_user`, … |
+| **Closed network** | Logged-out visitors can read only the college list, public settings and feature flags; every member-content table and view is ungranted to the anonymous role. Accounts that are not verified members (when verification is required) are refused by the visibility functions themselves (`can_use_network`), so a direct API call gets nothing either | migration 0017 |
+| **Functions closed by default** | `EXECUTE` is no longer granted to `PUBLIC`; each function is granted explicitly, and anonymous visitors get a five-function allow-list (username check, permission/flag helpers) | migration 0017 |
 | **Roles are never inferred** | No role is granted from an email domain, a student ID or a request: only another administrator grants roles, and the grant is audited | `grant_role` |
 | **Audit log** | Append-only (trigger blocks update, delete and truncate for everyone). Secrets and message text are scrubbed before storage | `audit_logs`, `write_audit_log` |
 | **Content Security Policy** | Per-request nonce, `strict-dynamic`, no `unsafe-eval` in production, no third-party origins, `frame-ancestors 'none'` | `proxy.js`, `lib/security/csp.js` |
@@ -35,8 +37,8 @@ vulnerability. Please include steps to reproduce; do not access data that is not
   and community posts are never sent to a provider; college-visible text only if an administrator allows it. Each member
   can switch AI assistance off. See [AI.md](AI.md).
 - **Messages** are not readable from the admin console. A *report* about a message stores a snapshot for moderators.
-- **Public pages** (sitemap, social previews, `llms.txt`) use a session-less client, so they can only ever contain what an
-  anonymous visitor may see.
+- **Nothing is indexable.** The sitemap lists only the home, about, features, guidelines, contact, privacy and terms pages;
+  `robots.txt` disallows everything else; member pages are `noindex`; there are no public social previews of member content.
 - **Push** lock-screen text never contains message bodies.
 - **Analytics** are first-party counts; there are no third-party trackers, ad SDKs or analytics scripts.
 - **Data subject rights**: export (Settings → Security), deletion with a 14-day grace period.

@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { ConnectControls } from "@/components/people/connect-button";
 import { PostCard } from "@/components/posts/post-card";
 import { EmptyState } from "@/components/empty-state";
-import { JsonLd } from "@/components/json-ld";
 import { UserAvatar } from "@/components/user-avatar";
 import { getAuthUser } from "@/lib/auth/session";
 import { getProfilePage, resolveRenamedUsername } from "@/lib/services/profiles";
@@ -34,7 +33,7 @@ export async function generateMetadata({ params }) {
   const { profile } = data;
   const title = `${profile.full_name} (@${profile.username})`;
   const description = excerpt(profile.bio || profile.headline || `${profile.full_name} on UniSphere`, 160);
-  const isPublic = profile.visibility === "public";
+  const isPublic = false; // closed network: member content is never indexed or given a public preview
   return {
     title,
     description,
@@ -97,7 +96,6 @@ export default async function ProfilePage({ params, searchParams }) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      {jsonLd && <JsonLd data={jsonLd} />}
 
       <section className="surface overflow-hidden" aria-labelledby="profile-name">
         <div className="bg-muted relative aspect-[4/1] w-full">

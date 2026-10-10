@@ -44,9 +44,8 @@ describe("post visibility", () => {
 
     // author sees everything of their own
     for (const p of [pub, college, conns, priv]) expect(await visibleTo(alice.client, p.id)).toBe(true);
-    // logged-out: public only
-    expect(await visibleTo(anon(), pub.id)).toBe(true);
-    for (const p of [college, conns, priv]) expect(await visibleTo(anon(), p.id)).toBe(false);
+    // logged-out visitors see nothing at all: UniSphere is a closed network, "public" means "every member"
+    for (const p of [pub, college, conns, priv]) expect(await visibleTo(anon(), p.id)).toBe(false);
     // same college: public + college
     expect(await visibleTo(bob.client, pub.id)).toBe(true);
     expect(await visibleTo(bob.client, college.id)).toBe(true);
@@ -168,7 +167,7 @@ describe("post authorization and integrity", () => {
     await alice.client.from("post_attachments").insert({ post_id: p.id, file_id: f.id });
     expect((await bob.client.from("files").select("id").eq("id", f.id)).data).toHaveLength(1);
     expect((await carol.client.from("files").select("id").eq("id", f.id)).data).toHaveLength(0);
-    expect((await anon().from("files").select("id").eq("id", f.id)).data).toHaveLength(0);
+    expect((await anon().from("files").select("id").eq("id", f.id)).data ?? []).toHaveLength(0);
   });
 });
 
@@ -237,7 +236,7 @@ describe("reactions, comments and bookmarks", () => {
     expect((await bob.client.from("comments").update({ body: "edited" }).eq("id", c1.id)).error).toBeNull();
     // deleting a comment that has replies keeps the thread but blanks the text
     expect((await bob.client.from("comments").update({ status: "deleted" }).eq("id", c1.id)).error).toBeNull();
-    const view = await anon().from("comment_feed").select("id, body, status").eq("post_id", p.id);
+    const view = await bob.client.from("comment_feed").select("id, body, status").eq("post_id", p.id);
     const gone = view.data.find((c) => c.id === c1.id);
     expect(gone).toMatchObject({ status: "deleted", body: "" });
     expect((await admin.from("posts").select("comment_count").eq("id", p.id).single()).data.comment_count).toBe(1);
@@ -354,8 +353,8 @@ describe("people search and suggestions", () => {
     expect(ids).not.toContain(hidden.id);
     const collab = await bob.client.rpc("search_people", { p_open_to_collab: true, p_skills: ["rustlang"] });
     expect(collab.data.map((p) => p.id)).toEqual([found.id]);
-    // anonymous visitors only see public profiles
-    expect((await anon().rpc("search_people", { p_skills: ["rustlang"] })).data).toHaveLength(0);
+    // anonymous visitors cannot search people at all
+    expect((await anon().rpc("search_people", { p_skills: ["rustlang"] })).data ?? []).toHaveLength(0);
   });
 
   it("suggests same-college people ranked by shared skills, excluding connections", async () => {

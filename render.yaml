@@ -1,0 +1,37 @@
+# Render Blueprint: the web app on Render's FREE plan.
+#
+# Read docs/DEPLOYMENT.md first. Two things to know about the free plan:
+#   1. The service sleeps after ~15 minutes without traffic and takes about a minute to wake. The scheduled ping in
+#      .github/workflows/worker-tick.yml keeps it awake (and runs the background work) every 5 minutes.
+#   2. The free instance has little memory. If `npm run build` runs out of memory, build the Docker image in GitHub
+#      Actions instead (.github/workflows/docker-image.yml) and deploy that image to Render.
+services:
+  - type: web
+    name: unisphere
+    runtime: node
+    plan: free
+    region: singapore          # closest to Jharkhand among Render regions
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - { key: NODE_VERSION, value: "22" }
+      - { key: NODE_ENV, value: production }
+      - { key: NEXT_PUBLIC_APP_URL, sync: false }           # e.g. https://unisphere.onrender.com
+      - { key: NEXT_PUBLIC_SUPABASE_URL, sync: false }
+      - { key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, sync: false }
+      - { key: SUPABASE_SECRET_KEY, sync: false }
+      - { key: APP_SECRET, sync: false }
+      - { key: CRON_SECRET, sync: false }
+      - { key: REDIS_URL, sync: false }                      # Upstash rediss://... (optional)
+      - { key: RESEND_API_KEY, sync: false }
+      - { key: EMAIL_FROM, sync: false }
+      - { key: CLOUDFLARE_ACCOUNT_ID, sync: false }
+      - { key: CLOUDFLARE_R2_ACCESS_KEY_ID, sync: false }
+      - { key: CLOUDFLARE_R2_SECRET_ACCESS_KEY, sync: false }
+      - { key: CLOUDFLARE_R2_BUCKET_NAME, sync: false }
+      - { key: GROQ_API_KEY, sync: false }
+      - { key: NEXT_PUBLIC_VAPID_PUBLIC_KEY, sync: false }
+      - { key: VAPID_PRIVATE_KEY, sync: false }
+      - { key: VAPID_SUBJECT, sync: false }

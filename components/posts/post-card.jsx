@@ -9,7 +9,7 @@ import { privateFileUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
 const VISIBILITY_ICON = { public: Globe, college: GraduationCap, connections: Users, private: Lock, community: Users };
-const VISIBILITY_LABEL = { public: "Public", college: "College", connections: "Connections", private: "Only you", community: "Community" };
+const VISIBILITY_LABEL = { public: "All members", college: "College", connections: "Connections", private: "Only you", community: "Community" };
 
 export function postPath(post) {
   return `${post.category === "ideas" ? "/ideas/" : "/posts/"}${post.slug}`;

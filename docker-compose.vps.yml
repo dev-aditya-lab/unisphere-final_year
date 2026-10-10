@@ -1,0 +1,33 @@
+# VPS overlay: puts Caddy (automatic HTTPS) in front of the app and stops publishing the app's port to the world.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.vps.yml --env-file .env.docker up -d --build
+#
+# .env.docker must also define DOMAIN (for example unisphere.example.com) and NEXT_PUBLIC_APP_URL=https://<DOMAIN>.
+services:
+  app:
+    ports: !override []        # reachable only through Caddy
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN (the public host name) in .env.docker}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  caddy_data:
+  caddy_config:

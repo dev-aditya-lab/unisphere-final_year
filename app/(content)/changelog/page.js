@@ -6,9 +6,7 @@ import { listReleases } from "@/lib/services/feedback";
 export const metadata = {
   title: "Changelog",
   description: "Release notes for UniSphere, the campus network of Ramgarh Engineering College: what is new, improved and fixed in every version.",
-  alternates: { canonical: "/changelog", types: { "application/rss+xml": "/changelog/rss.xml" } },
 };
-export const revalidate = 300;
 
 const TONE = { new: "success", improved: "soft", fixed: "warning", security: "danger" };
 const label = (k) => RELEASE_KINDS.find((x) => x.value === k)?.label ?? k;
@@ -16,10 +14,10 @@ const label = (k) => RELEASE_KINDS.find((x) => x.value === k)?.label ?? k;
 export default async function ChangelogPage() {
   const releases = await listReleases();
   return (
-    <article className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
+    <article className="mx-auto max-w-3xl py-2">
       <p className="eyebrow mb-2">Changelog</p>
       <h1 className="text-4xl font-extrabold sm:text-5xl">What&rsquo;s new</h1>
-      <p className="text-muted-foreground mt-4 text-lg">Every release, newest first. See what we are working on next on the <Link href="/roadmap" className="text-primary font-semibold hover:underline">roadmap</Link>, or <a href="/changelog/rss.xml" className="text-primary font-semibold hover:underline">follow along by RSS</a>.</p>
+      <p className="text-muted-foreground mt-4 text-lg">Every release, newest first. See what we are working on next on the <Link href="/roadmap" className="text-primary font-semibold hover:underline">roadmap</Link>.</p>
       {releases.length === 0 ? (
         <p className="surface text-muted-foreground mt-10 p-6 text-sm">No releases published yet.</p>
       ) : (

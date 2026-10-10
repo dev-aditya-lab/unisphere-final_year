@@ -4,15 +4,9 @@
 
 insert into public.colleges (id, slug, name, short_name, city, state, verification_mode)
 values
-  ('00000000-0000-4000-8000-000000000001', 'greenfield-institute', 'Greenfield Institute of Technology (demo)', 'GIT', 'Pune', 'Maharashtra', 'email_domain'),
+  ('00000000-0000-4000-8000-000000000001', 'greenfield-institute', 'Greenfield Institute of Technology (demo)', 'GIT', 'Pune', 'Maharashtra', 'manual'),
   ('00000000-0000-4000-8000-000000000002', 'riverside-university', 'Riverside University (demo)', 'RU', 'Bengaluru', 'Karnataka', 'manual')
 on conflict (id) do nothing;
-
-insert into public.college_domains (college_id, domain, audiences) values
-  ('00000000-0000-4000-8000-000000000001', 'students.greenfield.test', '{student}'),
-  ('00000000-0000-4000-8000-000000000001', 'alumni.greenfield.test', '{alumni}'),
-  ('00000000-0000-4000-8000-000000000001', 'greenfield.test', '{faculty,staff}')
-on conflict (domain) do nothing;
 
 insert into public.campuses (college_id, name, city) values
   ('00000000-0000-4000-8000-000000000001', 'Main Campus', 'Pune'),

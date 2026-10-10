@@ -10,8 +10,6 @@ const COLUMNS = [
       { href: "/#idea-discovery", label: "AI idea discovery" },
       { href: "/#how-it-works", label: "How it works" },
       { href: "/#faq", label: "FAQ" },
-      { href: "/roadmap", label: "Roadmap" },
-      { href: "/changelog", label: "Changelog" },
     ],
   },
   {

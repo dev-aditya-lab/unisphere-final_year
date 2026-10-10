@@ -1,0 +1,16 @@
+# Caddy obtains and renews a free HTTPS certificate automatically (Let's Encrypt).
+# DOMAIN comes from .env.docker; point its DNS A record at the server first.
+{$DOMAIN} {
+	encode zstd gzip
+
+	# The app sets its own security headers (CSP, HSTS, ...). Caddy only adds compression and TLS.
+	reverse_proxy app:3000 {
+		health_uri /api/health
+		health_interval 30s
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

@@ -8,6 +8,14 @@ developer accounts, signing keys and store review, which only the team (not the 
 > **Status:** the web app, manifest, icons, service worker, push, store listing text and screenshots are ready.
 > Submission, review, approval and release are **not done**. They need your Google Play and Apple developer accounts.
 
+## A private app: say so plainly
+
+UniSphere is a **private community app** for Ramgarh Engineering College, not a public social network. State this in both
+store listings and in the review notes: it needs a login, every account is verified against the college's own student-ID
+list, and the content is never public. Reviewers will need a **demo account that is already verified** (see "Review
+notes" in `store/listing.md`), because they cannot hold a real RGEC student ID. Google Play's *App access* form asks for
+exactly this: choose "all or some functionality is restricted" and supply the demo credentials.
+
 ## What you need before you start
 
 | Item | Where it comes from |

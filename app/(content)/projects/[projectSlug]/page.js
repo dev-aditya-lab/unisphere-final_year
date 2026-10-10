@@ -4,7 +4,6 @@ import { ExternalLink, Settings2, Target, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { JsonLd } from "@/components/json-ld";
 import { JoinPanel } from "@/components/projects/join-panel";
 import { StatusBadge } from "@/components/projects/project-card";
 import { UserAvatar } from "@/components/user-avatar";
@@ -19,7 +18,7 @@ export async function generateMetadata({ params }) {
   const project = isValidSlug(projectSlug) ? await getProjectBySlug(projectSlug) : null;
   if (!project) return { title: "Project not found", robots: { index: false, follow: false } };
   const description = excerpt(project.tagline || project.problem || `${project.name}, a project on UniSphere`, 160);
-  const isPublic = project.visibility === "public";
+  const isPublic = false; // closed network: member content is never indexed or given a public preview
   return {
     title: project.name,
     description,
@@ -51,20 +50,6 @@ export default async function ProjectPage({ params }) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      {project.visibility === "public" && (
-        <JsonLd
-          data={{
-            "@context": "https://schema.org",
-            "@type": "CreativeWork",
-            name: project.name,
-            description: project.tagline || project.problem || undefined,
-            url: `${publicEnv.appUrl}/projects/${project.slug}`,
-            creator: { "@type": "Person", name: project.owner_name, url: `${publicEnv.appUrl}/u/${project.owner_username}` },
-            keywords: [...project.tech_stack, ...project.required_skills].join(", "),
-            dateCreated: project.created_at,
-          }}
-        />
-      )}
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem><BreadcrumbLink asChild><Link href={user ? "/projects" : "/"}>{user ? "Projects" : "Home"}</Link></BreadcrumbLink></BreadcrumbItem>

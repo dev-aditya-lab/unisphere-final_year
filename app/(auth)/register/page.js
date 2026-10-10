@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Create your account",
-  description: "Join UniSphere: share projects, find teammates and connect with seniors and alumni from your college.",
+  description: "UniSphere is the private network of Ramgarh Engineering College. Create your account, then verify with your student ID.",
   alternates: { canonical: "/register" },
 };
 

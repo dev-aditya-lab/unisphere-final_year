@@ -16,7 +16,7 @@ export default async function CollegesPage() {
     <>
       <PageHeader
         eyebrow="Community" title="Colleges"
-        description="How each college verifies its members. A matching email domain only proves someone belongs to the college; it never grants any staff role."
+        description="How each college verifies its members. Students prove they belong with their student ID; nothing about verification ever grants a staff role."
       />
       <div className="space-y-5">
         {colleges.filter((c) => global || editable(c.id)).map((c) => (

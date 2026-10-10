@@ -48,6 +48,15 @@ Legend: ✅ done and verified · 🟡 partly done · ⬜ not started
 - ✅ Student-ID verification: private per-college list imported by staff, IDs stored only as keyed hashes, one account per ID, lockout after repeated misses, release/revoke/restore, audit-logged
 - ✅ Publishing requires a verified student ID in production (the dev seed switches it off); manual review remains the fallback
 
+## Closed network and deployment targets ✅
+- ✅ **A private network for RGEC.** Logged-out visitors see only the home, about, features, guidelines, contact, privacy and terms pages. Everything else redirects to the login page; the database refuses anonymous reads too (member tables/views ungranted from the anonymous role)
+- ✅ **Members-only gate.** In production an account that is not a verified RGEC member sees only a "Verify to enter UniSphere" screen and its own settings; the database refuses to return member content to it either (`can_use_network`). Staff are never locked out
+- ✅ No public pages for member content: sitemap lists only the explanatory pages, `robots.txt` disallows the rest, member pages are `noindex`, no public social previews, no RSS feed, roadmap and changelog are for members
+- ✅ **College email verification removed** everywhere (UI, services, templates, tables, admin screens). Membership is student ID, invite code or manual review
+- ✅ Hardening found on the way: PostgreSQL had granted `EXECUTE` on every function to `PUBLIC` (which includes the anonymous role). Every function is now granted explicitly; anonymous visitors get a five-function allow-list
+- ✅ Deployable three ways, each documented step by step in `docs/DEPLOYMENT.md`: **Vercel** (`vercel.json`), **Render free plan** (`render.yaml`), **any VPS** (Docker Compose + Caddy automatic HTTPS, `deploy/`)
+- ✅ Background jobs for hosts without a worker: GitHub Actions calls the job endpoint every 5 minutes (`.github/workflows/worker-tick.yml`), which also keeps a free Render instance awake; a workflow builds the Docker image on GitHub for servers too small to build it (`docker-image.yml`)
+
 ## Phase 7 — Manifestation (PWA) ✅ (store submission needs your accounts)
 - ✅ Web app manifest, generated icons (any + maskable + badge), shortcuts
 - ✅ Service worker: static-asset caching, friendly offline screen, update prompt. Signed-in pages are deliberately never cached
@@ -77,7 +86,7 @@ Legend: ✅ done and verified · 🟡 partly done · ⬜ not started
 - **Supabase (hosted)**: create the project, `supabase db push`, set Site URL and redirect URLs, custom SMTP (Resend) and the templates in `supabase/templates/`.
 - **`APP_SECRET`** and **`CRON_SECRET`**: generate and store safely. `APP_SECRET` keys the student-ID hashes: never rotate it casually.
 - **Student-ID list**: RGEC must supply the valid IDs; a verification staff member imports them (Admin → Student IDs).
-- **Resend**: verify the sender domain (SPF, DKIM, DMARC). Locally mail goes to Mailpit.
+- **Resend**: verify the sender domain (SPF, DKIM, DMARC). Locally mail goes to Mailpit. (Only sign-up, password reset and notification email remain; there is no college-email step.)
 - **Cloudflare R2**: private bucket in use; optionally create a public bucket and set `CLOUDFLARE_R2_PUBLIC_BUCKET_NAME`, `CLOUDFLARE_R2_PUBLIC_URL`, `NEXT_PUBLIC_MEDIA_URL`.
 - **VAPID keys** for push in production (generate once and keep), and run the worker.
 - **Branches/departments**: migration 0013 seeds CSE, EE, ME and CE for RGEC as a starting point. Please check them against the college's real list.

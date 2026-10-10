@@ -123,9 +123,10 @@ describe("the product team", () => {
   });
 });
 
-describe("roadmap and changelog are public", () => {
-  it("exposes only titles, status and counts for planned and shipped ideas", async () => {
-    const res = await anon().rpc("public_roadmap");
+describe("roadmap and changelog are for signed-in members", () => {
+  it("exposes only titles, status and counts for planned and shipped ideas, and only to members", async () => {
+    expect((await anon().rpc("public_roadmap")).error).not.toBeNull(); // logged-out visitors cannot call it
+    const res = await bob.client.rpc("public_roadmap");
     expect(res.error).toBeNull();
     const item = res.data.find((i) => i.title === `Dark mode ${tag}`);
     expect(item).toMatchObject({ status: "planned", public_response: "Coming after exams" });
@@ -137,11 +138,12 @@ describe("roadmap and changelog are public", () => {
     expect((await rpc(alice, "save_release", { p_id: null, p_version: "9.0.0", p_title: "Nope", p_summary: null, p_items: [], p_publish: true })).error?.message).toMatch(/forbidden/);
     const draft = await rpc(product, "save_release", { p_id: null, p_version: "9.1.0", p_title: "Draft release", p_summary: "Soon", p_items: [{ kind: "new", text: "Something" }], p_publish: false });
     expect(draft.error).toBeNull();
-    expect((await anon().from("releases").select("version").eq("version", "9.1.0")).data).toEqual([]);
+    expect((await bob.client.from("releases").select("version").eq("version", "9.1.0")).data).toEqual([]); // drafts: team only
+    expect((await anon().from("releases").select("version")).data ?? []).toEqual([]);
     expect((await product.client.from("releases").select("version").eq("version", "9.1.0")).data).toHaveLength(1);
 
     expect((await rpc(product, "save_release", { p_id: draft.data, p_version: "9.1.0", p_title: "Draft release", p_summary: "Soon", p_items: [{ kind: "new", text: "Something" }], p_publish: true })).error).toBeNull();
-    const pub = (await anon().from("releases").select("version, published_at, items").eq("version", "9.1.0")).data;
+    const pub = (await bob.client.from("releases").select("version, published_at, items").eq("version", "9.1.0")).data;
     expect(pub).toHaveLength(1);
     expect(pub[0].items[0].text).toBe("Something");
     expect((await rpc(product, "save_release", { p_id: null, p_version: "9.1.0", p_title: "Again", p_summary: null, p_items: [], p_publish: false })).error?.message).toMatch(/version_exists/);
@@ -150,7 +152,7 @@ describe("roadmap and changelog are public", () => {
   });
 
   it("ships with the real release history", async () => {
-    const { data } = await anon().from("releases").select("version, title").order("version");
+    const { data } = await bob.client.from("releases").select("version, title").order("version");
     expect(data.map((r) => r.version)).toEqual(expect.arrayContaining(["0.1.0", "0.6.0", "0.7.0", "0.8.0"]));
   });
 });

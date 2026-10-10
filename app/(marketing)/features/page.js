@@ -12,7 +12,7 @@ const GROUPS = [
     title: "Share and connect",
     items: [
       ["Campus feed", "Posts, projects, ideas, questions, opportunities and achievements, with reactions, comments, reposts and bookmarks."],
-      ["Profiles", "Skills, interests, projects and achievements, with per-profile visibility and a public page at /u/username."],
+      ["Profiles", "Skills, interests, projects and achievements, with per-profile visibility. Profiles are visible only to signed-in RGEC members."],
       ["Connections & messages", "Send connection requests, message people who allow it, and block or report anyone."],
     ],
   },

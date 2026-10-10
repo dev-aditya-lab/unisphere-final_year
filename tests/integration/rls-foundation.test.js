@@ -76,13 +76,14 @@ describe("profiles", () => {
     // alice: visibility = college
     expect((await bob.client.from("profiles").select("id").eq("id", alice.id)).data).toHaveLength(1);
     expect((await carol.client.from("profiles").select("id").eq("id", alice.id)).data).toHaveLength(0);
-    expect((await anon().from("profiles").select("id").eq("id", alice.id)).data).toHaveLength(0);
+    expect((await anon().from("profiles").select("id").eq("id", alice.id)).data ?? []).toHaveLength(0);
     // dave: private
     expect((await bob.client.from("profiles").select("id").eq("id", dave.id)).data).toHaveLength(0);
     expect((await dave.client.from("profiles").select("id").eq("id", dave.id)).data).toHaveLength(1);
 
     await admin.from("profiles").update({ visibility: "public" }).eq("id", alice.id);
-    expect((await anon().from("profiles").select("id").eq("id", alice.id)).data).toHaveLength(1);
+    // even a "public" profile is invisible to logged-out visitors; it means "every signed-in member"
+    expect((await anon().from("profiles").select("id").eq("id", alice.id)).data ?? []).toHaveLength(0);
     expect((await carol.client.from("profiles").select("id").eq("id", alice.id)).data).toHaveLength(1);
     await admin.from("profiles").update({ visibility: "college" }).eq("id", alice.id);
   });
@@ -114,7 +115,7 @@ describe("profiles", () => {
     const second = await bob.client.from("profiles").update({ username: `${first}-2` }).eq("id", bob.id);
     expect(second.error?.message).toContain("username_cooldown");
     // The old name keeps redirecting.
-    const { data } = await anon().from("slug_redirects").select("entity_id").eq("entity_type", "user").eq("old_slug", bob.username);
+    const { data } = await carol.client.from("slug_redirects").select("entity_id").eq("entity_type", "user").eq("old_slug", bob.username);
     expect(data?.[0]?.entity_id).toBe(bob.id);
   });
 
@@ -243,17 +244,6 @@ describe("college verification", () => {
     expect((await verifier.client.rpc("has_permission", { p_permission: "users.view", p_college_id: GREENFIELD })).data).toBe(false);
   });
 
-  it("an email-domain request cannot be approved before the email is proven", async () => {
-    const { data: req } = await carol.client
-      .from("college_verifications")
-      .insert({ user_id: carol.id, college_id: RIVERSIDE, account_type: "student", method: "email_domain", college_email: "carol@riverside.test" })
-      .select("id")
-      .single();
-    const res = await admin.rpc("finalize_college_verification", { p_id: req.id, p_decision: "approved", p_reviewer: null });
-    expect(res.error?.message).toContain("email_not_verified");
-    await carol.client.from("college_verifications").update({ status: "cancelled" }).eq("id", req.id);
-  });
-
   it("invite codes verify matching members once and honour usage limits", async () => {
     const make = await collegeAdmin.client.rpc("create_college_invite", { p_college: GREENFIELD, p_audience: "student", p_max_uses: 1, p_valid_days: 7 });
     expect(make.error).toBeNull();
@@ -300,9 +290,11 @@ describe("settings, flags and files", () => {
     const { data: doc } = await mk(alice, "verification_document", "private");
     const { data: avatar } = await mk(alice, "avatar", "private");
     expect((await bob.client.from("files").select("id").eq("id", doc.id)).data).toHaveLength(0);
-    expect((await anon().from("files").select("id").eq("id", doc.id)).data).toHaveLength(0);
+    expect((await anon().from("files").select("id").eq("id", doc.id)).data ?? []).toHaveLength(0);
     expect((await alice.client.from("files").select("id").eq("id", doc.id)).data).toHaveLength(1);
-    expect((await anon().from("files").select("id").eq("id", avatar.id)).data).toHaveLength(1);
+    // avatars are readable by signed-in members, never by logged-out visitors
+    expect((await bob.client.from("files").select("id").eq("id", avatar.id)).data).toHaveLength(1);
+    expect((await anon().from("files").select("id").eq("id", avatar.id)).data ?? []).toHaveLength(0);
   });
 
   it("stops users from pointing their avatar at someone else's file", async () => {
@@ -313,7 +305,6 @@ describe("settings, flags and files", () => {
   });
 
   it("denies API roles any privilege on internal tables", async () => {
-    expect((await alice.client.from("college_email_challenges").select("id")).error).not.toBeNull();
     expect((await anon().from("reserved_usernames").select("name")).error).not.toBeNull();
     expect((await alice.client.from("contact_messages").select("id")).data ?? []).toHaveLength(0);
   });

@@ -21,7 +21,8 @@ Matching itself is done with SQL (full-text, skill overlap, optional vector simi
 
 1. **Opt-out per member**: Settings → Privacy → "AI assist" → "Allow AI assist". When off, nothing the member writes goes to a provider.
 2. **Visibility**: private, connections-only and community posts are never sent. College-visible text is sent only if an
-   administrator allows it (`ai_share_college_content`). Public text is eligible.
+   administrator allows it (`ai_share_college_content`). Text visible to "all members" is eligible. UniSphere has no
+   content that is public to the internet.
 3. **No storage of content**: the `ai_usage_logs` table keeps task name, provider, model, timing, token counts and
    outcome. Prompts and replies are not stored.
 4. **Untrusted text is fenced**: user content is wrapped in tagged blocks and the model is told it is data, not

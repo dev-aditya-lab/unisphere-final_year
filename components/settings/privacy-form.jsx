@@ -42,7 +42,7 @@ export function PrivacyForm({ profile }) {
 
       <section className="surface p-5 sm:p-6">
         <h2 className="text-lg font-bold">Who can see your profile</h2>
-        <p className="text-muted-foreground mt-0.5 text-sm">Public posts you publish keep their own visibility setting.</p>
+        <p className="text-muted-foreground mt-0.5 text-sm">Posts you publish keep their own visibility setting.</p>
         <Controller
           control={control}
           name="visibility"

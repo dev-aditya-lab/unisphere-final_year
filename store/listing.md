@@ -31,7 +31,7 @@ stores' current limits; the counts below are for the English text.
 ## Full description (Play 4000 max / App Store 4000 max)
 
 ```
-UniSphere is the campus network of Ramgarh Engineering College (RGEC). It brings students, seniors, alumni, faculty and clubs together around what people are actually building.
+UniSphere is the private campus network of Ramgarh Engineering College (RGEC), for RGEC students, alumni and faculty only. It brings them together around what people are actually building.
 
 SHARE WHAT YOU MAKE
 Post projects, ideas, questions and achievements. Add photos, #hashtags and @mentions, and choose exactly who can see each post: everyone, your college, your connections or only you.
@@ -48,8 +48,8 @@ Browse the alumni directory, ask for mentoring, and keep your conversations in p
 NEVER MISS WHAT MATTERS
 Events with RSVP, waitlists and reminders. Clubs and communities. Official announcements from the college. Opportunities such as internships and competitions. Real-time notifications, with push on your phone if you want them.
 
-VERIFIED AND SAFE
-Verify with your student ID. It is checked privately against the college's own list and is never stored or shown, and each ID links to one account. Report anything, block anyone, and appeal any moderation decision: a different moderator reviews it.
+PRIVATE, VERIFIED AND SAFE
+UniSphere is closed to the public: only verified RGEC members can see anything. Verify with your student ID. It is checked privately against the college's own list and is never stored or shown, and each ID links to one account. Report anything, block anyone, and appeal any moderation decision: a different moderator reviews it.
 
 YOUR PRIVACY, YOUR CHOICE
 You choose who sees your profile, your class details and who may message you. Download your data or delete your account whenever you like.

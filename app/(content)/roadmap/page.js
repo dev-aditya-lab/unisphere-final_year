@@ -6,9 +6,7 @@ import { getRoadmap } from "@/lib/services/feedback";
 export const metadata = {
   title: "Roadmap",
   description: "What the UniSphere team is building, what is planned next and what has shipped. Ideas come from RGEC members and are ordered by their votes.",
-  alternates: { canonical: "/roadmap" },
 };
-export const revalidate = 300;
 
 const COLUMNS = [
   { status: "in_progress", title: "In progress", blurb: "Being built right now." },
@@ -19,7 +17,7 @@ const COLUMNS = [
 export default async function RoadmapPage() {
   const items = await getRoadmap();
   return (
-    <article className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+    <article className="mx-auto max-w-6xl py-2">
       <p className="eyebrow mb-2">Roadmap</p>
       <h1 className="text-4xl font-extrabold sm:text-5xl">What we are building</h1>
       <p className="text-muted-foreground mt-4 max-w-2xl text-lg">

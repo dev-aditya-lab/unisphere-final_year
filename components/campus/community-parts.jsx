@@ -53,7 +53,7 @@ export function CommunityForm({ community = null }) {
       <Field id="description" label="Description" optional error={errors.description?.message}><Textarea id="description" rows={4} maxLength={1500} aria-describedby="description-desc" {...register("description")} /></Field>
       <div className="grid gap-4 sm:grid-cols-3">
         {select("kind", "Type", COMMUNITY_KINDS.map((k) => [k.value, k.label]))}
-        {select("visibility", "Who can find it", [["public", "Anyone"], ["college", "My college"], ["private", "Members only"]])}
+        {select("visibility", "Who can find it", [["public", "All members"], ["college", "My college"], ["private", "Members only"]])}
         {select("joinPolicy", "How people join", [["open", "Open to all"], ["request", "By request"], ["invite", "Invite only"]])}
       </div>
       <div className="flex justify-end gap-2">

@@ -49,8 +49,10 @@ describe("projects: creation and visibility", () => {
     const pub = await makeProject(owner, { visibility: "public" });
     const college = await makeProject(owner, { visibility: "college" });
     const priv = await makeProject(owner, { visibility: "private" });
-    expect(await seen(anon(), pub.id)).toBe(true);
+    // logged-out visitors see nothing, not even "public" projects
+    expect(await seen(anon(), pub.id)).toBe(false);
     expect(await seen(anon(), college.id)).toBe(false);
+    expect(await seen(otherCollege.client, pub.id)).toBe(true); // "public" = every signed-in member
     expect(await seen(outsider.client, college.id)).toBe(true);
     expect(await seen(otherCollege.client, college.id)).toBe(false);
     expect(await seen(outsider.client, priv.id)).toBe(false);
@@ -217,7 +219,7 @@ describe("project search", () => {
     expect(byText).not.toContain(b.id);
     expect((await outsider.client.rpc("search_projects", { p_query: word, p_status: "idea" })).data.map((x) => x.id)).not.toContain(a.id);
     expect((await outsider.client.rpc("search_projects", { p_skills: ["elixirlang"] })).data.map((x) => x.id)).toContain(a.id);
-    expect((await anon().rpc("search_projects", { p_query: word })).data.map((x) => x.id)).toEqual([a.id]);
+    expect((await anon().rpc("search_projects", { p_query: word })).data ?? []).toEqual([]);
   });
 });
 

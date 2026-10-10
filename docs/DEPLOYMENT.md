@@ -1,132 +1,204 @@
 # Deploying UniSphere
 
-This is the path from "works on my laptop" to "RGEC students can use it". Do the steps in order; each ends with a
-check that tells you it worked.
+UniSphere is a normal Next.js app plus a database, so it runs in three common ways. Pick one:
 
-## What you are deploying
+| | **A. Vercel** | **B. Render free plan** | **C. Your own VPS** |
+| --- | --- | --- | --- |
+| Cost | Free (Hobby) | Free | A small paid server (about 1 vCPU / 1 to 2 GB RAM is enough) |
+| Setup effort | Easiest | Easy | Most work, most control |
+| Always on | Yes | **Sleeps after ~15 min idle** (a scheduled ping keeps it awake) | Yes |
+| Background jobs (email, push, reminders) | Scheduled calls (GitHub Actions every 5 min) | Scheduled calls (GitHub Actions every 5 min) | A real worker container (every 30 s) |
+| Best for | Launch and normal use | Trying it out, a demo | Long-term, full control |
 
-| Piece | Runs where | Notes |
+All three need the same four outside services. They have free tiers that are enough for a college community:
+
+| Service | What it does | Free-tier notes (check current limits) |
 | --- | --- | --- |
-| **Web app** (Next.js, standalone output) | Docker container / any Node 22 host | Stateless: scale by running more copies |
-| **Worker** | A second container (or any scheduler hitting one URL) | Sends emails and push, reminders, scheduled deletions, embeddings |
-| **Supabase** | Supabase cloud project, or your own | Postgres + Auth + Realtime. The database is the source of truth |
-| **Redis** | Container or Upstash | Rate limits and caches only. Losing it loses nothing important |
-| **Cloudflare R2** | Cloudflare | Private bucket (attachments, ID documents) and an optional public bucket (avatars) |
-| **Resend** | Resend | Transactional email (app mail and Supabase Auth mail) |
-| **Groq** (+ optional embeddings provider) | Their API | AI features. Optional |
+| **Supabase** (cloud) | Database, sign-in, live updates | A free project works. **Free projects pause after about a week without activity**; opening the dashboard (or any traffic) wakes it |
+| **Cloudflare R2** | Uploaded images and files | A generous free allowance; no bandwidth fees |
+| **Resend** | Email (sign-up, password reset, notifications) | A small free monthly allowance; you must verify your own sending domain |
+| **Upstash Redis** (optional) | Shared rate limiting | Free tier; without it limits are per server instance and weaker |
 
-## 0. Decide the address
+Optional: **Groq** (AI features, free tier) and **VAPID keys** (push notifications, free, you generate them).
 
-Pick the public HTTPS URL, for example `https://unisphere.<your-domain>`. It goes into `NEXT_PUBLIC_APP_URL`, Supabase
-Auth's *Site URL*, the sitemap, emails and the Android asset links. **Changing it later means rebuilding the image.**
+> **Reminder: this is a closed network.** Nothing but the home, about, features, guidelines, contact, privacy and terms
+> pages is visible without signing in, and (in production) nobody sees anything until they verify with their student ID.
+> That is built in; you do not need to configure it. See [ADMIN_GUIDE.md](ADMIN_GUIDE.md).
 
-## 1. Supabase project
+---
 
-1. Create a project (or self-host). Note the **Project URL**, the **publishable key** and the **secret key**.
-2. Apply the schema. With the CLI linked to the project:
+## Step 0: Common setup (do this once, whichever host you choose)
+
+### 0.1 Decide the address
+Pick the final public URL, for example `https://unisphere.onrender.com`, `https://unisphere.vercel.app` or
+`https://unisphere.<your-domain>`. It is used in links, emails and the app manifest. **Changing it later means rebuilding.**
+
+### 0.2 Create the Supabase project
+1. supabase.com → New project. Choose the region nearest to you (Mumbai/Singapore). Save the **database password**.
+2. Project Settings → API: copy **Project URL**, the **publishable (anon) key** and the **secret (service_role) key**.
+3. Apply the database schema (from your computer, inside the repository):
    ```bash
-   npx supabase link --project-ref <ref>
-   npx supabase db push          # applies supabase/migrations in order
+   npx supabase login
+   npx supabase link --project-ref <your-project-ref>
+   npx supabase db push            # applies every file in supabase/migrations in order
    ```
-   Do **not** run `supabase/seed.sql` in production: it is development data only.
-3. In **Authentication → URL configuration**: Site URL = your public URL; add
-   `https://<your-domain>/auth/callback` and `https://<your-domain>/auth/confirm` to the redirect list.
-4. In **Authentication → Providers → Email**: keep "Confirm email" **on**; set a sensible minimum password length (8+).
-5. In **Authentication → SMTP**: use Resend (`smtp.resend.com`, port 465, user `resend`, password = your API key, sender
-   on your verified domain). Paste the three templates from `supabase/templates/` into **Authentication → Email
-   Templates** (confirm signup, reset password, change email); they use `{{ .SiteURL }}` for the logo.
-6. In **Authentication → Rate limits** leave the defaults; the app has its own limits too.
-7. Turn on **Point-in-time recovery** or scheduled backups for the database (see OPERATIONS.md).
+   Do **not** run `supabase/seed.sql`; it is development-only demo data.
+4. Authentication → **URL Configuration**: *Site URL* = your public URL; add `https://<your-domain>/auth/confirm` and
+   `https://<your-domain>/auth/callback` to *Redirect URLs*.
+5. Authentication → **Providers → Email**: keep *Confirm email* **on**.
+6. Authentication → **SMTP Settings**: enable custom SMTP with Resend (`smtp.resend.com`, port `465`, user `resend`,
+   password = your Resend API key, sender = `no-reply@your-domain`). Then **Email Templates**: paste the three files in
+   `supabase/templates/`. (Without custom SMTP, Supabase's built-in email is heavily rate-limited and unsuitable.)
 
-Check: `select count(*) from public.colleges where slug = 'ramgarh-engineering-college';` returns 1.
+Check: SQL editor → `select name from public.colleges where slug = 'ramgarh-engineering-college';` returns the college.
 
-## 2. Storage (Cloudflare R2)
+### 0.3 Storage (Cloudflare R2)
+Create bucket `unisphere-private` (and optionally `unisphere-public`), then an API token with *Object Read & Write*.
+You will need: account id, access key id, secret access key, bucket name(s).
 
-1. Create two buckets: `unisphere-private` and, optionally, `unisphere-public` (enable public access or attach a custom
-   domain such as `media.<your-domain>`).
-2. Create an R2 API token with *Object Read & Write* on both buckets.
-3. Set `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_R2_ACCESS_KEY_ID`, `CLOUDFLARE_R2_SECRET_ACCESS_KEY`,
-   `CLOUDFLARE_R2_BUCKET_NAME`, and for the public bucket `CLOUDFLARE_R2_PUBLIC_BUCKET_NAME`,
-   `CLOUDFLARE_R2_PUBLIC_URL` and `NEXT_PUBLIC_MEDIA_URL` (the last is a **build** value).
+### 0.4 Email (Resend)
+Add and verify your sending domain (SPF + DKIM DNS records), create an API key. Details: [EMAIL.md](EMAIL.md).
+No domain yet? You can only send to your own address until you have one, so get one before launch.
 
-Without the public bucket everything still works: avatars are served from the private bucket through the app.
-
-## 3. Email (Resend)
-
-Verify your sending domain in Resend (add the SPF and DKIM DNS records), then set `RESEND_API_KEY` and
-`EMAIL_FROM="UniSphere <no-reply@your-domain>"`. Details and troubleshooting in [EMAIL.md](EMAIL.md).
-
-## 4. Secrets and configuration
-
-Create `.env.docker` from `.env.example` and fill in the production values. Generate the secrets:
-
+### 0.5 Generate secrets
 ```bash
-openssl rand -hex 32     # CRON_SECRET
-openssl rand -hex 32     # APP_SECRET   (REQUIRED in production)
-npx web-push generate-vapid-keys        # NEXT_PUBLIC_VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY
+openssl rand -hex 32     # use as CRON_SECRET
+openssl rand -hex 32     # use as APP_SECRET   (keep it forever: it keys the student-ID hashes)
+npx web-push generate-vapid-keys      # NEXT_PUBLIC_VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY (optional, for push)
 ```
+No `openssl`? Use any password manager's "generate 64 hex characters".
 
-| Must set | Why |
-| --- | --- |
-| `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Compiled into the browser bundle (**build arguments**) |
-| `SUPABASE_SECRET_KEY` | Server only. Bypasses RLS: treat like a root password |
-| `APP_SECRET` | Keys the student-ID hashes and one-time codes. **Back it up and never rotate casually**: changing it invalidates the imported student-ID list (you would have to re-import it) |
-| `CRON_SECRET` | Authenticates the worker to `/api/cron/tick` |
-| `RESEND_API_KEY`, `EMAIL_FROM` | Email |
-| R2 variables | File uploads |
+### 0.6 The environment variables
+| Variable | Required | Notes |
+| --- | --- | --- |
+| `NEXT_PUBLIC_APP_URL` | yes | The public URL. **Build-time** |
+| `NEXT_PUBLIC_SUPABASE_URL` | yes | **Build-time** |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | yes | **Build-time** |
+| `SUPABASE_SECRET_KEY` | yes | Server only. Treat like a root password |
+| `APP_SECRET` | yes | Never change it casually |
+| `CRON_SECRET` | yes | Authenticates the background job caller |
+| `RESEND_API_KEY`, `EMAIL_FROM` | yes in practice | e.g. `UniSphere <no-reply@your-domain>` |
+| `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_R2_ACCESS_KEY_ID`, `CLOUDFLARE_R2_SECRET_ACCESS_KEY`, `CLOUDFLARE_R2_BUCKET_NAME` | for uploads | |
+| `REDIS_URL` | optional | Upstash `rediss://default:<password>@<host>:6379` |
+| `GROQ_API_KEY` (+ `AI_ENABLED=true`) | optional | AI features |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | optional | Push. Public key is **build-time** |
+| `NEXT_PUBLIC_MEDIA_URL`, `CLOUDFLARE_R2_PUBLIC_BUCKET_NAME`, `CLOUDFLARE_R2_PUBLIC_URL` | optional | Direct delivery of avatars from a public bucket |
 
-Optional: `REDIS_URL` (compose sets it for you), `GROQ_API_KEY`, embeddings, VAPID keys, Android variables.
+"Build-time" values are compiled into the browser code: set them **before** the first build and rebuild if you change them.
 
-## 5. Build and run
-
+### 0.7 First administrator
+After the first deployment (so the app can reach the database), on your own computer with the same values in `.env.local`:
 ```bash
-docker compose --env-file .env.docker up -d --build
-docker compose ps                       # app should become "healthy"
-curl -s https://<your-domain>/api/health            # {"status":"ok","version":"x.y.z"}
-curl -s "https://<your-domain>/api/health?deep=1"   # also checks the database
+npm run create-admin -- you@example.com "Your Name"
 ```
+This creates a confirmed global administrator and writes the password into `.env.local` as a comment. Copy it to a
+password manager and delete the comment. Then sign in and open `/admin`: appoint a second administrator, set the
+support email in Settings, and import the student-ID list (Admin → Student IDs).
 
-Put a TLS-terminating reverse proxy in front (Caddy, Nginx, Traefik, a cloud load balancer, or Cloudflare). The app sets
-HSTS in production, so serve it **only** over HTTPS. Forward the original `Host` and `X-Forwarded-*` headers.
+---
 
-Other hosts: any platform that runs a Node 22 container works. If you deploy without Docker, run
-`npm ci && npm run build && npm start`, and run `npm run worker` (or a scheduler calling
-`POST /api/cron/tick` with `Authorization: Bearer $CRON_SECRET` every 30 to 60 seconds) beside it.
+## A. Deploy on Vercel
 
-## 6. First administrator
+1. Push the repository to GitHub.
+2. vercel.com → **Add New → Project** → import the repository. Framework is detected as Next.js; keep defaults.
+3. Add the environment variables from 0.6 (Production). The `NEXT_PUBLIC_*` ones must be present **before** the build.
+4. Deploy. The included `vercel.json` registers a daily safety-net call to the job endpoint.
+5. **Background jobs.** Vercel serverless functions cannot run a worker. Use the included GitHub Actions workflow:
+   - Repository → Settings → Secrets and variables → Actions → add **secret** `CRON_SECRET` (same value as in Vercel) and
+     **variable** `APP_URL` (your public URL).
+   - The workflow `.github/workflows/worker-tick.yml` then calls `/api/cron/tick` every 5 minutes.
+   - Vercel's own cron also sends `Authorization: Bearer $CRON_SECRET` once a day, which the endpoint accepts.
+6. Add your domain in Vercel (optional) and update `NEXT_PUBLIC_APP_URL` + Supabase *Site URL* if it changes (then redeploy).
 
-On a machine with the production env values (never commit them):
+Limits to know: the Hobby plan is for non-commercial use (a college project qualifies, but read their terms); function
+time is capped (the job endpoint is written to finish in under a minute); Vercel cron on Hobby runs at most daily, which
+is why GitHub Actions does the frequent calls.
 
-```bash
-npm run create-admin -- you@rgec.example "Your Name"
-```
+## B. Deploy on Render (free plan)
 
-The script writes the password to `.env.local` as a comment: copy it to your password manager and delete it from the
-file. Log in, open `/admin`, then immediately:
+1. Push the repository to GitHub.
+2. Render dashboard → **New → Blueprint** → select the repository. It reads `render.yaml` and creates the web service on the
+   **free** plan. Fill in the environment variables it asks for (section 0.6).
+3. Wait for the first build. If it fails with an out-of-memory error (the free instance is small), use the prebuilt image
+   route below instead.
+4. **Keep it awake and run background jobs.** The free instance sleeps after about 15 minutes idle (the next visitor waits
+   up to a minute). The same GitHub Actions workflow as above fixes both: add `CRON_SECRET` (secret) and `APP_URL`
+   (variable), and it pings the app and runs jobs every 5 minutes. It then rarely sleeps.
+5. Set `NEXT_PUBLIC_APP_URL` to the `https://<name>.onrender.com` address (or your custom domain) **before** building.
 
-1. **Staff & roles**: appoint a second global admin (so you are never the only one), and college admins/moderators.
-2. **Settings**: set the public support email, review "Require college verification to publish" (on by default).
-3. **Student IDs**: import the college's list (see [ADMIN_GUIDE.md](ADMIN_GUIDE.md)).
+**If the free build runs out of memory:** let GitHub build the image instead.
+- Repository → Settings → Secrets and variables → Actions → **Variables**: add `NEXT_PUBLIC_APP_URL`,
+  `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (and optionally `NEXT_PUBLIC_VAPID_PUBLIC_KEY`,
+  `NEXT_PUBLIC_MEDIA_URL`).
+- The workflow `.github/workflows/docker-image.yml` builds and publishes `ghcr.io/<owner>/<repo>:latest` on every push.
+- On Render choose **New → Web Service → Deploy an existing image** and give it that image URL, plus the server-side
+  variables. (Make the package public, or add registry credentials.)
 
-## 7. Go-live checklist
+Free-plan realities: it is fine for trying UniSphere out and for a small community, but expect a cold start after idle
+time, and no persistent disk (UniSphere does not need one). For a live launch consider option A or C.
 
-- [ ] `/api/health?deep=1` is `ok` over HTTPS and the HTTP URL redirects to HTTPS
-- [ ] Sign-up email arrives (check spam), the link logs you in, a password-reset email works
+## C. Deploy on a VPS (Docker)
+
+Works on any Ubuntu/Debian server from DigitalOcean, Hetzner, AWS Lightsail, Oracle, a college server, etc.
+
+1. **Point a domain** at the server: create an `A` record (for example `unisphere.your-domain.com` → the server's IP).
+2. **Prepare the server** (as root):
+   ```bash
+   git clone <your-repo-url> unisphere && cd unisphere
+   bash deploy/vps-bootstrap.sh        # installs Docker, a firewall (22/80/443), automatic security updates
+   ```
+3. **Configure**: `cp .env.example .env.docker` and fill it in (section 0.6). Also add:
+   ```
+   DOMAIN=unisphere.your-domain.com
+   NEXT_PUBLIC_APP_URL=https://unisphere.your-domain.com
+   ```
+4. **Start** (builds the image, then starts the app, worker, Redis and Caddy for automatic HTTPS):
+   ```bash
+   docker compose -f docker-compose.yml -f docker-compose.vps.yml --env-file .env.docker up -d --build
+   docker compose ps                   # everything should be "running" / "healthy"
+   curl -s https://unisphere.your-domain.com/api/health
+   ```
+   The first HTTPS certificate takes a minute. The worker container runs the background jobs every 30 seconds, so you do
+   **not** need GitHub Actions on a VPS.
+5. **Update later**: `git pull && docker compose -f docker-compose.yml -f docker-compose.vps.yml --env-file .env.docker up -d --build`.
+   Run `npx supabase db push` first if the release added a migration.
+6. **Backups**: enable Supabase backups, and see [OPERATIONS.md](OPERATIONS.md).
+
+No Docker? `npm ci && npm run build && npm start` works too; run `npm run worker` as a second process (for example with
+`systemd` or `pm2`) and put Caddy or Nginx in front for HTTPS.
+
+---
+
+## Go-live checklist
+
+- [ ] `https://<your-domain>/api/health?deep=1` returns `{"status":"ok", ...}`
+- [ ] A signed-out visitor sees only the home/about/legal pages; `/feed` and `/u/anyone` send them to the login page
+- [ ] Sign-up email arrives (check spam); the link signs you in; a password-reset email works
+- [ ] A student ID from the imported list verifies; the same ID cannot be claimed by a second account
+- [ ] An unverified account sees only the "Verify to enter UniSphere" screen
 - [ ] Upload an avatar and a post image; they display after a refresh
-- [ ] A student ID from the list verifies; the same ID cannot be claimed by a second account
-- [ ] Worker is running: Admin → AI status shows jobs moving, a test push arrives (Settings → Notifications)
-- [ ] `https://<your-domain>/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/manifest.webmanifest` load
-- [ ] Response headers include `Content-Security-Policy`, `Strict-Transport-Security`, `X-Content-Type-Options`
-- [ ] Backups verified: you have restored one into a scratch project at least once
-- [ ] `APP_SECRET`, `SUPABASE_SECRET_KEY` and `CRON_SECRET` are stored in a password manager and are not in git
-- [ ] At least two people can sign in as global admin
+- [ ] Background jobs run: send a test push (Settings → Notifications) and check Admin → AI status for job counts
+- [ ] Response headers include `Content-Security-Policy` and `Strict-Transport-Security`
+- [ ] At least two people can sign in as global admin; secrets are in a password manager, not in git
 - [ ] Privacy policy, terms and guidelines text reviewed by the college (editable in Admin → Settings)
+- [ ] Support email set in Admin → Settings
 
-## Updating
+## Troubleshooting
 
-1. `git pull`, then `npx supabase db push` for any new migrations (they are forward-only and idempotent where possible).
-2. `docker compose --env-file .env.docker up -d --build`.
-3. Check `/api/health?deep=1`, then publish release notes in Admin → Releases.
+| Symptom | Likely cause |
+| --- | --- |
+| Build fails: `Invalid environment configuration` | A required variable is missing; the message names it |
+| Pages work but sign-in loops or "invalid redirect" | Supabase *Site URL* / redirect URLs do not match `NEXT_PUBLIC_APP_URL` |
+| Everything redirects to the login page, even the home page | `NEXT_PUBLIC_*` values were wrong at build time; fix and rebuild |
+| Sign-up email never arrives | Supabase SMTP not configured, or the sender domain is not verified in Resend |
+| Images do not load for signed-in members | R2 variables missing, or `CLOUDFLARE_ACCOUNT_ID` wrong (the CSP allows only your own account's R2 host) |
+| Notifications and emails are delayed | The worker/tick is not running: check GitHub Actions runs (A, B) or `docker compose logs worker` (C) |
+| Free Render site is slow on first visit | It was asleep; the scheduled ping reduces this but cannot remove it |
+| Supabase calls fail after a quiet week | The free project paused; open the Supabase dashboard and click *Restore* |
 
-Roll back by redeploying the previous image tag. Migrations are additive, so the previous version keeps working with the
-newer schema in nearly every case; if a release ever includes a destructive migration it says so at the top of its file.
+## Updating and rolling back
+
+Migrations are forward-only and additive, so deploying the previous version of the code against a newer schema keeps
+working in nearly every case. To roll back, redeploy the previous commit (Vercel: *Promote* an older deployment; Render:
+*Rollback*; VPS: `git checkout <old-tag>` and rebuild). If a release ever includes a destructive migration it says so at
+the top of its file.

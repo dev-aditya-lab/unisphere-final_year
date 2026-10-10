@@ -20,7 +20,7 @@ export async function generateMetadata({ params }) {
   const { communitySlug } = await params;
   const c = isValidSlug(communitySlug) ? await getCommunityBySlug(communitySlug) : null;
   if (!c) return { title: "Community not found", robots: { index: false, follow: false } };
-  const isPublic = c.visibility === "public";
+  const isPublic = false; // closed network: member content is never indexed or given a public preview
   return {
     title: c.name,
     description: excerpt(c.description || `${c.name} on UniSphere`, 160),

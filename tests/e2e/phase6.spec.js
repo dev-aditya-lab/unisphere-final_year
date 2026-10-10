@@ -65,14 +65,14 @@ test.describe.serial("production readiness: security, SEO and accessibility", ()
     };
     const anon = await (await browser.newContext()).newPage();
     watch(anon);
-    for (const path of ["/", "/about", "/features", "/roadmap", "/changelog", "/login", "/register", `/posts/${publicPost.slug}`]) {
+    for (const path of ["/", "/about", "/features", "/guidelines", "/contact", "/login", "/register"]) {
       await anon.goto(path);
       await anon.waitForLoadState("networkidle");
     }
     const m = await (await browser.newContext()).newPage();
     watch(m);
     await login(m, member.email);
-    for (const path of ["/feed", "/explore", "/projects", "/events", "/messages", "/notifications", "/settings/notifications", "/settings/privacy", "/feedback"]) {
+    for (const path of ["/feed", "/explore", "/projects", "/events", "/messages", "/notifications", "/settings/notifications", "/settings/privacy", "/feedback", "/roadmap", "/changelog"]) {
       await m.goto(path);
       await m.waitForLoadState("networkidle");
     }
@@ -89,19 +89,16 @@ test.describe.serial("production readiness: security, SEO and accessibility", ()
     expect(violations, violations.join("\n")).toEqual([]);
   });
 
-  test("sitemap lists public content only; robots hides private areas; llms.txt describes the product", async ({ request }) => {
+  test("the sitemap, robots and llms.txt describe a closed network: only the explanatory pages are listed", async ({ request }) => {
     const sitemap = await (await request.get("/sitemap.xml")).text();
-    expect(sitemap).toContain("/about");
-    expect(sitemap).toContain("/roadmap");
-    expect(sitemap).toContain(`/posts/${publicPost.slug}`);
-    expect(sitemap).toContain(`/u/${author.username}`);
-    expect(sitemap).not.toContain(collegePost.slug); // college-only content never appears
-    expect(sitemap).not.toContain("/admin");
-    expect(sitemap).not.toContain(member.username); // member profiles default to non-public
+    for (const path of ["/about", "/features", "/guidelines", "/privacy", "/terms", "/contact"]) expect(sitemap).toContain(path);
+    for (const never of ["/posts/", "/u/", "/projects/", "/events/", "/roadmap", "/changelog", "/admin", "/feed", publicPost.slug, collegePost.slug, author.username]) {
+      expect(sitemap, never).not.toContain(never);
+    }
 
     const robots = await (await request.get("/robots.txt")).text();
-    expect(robots).toMatch(/Disallow: \/admin/);
-    expect(robots).toMatch(/Disallow: \/api\//);
+    expect(robots).toMatch(/Disallow: \//);
+    expect(robots).toMatch(/Allow: \/about/);
     expect(robots).toMatch(/Sitemap: .*\/sitemap\.xml/);
 
     const llms = await request.get("/llms.txt");
@@ -109,36 +106,43 @@ test.describe.serial("production readiness: security, SEO and accessibility", ()
     expect(llms.headers()["content-type"]).toContain("text/plain");
     const text = await llms.text();
     expect(text).toContain("Ramgarh Engineering College");
+    expect(text).toMatch(/NOT a public service/);
     for (const name of ["Aditya Kumar Gupta", "Sumit Jha", "Sahil Nayak", "Vishal Kumar"]) expect(text).toContain(name);
   });
 
-  test("public content has canonical URLs, social previews and valid structured data; private content is not indexable", async ({ page, request }) => {
-    await page.goto(`/posts/${publicPost.slug}`);
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", new RegExp(`/posts/${publicPost.slug}$`));
-    const og = await page.locator('meta[property="og:image"]').first().getAttribute("content");
-    expect(og).toContain("opengraph-image");
-    const ld = await page.locator('script[type="application/ld+json"]').allTextContents();
-    expect(ld.length).toBeGreaterThan(0);
-    const parsed = ld.flatMap((t) => [].concat(JSON.parse(t)));
-    expect(parsed.some((d) => d["@type"] === "DiscussionForumPosting" && d.headline.includes("Public robotics notes"))).toBe(true);
+  test("logged-out visitors are sent to the login page for every member page, even ones marked public", async ({ request }) => {
+    for (const path of [`/posts/${publicPost.slug}`, `/u/${author.username}`, "/feed", "/projects", "/events", "/roadmap", "/changelog", "/search?q=robotics", "/admin"]) {
+      const res = await request.get(path, { maxRedirects: 0 });
+      expect(res.status(), path).toBe(307);
+      expect(res.headers().location, path).toContain("/login");
+    }
+    // the sign-up and explanatory pages stay open
+    for (const path of ["/", "/about", "/features", "/login", "/register", "/contact", "/privacy", "/terms", "/guidelines"]) {
+      expect((await request.get(path)).status(), path).toBe(200);
+    }
+    // there is no public preview of a member post either
+    expect((await request.get(`/posts/${publicPost.slug}/opengraph-image`, { maxRedirects: 0 })).status()).not.toBe(200);
+  });
+
+  test("the home page has valid structured data and previews; member pages are never indexable", async ({ page, browser }) => {
+    await page.goto("/");
+    const ld = (await page.locator('script[type="application/ld+json"]').allTextContents()).flatMap((t) => [].concat(JSON.parse(t)));
+    const org = ld.find((d) => d["@type"] === "Organization");
+    expect(org.founder.map((f) => f.name)).toEqual(expect.arrayContaining(["Aditya Kumar Gupta", "Vishal Kumar"]));
+    expect(ld.some((d) => d["@type"] === "FAQPage")).toBe(true);
     // browsers hide the nonce attribute from the DOM (getAttribute is empty); the element's nonce property carries it
     expect(await page.locator('script[type="application/ld+json"]').first().evaluate((el) => el.nonce)).toBeTruthy();
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /index/);
+    const og = await page.locator('meta[property="og:image"]').first().getAttribute("content");
+    expect((await page.request.get(new URL(og).pathname)).headers()["content-type"]).toContain("image/png");
 
-    const img = await request.get(new URL(og).pathname);
-    expect(img.status()).toBe(200);
-    expect(img.headers()["content-type"]).toContain("image/png");
-
-    await page.goto("/");
-    const home = (await page.locator('script[type="application/ld+json"]').allTextContents()).flatMap((t) => [].concat(JSON.parse(t)));
-    const org = home.find((d) => d["@type"] === "Organization");
-    expect(org.founder.map((f) => f.name)).toEqual(expect.arrayContaining(["Aditya Kumar Gupta", "Vishal Kumar"]));
-    expect(home.some((d) => d["@type"] === "FAQPage")).toBe(true);
-
-    // a college-only post is invisible to visitors, and its preview image is the generic card (nothing leaks)
-    expect((await request.get(`/posts/${collegePost.slug}`, { maxRedirects: 0 })).status()).not.toBe(200);
-    const privateImage = await request.get(new URL(og).pathname.replace(publicPost.slug, collegePost.slug));
-    expect(privateImage.status()).toBe(200);
-    expect(privateImage.headers()["content-type"]).toContain("image/png");
+    const m = await (await browser.newContext()).newPage();
+    await login(m, author.email);
+    await m.goto(`/posts/${publicPost.slug}`);
+    await expect(m.getByRole("heading", { name: /Public robotics notes/ })).toBeVisible();
+    await expect(m.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+    expect(await m.locator('meta[property="og:image"]').count()).toBe(0);
+    expect(await m.locator('script[type="application/ld+json"]').count()).toBe(0);
   });
 
   test("health endpoint reports liveness without leaking internals", async ({ request }) => {
@@ -163,10 +167,10 @@ test.describe.serial("production readiness: security, SEO and accessibility", ()
     // Reduced motion shows every page in its final state, so scroll-reveal fades cannot skew colour measurements.
     const ctxOpts = { reducedMotion: "reduce" };
     const anon = await (await browser.newContext(ctxOpts)).newPage();
-    for (const p of ["/", "/about", "/features", "/login", "/register", "/roadmap", "/changelog", "/contact"]) problems.push(...(await scan(anon, p)));
+    for (const p of ["/", "/about", "/features", "/login", "/register", "/contact", "/guidelines"]) problems.push(...(await scan(anon, p)));
     const m = await (await browser.newContext(ctxOpts)).newPage();
     await login(m, member.email);
-    for (const p of ["/feed", "/explore", "/projects", "/messages", "/settings/profile", "/settings/notifications", "/feedback"]) problems.push(...(await scan(m, p)));
+    for (const p of ["/feed", "/explore", "/projects", "/messages", "/settings/profile", "/settings/notifications", "/feedback", "/roadmap", "/changelog"]) problems.push(...(await scan(m, p)));
     const a = await (await browser.newContext(ctxOpts)).newPage();
     await login(a, gadmin.email);
     for (const p of ["/admin", "/admin/reports", "/admin/users", "/admin/settings", "/admin/analytics"]) problems.push(...(await scan(a, p)));

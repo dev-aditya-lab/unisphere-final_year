@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { BadgeCheck, Clock, IdCard, Mail, Paperclip, Ticket, UserCheck } from "lucide-react";
+import { BadgeCheck, Clock, IdCard, Paperclip, Ticket, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,105 +13,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Field } from "@/components/forms/field";
 import { FormAlert } from "@/components/forms/form-alert";
 import { SubmitButton } from "@/components/forms/submit-button";
-import { emailSchema } from "@/lib/validators/auth";
 import {
   cancelVerificationAction,
-  confirmEmailVerificationAction,
   redeemInviteAction,
-  startEmailVerificationAction,
   submitManualVerificationAction,
   verifyStudentIdAction,
 } from "@/lib/actions/verification";
 import { uploadFileWithProgress } from "@/lib/storage/client";
 
-const emailForm = z.object({ email: emailSchema });
-const codeForm = z.object({ code: z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit code") });
 const inviteForm = z.object({ code: z.string().trim().min(1, "Enter your invitation code") });
 const studentIdForm = z.object({ studentId: z.string().trim().min(4, "Enter your student ID").max(40) });
 const manualForm = z.object({ info: z.string().trim().min(20, "Tell us a little more (at least 20 characters)").max(1000) });
-
-function EmailMethod({ domains, onDone }) {
-  const [stage, setStage] = useState("email");
-  const [sentTo, setSentTo] = useState("");
-  const [pending, startTransition] = useTransition();
-  const [error, setError] = useState(null);
-
-  const emailF = useForm({ resolver: zodResolver(emailForm), defaultValues: { email: "" } });
-  const codeF = useForm({ resolver: zodResolver(codeForm), defaultValues: { code: "" } });
-
-  function sendCode(values) {
-    setError(null);
-    startTransition(async () => {
-      const res = await startEmailVerificationAction(values);
-      if (res.ok) {
-        setSentTo(res.email);
-        setStage("code");
-        toast.success(`Code sent to ${res.email}`);
-      } else setError(res.error);
-    });
-  }
-
-  function confirm(values) {
-    setError(null);
-    startTransition(async () => {
-      const res = await confirmEmailVerificationAction(values);
-      if (res.ok) {
-        toast.success(res.status === "verified" ? "You are verified!" : "Email confirmed. A reviewer will finish the verification.");
-        onDone();
-      } else {
-        setError(res.error);
-        if (res.code === "expired" || res.code === "locked") setStage("email");
-      }
-    });
-  }
-
-  return (
-    <div className="space-y-4">
-      {domains.length > 0 ? (
-        <p className="text-muted-foreground text-sm">
-          Use an address ending in {domains.map((d, i) => (
-            <span key={d.domain}>
-              {i > 0 && ", "}
-              <code className="bg-muted rounded px-1 py-0.5 font-mono text-xs">@{d.domain}</code>
-            </span>
-          ))}
-          . We email a 6-digit code to prove you control it.
-        </p>
-      ) : (
-        <FormAlert variant="info">Your college has not registered an email domain. Use an invitation code or request manual review.</FormAlert>
-      )}
-      {error && <FormAlert>{error}</FormAlert>}
-
-      {stage === "email" ? (
-        <form onSubmit={emailF.handleSubmit(sendCode)} noValidate className="space-y-4">
-          <Field id="collegeEmail" label="College email" error={emailF.formState.errors.email?.message}>
-            <Input id="collegeEmail" type="email" autoComplete="email" disabled={domains.length === 0} aria-describedby="collegeEmail-desc" {...emailF.register("email")} />
-          </Field>
-          <SubmitButton pending={pending} pendingText="Sending…" disabled={domains.length === 0}>
-            <Mail /> Send code
-          </SubmitButton>
-        </form>
-      ) : (
-        <form onSubmit={codeF.handleSubmit(confirm)} noValidate className="space-y-4">
-          <p className="text-sm">
-            We sent a code to <strong>{sentTo}</strong>. It expires in 15 minutes.
-          </p>
-          <Field id="emailCode" label="6-digit code" error={codeF.formState.errors.code?.message}>
-            <Input id="emailCode" inputMode="numeric" autoComplete="one-time-code" maxLength={6} className="max-w-40 font-mono tracking-[0.4em]" aria-describedby="emailCode-desc" {...codeF.register("code")} />
-          </Field>
-          <div className="flex gap-2">
-            <SubmitButton pending={pending} pendingText="Checking…">
-              Verify
-            </SubmitButton>
-            <Button type="button" variant="ghost" onClick={() => setStage("email")}>
-              Use a different email
-            </Button>
-          </div>
-        </form>
-      )}
-    </div>
-  );
-}
 
 function StudentIdMethod({ collegeName, onDone }) {
   const [pending, startTransition] = useTransition();
@@ -226,10 +138,10 @@ function ManualMethod({ onDone }) {
   );
 }
 
-export function VerificationPanel({ status, college, domains, latest, refresh }) {
+export function VerificationPanel({ status, college, latest, refresh }) {
   const [cancelPending, startCancel] = useTransition();
   const mode = college?.verification_mode ?? "manual";
-  const defaultTab = mode === "student_id" ? "student_id" : mode === "invite" ? "invite" : mode === "email_domain" && domains.length ? "email" : "manual";
+  const defaultTab = mode === "student_id" ? "student_id" : mode === "invite" ? "invite" : "manual";
 
   if (!college) {
     return (
@@ -259,15 +171,10 @@ export function VerificationPanel({ status, college, domains, latest, refresh })
           <div>
             <p className="font-semibold">{latest.status === "needs_info" ? "More information needed" : "Request under review"}</p>
             <p className="text-muted-foreground text-sm">
-              {latest.status === "needs_info" && latest.rejection_reason
-                ? latest.rejection_reason
-                : latest.method === "email_domain" && !latest.email_verified_at
-                  ? "Enter the code we emailed you to continue, or start again below."
-                  : "A reviewer will respond soon. We will email you when there is a decision."}
+              {latest.status === "needs_info" && latest.rejection_reason ? latest.rejection_reason : "A reviewer will respond soon. We will notify you when there is a decision."}
             </p>
           </div>
         </div>
-        {latest.method === "email_domain" && !latest.email_verified_at && <EmailMethod domains={domains} onDone={refresh} />}
         <Button
           variant="outline"
           size="sm"
@@ -296,8 +203,7 @@ export function VerificationPanel({ status, college, domains, latest, refresh })
       <Tabs defaultValue={defaultTab}>
         <TabsList>
           {mode === "student_id" && <TabsTrigger value="student_id">Student ID</TabsTrigger>}
-          {mode !== "student_id" && <TabsTrigger value="email">College email</TabsTrigger>}
-          {mode !== "student_id" && <TabsTrigger value="invite">Invitation code</TabsTrigger>}
+          {mode === "invite" && <TabsTrigger value="invite">Invitation code</TabsTrigger>}
           <TabsTrigger value="manual">Manual review</TabsTrigger>
         </TabsList>
         {mode === "student_id" && (
@@ -305,12 +211,7 @@ export function VerificationPanel({ status, college, domains, latest, refresh })
             <StudentIdMethod collegeName={college.name} onDone={refresh} />
           </TabsContent>
         )}
-        {mode !== "student_id" && (
-          <TabsContent value="email" className="pt-4">
-            <EmailMethod domains={domains} onDone={refresh} />
-          </TabsContent>
-        )}
-        {mode !== "student_id" && (
+        {mode === "invite" && (
           <TabsContent value="invite" className="pt-4">
             <InviteMethod onDone={refresh} />
           </TabsContent>

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CalendarPlus, ExternalLink, MapPin, Users, Video } from "lucide-react";
 import { EventManagePanel, RsvpPanel } from "@/components/campus/event-parts";
-import { JsonLd } from "@/components/json-ld";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
@@ -20,7 +19,7 @@ export async function generateMetadata({ params }) {
   const { eventSlug } = await params;
   const e = isValidSlug(eventSlug) ? await getEventBySlug(eventSlug) : null;
   if (!e) return { title: "Event not found", robots: { index: false, follow: false } };
-  const isPublic = e.visibility === "public" && e.status === "published";
+  const isPublic = false; // closed network: member content is never indexed or given a public preview
   const description = excerpt(e.description || `${e.title}, ${formatEventRange(e.starts_at, e.ends_at, e.timezone)}`, 160);
   return { title: e.title, description, alternates: { canonical: `/events/${e.slug}` }, robots: isPublic ? { index: true, follow: true } : { index: false, follow: false }, openGraph: isPublic ? { type: "article", title: e.title, description } : undefined };
 }
@@ -37,16 +36,6 @@ export default async function EventPage({ params }) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      {event.visibility === "public" && event.status === "published" && (
-        <JsonLd data={{
-          "@context": "https://schema.org", "@type": "Event", name: event.title, description: event.description || undefined,
-          startDate: event.starts_at, endDate: event.ends_at || undefined, url: `${publicEnv.appUrl}/events/${event.slug}`,
-          eventStatus: "https://schema.org/EventScheduled",
-          eventAttendanceMode: event.mode === "online" ? "https://schema.org/OnlineEventAttendanceMode" : event.mode === "hybrid" ? "https://schema.org/MixedEventAttendanceMode" : "https://schema.org/OfflineEventAttendanceMode",
-          location: event.mode === "online" ? { "@type": "VirtualLocation", url: `${publicEnv.appUrl}/events/${event.slug}` } : { "@type": "Place", name: event.location || "Campus" },
-          organizer: { "@type": "Person", name: event.organizer_name },
-        }} />
-      )}
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem><BreadcrumbLink asChild><Link href={user ? "/events" : "/"}>{user ? "Events" : "Home"}</Link></BreadcrumbLink></BreadcrumbItem>

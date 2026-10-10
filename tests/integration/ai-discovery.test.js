@@ -276,7 +276,8 @@ describe.skipIf(!process.env.GROQ_API_KEY)("live Groq tasks", () => {
     const improved = await runAiTask("improve_clarity", { title: "", body: "so basically i wanna make app for mess food waste, predict how much food needed, using data maybe ML. need teammates" });
     expect(improved.ok, JSON.stringify(improved)).toBe(true);
     expect(improved.data.improved.length).toBeGreaterThan(20);
-    expect(improved.meta.model).toBeTruthy();
+    // A repeat of the same request within the cache window is served from Redis and names no model.
+    if (!improved.meta.cached) expect(improved.meta.model).toBeTruthy();
   });
 
   it("is not hijacked by instructions hidden in member text", async () => {

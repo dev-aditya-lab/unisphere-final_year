@@ -32,11 +32,11 @@ copies, restart at will and keep the worker as a thin loop with no business logi
 
 | Group | Purpose | Shell |
 | --- | --- | --- |
-| `(marketing)` | Landing, about, features, roadmap, changelog, legal, contact | Public header and footer |
+| `(marketing)` | Landing, about, features, legal, contact: the only pages a logged-out visitor can see | Public header and footer |
 | `(auth)` | Login, register, password reset, email verification | Split layout |
 | `(onboarding)` | First-run profile steps | Focused flow |
 | `(app)` | Feed, explore, search, projects, messages, notifications, settings, feedback | Member shell (sidebar, bell, install banner) |
-| `(content)` | Pages that may be public: posts, ideas, profiles, projects, events, communities, opportunities | Member shell if signed in, public chrome otherwise |
+| `(content)` | Member content pages: posts, ideas, profiles, projects, events, communities, opportunities, roadmap, changelog. Login required | Member shell, or the verification screen for unverified accounts |
 | `(admin)/admin` | The admin console | Separate admin shell; staff only |
 | `app/api/*` | `cron/tick`, `upload`, `files/[id]`, `media/*`, `push/subscribe`, `account/export`, `admin/*` (CSV), `health` | n/a |
 
@@ -62,6 +62,7 @@ Migrations in `supabase/migrations` are the single source of truth (forward-only
 | 0014 | Web Push subscriptions and claiming |
 | 0015 | Feedback, voting, roadmap, releases |
 | 0016 | Real release history seed |
+| 0017 | Closed community: college-email verification removed, anonymous access closed, members-only gate, functions closed by default |
 
 Design rules: RLS on everything; column-level `UPDATE` grants protect trust fields; counters and notifications are
 trigger-maintained; recursion in policies is avoided with definer helper functions; soft deletes keep audit history.
@@ -108,5 +109,5 @@ losing work.
 1. New table → migration with RLS enabled, explicit grants, indexes, and a test in `tests/integration`.
 2. New privileged action → `SECURITY DEFINER` function with `set search_path = ''`, a `has_permission` check, an audit
    log entry, and (if members are affected) a `notify()` call.
-3. New page → decide visibility first; add it to `robots.js` disallow list if private; keep it out of the sitemap unless public.
+3. New page → it is members-only by default (`lib/routes.js` protects every path that is not on its short public list). Only add a page to that list, the sitemap and `robots.js` if it merely explains the product.
 4. New third-party origin → it must be added to the CSP deliberately in `lib/security/csp.js` and justified in review.

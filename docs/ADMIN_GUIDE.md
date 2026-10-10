@@ -4,6 +4,13 @@ This guide is for the people who run UniSphere day to day: administrators, moder
 agents. You do not need to be technical. Everything is in the **Admin console**, reached from your profile menu (top right)
 or at `/admin`.
 
+## A private network
+
+UniSphere is not a public website. Logged-out visitors see only the home, about and legal pages. Everyone else must sign
+up **and** verify as an RGEC member before they can see or post anything, and search engines are told to stay away.
+Your job as staff is to keep it that way: verify real students quickly, release or revoke student IDs that are held by
+the wrong person, and remove members who should not be there.
+
 ## Who can do what
 
 | Role | Can | Cannot |
@@ -99,7 +106,9 @@ processed automatically.
 Changes apply within about 30 seconds and are audit-logged.
 
 - **Open registration**: turn off to stop new sign-ups.
-- **Require college verification to publish**: on by default; unverified members can browse but not post.
+- **Members only: verified RGEC members only**: on by default. An account that is not a verified member sees only the
+  verification screen and its own settings; nothing inside UniSphere is visible to it. Staff accounts are never locked out.
+  Turn it off only while testing.
 - **Maintenance mode**: only administrators can use the app. Use during incidents or migrations.
 - **Rate limits**, **upload limits**, **AI daily limit**: tighten if you see abuse or cost.
 - **Feature flags**: switch whole features (messaging, events, AI assistants…) off without a deployment.

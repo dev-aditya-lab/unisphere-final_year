@@ -33,15 +33,19 @@ const FAQ = [
   },
   {
     q: "Who can see my profile and posts?",
-    a: "You choose. Profiles can be public, college-only, connections-only or private, and every post has its own visibility. Your email address is never shown on your profile, and your current year and semester stay hidden unless you allow them.",
+    a: "UniSphere is a private network: nobody outside RGEC can see any of it, and nothing is searchable on Google. Inside it you choose: profiles can be visible to all members, to your college, to your connections only, or just to you, and every post has its own visibility. Your email address is never shown, and your year and semester stay hidden unless you allow them.",
   },
   {
     q: "Can people message me without my consent?",
-    a: "Only if you allow it. You set who may message you (anyone, your college, connections only, or nobody), and anyone you block can never contact you.",
+    a: "Only if you allow it. You set who may message you (any member, your college, connections only, or nobody), and anyone you block can never contact you.",
   },
   {
     q: "Does it cost anything?",
-    a: "Joining is free. Individual colleges may choose how they run UniSphere for their community.",
+    a: "No. UniSphere is free for RGEC students, alumni and faculty, with no ads. It is a college project, not a company.",
+  },
+  {
+    q: "Can anyone outside the college join or look?",
+    a: "No. You need to be a verified RGEC member to see or post anything. The public pages only explain what UniSphere is; the feed, profiles, projects and messages are never visible to visitors or search engines.",
   },
 ];
 
@@ -125,7 +129,7 @@ export default function HomePage() {
               <div className="mt-8">
                 <CtaButtons />
               </div>
-              <p className="text-muted-foreground mt-5 text-sm">Free to join. Verify with your student ID to earn a badge. You decide who sees your profile.</p>
+              <p className="text-muted-foreground mt-5 text-sm">Members only: a private network for RGEC students, alumni and faculty. Sign up, then verify with your student ID.</p>
             </Reveal>
           </div>
           <Reveal immediate delay={0.1}>
