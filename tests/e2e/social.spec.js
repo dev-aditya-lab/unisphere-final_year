@@ -1,0 +1,137 @@
+import { test, expect } from "@playwright/test";
+import { admin, createUser, PASSWORD } from "../helpers/supabase.js";
+
+async function login(page, email) {
+  await page.goto("/login");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
+  await page.getByRole("button", { name: "Log in" }).click();
+  await expect(page).toHaveURL(/\/feed/);
+}
+
+test.describe.serial("social flow between two members", () => {
+  let alice, bob, tag, marker;
+
+  test.beforeAll(async () => {
+    alice = await createUser("alice-e2e");
+    bob = await createUser("bob-e2e");
+    tag = `rover${Math.random().toString(36).slice(2, 7)}`;
+    marker = `Autonomous ${tag} prototype`;
+  });
+
+  test("alice publishes a post with a hashtag and a mention", async ({ browser }) => {
+    const page = await (await browser.newContext()).newPage();
+    await login(page, alice.email);
+    await expect(page.getByRole("heading", { name: "Feed" })).toBeAttached();
+
+    await page.getByLabel("Post text").click();
+    await page.getByLabel("Post text").fill(`${marker} with #${tag} and @${bob.username}`);
+    await page.getByRole("button", { name: "Post", exact: true }).click();
+    await expect(page.getByText("Posted")).toBeVisible();
+    await expect(page.getByText(marker)).toBeVisible();
+
+    const { data: post } = await admin.from("posts").select("id, author_id, college_id, visibility").ilike("body", `%${tag}%`).single();
+    expect(post).toMatchObject({ author_id: alice.id, visibility: "college" });
+    const { data: tags } = await admin.from("hashtags").select("tag, use_count").eq("tag", tag);
+    expect(tags).toEqual([{ tag, use_count: 1 }]);
+    const { data: mentions } = await admin.from("mentions").select("mentioned_user_id").eq("entity_id", post.id);
+    expect(mentions).toEqual([{ mentioned_user_id: bob.id }]);
+  });
+
+  test("bob sees it, reacts, bookmarks and comments", async ({ browser }) => {
+    const page = await (await browser.newContext()).newPage();
+    await login(page, bob.email);
+    const card = page.locator("article", { hasText: marker });
+    await expect(card).toBeVisible();
+
+    await card.getByRole("button", { name: "Like", exact: true }).click();
+    await expect(card.getByRole("button", { name: /You reacted: Like/ })).toBeVisible();
+    await card.getByRole("button", { name: "Bookmark" }).click();
+    await expect(page.getByText("Saved to bookmarks")).toBeVisible();
+
+    const { data: post } = await admin.from("posts").select("id, slug").ilike("body", `%${tag}%`).single();
+    // The UI updates optimistically; wait for the server write to land.
+    await expect.poll(async () => (await admin.from("posts").select("reaction_count").eq("id", post.id).single()).data.reaction_count).toBe(1);
+
+    await page.goto(`/posts/${post.slug}`);
+    await page.getByLabel("Write a comment").fill("Looks great, how are you powering it?");
+    await page.getByRole("button", { name: "Comment", exact: true }).click();
+    await expect(page.getByText("Looks great, how are you powering it?")).toBeVisible();
+    await expect.poll(async () => (await admin.from("posts").select("comment_count").eq("id", post.id).single()).data.comment_count).toBe(1);
+
+    await page.goto("/bookmarks");
+    await expect(page.getByText(marker)).toBeVisible();
+  });
+
+  test("bob finds alice's post through search and the hashtag page", async ({ browser }) => {
+    const page = await (await browser.newContext()).newPage();
+    await login(page, bob.email);
+    await page.goto(`/search?q=${encodeURIComponent(marker)}&type=posts`);
+    await expect(page.getByText(marker).first()).toBeVisible();
+    await page.goto(`/explore?tag=${tag}`);
+    await expect(page.getByText(marker).first()).toBeVisible();
+  });
+
+  test("bob connects with alice and alice accepts", async ({ browser }) => {
+    const bobPage = await (await browser.newContext()).newPage();
+    await login(bobPage, bob.email);
+    await bobPage.goto(`/u/${alice.username}`);
+    await bobPage.getByRole("button", { name: "Connect", exact: true }).click();
+    await expect(bobPage.getByRole("button", { name: /Requested/ })).toBeVisible();
+
+    const alicePage = await (await browser.newContext()).newPage();
+    await login(alicePage, alice.email);
+    await alicePage.goto("/connections?tab=requests");
+    await expect(alicePage.getByText("Test bob-e2e")).toBeVisible();
+    await alicePage.getByRole("button", { name: "Accept" }).click();
+    await expect(alicePage.getByText("Connected", { exact: true }).first()).toBeVisible();
+
+    await alicePage.goto("/connections");
+    await expect(alicePage.getByText("Test bob-e2e")).toBeVisible();
+    expect((await admin.from("profiles").select("connection_count").eq("id", alice.id).single()).data.connection_count).toBe(1);
+  });
+
+  test("public profile pages expose only what the owner allows", async ({ browser, request }) => {
+    // alice's profile is college-visible: logged-out visitors get a 404, not her data
+    let res = await request.get(`/u/${alice.username}`);
+    expect(res.status()).toBe(404);
+    await admin.from("profiles").update({ visibility: "public", bio: "Robotics tinkerer" }).eq("id", alice.id);
+    res = await request.get(`/u/${alice.username}`);
+    expect(res.status()).toBe(200);
+    const html = await res.text();
+    expect(html).toContain("Robotics tinkerer");
+    expect(html).toContain('rel="canonical"');
+    expect(html).not.toContain(alice.email);
+    await admin.from("profiles").update({ visibility: "college" }).eq("id", alice.id);
+  });
+
+  test("a deleted post disappears for everyone and its page returns 404", async ({ browser }) => {
+    const alicePage = await (await browser.newContext()).newPage();
+    await login(alicePage, alice.email);
+    const { data: post } = await admin.from("posts").select("slug").ilike("body", `%${tag}%`).single();
+    await alicePage.goto(`/posts/${post.slug}`);
+    await alicePage.getByRole("button", { name: "More actions" }).click();
+    await alicePage.getByRole("menuitem", { name: /Delete post/ }).click();
+    await alicePage.getByRole("button", { name: "Delete", exact: true }).click();
+    await expect(alicePage.getByText("Post deleted")).toBeVisible();
+
+    const bobPage = await (await browser.newContext()).newPage();
+    await login(bobPage, bob.email);
+    const res = await bobPage.goto(`/posts/${post.slug}`);
+    expect(res.status()).toBe(404);
+  });
+
+  test("members can report content and are told when a post is gone", async ({ browser }) => {
+    const { data: p } = await alice.client.from("posts").insert({ author_id: alice.id, slug: `rep-${tag}`, body: `report me ${tag}`, visibility: "college" }).select("slug").single();
+    const bobPage = await (await browser.newContext()).newPage();
+    await login(bobPage, bob.email);
+    await bobPage.goto(`/posts/${p.slug}`);
+    await bobPage.getByRole("button", { name: "More actions" }).click();
+    await bobPage.getByRole("menuitem", { name: /Report post/ }).click();
+    await bobPage.getByLabel("Spam or scam").check();
+    await bobPage.getByRole("button", { name: "Submit report" }).click();
+    await expect(bobPage.getByText(/Thanks for letting us know/)).toBeVisible();
+    const { data: reports } = await admin.from("reports").select("category, status").eq("reporter_id", bob.id);
+    expect(reports).toEqual([{ category: "spam", status: "open" }]);
+  });
+});

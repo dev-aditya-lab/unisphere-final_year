@@ -1,26 +1,212 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   UniSphere design tokens
+   Brand palette: Ink Navy #17243A · Deep Indigo #3546A8 · Electric Blue #5277F4
+                  Warm Ivory #F7F5EF · Muted Slate #778196 · Border #E3E6ED
+   Muted *text* uses a darker slate than the brand slate so it passes WCAG AA.
+   Blue is reserved for primary actions, links and selected states.
+   ───────────────────────────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius: 0.5rem;
+
+  --background: #f7f5ef;
+  --foreground: #17243a;
+  --card: #ffffff;
+  --card-foreground: #17243a;
+  --popover: #ffffff;
+  --popover-foreground: #17243a;
+
+  --primary: #3546a8;
+  --primary-foreground: #ffffff;
+  --secondary: #eeebe2;
+  --secondary-foreground: #17243a;
+  --muted: #efece4;
+  --muted-foreground: #5b667b;
+  --accent: #e9edfb;
+  --accent-foreground: #2a3a8f;
+
+  --destructive: #c53d4a;
+  --success: #21865b;
+  --warning: #b7791f;
+  --warning-text: #7a4e0d;
+  /* Text colours for tinted badges: the plain status colours fall below 4.5:1 on their own 10-12% tint. */
+  --success-text: #17694a;
+  --destructive-text: #a8283a;
+
+  --border: #e3e6ed;
+  --input: #8b95aa;
+  --ring: #5277f4;
+
+  --brand-slate: #778196;
+  --brand-electric: #5277f4;
+
+  --chart-1: #3546a8;
+  --chart-2: #21865b;
+  --chart-3: #b7791f;
+  --chart-4: #c53d4a;
+  --chart-5: #778196;
+
+  --sidebar: #fbfaf6;
+}
+
+.dark {
+  --background: #0e1626;
+  --foreground: #e8ecf4;
+  --card: #141f35;
+  --card-foreground: #e8ecf4;
+  --popover: #172340;
+  --popover-foreground: #e8ecf4;
+
+  --primary: #7b97ff;
+  --primary-foreground: #0b1222;
+  --secondary: #1b2842;
+  --secondary-foreground: #e8ecf4;
+  --muted: #1a2740;
+  --muted-foreground: #9aa6bf;
+  --accent: #1f2e57;
+  --accent-foreground: #c9d4ff;
+
+  --destructive: #ee6f7b;
+  --success: #3fb585;
+  --warning: #e0a948;
+  --warning-text: #e9b95d;
+  --success-text: #3fb585;
+  --destructive-text: #ee6f7b;
+
+  --border: #253250;
+  --input: #55668f;
+  --ring: #7b97ff;
+
+  --brand-slate: #9aa6bf;
+  --brand-electric: #7b97ff;
+
+  --chart-1: #7b97ff;
+  --chart-2: #3fb585;
+  --chart-3: #e0a948;
+  --chart-4: #ee6f7b;
+  --chart-5: #9aa6bf;
+
+  --sidebar: #101a2e;
 }
 
 @theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-heading: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-warning-text: var(--warning-text);
+  --color-success-text: var(--success-text);
+  --color-destructive-text: var(--destructive-text);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-slate-brand: var(--brand-slate);
+  --color-electric: var(--brand-electric);
+  --color-sidebar: var(--sidebar);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: calc(var(--radius) - 3px);
+  --radius-md: calc(var(--radius) - 1px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  p { text-wrap: pretty; }
+
+  ::selection {
+    background: color-mix(in srgb, var(--brand-electric) 28%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Small mono label used for section markers: the editorial "dateline" of the UI. */
+  .eyebrow {
+    @apply font-mono text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase;
+  }
+
+  .prose-uni {
+    @apply text-[15px] leading-7;
+  }
+  .prose-uni h2 { @apply mt-10 mb-3 text-xl; }
+  .prose-uni h3 { @apply mt-6 mb-2 text-base; }
+  .prose-uni p { @apply mb-4; }
+  .prose-uni ul { @apply mb-4 list-disc pl-5; }
+  .prose-uni ol { @apply mb-4 list-decimal pl-5; }
+  .prose-uni li { @apply mb-1.5; }
+  .prose-uni a { @apply text-primary underline underline-offset-2; }
+  .prose-uni strong { @apply font-semibold; }
+
+  .skip-link {
+    @apply bg-primary text-primary-foreground fixed top-3 left-3 z-[100] -translate-y-20 rounded-md px-3 py-2 text-sm font-semibold focus:translate-y-0;
+  }
+}
+
+/* Reusable "paper" card surface: border-led, no drop shadows. */
+@utility surface {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
 }

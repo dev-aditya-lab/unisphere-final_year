@@ -1,0 +1,119 @@
+# Administrator guide (for RGEC staff)
+
+This guide is for the people who run UniSphere day to day: administrators, moderators, verification staff and support
+agents. You do not need to be technical. Everything is in the **Admin console**, reached from your profile menu (top right)
+or at `/admin`.
+
+## Who can do what
+
+| Role | Can | Cannot |
+| --- | --- | --- |
+| **Global admin** | Everything, for every college: settings, feature flags, roles, releases, AI status | Act on another global admin (remove the role first) |
+| **College admin** | Run one college: members, moderation, announcements, events/communities, analytics, student IDs, audit log, appoint moderators | Change platform settings; appoint administrators |
+| **Moderator** | Review reports and appeals, remove or restore content, warn, restrict | See member emails, suspend, change roles |
+| **Verification staff** | Review verification requests and manage the student-ID list | Anything about content or members |
+| **Support agent** | Answer the contact inbox and triage product feedback | See member data |
+
+Rules that always apply: you cannot act on yourself; only a global admin can act on an administrator; you cannot decide an
+appeal against your own decision (a global admin can); every action is written to the audit log, which nobody can edit.
+
+## Student IDs: how members get verified
+
+RGEC members prove they belong by entering their **student ID**. IDs are not public, so a stranger cannot guess one. The
+college supplies its list of valid IDs, you import it, and each ID can be linked to **one** account.
+
+### Importing the list
+
+1. Admin → **Student IDs**.
+2. Paste IDs into the box, one per line, optionally followed by a comma and the batch year (`21CSE045, 2021`), or load a CSV
+   file. A header line such as `student_id,year` is ignored. Up to 5,000 per import; importing again is safe, duplicates are
+   skipped.
+3. UniSphere shows how many were added, how many were already there and how many lines were skipped as invalid.
+4. Delete the source file afterwards. UniSphere never keeps the IDs themselves: only a keyed hash and the last three
+   characters (so you can find an entry).
+
+Spaces, dashes and capital letters do not matter: `21-cse/045` and `21CSE045` are the same ID.
+
+### Day-to-day
+
+| Situation | What to do |
+| --- | --- |
+| A student says "it will not accept my ID" | Search the list by the last three characters. Missing → add it (import) or ask them to use **Manual review** with a photo of their ID card |
+| "Already linked to another account" | Find the entry (Claimed tab, search the name), check who holds it. If the holder is wrong → **Release** (they lose the badge and are told why), then the rightful owner can claim it |
+| A student left the college | **Revoke** the ID: it can no longer verify anyone and a linked member loses the badge |
+| Revoked by mistake | **Restore** |
+| Faculty and staff | They do not have student IDs: they use **Manual review** (Admin → Verification) |
+
+Five wrong attempts lock further tries for 24 hours for that account, so guessing does not work.
+
+### Manual review
+
+Admin → **Verification** shows requests that need a person: faculty, staff, or students not on the list. Open the document
+(it opens in a new tab and is private), then **Approve**, **Ask for more info** or **Reject** (always give a reason, the
+member sees it). Approving never makes someone an administrator.
+
+## Moderation
+
+**Reports** (Admin → Reports) are sorted by severity then age. Open one to see what was reported *as it was when
+reported*, the member's history and any AI suggestion. Press **Take this report** so colleagues know you have it, then
+choose:
+
+| Decision | Effect | The member is told |
+| --- | --- | --- |
+| Dismiss | Nothing changes. Reporter is told it was reviewed | No |
+| Warn | A notification with your reason | Yes |
+| Remove content | Post/comment disappears for everyone but its author | Yes, with the reason |
+| Restrict account | Profile hidden, cannot post or message; can still read and appeal | Yes |
+| Suspend account | Signed out of the app; can only read the decision and appeal | Yes (on the suspended page) |
+
+Always write the reason as if the member will read it, because they will. Internal notes are never shown to them. The AI
+suggestion is a second opinion only; it is not shown to members and never acts by itself. It is not used for content that
+is not public, so for those you decide from the content alone.
+
+**Appeals** (Admin → Appeals): each decision can be appealed once within 30 days. A different reviewer reads the original
+decision and the member's message and chooses **Uphold** (the decision is reversed: restrictions are lifted, removed
+content restored) or **Deny**. Both need a note the member will see.
+
+**Members** (Admin → Members): search by name, username or email; open a record for history and direct actions (warn,
+restrict, suspend, reinstate). Reinstating closes any pending appeal.
+
+## Communication
+
+- **Announcements**: notifies every member of the college. Use sparingly; pinned ones stay on top; you can archive but not
+  unsend notifications.
+- **Support inbox**: messages from the public contact form. Reply from your email; mark as *in progress* / *resolved* /
+  *spam* here.
+- **Feedback** (global admins and support): bug reports with severity and automatic context (page, version, browser),
+  ideas with votes, general feedback. Set a status and write a public reply; the member is notified. Merge duplicates
+  (votes move to the original). Ideas marked *planned*, *in progress* or *shipped* appear on the public **Roadmap**.
+- **Releases** (global admins): write release notes for the public **Changelog**. Save a draft, then Publish.
+
+## Account deletion
+
+Members can ask to delete their account. It is erased automatically after 14 days unless they cancel. In Admin →
+**Account deletion** you can **Erase now** (permanent) or **Reject**. Administrators' own deletion requests are never
+processed automatically.
+
+## Settings and feature flags (global admins)
+
+Changes apply within about 30 seconds and are audit-logged.
+
+- **Open registration**: turn off to stop new sign-ups.
+- **Require college verification to publish**: on by default; unverified members can browse but not post.
+- **Maintenance mode**: only administrators can use the app. Use during incidents or migrations.
+- **Rate limits**, **upload limits**, **AI daily limit**: tighten if you see abuse or cost.
+- **Feature flags**: switch whole features (messaging, events, AI assistants…) off without a deployment.
+- **Legal text**: guidelines, privacy and terms (Markdown). Empty uses the built-in text.
+
+## Analytics and audit
+
+**Analytics** shows counts only (members, posts, comments, messages, reports) for a date range and college, with CSV
+download. Message and post *content* is never used. **Audit log** records who did what and when (roles, moderation,
+settings, imports, deletions); filter it, or export CSV. It cannot be edited.
+
+## Etiquette for staff
+
+- Do not discuss a member's case outside the console; do not screenshot private content.
+- Use the least severe action that protects people. Warn before you suspend, unless the harm is serious.
+- If you know the member personally, hand the report to someone else.
+- When unsure, ask another moderator: reports can be released and re-taken.
