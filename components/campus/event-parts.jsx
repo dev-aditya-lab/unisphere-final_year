@@ -21,7 +21,7 @@ import { EVENT_KINDS, eventSchema } from "@/lib/validators/campus";
 import { COMMON_TIMEZONES, utcIsoToZonedLocal } from "@/lib/time";
 import { cancelEventAction, createEventAction, deleteEventAction, markAttendanceAction, rsvpAction, updateEventAction } from "@/lib/actions/campus";
 
-export function EventForm({ event = null, communities = [] }) {
+export function EventForm({ event = null, communities = [], hasCollege = true }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState(null);
@@ -33,7 +33,7 @@ export function EventForm({ event = null, communities = [] }) {
       startsLocal: event ? utcIsoToZonedLocal(event.starts_at, tz) : "", endsLocal: event?.ends_at ? utcIsoToZonedLocal(event.ends_at, tz) : "",
       mode: event?.mode ?? "in_person", location: event?.location ?? "", onlineUrl: event?.online_url ?? "",
       registrationMode: event?.registration_mode ?? "in_platform", registrationUrl: event?.registration_url ?? "",
-      capacity: event?.capacity ?? "", visibility: event?.visibility ?? "college", communityId: event?.community_id ?? "",
+      capacity: event?.capacity ?? "", visibility: event?.visibility ?? (hasCollege ? "college" : "public"), communityId: event?.community_id ?? "",
     },
   });
   const mode = useWatch({ control, name: "mode" });
@@ -93,7 +93,7 @@ export function EventForm({ event = null, communities = [] }) {
           {regMode === "external" && <Field id="registrationUrl" label="Registration link" required error={errors.registrationUrl?.message}><Input id="registrationUrl" type="url" placeholder="https://" aria-describedby="registrationUrl-desc" {...register("registrationUrl")} /></Field>}
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {sel("visibility", "Who can see it", [["college", "My college"], ["public", "All members"], ...(communities.length ? [["community", "A community's members"]] : [])])}
+          {sel("visibility", "Who can see it", [...(hasCollege || event?.visibility === "college" ? [["college", "My college"]] : []), ["public", "All members"], ...(communities.length ? [["community", "A community's members"]] : [])])}
           {visibility === "community" && sel("communityId", "Community", communities.map((c) => [c.id, c.name]), { placeholder: "Choose a community" })}
         </div>
       </section>

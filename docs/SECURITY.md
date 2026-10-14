@@ -14,7 +14,8 @@ vulnerability. Please include steps to reproduce; do not access data that is not
 | **Row Level Security** | Every table denies by default; policies allow exactly what a role may read or write. Anonymous, member, staff and service roles are tested separately | `supabase/migrations/*`, `tests/integration/*` (130+ tests with real JWTs) |
 | **Least privilege grants** | Default privileges are revoked; each table gets explicit column-level grants, so trust fields (status, verification, counters) cannot be changed by users | migrations 0001 to 0005 |
 | **Definer functions** | Privileged actions are `SECURITY DEFINER` functions with `set search_path = ''`, re-checking the caller's permission for the record's *own* college | `has_permission`, `resolve_report`, `moderate_user`, … |
-| **Closed network** | Logged-out visitors can read only the college list, public settings and feature flags; every member-content table and view is ungranted to the anonymous role. Accounts that are not verified members (when verification is required) are refused by the visibility functions themselves (`can_use_network`), so a direct API call gets nothing either | migration 0017 |
+| **Private network, open registration** | Logged-out visitors can read only public settings and feature flags (the college directory is members-only too); every member-content table and view is ungranted to the anonymous role. Suspended and deactivated accounts are refused by the visibility functions themselves (`can_use_network`), so a direct API call gets nothing either | migrations 0017, 0018 |
+| **College directory abuse controls** | Creating a college is a database function (never a table insert): name validation (no links or markup), normalised duplicate detection under an advisory lock plus a unique index, a per-member daily ceiling, a per-member hourly rate limit in the app, and a moderated report queue. Members cannot edit listings or mark them verified | migration 0018 |
 | **Functions closed by default** | `EXECUTE` is no longer granted to `PUBLIC`; each function is granted explicitly, and anonymous visitors get a five-function allow-list (username check, permission/flag helpers) | migration 0017 |
 | **Roles are never inferred** | No role is granted from an email domain, a student ID or a request: only another administrator grants roles, and the grant is audited | `grant_role` |
 | **Audit log** | Append-only (trigger blocks update, delete and truncate for everyone). Secrets and message text are scrubbed before storage | `audit_logs`, `write_audit_log` |
@@ -26,7 +27,7 @@ vulnerability. Please include steps to reproduce; do not access data that is not
 | **Session** | Supabase Auth (JWT in HTTP-only cookies), refreshed in the proxy; claims are verified, not decoded blindly | `lib/supabase/proxy.js` |
 | **CSRF** | Server Actions are same-origin by construction; JSON endpoints that use cookies check `Origin` and require JSON bodies | `app/api/push/subscribe` |
 | **Secrets** | Only `NEXT_PUBLIC_*` reach the browser. The service-role client is `server-only` and used after an explicit permission check | `lib/supabase/admin.js` |
-| **Container** | Non-root, read-only filesystem, no capabilities, `no-new-privileges`, health check | `Dockerfile`, `docker-compose.yml` |
+| **Job endpoint** | `/api/cron/tick` refuses everything without `CRON_SECRET` (constant-time compare), accepted as a Bearer header or, for monitors that cannot send headers, `?secret=` | `app/api/cron/tick/route.js` |
 
 ## Privacy decisions worth knowing
 
@@ -71,6 +72,6 @@ vulnerability. Please include steps to reproduce; do not access data that is not
 
 ## Dependency and release hygiene
 
-Run `npm audit --omit=dev` and update regularly. `package-lock.json` is committed; Docker builds use `npm ci`. Review
+Run `npm audit --omit=dev` and update regularly. `package-lock.json` is committed; builds use `npm ci`. Review
 migrations like code: any new table needs RLS enabled and explicit grants, and any new definer function needs
 `set search_path = ''` and a permission check, with a test in `tests/integration`.

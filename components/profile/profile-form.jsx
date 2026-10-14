@@ -43,7 +43,7 @@ function SwitchRow({ id, label, description, control, name }) {
   );
 }
 
-export function ProfileForm({ profile, classInfo, colleges }) {
+export function ProfileForm({ profile, classInfo, college = null, structure = null }) {
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState(null);
 
@@ -61,8 +61,8 @@ export function ProfileForm({ profile, classInfo, colleges }) {
       username: profile.username,
       headline: profile.headline ?? "",
       bio: profile.bio ?? "",
-      accountType: profile.account_type,
-      collegeId: profile.college_id ?? undefined,
+      accountType: profile.account_type ?? null,
+      collegeId: profile.college_id ?? null,
       campusId: profile.campus_id ?? null,
       departmentId: profile.department_id ?? null,
       programId: profile.program_id ?? null,
@@ -119,16 +119,17 @@ export function ProfileForm({ profile, classInfo, colleges }) {
         <Field id="bio" label="Bio" optional error={errors.bio?.message} hint="Up to 600 characters. Shown on your profile.">
           <Textarea id="bio" rows={4} maxLength={600} aria-describedby="bio-desc" {...register("bio")} />
         </Field>
-        <Field id="accountType" label="Account type" hint="Changing this removes an existing verification badge.">
+        <Field id="accountType" label="How you describe yourself" optional hint="Shown on your profile as something you said about yourself. It is not verified and never required.">
           <Controller
             control={control}
             name="accountType"
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select value={field.value ?? "__none__"} onValueChange={(v) => field.onChange(v === "__none__" ? null : v)}>
                 <SelectTrigger id="accountType" className="w-full sm:w-64">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="__none__">Prefer not to say</SelectItem>
                   {ACCOUNT_TYPES.map((t) => (
                     <SelectItem key={t.value} value={t.value}>
                       {t.label}
@@ -141,8 +142,8 @@ export function ProfileForm({ profile, classInfo, colleges }) {
         </Field>
       </Section>
 
-      <Section id="college" title="College" description="Used for campus feeds, communities and verification.">
-        <CollegeFields control={control} register={register} setValue={setValue} errors={errors} colleges={colleges} accountType={accountType} />
+      <Section id="college" title="College" description="Optional. Connecting a college helps you find people and communities nearby. It does not verify that you study or work there.">
+        <CollegeFields control={control} register={register} setValue={setValue} errors={errors} accountType={accountType} initialCollege={college} initialStructure={structure} />
       </Section>
 
       <Section id="skills" title="Skills & interests" description="Teammate suggestions are based only on what you list here.">

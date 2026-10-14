@@ -26,7 +26,7 @@ const clip = (s, n) => {
  * The social-preview card: brand mark, a small label, a big title and a byline. Only text that is already public
  * is ever passed in. Callers use an anonymous client, so a private record simply yields the generic card.
  */
-export async function ogImage({ label = "Ramgarh Engineering College", title, byline }) {
+export async function ogImage({ label = "UniSphere", title, byline }) {
   const mark = await logo();
   const long = (title ?? "").length > 70;
   return new ImageResponse(
@@ -42,7 +42,7 @@ export async function ogImage({ label = "Ramgarh Engineering College", title, by
           <div style={{ display: "flex", fontSize: long ? 56 : 74, fontWeight: 800, lineHeight: 1.08, letterSpacing: -1.5 }}>{clip(title || "Your campus. Your people. Your next idea.", 120)}</div>
           {byline && <div style={{ display: "flex", fontSize: 30, color: "#675F52" }}>{clip(byline, 90)}</div>}
         </div>
-        <div style={{ display: "flex", fontSize: 26, color: "#675F52" }}>The campus network of Ramgarh Engineering College</div>
+        <div style={{ display: "flex", fontSize: 26, color: "#675F52" }}>A campus network, open to everyone</div>
       </div>
     ),
     { ...OG_SIZE },

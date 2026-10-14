@@ -9,7 +9,7 @@ import { PostCard } from "@/components/posts/post-card";
 import { PageHeader } from "@/components/shell/page-header";
 import { UserAvatar } from "@/components/user-avatar";
 import { requireProfile } from "@/lib/auth/session";
-import { listCollegesWithStructure } from "@/lib/services/colleges";
+import { getCollegeStructure } from "@/lib/services/colleges";
 import { getAlumniStories, getMentorshipRequests, searchMentors } from "@/lib/services/projects";
 import { isFlagEnabled } from "@/lib/settings";
 import { timeAgo } from "@/lib/format";
@@ -33,8 +33,7 @@ export default async function AlumniPage({ searchParams }) {
   const tab = TABS.some(([id]) => id === sp.tab) ? sp.tab : "directory";
   const str = (k, max = 80) => (typeof sp[k] === "string" ? sp[k].trim().slice(0, max) : "");
 
-  const colleges = await listCollegesWithStructure();
-  const myCollege = colleges.find((c) => c.id === profile.college_id);
+  const myCollege = profile.college_id ? await getCollegeStructure(profile.college_id) : null;
   const departmentId = myCollege?.departments.some((d) => d.id === sp.dept) ? sp.dept : null;
 
   const [people, stories, requests] = await Promise.all([

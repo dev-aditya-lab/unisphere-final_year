@@ -106,7 +106,8 @@ test.describe.serial("production readiness: security, SEO and accessibility", ()
     expect(llms.headers()["content-type"]).toContain("text/plain");
     const text = await llms.text();
     expect(text).toContain("Ramgarh Engineering College");
-    expect(text).toMatch(/NOT a public service/);
+    expect(text).toMatch(/nothing inside is public/i);
+    expect(text).toMatch(/open to anyone who wants to join/);
     for (const name of ["Aditya Kumar Gupta", "Sumit Jha", "Sahil Nayak", "Vishal Kumar"]) expect(text).toContain(name);
   });
 

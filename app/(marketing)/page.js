@@ -18,11 +18,11 @@ export const metadata = {
 const FAQ = [
   {
     q: "Is UniSphere only for students?",
-    a: "No. Students, seniors, alumni, faculty and staff each have their own account type. Alumni and seniors can opt in to mentoring; nobody is listed as a mentor unless they choose it.",
+    a: "No. It is open to anyone who wants to join: students, alumni, teachers, makers, anyone. You never have to say what you are. If you like, you can describe yourself as a student, alumnus, teacher or staff member, and it is shown as something you said, not something we checked. Mentoring is opt-in.",
   },
   {
-    q: "How does college verification work?",
-    a: "UniSphere is made for Ramgarh Engineering College. You verify by entering your student ID, which is not public. We check it against the college's private list of valid IDs and never store or show it, and each ID can be linked to one account. If your ID is missing from the list, a reviewer can verify you manually. Having an ID never gives anyone administrator access.",
+    q: "Do I need a college, a student ID or a college email?",
+    a: "No. You can sign up with any email address and use everything without choosing a college. If you want, you can connect your profile to a college: search for it, or add it by name if nobody has yet. That only says which college you chose; it does not prove you study or work there, and a college listed by members is clearly marked as community-added. Where a college has shared its own list of student IDs, a Verified badge is available as an optional extra.",
   },
   {
     q: "What does the AI actually do?",
@@ -34,7 +34,7 @@ const FAQ = [
   },
   {
     q: "Who can see my profile and posts?",
-    a: "UniSphere is a private network: nobody outside RGEC can see any of it, and nothing is searchable on Google. Inside it you choose: profiles can be visible to all members, to your college, to your connections only, or just to you, and every post has its own visibility. Your email address is never shown, and your year and semester stay hidden unless you allow them.",
+    a: "You need to be signed in to see anything: posts, profiles and projects are not public and are not searchable on Google. Inside UniSphere you choose: your profile can be visible to all members, to your college, to your connections only, or just to you, and every post has its own visibility. Your email address is never shown, and your year and semester stay hidden unless you allow them.",
   },
   {
     q: "Can people message me without my consent?",
@@ -42,11 +42,11 @@ const FAQ = [
   },
   {
     q: "Does it cost anything?",
-    a: "No. UniSphere is free for RGEC students, alumni and faculty, with no ads. It is a college project, not a company.",
+    a: "No. UniSphere is free, with no ads. It started as a college project at Ramgarh Engineering College and is run by its students, not a company.",
   },
   {
-    q: "Can anyone outside the college join or look?",
-    a: "No. You need to be a verified RGEC member to see or post anything. The public pages only explain what UniSphere is; the feed, profiles, projects and messages are never visible to visitors or search engines.",
+    q: "Can anyone look without joining?",
+    a: "No. Anyone can join, but you need an account to see or post anything. The public pages only explain what UniSphere is; the feed, profiles, projects and messages are never visible to visitors or search engines.",
   },
 ];
 
@@ -99,8 +99,8 @@ const TILES = [
   },
   {
     icon: BadgeCheck,
-    title: "Verified membership",
-    text: "Verify with your student ID, which is checked privately against the college's list, or ask a reviewer. Administrators are never created automatically.",
+    title: "Your college, optional",
+    text: "Connect a college to find people and communities nearby, or add yours by name. It is a choice you can change any time, never a requirement, and never counted as proof.",
     tone: "tone-blue",
     span: "md:col-span-2",
   },
@@ -157,7 +157,7 @@ export default function HomePage() {
         <div className="mx-auto grid grid-cols-1 max-w-6xl gap-14 px-4 pt-12 pb-16 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:pt-20 lg:pb-24">
           <div>
             <Reveal immediate>
-              <p className="eyebrow mb-6">The campus network of Ramgarh Engineering College</p>
+              <p className="eyebrow mb-6">A campus network, open to everyone</p>
               <h1 className="display">
                 Your campus.
                 <br />
@@ -175,7 +175,7 @@ export default function HomePage() {
                 <CtaButtons />
               </div>
               <p className="text-muted-foreground mt-5 max-w-md text-sm leading-relaxed">
-                Members only: a private network for RGEC students, alumni and faculty. Sign up, then verify with your student ID.
+                Free and open to everyone. No college, student ID or college email needed.
               </p>
             </Reveal>
           </div>
@@ -272,7 +272,7 @@ export default function HomePage() {
           </Reveal>
           <ol className="mt-14 grid grid-cols-1 gap-10 md:grid-cols-3">
             {[
-              ["Join and verify", "Create an account, pick your department, and verify with your student ID (or ask a reviewer)."],
+              ["Join", "Create an account with any email. That is all you need. Add a college and your interests when you are ready."],
               ["Share and discover", "Post a project, idea or question. See related work on your campus and the people behind it."],
               ["Build together", "Recruit teammates for open roles, ask seniors for advice, and find events and opportunities."],
             ].map(([title, text], i) => (

@@ -17,7 +17,7 @@ const SCOPES = new Set(["college", "following", "public"]);
 export default async function IdeasPage({ searchParams }) {
   const { profile, user } = await requireProfile();
   const sp = await searchParams;
-  const scope = SCOPES.has(sp.scope) ? sp.scope : profile.college_id ? "college" : "public";
+  const scope = SCOPES.has(sp.scope) && !(sp.scope === "college" && !profile.college_id) ? sp.scope : profile.college_id ? "college" : "public";
   const [page, ai] = await Promise.all([getFeedPage({ scope, category: "ideas" }), getAiUiState(profile)]);
 
   return (
@@ -25,7 +25,7 @@ export default async function IdeasPage({ searchParams }) {
       <PageHeader eyebrow="Ideas" title="Share an idea, find who is already on it" description="Post an idea to get feedback and teammates. Related ideas and projects from your campus show up as you write." />
       <div className="space-y-5">
         <Composer profile={profile} defaultCategory="ideas" lockCategory ai={ai} />
-        <FeedFilters scope={scope} category={null} hideCategories />
+        <FeedFilters scope={scope} category={null} hideCategories hasCollege={Boolean(profile.college_id)} />
         <FeedList
           key={`${scope}-${page.items[0]?.id ?? "empty"}`}
           initialItems={page.items}

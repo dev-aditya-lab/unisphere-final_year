@@ -32,7 +32,8 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
   const [category, setCategory] = useState(defaultCategory);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [visibility, setVisibility] = useState(community ? "community" : defaultVisibility);
+  const hasCollege = Boolean(profile.college_id);
+  const [visibility, setVisibility] = useState(community ? "community" : defaultVisibility === "college" && !hasCollege ? "public" : defaultVisibility);
   const [attachments, setAttachments] = useState([]); // { id, name }
   const [uploading, setUploading] = useState(0);
   const [error, setError] = useState(null);
@@ -193,7 +194,7 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(community ? COMMUNITY_POST_VISIBILITY.filter((v) => v.value === "community" || community.visibility === "public") : POST_VISIBILITY).map((v) => (
+                  {(community ? COMMUNITY_POST_VISIBILITY.filter((v) => v.value === "community" || community.visibility === "public") : POST_VISIBILITY.filter((v) => hasCollege || v.value !== "college")).map((v) => (
                     <SelectItem key={v.value} value={v.value}>
                       {v.label}
                     </SelectItem>

@@ -9,7 +9,7 @@ export const metadata = { title: "Create event", robots: { index: false, follow:
 
 export default async function NewEventPage() {
   if (!(await isFlagEnabled("events"))) notFound();
-  const { user } = await requireProfile();
+  const { user, profile } = await requireProfile();
   // Only communities this member administers can host an event.
   const supabase = await createClient();
   const { data: admin } = await supabase.from("community_members").select("community_id").eq("user_id", user.id).eq("status", "active").in("role", ["owner", "admin"]);
@@ -18,7 +18,7 @@ export default async function NewEventPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <PageHeader eyebrow="Events" title="Create an event" />
-      <EventForm communities={communities ?? []} />
+      <EventForm communities={communities ?? []} hasCollege={Boolean(profile.college_id)} />
     </div>
   );
 }

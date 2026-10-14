@@ -3,7 +3,8 @@ import { Logo } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { OnboardingForm } from "@/components/onboarding/onboarding-form";
 import { requireProfile } from "@/lib/auth/session";
-import { listCollegesWithStructure } from "@/lib/services/colleges";
+import { getCollegeStructure, getCollegeSummary } from "@/lib/services/colleges";
+import { listCommunities } from "@/lib/services/campus";
 import { HOME_PATH } from "@/lib/constants";
 
 export const metadata = {
@@ -15,7 +16,11 @@ export const metadata = {
 export default async function OnboardingPage() {
   const { profile } = await requireProfile({ allowIncomplete: true });
   if (profile.onboarded_at) redirect(HOME_PATH);
-  const colleges = await listCollegesWithStructure();
+  const [college, structure, communities] = await Promise.all([
+    getCollegeSummary(profile.college_id),
+    getCollegeStructure(profile.college_id),
+    listCommunities({}).then((list) => list.filter((c) => c.my_status !== "banned").slice(0, 6)),
+  ]);
 
   return (
     <div className="min-h-dvh">
@@ -26,7 +31,7 @@ export default async function OnboardingPage() {
       <main id="main" className="mx-auto max-w-2xl px-4 pb-16 sm:px-6">
         <p className="eyebrow">Welcome, {profile.full_name.split(" ")[0]}</p>
         <h1 className="display-sm mt-2 mb-7">Let&rsquo;s set up your profile</h1>
-        <OnboardingForm profile={profile} colleges={colleges} />
+        <OnboardingForm profile={profile} college={college} structure={structure} communities={communities} />
       </main>
     </div>
   );

@@ -7,7 +7,6 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Field } from "@/components/forms/field";
 import { PasswordInput } from "@/components/forms/password-input";
@@ -16,15 +15,7 @@ import { FormAlert } from "@/components/forms/form-alert";
 import { UsernameField } from "@/components/forms/username-field";
 import { registerSchema } from "@/lib/validators/auth";
 import { registerAction } from "@/lib/actions/auth";
-import { ACCOUNT_TYPES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-
-const TYPE_HINTS = {
-  student: "Currently enrolled",
-  alumni: "Graduated",
-  faculty: "Teaching staff",
-  staff: "Non-teaching staff",
-};
 
 export function RegisterForm() {
   const router = useRouter();
@@ -39,7 +30,7 @@ export function RegisterForm() {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(registerSchema),
-    defaultValues: { fullName: "", username: "", email: "", password: "", accountType: "student", acceptTerms: false },
+    defaultValues: { fullName: "", username: "", email: "", password: "", acceptTerms: false },
   });
 
   const username = useWatch({ control, name: "username" });
@@ -69,7 +60,7 @@ export function RegisterForm() {
   return (
     <div>
       <h1 className="text-3xl font-extrabold">Create your account</h1>
-      <p className="text-muted-foreground mt-2 text-sm">UniSphere is only for members of Ramgarh Engineering College. Create your account, then verify with your student ID.</p>
+      <p className="text-muted-foreground mt-2 text-sm">UniSphere is free and open to everyone. You do not need a college, a student ID or a college email address.</p>
 
       {serverError && <FormAlert className="mt-6">{serverError}</FormAlert>}
 
@@ -80,7 +71,7 @@ export function RegisterForm() {
 
         <UsernameField register={register} value={username} error={errors.username?.message} />
 
-        <Field id="email" label="Email" error={errors.email?.message} hint="Use an address you check. You prove you are an RGEC member with your student ID after signing up.">
+        <Field id="email" label="Email" error={errors.email?.message} hint="Use an address you check: we send one link to confirm it.">
           <Input id="email" type="email" autoComplete="email" inputMode="email" aria-invalid={Boolean(errors.email)} aria-describedby="email-desc" {...register("email")} />
         </Field>
 
@@ -96,34 +87,6 @@ export function RegisterForm() {
             ))}
           </ul>
         </Field>
-
-        <fieldset className="space-y-1.5">
-          <legend className="text-[13px] font-semibold">I am a</legend>
-          <Controller
-            control={control}
-            name="accountType"
-            render={({ field }) => (
-              <RadioGroup value={field.value} onValueChange={field.onChange} className="grid grid-cols-2 gap-2">
-                {ACCOUNT_TYPES.map((t) => (
-                  <Label
-                    key={t.value}
-                    htmlFor={`type-${t.value}`}
-                    className={cn(
-                      "border-input bg-card hover:border-primary/50 flex cursor-pointer items-start gap-2.5 rounded-md border p-3 transition-colors",
-                      field.value === t.value && "border-primary bg-accent ring-primary/30 ring-2",
-                    )}
-                  >
-                    <RadioGroupItem id={`type-${t.value}`} value={t.value} className="mt-0.5" />
-                    <span className="leading-tight">
-                      <span className="block text-sm font-semibold">{t.label}</span>
-                      <span className="text-muted-foreground text-xs font-normal">{TYPE_HINTS[t.value]}</span>
-                    </span>
-                  </Label>
-                ))}
-              </RadioGroup>
-            )}
-          />
-        </fieldset>
 
         <div className="space-y-1.5">
           <div className="flex items-start gap-2.5">

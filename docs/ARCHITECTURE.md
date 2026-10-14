@@ -81,6 +81,11 @@ Migrations in `supabase/migrations` are the single source of truth (forward-only
 | 0015 | Feedback, voting, roadmap, releases |
 | 0016 | Real release history seed |
 | 0017 | Closed community: college-email verification removed, anonymous access closed, members-only gate, functions closed by default |
+| 0018 | **Open registration**: optional self-described role, the verification gate removed (`can_use_network` = active account), community-grown college directory (normalised names, aliases, search, add-by-name with duplicate protection, reports, admin merge) |
+| 0019 | "My college" visibility needs a college (database refuses it with `college_required`) |
+| 0020 | New profiles are visible to signed-in members by default |
+| 0021 | Analytics cope with members who have not stated a role |
+| 0022 | Colleges that run a student-ID process are verified listings |
 
 Design rules: RLS on everything; column-level `UPDATE` grants protect trust fields; counters and notifications are
 trigger-maintained; recursion in policies is avoided with definer helper functions; soft deletes keep audit history.

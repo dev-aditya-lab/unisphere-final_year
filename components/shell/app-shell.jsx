@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PenLine, Search, ShieldAlert } from "lucide-react";
+import { PenLine, Search } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NavLinks } from "@/components/shell/nav-links";
@@ -27,8 +27,6 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
     (await hasPermission("users.view")) ||
     (await hasPermission("settings.view")) ||
     (await hasPermission("contact.manage"));
-
-  const needsVerification = profile.verification_status === "unverified" || profile.verification_status === "rejected";
 
   return (
     <div className="min-h-dvh">
@@ -86,18 +84,6 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
         </header>
 
         <InstallBanner />
-
-        {needsVerification && (
-          <div className="bg-warning-soft text-warning-text flex items-center gap-2 border-b px-4 py-2.5 text-[13px]">
-            <ShieldAlert className="size-4 shrink-0" aria-hidden="true" />
-            <p className="min-w-0 font-medium">
-              {profile.verification_status === "rejected" ? "Your last verification request was not approved. " : "Verify your student ID to unlock the full community. "}
-              <Link href="/settings/verification" className="font-bold underline underline-offset-2">
-                Verify now
-              </Link>
-            </p>
-          </div>
-        )}
 
         <main id="main" tabIndex={-1} className="mx-auto w-full max-w-6xl py-6 pr-[max(1rem,env(safe-area-inset-right))] pb-28 pl-[max(1rem,env(safe-area-inset-left))] outline-none sm:px-6 lg:pb-10">
           {children}

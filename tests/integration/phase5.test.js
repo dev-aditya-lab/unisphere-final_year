@@ -48,14 +48,14 @@ describe("report queue and scoping", () => {
     const post = await makePost(member);
     const id = await report(reporter, "post", post.id, "harassment");
 
-    const mine = await rpc(mod, "list_reports", { p_status: "open" });
+    const mine = await rpc(mod, "list_reports", { p_status: "open", p_limit: 100 });
     expect(mine.error).toBeNull();
     expect(mine.data.map((r) => r.id)).toContain(id);
     expect(mine.data.find((r) => r.id === id)).toMatchObject({ severity: "medium", category: "harassment" });
 
-    expect((await rpc(outsiderMod, "list_reports", { p_status: "all" })).data.map((r) => r.id)).not.toContain(id);
+    expect((await rpc(outsiderMod, "list_reports", { p_status: "all", p_limit: 100 })).data.map((r) => r.id)).not.toContain(id);
     expect((await rpc(member2, "list_reports", { p_status: "all" })).data).toEqual([]);
-    expect((await rpc(gadmin, "list_reports", { p_status: "all" })).data.map((r) => r.id)).toContain(id);
+    expect((await rpc(gadmin, "list_reports", { p_status: "all", p_limit: 100 })).data.map((r) => r.id)).toContain(id);
 
     expect((await rpc(outsiderMod, "get_report", { p_id: id })).error?.message).toMatch(/forbidden/);
     const detail = await rpc(mod, "get_report", { p_id: id });

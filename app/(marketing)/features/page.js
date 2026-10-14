@@ -12,7 +12,7 @@ const GROUPS = [
     title: "Share and connect",
     items: [
       ["Campus feed", "Posts, projects, ideas, questions, opportunities and achievements, with reactions, comments, reposts and bookmarks."],
-      ["Profiles", "Skills, interests, projects and achievements, with per-profile visibility. Profiles are visible only to signed-in RGEC members."],
+      ["Profiles", "Skills, interests, projects and achievements, with per-profile visibility. Profiles are visible only to signed-in members, and only to the people you allow."],
       ["Connections & messages", "Send connection requests, message people who allow it, and block or report anyone."],
     ],
   },
@@ -43,7 +43,8 @@ const GROUPS = [
   {
     title: "Trust and safety",
     items: [
-      ["Student ID verification", "Prove you are an RGEC student with your private student ID, or ask a reviewer. Verified members get a badge."],
+      ["Optional verification", "Where a college has shared its own list of student IDs, you can use yours to earn a Verified badge. Nothing requires it, and choosing a college never verifies anyone."],
+      ["Community-grown college directory", "Search for your college or add it by name. Listings added by members are labelled community-added, can be corrected by anyone, and duplicates are merged by moderators."],
       ["Moderation & appeals", "Reports, severity levels, moderator notes, restrictions and an appeals workflow. Humans make every enforcement decision."],
       ["Role-based administration", "Global admins, college admins, moderators, verification staff and support agents, each with scoped permissions and an audit log."],
     ],

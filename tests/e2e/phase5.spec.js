@@ -171,7 +171,7 @@ test.describe.serial("administration", () => {
     for (const [path, heading] of [
       ["/admin/analytics", "Analytics"], ["/admin/ai", "AI status"], ["/admin/users", "Members"], ["/admin/verification", "College verification"],
       ["/admin/appeals", "Appeals"], ["/admin/posts", "Posts"], ["/admin/communities", "Communities"], ["/admin/events", "Events"],
-      ["/admin/announcements", "Announcements"], ["/admin/support", "Support inbox"], ["/admin/deletions", "Account deletion"], ["/admin/colleges", "Colleges"],
+      ["/admin/announcements", "Announcements"], ["/admin/support", "Support inbox"], ["/admin/deletions", "Account deletion"], ["/admin/colleges", "College directory"],
     ]) {
       const res = await page.goto(path);
       expect(res.status(), path).toBe(200);

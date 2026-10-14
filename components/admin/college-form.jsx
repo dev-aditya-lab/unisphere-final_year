@@ -40,12 +40,12 @@ export function CollegeForm({ college, canEdit }) {
       <div className="space-y-1.5"><Label htmlFor={`c-${college.id}`} className="text-[13px] font-semibold">City</Label><input id={`c-${college.id}`} value={v.city} onChange={set("city")} disabled={!canEdit} className={field} /></div>
       <div className="space-y-1.5"><Label htmlFor={`st-${college.id}`} className="text-[13px] font-semibold">State</Label><input id={`st-${college.id}`} value={v.state} onChange={set("state")} disabled={!canEdit} className={field} /></div>
       <div className="space-y-1.5 sm:col-span-2">
-        <Label htmlFor={`m-${college.id}`} className="text-[13px] font-semibold">How members are verified</Label>
+        <Label htmlFor={`m-${college.id}`} className="text-[13px] font-semibold">How members can (optionally) verify</Label>
         <select id={`m-${college.id}`} value={v.verificationMode} onChange={set("verificationMode")} disabled={!canEdit} className={field}>
           {MODES.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
         </select>
       </div>
-      <label className="flex items-center gap-2 text-sm sm:col-span-2"><input type="checkbox" checked={v.isActive} onChange={set("isActive")} disabled={!canEdit} className="size-4" /> Active (members can choose this college when signing up)</label>
+      <label className="flex items-center gap-2 text-sm sm:col-span-2"><input type="checkbox" checked={v.isActive} onChange={set("isActive")} disabled={!canEdit} className="size-4" /> Listed (members can choose this college)</label>
       {error && <p role="alert" className="text-destructive-text text-sm sm:col-span-2">{error}</p>}
       {canEdit && <div className="sm:col-span-2"><Button type="submit" size="sm" disabled={pending}>{pending ? "Saving…" : "Save college"}</Button></div>}
     </form>

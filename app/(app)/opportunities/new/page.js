@@ -8,11 +8,11 @@ export const metadata = { title: "Share an opportunity", robots: { index: false,
 
 export default async function NewOpportunityPage() {
   if (!(await isFlagEnabled("opportunities"))) notFound();
-  await requireProfile();
+  const { profile } = await requireProfile();
   return (
     <div className="mx-auto max-w-2xl">
       <PageHeader eyebrow="Opportunities" title="Share an opportunity" description="Only share real openings you can stand behind. Listings can be reported and removed by moderators." />
-      <OpportunityForm />
+      <OpportunityForm hasCollege={Boolean(profile.college_id)} />
     </div>
   );
 }

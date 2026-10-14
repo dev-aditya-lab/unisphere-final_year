@@ -24,7 +24,7 @@ import { projectSchema, PROJECT_STATUSES } from "@/lib/validators/project";
 const EDIT_SCHEMA = projectSchema.omit({ openRoles: true });
 
 /** Create (no `project`) or edit (with `project`) form. `ai` enables "draft from description". */
-export function ProjectForm({ project = null, ai = null }) {
+export function ProjectForm({ project = null, ai = null, hasCollege = true }) {
   const router = useRouter();
   const editing = Boolean(project);
   const [pending, startTransition] = useTransition();
@@ -54,7 +54,7 @@ export function ProjectForm({ project = null, ai = null }) {
       status: project?.status ?? "idea",
       repoUrl: project?.repo_url ?? "",
       demoUrl: project?.demo_url ?? "",
-      visibility: project?.visibility ?? "college",
+      visibility: project?.visibility ?? (hasCollege ? "college" : "public"),
       lookingForMembers: project?.looking_for_members ?? false,
       openRoles: [],
     },
@@ -171,8 +171,8 @@ export function ProjectForm({ project = null, ai = null }) {
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger id="visibility" className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="public">Public</SelectItem>
-                    <SelectItem value="college">My college</SelectItem>
+                    <SelectItem value="public">All members</SelectItem>
+                    {(hasCollege || project?.visibility === "college") && <SelectItem value="college">My college</SelectItem>}
                     <SelectItem value="private">Team only</SelectItem>
                   </SelectContent>
                 </Select>

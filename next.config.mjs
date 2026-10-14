@@ -2,8 +2,6 @@
 const nextConfig = {
   productionBrowserSourceMaps: false,
   poweredByHeader: false,
-  // The standalone server bundle is for the Docker image (set in the Dockerfile). Vercel and `next start` do not use it.
-  output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
   images: {
     remotePatterns: [
       { protocol: "http", hostname: "localhost" },

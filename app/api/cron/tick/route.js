@@ -9,18 +9,30 @@ import { runMaintenanceTasks } from "@/lib/services/maintenance";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-function authorised(request) {
-  const secret = getEnv().CRON_SECRET;
-  if (!secret) return false;
-  const given = (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
-  const a = Buffer.from(given);
+function matches(given, secret) {
+  const a = Buffer.from(String(given ?? ""));
   const b = Buffer.from(secret);
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
 /**
+ * Two ways to present CRON_SECRET, both compared in constant time:
+ *   - `Authorization: Bearer <secret>`: Vercel cron, curl, a server cron job (preferred);
+ *   - `?secret=<secret>` in the URL: for hosted uptime monitors such as UptimeRobot's free plan, which cannot send
+ *     custom headers. A URL can end up in logs, so use a long random value and rotate it if it is ever exposed.
+ */
+function authorised(request) {
+  const secret = getEnv().CRON_SECRET;
+  if (!secret) return false;
+  const header = (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+  if (header && matches(header, secret)) return true;
+  const query = new URL(request.url).searchParams.get("secret");
+  return Boolean(query) && matches(query, secret);
+}
+
+/**
  * Background work tick: embedding jobs, notification email batches, push notifications, event reminders, orphan cleanup.
- * Called by `npm run worker` (a loop) or any scheduler (cron, Vercel cron, k8s CronJob).
+ * Called by `npm run worker` (a loop) or any scheduler: UptimeRobot, Vercel cron, a server cron job.
  * Nothing here runs unless something calls it, and it is refused without CRON_SECRET.
  */
 async function run(request) {

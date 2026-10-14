@@ -16,13 +16,13 @@ import { TagInput } from "@/components/forms/tag-input";
 import { OPPORTUNITY_KINDS, opportunitySchema } from "@/lib/validators/campus";
 import { createOpportunityAction, deleteOpportunityAction, setOpportunityStatusAction } from "@/lib/actions/campus";
 
-export function OpportunityForm() {
+export function OpportunityForm({ hasCollege = true }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState(null);
   const { register, control, handleSubmit, setError, formState: { errors } } = useForm({
     resolver: zodResolver(opportunitySchema),
-    defaultValues: { title: "", organization: "", kind: "internship", location: "", mode: "on_site", applyUrl: "", deadline: "", description: "", skills: [], stipend: "", visibility: "college" },
+    defaultValues: { title: "", organization: "", kind: "internship", location: "", mode: "on_site", applyUrl: "", deadline: "", description: "", skills: [], stipend: "", visibility: hasCollege ? "college" : "public" },
   });
   function onSubmit(values) {
     setServerError(null);
@@ -52,7 +52,7 @@ export function OpportunityForm() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {sel("kind", "Type", OPPORTUNITY_KINDS.map((k) => [k.value, k.label]))}
         {sel("mode", "Work mode", [["on_site", "On site"], ["remote", "Remote"], ["hybrid", "Hybrid"]])}
-        {sel("visibility", "Who can see it", [["college", "My college"], ["public", "All members"]])}
+        {sel("visibility", "Who can see it", [...(hasCollege ? [["college", "My college"]] : []), ["public", "All members"]])}
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Field id="location" label="Location" optional error={errors.location?.message}><Input id="location" maxLength={120} aria-describedby="location-desc" {...register("location")} /></Field>

@@ -1,108 +1,107 @@
 "use client";
 
+import { useState, useTransition } from "react";
 import { Controller, useWatch } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Field } from "@/components/forms/field";
+import { CollegePicker } from "@/components/colleges/college-picker";
+import { getCollegeStructureAction } from "@/lib/actions/colleges";
 
 const NONE = "__none__";
 
 /**
- * College + department + program + graduation year + (students) current year/semester.
- * `colleges` is [{ id, name, departments: [{id,name}], academic_programs: [{id,name,department_id}] }].
+ * College (optional) + department / programme (only when the college has defined them) + graduation year +
+ * (self-described students) current year and semester.
+ *
+ * Choosing a college is an association, not a claim of enrolment, so nothing here is required.
+ * `initialCollege` is the saved college summary; `initialStructure` its departments and programmes.
  */
-export function CollegeFields({ control, register, setValue, errors, colleges, accountType }) {
-  const collegeId = useWatch({ control, name: "collegeId" });
+export function CollegeFields({ control, register, setValue, errors, accountType, initialCollege = null, initialStructure = null, onCollegeChange }) {
+  const [college, setCollege] = useState(initialCollege);
+  const [structure, setStructure] = useState(initialStructure ?? { departments: [], academic_programs: [] });
+  const [, startTransition] = useTransition();
   const departmentId = useWatch({ control, name: "departmentId" });
-  const college = colleges.find((c) => c.id === collegeId);
-  const departments = college?.departments ?? [];
-  const programs = (college?.academic_programs ?? []).filter((p) => !departmentId || !p.department_id || p.department_id === departmentId);
+
+  const departments = structure.departments;
+  const programs = structure.academic_programs.filter((p) => !departmentId || !p.department_id || p.department_id === departmentId);
+
+  function onPick(next) {
+    setCollege(next);
+    setValue("collegeId", next?.id ?? null, { shouldDirty: true, shouldValidate: true });
+    setValue("departmentId", null, { shouldDirty: true });
+    setValue("programId", null, { shouldDirty: true });
+    setValue("campusId", null, { shouldDirty: true });
+    setStructure({ departments: [], academic_programs: [] });
+    onCollegeChange?.(next);
+    if (next) {
+      startTransition(async () => {
+        const res = await getCollegeStructureAction({ collegeId: next.id });
+        if (res.ok) setStructure({ departments: res.departments, academic_programs: res.academic_programs });
+      });
+    }
+  }
 
   return (
-    <div className="space-y-4">
-      <Field id="collegeId" label="College" required error={errors.collegeId?.message} hint="Changing college resets any verification badge.">
-        <Controller
-          control={control}
-          name="collegeId"
-          render={({ field }) => (
-            <Select
-              value={field.value ?? ""}
-              onValueChange={(v) => {
-                field.onChange(v);
-                setValue("departmentId", null);
-                setValue("programId", null);
-              }}
-            >
-              <SelectTrigger id="collegeId" className="w-full" aria-invalid={Boolean(errors.collegeId)} aria-describedby="collegeId-desc">
-                <SelectValue placeholder="Select your college" />
-              </SelectTrigger>
-              <SelectContent>
-                {colleges.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
-      </Field>
+    <div className="space-y-5">
+      <CollegePicker id="collegeId" value={college} onChange={onPick} error={errors.collegeId?.message} />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field id="departmentId" label="Department" optional>
-          <Controller
-            control={control}
-            name="departmentId"
-            render={({ field }) => (
-              <Select
-                value={field.value ?? NONE}
-                onValueChange={(v) => {
-                  field.onChange(v === NONE ? null : v);
-                  setValue("programId", null);
-                }}
-                disabled={!college}
-              >
-                <SelectTrigger id="departmentId" className="w-full">
-                  <SelectValue placeholder={college ? "Select department" : "Choose a college first"} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE}>Not specified</SelectItem>
-                  {departments.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      {d.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </Field>
+      {college && (departments.length > 0 || programs.length > 0) && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field id="departmentId" label="Department" optional>
+            <Controller
+              control={control}
+              name="departmentId"
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? NONE}
+                  onValueChange={(v) => {
+                    field.onChange(v === NONE ? null : v);
+                    setValue("programId", null);
+                  }}
+                >
+                  <SelectTrigger id="departmentId" className="w-full">
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NONE}>Not specified</SelectItem>
+                    {departments.map((d) => (
+                      <SelectItem key={d.id} value={d.id}>
+                        {d.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </Field>
 
-        <Field id="programId" label="Course / degree" optional>
-          <Controller
-            control={control}
-            name="programId"
-            render={({ field }) => (
-              <Select value={field.value ?? NONE} onValueChange={(v) => field.onChange(v === NONE ? null : v)} disabled={!college}>
-                <SelectTrigger id="programId" className="w-full">
-                  <SelectValue placeholder={college ? "Select program" : "Choose a college first"} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE}>Not specified</SelectItem>
-                  {programs.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </Field>
-      </div>
+          <Field id="programId" label="Course / degree" optional>
+            <Controller
+              control={control}
+              name="programId"
+              render={({ field }) => (
+                <Select value={field.value ?? NONE} onValueChange={(v) => field.onChange(v === NONE ? null : v)}>
+                  <SelectTrigger id="programId" className="w-full">
+                    <SelectValue placeholder="Select program" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NONE}>Not specified</SelectItem>
+                    {programs.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </Field>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Field id="graduationYear" label={accountType === "alumni" ? "Graduation year" : "Expected graduation"} optional error={errors.graduationYear?.message}>
+        <Field id="graduationYear" label={accountType === "alumni" ? "Graduation year" : "Graduation year (expected)"} optional error={errors.graduationYear?.message}>
           <Input id="graduationYear" type="number" inputMode="numeric" min={1960} max={2100} placeholder="2027" aria-describedby="graduationYear-desc" {...register("graduationYear")} />
         </Field>
         {accountType === "student" && (

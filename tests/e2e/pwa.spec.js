@@ -21,7 +21,7 @@ test.describe("installable app", () => {
     expect(res.status()).toBe(200);
     const m = await res.json();
     expect(m).toMatchObject({ short_name: "UniSphere", display: "standalone", scope: "/", lang: "en-IN" });
-    expect(m.name).toContain("Ramgarh Engineering College");
+    expect(m.name).toContain("UniSphere");
     expect(m.start_url).toMatch(/^\/feed/);
     const sizes = m.icons.map((i) => `${i.sizes}:${i.purpose}`);
     expect(sizes).toEqual(expect.arrayContaining(["192x192:any", "512x512:any", "512x512:maskable"]));

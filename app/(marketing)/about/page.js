@@ -38,11 +38,11 @@ export default function AboutPage() {
           <li><strong>Useful beats loud.</strong> Ideas, projects and questions get their own spaces so they do not drown in a general feed.</li>
           <li><strong>AI should explain itself.</strong> Suggestions come from real content on the platform and always say why. They are never published without your approval.</li>
           <li><strong>Privacy is a setting, not a footnote.</strong> You choose who sees your profile, posts and class details.</li>
-          <li><strong>Trust is earned.</strong> Membership is verified with a student ID that is checked privately against the college&rsquo;s own list and never stored or shown. Administrators are appointed deliberately, never automatically.</li>
+          <li><strong>Open, and honest about it.</strong> Anyone can join. Connecting a college is a choice, not a claim, and listings added by members are labelled as such. Verification only ever means something a person actually checked, and administrators are appointed deliberately, never automatically.</li>
         </ul>
-        <h2>Made for Ramgarh Engineering College</h2>
+        <h2>Made at Ramgarh Engineering College</h2>
         <p>
-          UniSphere is built for the students, alumni, faculty and clubs of Ramgarh Engineering College (RGEC), Ramgarh, Jharkhand. Departments, clubs and official announcements live here, and college administrators run their own community with moderation tools, an audit trail and an appeals process.
+          UniSphere began at Ramgarh Engineering College (RGEC), Ramgarh, Jharkhand, and is open to everyone. The directory of colleges grows as people join and add their own, and every college community can run its clubs, events and announcements with moderation tools, an audit trail and an appeals process.
         </p>
         <h2>The team</h2>
         <p>UniSphere was designed and built by four RGEC students:</p>

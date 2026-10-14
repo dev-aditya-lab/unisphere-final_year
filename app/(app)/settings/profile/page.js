@@ -7,7 +7,7 @@ import { AchievementsCard, ExperiencesCard } from "@/components/profile/profile-
 import { CompletionCard } from "@/components/profile/completion-card";
 import { requireProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-import { listCollegesWithStructure } from "@/lib/services/colleges";
+import { getCollegeStructure, getCollegeSummary } from "@/lib/services/colleges";
 
 export const metadata = { title: "Edit profile" };
 
@@ -15,8 +15,9 @@ export default async function ProfileSettingsPage() {
   const { profile } = await requireProfile();
   const supabase = await createClient();
 
-  const [colleges, classInfo, achievements, experiences] = await Promise.all([
-    listCollegesWithStructure(),
+  const [college, structure, classInfo, achievements, experiences] = await Promise.all([
+    getCollegeSummary(profile.college_id),
+    getCollegeStructure(profile.college_id),
     supabase.from("profile_class_info").select("current_year, current_semester").eq("user_id", profile.id).maybeSingle(),
     supabase.from("profile_achievements").select("*").eq("user_id", profile.id).order("achieved_on", { ascending: false, nullsFirst: false }),
     supabase.from("profile_experiences").select("*").eq("user_id", profile.id).order("start_date", { ascending: false, nullsFirst: false }),
@@ -41,7 +42,7 @@ export default async function ProfileSettingsPage() {
         <ProfileImageUpload kind="cover" currentKey={profile.cover_key} name={profile.full_name} />
       </section>
 
-      <ProfileForm profile={profile} classInfo={classInfo.data} colleges={colleges} />
+      <ProfileForm profile={profile} classInfo={classInfo.data} college={college} structure={structure} />
       <AchievementsCard items={achievements.data ?? []} />
       <ExperiencesCard items={experiences.data ?? []} />
     </div>

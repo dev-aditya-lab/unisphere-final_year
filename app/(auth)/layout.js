@@ -8,7 +8,7 @@ import { APP_TAGLINE } from "@/lib/constants";
 const POINTS = [
   { icon: Lightbulb, title: "See what already exists", text: "Before you build, find the ideas and projects your campus has already started.", tilt: "-rotate-[1.5deg]", tone: "tone-sun" },
   { icon: Users, title: "Find your teammates", text: "Match on real skills and open roles, with a plain reason for every suggestion.", tilt: "rotate-[1deg] sm:translate-x-5", tone: "tone-teal" },
-  { icon: ShieldCheck, title: "Only for RGEC", text: "Members are checked against the student roster. Nothing here is public.", tilt: "-rotate-[0.75deg]", tone: "tone-blue" },
+  { icon: ShieldCheck, title: "Open, and private", text: "Anyone can join. Nothing here is public: you only see it when you are signed in.", tilt: "-rotate-[0.75deg]", tone: "tone-blue" },
 ];
 
 export default function AuthLayout({ children }) {
@@ -20,7 +20,7 @@ export default function AuthLayout({ children }) {
           <Logo tile />
         </div>
         <div className="relative z-10 max-w-md">
-          <p className="text-[0.6875rem] font-extrabold tracking-[0.16em] uppercase">Ramgarh Engineering College</p>
+          <p className="text-[0.6875rem] font-extrabold tracking-[0.16em] uppercase">Open to everyone</p>
           <h2 className="display-sm mt-4 text-balance">{APP_TAGLINE}</h2>
           <ul className="mt-10 space-y-4">
             {POINTS.map(({ icon: Icon, title, text, tilt, tone }) => (

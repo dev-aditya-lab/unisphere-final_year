@@ -34,6 +34,3 @@ join (values
 ) as p(dept_slug, name, level, years) on p.dept_slug = d.slug
 on conflict do nothing;
 
--- Development and the automated tests behave like an open platform; production keeps the migration default
--- (publishing requires a verified student ID). Turn it on locally in /admin/settings to try the full flow.
-update public.system_settings set value = 'false' where key = 'college_verification_required';

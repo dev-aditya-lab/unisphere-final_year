@@ -20,7 +20,8 @@ export default async function FeedPage({ searchParams }) {
   const { profile, user } = await requireProfile();
   const sp = await searchParams;
   const defaultScope = profile.college_id ? "college" : "public";
-  const scope = SCOPES.has(sp.scope) ? sp.scope : defaultScope;
+  // "My college" only exists once a college is connected; without one the feed is general.
+  const scope = SCOPES.has(sp.scope) && !(sp.scope === "college" && !profile.college_id) ? sp.scope : defaultScope;
   const category = CATEGORY_BY_VALUE[sp.category] ? sp.category : null;
 
   const [page, ai, announcements] = await Promise.all([getFeedPage({ scope, category }), getAiUiState(profile), getAnnouncements(3)]);
@@ -31,7 +32,7 @@ export default async function FeedPage({ searchParams }) {
       <div className="space-y-5">
         <AnnouncementsBanner items={announcements} />
         <Composer profile={profile} ai={ai} />
-        <FeedFilters scope={scope} category={category} />
+        <FeedFilters scope={scope} category={category} hasCollege={Boolean(profile.college_id)} />
         <FeedList
           key={`${scope}-${category}-${page.items[0]?.id ?? "empty"}`}
           initialItems={page.items}

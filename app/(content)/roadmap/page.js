@@ -5,7 +5,7 @@ import { getRoadmap } from "@/lib/services/feedback";
 
 export const metadata = {
   title: "Roadmap",
-  description: "What the UniSphere team is building, what is planned next and what has shipped. Ideas come from RGEC members and are ordered by their votes.",
+  description: "What the UniSphere team is building, what is planned next and what has shipped. Ideas come from members and are ordered by their votes.",
 };
 
 const COLUMNS = [

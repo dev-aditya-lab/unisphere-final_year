@@ -20,13 +20,13 @@ import { UserAvatar } from "@/components/user-avatar";
 import { COMMUNITY_KINDS, communitySchema } from "@/lib/validators/campus";
 import { createCommunityAction, deleteCommunityAction, joinCommunityAction, leaveCommunityAction, manageMemberAction, respondMembershipAction, setCommunityOfficialAction, updateCommunityAction } from "@/lib/actions/campus";
 
-export function CommunityForm({ community = null }) {
+export function CommunityForm({ community = null, hasCollege = true }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState(null);
   const { register, control, handleSubmit, setError, formState: { errors } } = useForm({
     resolver: zodResolver(communitySchema),
-    defaultValues: { name: community?.name ?? "", kind: community?.kind ?? "community", description: community?.description ?? "", visibility: community?.visibility ?? "college", joinPolicy: community?.join_policy ?? "open" },
+    defaultValues: { name: community?.name ?? "", kind: community?.kind ?? "community", description: community?.description ?? "", visibility: community?.visibility ?? (hasCollege ? "college" : "public"), joinPolicy: community?.join_policy ?? "open" },
   });
   function onSubmit(values) {
     setServerError(null);
@@ -53,7 +53,7 @@ export function CommunityForm({ community = null }) {
       <Field id="description" label="Description" optional error={errors.description?.message}><Textarea id="description" rows={4} maxLength={1500} aria-describedby="description-desc" {...register("description")} /></Field>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {select("kind", "Type", COMMUNITY_KINDS.map((k) => [k.value, k.label]))}
-        {select("visibility", "Who can find it", [["public", "All members"], ["college", "My college"], ["private", "Members only"]])}
+        {select("visibility", "Who can find it", [["public", "All members"], ...(hasCollege || community?.visibility === "college" ? [["college", "My college"]] : []), ["private", "Members only"]])}
         {select("joinPolicy", "How people join", [["open", "Open to all"], ["request", "By request"], ["invite", "Invite only"]])}
       </div>
       <div className="flex justify-end gap-2">

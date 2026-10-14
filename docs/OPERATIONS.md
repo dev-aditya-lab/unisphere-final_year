@@ -16,7 +16,7 @@ What to watch, what to back up, and what to do when something breaks.
 It is safe to run more than one worker or to overlap ticks: every step claims work with `FOR UPDATE SKIP LOCKED`.
 A tick that fails one step still runs the others, and returns what happened as JSON.
 
-Monitoring: alert if `docker compose ps` shows the worker not running, or if `POST /api/cron/tick` has not returned 200
+Monitoring: UptimeRobot alerts you if `/api/health?deep=1` fails or if `/api/cron/tick` has not returned 200
 for 10 minutes. The worker logs one line per tick (emails sent/failed, push sent).
 
 ## Health and monitoring
@@ -28,7 +28,7 @@ for 10 minutes. The worker logs one line per tick (emails sent/failed, push sent
 | AI health, models, errors, jobs | `/admin/ai` |
 | Moderation backlog | Admin sidebar counters (reports, appeals, verification, deletions, feedback) |
 | Who did what | `/admin/audit` (append-only; CSV export) |
-| Errors | Container logs (`docker compose logs -f app worker`). Server errors are logged without secrets |
+| Errors | Your host's logs (Vercel/Render dashboard, or `pm2 logs`). Server errors are logged without secrets |
 
 Recommended: an uptime monitor on `/api/health?deep=1`, log shipping from the containers, and Supabase's built-in
 database and auth dashboards.

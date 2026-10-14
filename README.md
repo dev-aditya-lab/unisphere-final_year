@@ -9,13 +9,13 @@ Designed and built by **Aditya Kumar Gupta, Sumit Jha, Sahil Nayak and Vishal Ku
 | --- | --- |
 | Stack | Next.js 16 (App Router, JavaScript), Tailwind CSS v4 + shadcn/ui, Supabase (Postgres, Auth, Realtime, RLS), Redis, Cloudflare R2, Resend, LangChain + Groq, Web Push |
 | Installable | Progressive Web App (offline screen, install prompt, push notifications) |
-| Access | **A closed network**: nothing is visible to logged-out visitors, or to accounts that are not verified RGEC members. Verification is by student ID, checked privately against the college's own list (stored only as keyed hashes) |
+| Access | **Open to join, private to view**: anyone can register with an email address (no college, role, ID or college email needed); nothing is visible to logged-out visitors. A college is optional and never counts as verification. Verified badges exist only where a college has shared its own ID list (checked privately, stored only as keyed hashes) |
 | Deploys to | Vercel, Render (free plan) or any VPS: see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) |
-| Admin | Full console: moderation, appeals, student-ID list, roles, analytics, audit log, settings, feedback, releases |
+| Admin | Full console: moderation, appeals, college directory (merge, correct, reports), student-ID list, roles, analytics, audit log, settings, feedback, releases |
 
 ## Quick start (local development)
 
-You need Node.js 22+, Docker, and the Supabase CLI (`npx supabase`).
+You need Node.js 22+ and the Supabase CLI (`npx supabase`). The local Supabase stack runs in Docker Desktop; if you use a hosted Supabase project instead, you do not need Docker at all.
 
 ```bash
 npm install
@@ -53,7 +53,7 @@ The full walk-through, including every environment variable, is in [docs/SETUP.m
 | Document | For |
 | --- | --- |
 | [docs/SETUP.md](docs/SETUP.md) | Developers: local setup and every environment variable |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Whoever deploys: production checklist, Docker, Supabase, DNS, first admin |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Whoever deploys: production checklist, Vercel/Render/VPS, UptimeRobot jobs, Supabase, DNS, first admin |
 | [docs/OPERATIONS.md](docs/OPERATIONS.md) | Running it: worker, backups, secrets rotation, monitoring, incident playbooks |
 | [docs/ADMIN_GUIDE.md](docs/ADMIN_GUIDE.md) | College staff: student-ID list, moderation, appeals, roles, announcements |
 | [docs/SECURITY.md](docs/SECURITY.md) | How data and access are protected, and what to review before launch |
@@ -82,7 +82,7 @@ docs/  store/         Documentation · store listing text and screenshots
   functions that re-check the caller's permission for the record's own college. The UI only hides what you cannot do.
 - **Honest degradation.** Redis, R2, email, AI, push and embeddings are optional. When one is missing the feature says
   so or falls back, rather than pretending to work.
-- **Closed by default.** UniSphere is for RGEC members only: no public feed, no public profiles, no search-engine
+- **Private by default.** Anyone can join, but nothing is public: no public feed, no public profiles, no search-engine
   indexing of member content. Inside the network, visibility is still set per post and per profile, and private content
   never reaches AI providers.
 - **No secrets in the browser.** Only `NEXT_PUBLIC_*` values ship to clients, and they are listed in `.env.example`.

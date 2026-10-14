@@ -20,18 +20,19 @@ const created = [];
 
 /** Creates a confirmed auth user (and, via trigger, its profile) and returns a client signed in as them. */
 export async function createUser(label, { accountType = "student", collegeId = GREENFIELD, visibility } = {}) {
+  // accountType: null / collegeId: null model someone who joined without saying either.
   const email = `${label}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}@example.test`;
   const { data, error } = await admin.auth.admin.createUser({
     email,
     password: PASSWORD,
     email_confirm: true,
-    user_metadata: { full_name: `Test ${label}`, account_type: accountType },
+    user_metadata: { full_name: `Test ${label}`, ...(accountType ? { account_type: accountType } : {}) },
   });
   if (error) throw error;
   const id = data.user.id;
   created.push(id);
 
-  const patch = { college_id: collegeId, onboarded_at: new Date().toISOString() };
+  const patch = { college_id: collegeId ?? null, onboarded_at: new Date().toISOString() };
   if (visibility) patch.visibility = visibility;
   const { error: updError } = await admin.from("profiles").update(patch).eq("id", id);
   if (updError) throw updError;

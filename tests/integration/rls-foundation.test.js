@@ -17,7 +17,7 @@ import {
 let alice, bob, carol, dave, globalAdmin, collegeAdmin, verifier, riversideStaff;
 
 beforeAll(async () => {
-  alice = await createUser("alice"); // Greenfield student, college-visible profile
+  alice = await createUser("alice", { visibility: "college" }); // Greenfield student, college-visible profile
   bob = await createUser("bob"); // Greenfield student
   carol = await createUser("carol", { collegeId: RIVERSIDE }); // other college
   dave = await createUser("dave", { visibility: "private" });
@@ -37,14 +37,15 @@ afterAll(async () => {
 
 describe("profiles", () => {
   it("creates a profile for every new auth user with safe defaults", async () => {
-    const { data } = await admin.from("profiles").select("status, verification_status, visibility, show_class").eq("id", alice.id).single();
-    expect(data).toMatchObject({ status: "active", verification_status: "unverified", visibility: "college", show_class: false });
+    const { data } = await admin.from("profiles").select("status, verification_status, visibility, show_class").eq("id", bob.id).single();
+    // New members are visible to signed-in members by default (open registration); nothing is verified.
+    expect(data).toMatchObject({ status: "active", verification_status: "unverified", visibility: "public", show_class: false });
   });
 
   it("ignores privileged values smuggled in sign-up metadata", async () => {
     const mallory = await createUser("mallory", { accountType: "global_admin" });
     const { data: profile } = await admin.from("profiles").select("account_type").eq("id", mallory.id).single();
-    expect(profile.account_type).toBe("student");
+    expect(profile.account_type).toBeNull(); // an unknown value is simply "not stated"
     const { data: roles } = await admin.from("user_roles").select("id").eq("user_id", mallory.id);
     expect(roles).toHaveLength(0);
   });

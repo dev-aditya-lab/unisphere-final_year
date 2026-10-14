@@ -1,10 +1,10 @@
 # Render Blueprint: the web app on Render's FREE plan.
 #
 # Read docs/DEPLOYMENT.md first. Two things to know about the free plan:
-#   1. The service sleeps after ~15 minutes without traffic and takes about a minute to wake. The scheduled ping in
-#      .github/workflows/worker-tick.yml keeps it awake (and runs the background work) every 5 minutes.
-#   2. The free instance has little memory. If `npm run build` runs out of memory, build the Docker image in GitHub
-#      Actions instead (.github/workflows/docker-image.yml) and deploy that image to Render.
+#   1. The service sleeps after ~15 minutes without traffic and takes about a minute to wake. An UptimeRobot monitor
+#      on /api/cron/tick (see docs/DEPLOYMENT.md) keeps it awake and runs the background work every 5 minutes.
+#   2. The free instance has little memory. If `npm run build` runs out of memory, build with a larger plan once, or
+#      deploy to Vercel instead.
 services:
   - type: web
     name: unisphere

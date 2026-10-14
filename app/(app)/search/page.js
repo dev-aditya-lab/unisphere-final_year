@@ -86,7 +86,7 @@ export default async function SearchPage({ searchParams }) {
             <>
               <label className="flex items-center gap-2">
                 <span className="text-muted-foreground">People</span>
-                <select name="account" defaultValue={accountType ?? ""} className={selectCls} aria-label="Account type">
+                <select name="account" defaultValue={accountType ?? ""} className={selectCls} aria-label="Self-described as">
                   <option value="">Anyone</option>
                   <option value="student">Students</option>
                   <option value="alumni">Alumni</option>

@@ -26,7 +26,7 @@ export function PersonCard({ person, reason, actions, className, showSkills = tr
           <span className="text-muted-foreground text-xs">@{person.username}</span>
         </div>
         <p className="text-muted-foreground mt-0.5 flex min-w-0 flex-wrap items-center gap-x-2 text-sm">
-          <span>{TYPE_LABEL[person.account_type] ?? "Member"}</span>
+          <span title={person.account_type ? "Self-described" : undefined}>{TYPE_LABEL[person.account_type] ?? "Member"}</span>
           {person.graduation_year && (
             <span className="flex items-center gap-1">
               <GraduationCap className="size-3.5" aria-hidden="true" /> {person.graduation_year}

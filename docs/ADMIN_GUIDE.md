@@ -4,12 +4,26 @@ This guide is for the people who run UniSphere day to day: administrators, moder
 agents. You do not need to be technical. Everything is in the **Admin console**, reached from your profile menu (top right)
 or at `/admin`.
 
-## A private network
+## Open to join, private to view
 
-UniSphere is not a public website. Logged-out visitors see only the home, about and legal pages. Everyone else must sign
-up **and** verify as an RGEC member before they can see or post anything, and search engines are told to stay away.
-Your job as staff is to keep it that way: verify real students quickly, release or revoke student IDs that are held by
-the wrong person, and remove members who should not be there.
+UniSphere is not a public website. Logged-out visitors see only the home, about and legal pages. **Anyone can sign up**
+with an email address (no college, role, ID or college email is required) and then use everything; search engines are
+told to stay away. Your job as staff is to keep it healthy: handle reports, keep the college directory tidy, and remove
+members who break the guidelines.
+
+### The college directory
+
+Members choose a college (optional) by searching, or add one by name when it is missing. Nothing waits for approval.
+Choosing a college is only an association: it never verifies anyone and never gives a badge.
+
+- **Community-added** listings are labelled as such everywhere. **Verified listing** means staff reviewed the record
+  (for example a college that supplied its own student-ID list). Only a global/college administrator can mark a
+  listing verified.
+- Admin → **Colleges** shows open reports first: corrections (accept to apply), duplicates, inaccurate information and
+  abuse. Moderators can correct and hide listings; **merging** two records needs a college administrator.
+- **Merge** moves members and content to the record you keep and leaves the other as a redirect, so old links work.
+  Add **aliases** (abbreviations, former names) so search finds the right record.
+- Hiding a listing removes it from search without touching its members.
 
 ## Who can do what
 
@@ -24,9 +38,9 @@ the wrong person, and remove members who should not be there.
 Rules that always apply: you cannot act on yourself; only a global admin can act on an administrator; you cannot decide an
 appeal against your own decision (a global admin can); every action is written to the audit log, which nobody can edit.
 
-## Student IDs: how members get verified
+## Student IDs: the optional Verified badge
 
-RGEC members prove they belong by entering their **student ID**. IDs are not public, so a stranger cannot guess one. The
+Verification is optional and only offered where a college has shared its own list. RGEC members can earn a **Verified badge** by entering their **student ID**. IDs are not public, so a stranger cannot guess one. The
 college supplies its list of valid IDs, you import it, and each ID can be linked to **one** account.
 
 ### Importing the list
@@ -106,9 +120,6 @@ processed automatically.
 Changes apply within about 30 seconds and are audit-logged.
 
 - **Open registration**: turn off to stop new sign-ups.
-- **Members only: verified RGEC members only**: on by default. An account that is not a verified member sees only the
-  verification screen and its own settings; nothing inside UniSphere is visible to it. Staff accounts are never locked out.
-  Turn it off only while testing.
 - **Maintenance mode**: only administrators can use the app. Use during incidents or migrations.
 - **Rate limits**, **upload limits**, **AI daily limit**: tighten if you see abuse or cost.
 - **Feature flags**: switch whole features (messaging, events, AI assistants…) off without a deployment.

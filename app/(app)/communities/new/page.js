@@ -8,11 +8,11 @@ export const metadata = { title: "New community", robots: { index: false, follow
 
 export default async function NewCommunityPage() {
   if (!(await isFlagEnabled("communities"))) notFound();
-  await requireProfile();
+  const { profile } = await requireProfile();
   return (
     <div className="mx-auto max-w-2xl">
       <PageHeader eyebrow="Communities" title="Start a community" description="You become the owner and can appoint admins and moderators." />
-      <CommunityForm />
+      <CommunityForm hasCollege={Boolean(profile.college_id)} />
     </div>
   );
 }

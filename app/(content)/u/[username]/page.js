@@ -126,7 +126,7 @@ export default async function ProfilePage({ params, searchParams }) {
               {profile.verification_status === "verified" && <BadgeCheck className="text-teal-text size-5" aria-label="Verified member" />}
             </h1>
             <p className="text-muted-foreground text-sm">
-              @{profile.username} · {TYPE_LABEL[profile.account_type]}
+              @{profile.username}{profile.account_type ? <> · <span title="Self-described, not verified">{TYPE_LABEL[profile.account_type]}</span></> : null}
             </p>
             {profile.headline && <p className="mt-2 text-[15px]">{profile.headline}</p>}
           </div>
@@ -135,7 +135,13 @@ export default async function ProfilePage({ params, searchParams }) {
             {college && (
               <li className="flex items-center gap-1.5">
                 <Building2 className="size-4" aria-hidden="true" />
-                {college.name}
+                {college.slug ? (
+                  <Link href={`/colleges/${college.slug}`} className="hover:text-foreground underline-offset-2 hover:underline">
+                    {college.name}
+                  </Link>
+                ) : (
+                  college.name
+                )}
               </li>
             )}
             {(program || department) && (

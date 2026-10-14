@@ -4,7 +4,7 @@ import { APP_DESCRIPTION } from "@/lib/constants";
 export default function manifest() {
   return {
     id: "/",
-    name: "UniSphere — Ramgarh Engineering College",
+    name: "UniSphere: your campus network",
     short_name: "UniSphere",
     description: APP_DESCRIPTION,
     start_url: "/feed?source=pwa",

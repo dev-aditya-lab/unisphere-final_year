@@ -176,6 +176,12 @@ test.describe.serial("notifications, messaging, events and the worker", () => {
   test("the worker tick is protected, and sends a real email through Resend's test inbox", async ({ request }) => {
     expect((await request.post("/api/cron/tick")).status()).toBe(401);
     expect((await request.post("/api/cron/tick", { headers: { Authorization: "Bearer wrong-secret" } })).status()).toBe(401);
+    // A monitor that cannot send headers (UptimeRobot free plan) may pass the secret in the URL; a wrong one is refused.
+    expect((await request.get("/api/cron/tick?secret=wrong-secret")).status()).toBe(401);
+    expect((await request.get("/api/cron/tick?secret=")).status()).toBe(401);
+    const viaUrl = await request.get(`/api/cron/tick?secret=${encodeURIComponent(process.env.CRON_SECRET)}`);
+    expect(viaUrl.status()).toBe(200);
+    expect(await viaUrl.json()).toMatchObject({ ok: true });
 
     // Resend's `delivered+label@resend.dev` accepts mail as delivered without reaching a real mailbox.
     const email = `delivered+unisphere-${tag}@resend.dev`;

@@ -16,13 +16,14 @@ function href(pathname, params, patch) {
 }
 
 /** Scope tabs + category chips. Filters live in the URL, so they are shareable and survive refresh. */
-export function FeedFilters({ scope, category, hideCategories = false }) {
+export function FeedFilters({ scope, category, hideCategories = false, hasCollege = true }) {
+  const scopes = hasCollege ? FEED_SCOPES : FEED_SCOPES.filter((s) => s.value !== "college");
   const pathname = usePathname();
   const params = useSearchParams();
   return (
     <div className="space-y-3">
       <div role="tablist" aria-label="Feed" className="bg-sunken border-border inline-flex rounded-xl border p-1">
-        {FEED_SCOPES.map((s) => (
+        {scopes.map((s) => (
           <Link
             key={s.value}
             role="tab"

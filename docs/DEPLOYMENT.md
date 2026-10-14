@@ -7,7 +7,7 @@ UniSphere is a normal Next.js app plus a database, so it runs in three common wa
 | Cost | Free (Hobby) | Free | A small paid server (about 1 vCPU / 1 to 2 GB RAM is enough) |
 | Setup effort | Easiest | Easy | Most work, most control |
 | Always on | Yes | **Sleeps after ~15 min idle** (a scheduled ping keeps it awake) | Yes |
-| Background jobs (email, push, reminders) | Scheduled calls (GitHub Actions every 5 min) | Scheduled calls (GitHub Actions every 5 min) | A real worker container (every 30 s) |
+| Background jobs (email, push, reminders) | UptimeRobot calls the job endpoint every 5 min | UptimeRobot calls the job endpoint every 5 min | A worker process (`npm run worker`, every 30 s) |
 | Best for | Launch and normal use | Trying it out, a demo | Long-term, full control |
 
 All three need the same four outside services. They have free tiers that are enough for a college community:
@@ -21,9 +21,9 @@ All three need the same four outside services. They have free tiers that are eno
 
 Optional: **Groq** (AI features, free tier) and **VAPID keys** (push notifications, free, you generate them).
 
-> **Reminder: this is a closed network.** Nothing but the home, about, features, guidelines, contact, privacy and terms
-> pages is visible without signing in, and (in production) nobody sees anything until they verify with their student ID.
-> That is built in; you do not need to configure it. See [ADMIN_GUIDE.md](ADMIN_GUIDE.md).
+> **Reminder: open to join, private to view.** Nothing but the home, about, features, guidelines, contact, privacy and
+> terms pages is visible without signing in; anyone can register. That is built in; you do not need to configure it.
+> See [ADMIN_GUIDE.md](ADMIN_GUIDE.md).
 
 ---
 
@@ -103,16 +103,14 @@ support email in Settings, and import the student-ID list (Admin → Student IDs
 2. vercel.com → **Add New → Project** → import the repository. Framework is detected as Next.js; keep defaults.
 3. Add the environment variables from 0.6 (Production). The `NEXT_PUBLIC_*` ones must be present **before** the build.
 4. Deploy. The included `vercel.json` registers a daily safety-net call to the job endpoint.
-5. **Background jobs.** Vercel serverless functions cannot run a worker. Use the included GitHub Actions workflow:
-   - Repository → Settings → Secrets and variables → Actions → add **secret** `CRON_SECRET` (same value as in Vercel) and
-     **variable** `APP_URL` (your public URL).
-   - The workflow `.github/workflows/worker-tick.yml` then calls `/api/cron/tick` every 5 minutes.
-   - Vercel's own cron also sends `Authorization: Bearer $CRON_SECRET` once a day, which the endpoint accepts.
+5. **Background jobs.** Vercel serverless functions cannot run a worker, so set up the UptimeRobot monitor in
+   [Background jobs with UptimeRobot](#background-jobs-with-uptimerobot) below. Vercel's own cron also calls the endpoint
+   once a day with `Authorization: Bearer $CRON_SECRET`, which it accepts.
 6. Add your domain in Vercel (optional) and update `NEXT_PUBLIC_APP_URL` + Supabase *Site URL* if it changes (then redeploy).
 
 Limits to know: the Hobby plan is for non-commercial use (a college project qualifies, but read their terms); function
 time is capped (the job endpoint is written to finish in under a minute); Vercel cron on Hobby runs at most daily, which
-is why GitHub Actions does the frequent calls.
+is why UptimeRobot does the frequent calls.
 
 ## B. Deploy on Render (free plan)
 
@@ -122,50 +120,71 @@ is why GitHub Actions does the frequent calls.
 3. Wait for the first build. If it fails with an out-of-memory error (the free instance is small), use the prebuilt image
    route below instead.
 4. **Keep it awake and run background jobs.** The free instance sleeps after about 15 minutes idle (the next visitor waits
-   up to a minute). The same GitHub Actions workflow as above fixes both: add `CRON_SECRET` (secret) and `APP_URL`
-   (variable), and it pings the app and runs jobs every 5 minutes. It then rarely sleeps.
+   up to a minute). The UptimeRobot monitor in
+   [Background jobs with UptimeRobot](#background-jobs-with-uptimerobot) pings the app and runs the jobs every 5
+   minutes, so it rarely sleeps.
 5. Set `NEXT_PUBLIC_APP_URL` to the `https://<name>.onrender.com` address (or your custom domain) **before** building.
 
-**If the free build runs out of memory:** let GitHub build the image instead.
-- Repository → Settings → Secrets and variables → Actions → **Variables**: add `NEXT_PUBLIC_APP_URL`,
-  `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (and optionally `NEXT_PUBLIC_VAPID_PUBLIC_KEY`,
-  `NEXT_PUBLIC_MEDIA_URL`).
-- The workflow `.github/workflows/docker-image.yml` builds and publishes `ghcr.io/<owner>/<repo>:latest` on every push.
-- On Render choose **New → Web Service → Deploy an existing image** and give it that image URL, plus the server-side
-  variables. (Make the package public, or add registry credentials.)
+**If the free build runs out of memory:** the free instance is small. Deploy to Vercel (option A) instead, or build once
+on a larger Render plan and scale back down.
 
 Free-plan realities: it is fine for trying UniSphere out and for a small community, but expect a cold start after idle
 time, and no persistent disk (UniSphere does not need one). For a live launch consider option A or C.
 
-## C. Deploy on a VPS (Docker)
+## C. Deploy on a VPS
 
 Works on any Ubuntu/Debian server from DigitalOcean, Hetzner, AWS Lightsail, Oracle, a college server, etc.
 
 1. **Point a domain** at the server: create an `A` record (for example `unisphere.your-domain.com` → the server's IP).
-2. **Prepare the server** (as root):
+2. **Install** Node.js 22+, Git and a reverse proxy (Caddy gives automatic HTTPS):
    ```bash
    git clone <your-repo-url> unisphere && cd unisphere
-   bash deploy/vps-bootstrap.sh        # installs Docker, a firewall (22/80/443), automatic security updates
+   cp .env.example .env.production.local     # fill it in (section 0.6); NEXT_PUBLIC_APP_URL=https://<your-domain>
+   npm ci && npm run build
    ```
-3. **Configure**: `cp .env.example .env.docker` and fill it in (section 0.6). Also add:
-   ```
-   DOMAIN=unisphere.your-domain.com
-   NEXT_PUBLIC_APP_URL=https://unisphere.your-domain.com
-   ```
-4. **Start** (builds the image, then starts the app, worker, Redis and Caddy for automatic HTTPS):
+3. **Run it** under a process manager so it restarts on failure and on reboot, for example pm2:
    ```bash
-   docker compose -f docker-compose.yml -f docker-compose.vps.yml --env-file .env.docker up -d --build
-   docker compose ps                   # everything should be "running" / "healthy"
-   curl -s https://unisphere.your-domain.com/api/health
+   npm i -g pm2
+   pm2 start npm --name unisphere -- start
+   pm2 start npm --name unisphere-worker -- run worker     # background jobs every 30 s (or use UptimeRobot instead)
+   pm2 save && pm2 startup
    ```
-   The first HTTPS certificate takes a minute. The worker container runs the background jobs every 30 seconds, so you do
-   **not** need GitHub Actions on a VPS.
-5. **Update later**: `git pull && docker compose -f docker-compose.yml -f docker-compose.vps.yml --env-file .env.docker up -d --build`.
-   Run `npx supabase db push` first if the release added a migration.
+4. **HTTPS**: put Caddy or Nginx in front, proxying your domain to `localhost:3000`. Caddy needs only:
+   ```
+   unisphere.your-domain.com {
+     reverse_proxy localhost:3000
+   }
+   ```
+5. **Update later**: `git pull && npm ci && npm run build && pm2 restart all`. Run `npx supabase db push` first if the
+   release added a migration.
 6. **Backups**: enable Supabase backups, and see [OPERATIONS.md](OPERATIONS.md).
 
-No Docker? `npm ci && npm run build && npm start` works too; run `npm run worker` as a second process (for example with
-`systemd` or `pm2`) and put Caddy or Nginx in front for HTTPS.
+If you would rather not run a worker process, use the UptimeRobot monitor below instead; do not run both.
+
+## Background jobs with UptimeRobot
+
+UniSphere does its background work (notification emails, push, event reminders, AI embeddings, cleanup) when
+`/api/cron/tick` is called. [UptimeRobot](https://uptimerobot.com)'s free plan calls a URL every 5 minutes, which is
+enough, and it also alerts you when the site is down and keeps a free Render instance from sleeping.
+
+1. Make a long random value for `CRON_SECRET` (for example `openssl rand -base64 32`) and set it in your host's
+   environment variables. Redeploy.
+2. In UptimeRobot create **two** monitors (type *HTTP(s)*):
+
+   | Monitor | URL | Interval | Purpose |
+   | --- | --- | --- | --- |
+   | UniSphere jobs | `https://<your-domain>/api/cron/tick?secret=<CRON_SECRET>` | 5 minutes | Runs background work, keeps Render awake |
+   | UniSphere health | `https://<your-domain>/api/health?deep=1` | 5 minutes | Tells you if the site or database is down |
+
+3. Check the first run: in UptimeRobot open the jobs monitor's response; it should be `{"ok":true,...}`. A `401` means
+   the secret in the URL does not match `CRON_SECRET`.
+
+Notes:
+- The free plan cannot send custom headers, which is why the endpoint also accepts `?secret=`. The value is in the URL,
+  so treat it like a password: use a long random secret, do not paste the URL anywhere public, and rotate
+  `CRON_SECRET` (and the monitor URL) if it leaks.
+- The endpoint is safe to call often: it only processes what is waiting, and refuses everything without the secret.
+- If UptimeRobot is paused, jobs simply wait; nothing is lost. Vercel's daily cron (if you use Vercel) is a safety net.
 
 ---
 
@@ -174,10 +193,10 @@ No Docker? `npm ci && npm run build && npm start` works too; run `npm run worker
 - [ ] `https://<your-domain>/api/health?deep=1` returns `{"status":"ok", ...}`
 - [ ] A signed-out visitor sees only the home/about/legal pages; `/feed` and `/u/anyone` send them to the login page
 - [ ] Sign-up email arrives (check spam); the link signs you in; a password-reset email works
-- [ ] A student ID from the imported list verifies; the same ID cannot be claimed by a second account
-- [ ] An unverified account sees only the "Verify to enter UniSphere" screen
+- [ ] Optional: a student ID from the imported list verifies; the same ID cannot be claimed by a second account
+- [ ] A new account with no college can sign up, finish onboarding and post
 - [ ] Upload an avatar and a post image; they display after a refresh
-- [ ] Background jobs run: send a test push (Settings → Notifications) and check Admin → AI status for job counts
+- [ ] The UptimeRobot jobs monitor returns `{"ok":true,...}`; send a test push (Settings → Notifications) and check Admin → AI status for job counts
 - [ ] Response headers include `Content-Security-Policy` and `Strict-Transport-Security`
 - [ ] At least two people can sign in as global admin; secrets are in a password manager, not in git
 - [ ] Privacy policy, terms and guidelines text reviewed by the college (editable in Admin → Settings)
@@ -192,7 +211,7 @@ No Docker? `npm ci && npm run build && npm start` works too; run `npm run worker
 | Everything redirects to the login page, even the home page | `NEXT_PUBLIC_*` values were wrong at build time; fix and rebuild |
 | Sign-up email never arrives | Supabase SMTP not configured, or the sender domain is not verified in Resend |
 | Images do not load for signed-in members | R2 variables missing, or `CLOUDFLARE_ACCOUNT_ID` wrong (the CSP allows only your own account's R2 host) |
-| Notifications and emails are delayed | The worker/tick is not running: check GitHub Actions runs (A, B) or `docker compose logs worker` (C) |
+| Notifications and emails are delayed | The job endpoint is not being called: check the UptimeRobot jobs monitor (a `401` means a wrong secret) or `pm2 logs unisphere-worker` |
 | Free Render site is slow on first visit | It was asleep; the scheduled ping reduces this but cannot remove it |
 | Supabase calls fail after a quiet week | The free project paused; open the Supabase dashboard and click *Restore* |
 

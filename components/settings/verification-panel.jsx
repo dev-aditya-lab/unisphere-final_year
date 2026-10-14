@@ -146,8 +146,18 @@ export function VerificationPanel({ status, college, latest, refresh }) {
 
   if (!college) {
     return (
-      <FormAlert variant="warning" title="Choose your college first">
-        Add your college in your profile before verifying.
+      <FormAlert variant="info" title="No college connected">
+        Verification is optional. If you want a Verified badge, connect your college in your profile first.
+      </FormAlert>
+    );
+  }
+
+  // Only colleges whose listing has been reviewed by staff offer verification; for a community-added listing there
+  // is nothing to check an ID against.
+  if (status !== "verified" && college.listing_status !== "verified") {
+    return (
+      <FormAlert variant="info" title="Verification is not offered for this college">
+        {college.name} is a community-added listing, so there is no official list to check against. That is fine: everything on UniSphere works without a badge.
       </FormAlert>
     );
   }
@@ -158,7 +168,7 @@ export function VerificationPanel({ status, college, latest, refresh }) {
         <BadgeCheck className="text-teal-text mt-0.5 size-6 shrink-0" aria-hidden="true" />
         <div>
           <p className="font-semibold">Verified member of {college.name}</p>
-          <p className="text-muted-foreground text-sm">A verified badge appears on your profile and posts. Changing your college or account type removes it.</p>
+          <p className="text-muted-foreground text-sm">A verified badge appears on your profile and posts. Changing your college removes it.</p>
         </div>
       </div>
     );

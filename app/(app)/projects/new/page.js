@@ -11,7 +11,7 @@ export default async function NewProjectPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <PageHeader eyebrow="Projects" title="Start a project" description="Describe the problem, the skills you need and the roles you want to fill." />
-      <ProjectForm ai={ai} />
+      <ProjectForm ai={ai} hasCollege={Boolean(profile.college_id)} />
     </div>
   );
 }

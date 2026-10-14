@@ -57,19 +57,21 @@ test.describe.serial("registration → verification → onboarding", () => {
     await page.getByLabel("Headline").fill("Building things");
     await page.getByRole("button", { name: /Continue/ }).click();
 
-    // Step 2 – campus
-    await page.getByRole("combobox", { name: /College/ }).click();
+    // Step 2 – college (optional): search and pick an existing one
+    await page.getByRole("combobox", { name: /College/ }).fill("Greenfield");
     await page.getByRole("option", { name: /Greenfield Institute/ }).click();
-    await page.getByRole("combobox", { name: /Department/ }).click();
-    await page.getByRole("option", { name: /Computer Science/ }).click();
-    await page.getByRole("button", { name: /Continue/ }).click();
+    await expect(page.getByTestId("selected-college")).toContainText("Greenfield Institute");
+    await page.getByRole("button", { name: /^Continue$/ }).click();
 
     // Step 3 – skills
     await page.getByRole("textbox", { name: "Skills" }).fill("Python");
     await page.keyboard.press("Enter");
     await page.getByRole("textbox", { name: "Skills" }).fill("React");
     await page.keyboard.press("Enter");
-    await page.getByRole("button", { name: /Finish setup/ }).click();
+    await page.getByRole("button", { name: /^Continue$/ }).click();
+
+    // Step 4 – communities, then in
+    await page.getByRole("button", { name: /Enter UniSphere/ }).click();
     await expect(page).not.toHaveURL(/onboarding/);
 
     await page.goto("/settings/profile");

@@ -5,5 +5,5 @@ export const size = OG_SIZE;
 export const contentType = OG_TYPE;
 
 export default function Image() {
-  return ogImage({ label: "RGEC", title: "Your campus. Your people. Your next idea." });
+  return ogImage({ label: "UniSphere", title: "Your campus. Your people. Your next idea." });
 }

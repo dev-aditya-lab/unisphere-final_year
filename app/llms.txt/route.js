@@ -10,9 +10,9 @@ export function GET() {
 
 > ${APP_DESCRIPTION}
 
-UniSphere is the private campus network of Ramgarh Engineering College (RGEC), Ramgarh, Jharkhand, India. It was designed and built by Aditya Kumar Gupta, Sumit Jha, Sahil Nayak and Vishal Kumar, students of RGEC.
+UniSphere is a campus network, open to anyone who wants to join. It began at Ramgarh Engineering College (RGEC), Ramgarh, Jharkhand, India, and was designed and built by Aditya Kumar Gupta, Sumit Jha, Sahil Nayak and Vishal Kumar, students of RGEC.
 
-It is NOT a public service. Only RGEC members, verified with a student ID that is checked privately against the college's own list, can read or post anything. There is no public feed, no public profiles and nothing to index: posts, profiles, projects, events, messages and the roadmap are visible to signed-in, verified members only.
+Anyone can create an account, but nothing inside is public. There is no public feed, no public profiles and nothing to index: posts, profiles, projects, events, messages and the college directory are visible to signed-in members only.
 
 ## What is public
 - [Home](${base}/): what UniSphere is

@@ -1,5 +1,5 @@
 /* TEAM */
-Made for: Ramgarh Engineering College, Ramgarh, Jharkhand, India
+Made at: Ramgarh Engineering College, Ramgarh, Jharkhand, India
 Built by: Aditya Kumar Gupta, Sumit Jha, Sahil Nayak, Vishal Kumar
 
 /* SITE */

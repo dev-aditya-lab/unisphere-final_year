@@ -54,8 +54,8 @@ Legend: ✅ done and verified · 🟡 partly done · ⬜ not started
 - ✅ No public pages for member content: sitemap lists only the explanatory pages, `robots.txt` disallows the rest, member pages are `noindex`, no public social previews, no RSS feed, roadmap and changelog are for members
 - ✅ **College email verification removed** everywhere (UI, services, templates, tables, admin screens). Membership is student ID, invite code or manual review
 - ✅ Hardening found on the way: PostgreSQL had granted `EXECUTE` on every function to `PUBLIC` (which includes the anonymous role). Every function is now granted explicitly; anonymous visitors get a five-function allow-list
-- ✅ Deployable three ways, each documented step by step in `docs/DEPLOYMENT.md`: **Vercel** (`vercel.json`), **Render free plan** (`render.yaml`), **any VPS** (Docker Compose + Caddy automatic HTTPS, `deploy/`)
-- ✅ Background jobs for hosts without a worker: GitHub Actions calls the job endpoint every 5 minutes (`.github/workflows/worker-tick.yml`), which also keeps a free Render instance awake; a workflow builds the Docker image on GitHub for servers too small to build it (`docker-image.yml`)
+- ✅ Deployable three ways, each documented step by step in `docs/DEPLOYMENT.md`: **Vercel** (`vercel.json`), **Render free plan** (`render.yaml`), **any VPS** (Node + pm2 + Caddy). No Docker or GitHub Actions required
+- ✅ Background jobs: UptimeRobot calls `/api/cron/tick` every 5 minutes (secret as Bearer header or `?secret=`), which also keeps a free Render instance awake; `npm run worker` is the alternative on a VPS
 
 ## Phase 7 — Manifestation (PWA) ✅ (store submission needs your accounts)
 - ✅ Web app manifest, generated icons (any + maskable + badge), shortcuts
@@ -76,7 +76,6 @@ Legend: ✅ done and verified · 🟡 partly done · ⬜ not started
 - ✅ Security: per-request nonce CSP with `strict-dynamic` and no third-party origins, HSTS, `nosniff`, frame/COOP/referrer/permissions policies; verified by a browser test that loads public, member and admin pages and fails on any CSP violation (this caught and fixed signed file images, which redirect to R2)
 - ✅ Accessibility: axe (WCAG 2.1 A/AA) over public, member and admin pages in CI-style e2e; fixed real contrast failures in status badges; Lighthouse accessibility 100
 - ✅ Performance (measured with Lighthouse on a production build, mobile profile): real-throttled LCP 0.3 to 0.6 s, CLS 0, performance 84 to 86; hero content no longer waits for JavaScript. Honest note: Lighthouse's *simulated* mobile model reports 65 to 75 (LCP about 4.5 s), and total blocking time is about 550 ms at 4x CPU slowdown. That is mostly React hydration; further gains would need splitting providers per route group
-- ✅ Docker: multi-stage image (non-root, read-only root filesystem, health check) and a worker image, `docker-compose.yml` with Redis; image built and smoke-tested (health, deep health, headers)
 - ✅ Docs: README, SETUP, DEPLOYMENT, OPERATIONS, ADMIN_GUIDE, SECURITY, ARCHITECTURE, EMAIL, AI, APP_STORES
 - ✅ Health endpoint `/api/health` (liveness) and `?deep=1` (database)
 - ✅ Full test pass: lint clean, 245 unit and integration tests, Playwright e2e across every phase, production build passes
@@ -90,6 +89,18 @@ Legend: ✅ done and verified · 🟡 partly done · ⬜ not started
 - ✅ Celebrations: onboarding, project published, verified (confetti, reduced-motion aware)
 - ✅ PWA: manifest and icons in the new palette, offline page, cache v2, caches cleared on logout
 - ✅ Docs: `docs/DESIGN.md`, "Sessions" in `docs/ARCHITECTURE.md`
+
+## Open registration and community-grown college directory ✅
+- ✅ Registration needs only name, username, email, password: no role, college, ID or college email; role is optional and self-described (`account_type` nullable)
+- ✅ The members-only verification gate is removed (`can_use_network` = active account); logged-out visitors still see nothing
+- ✅ Onboarding: about you (+ optional self-description), **optional skippable college**, interests, suggested communities; completion stored in the database
+- ✅ Reusable college picker: debounced autocomplete, aborts stale requests, caches repeats, loading/empty/error states, combobox keyboard support, touch-sized options, clear/change
+- ✅ Add a college by name (name only required): normalised duplicate detection (word order, abbreviations, aliases, near matches with confirmation), advisory lock + unique index for concurrent requests, per-member daily ceiling and hourly rate limit
+- ✅ Community-added vs verified listings always labelled; choosing a college never verifies anyone; student-ID verification is optional and only offered for verified listings
+- ✅ Directory pages (`/colleges`, `/colleges/[slug]`) with real member counts; corrections, duplicate and abuse reports
+- ✅ Admin: report queue, edit/hide, aliases, merge (college admins), audit-logged
+- ✅ "My college" scope/visibility only for members who have a college; new profiles visible to signed-in members by default
+- ✅ Tests: unit (validators), integration (directory, concurrency, access control, open network), e2e (sign-up, skip college, add college, duplicates, phone, admin merge)
 
 ## External setup still required
 - **Deploy**: choose a host and domain, then follow `docs/DEPLOYMENT.md`. Nothing is deployed yet.

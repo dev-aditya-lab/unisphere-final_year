@@ -6,7 +6,7 @@ import { APP_VERSION } from "@/lib/version";
 export const dynamic = "force-dynamic";
 
 /**
- * Liveness and readiness for load balancers, Docker and uptime monitors.
+ * Liveness and readiness for load balancers and uptime monitors (UptimeRobot).
  *   GET /api/health          → 200 as soon as the process serves requests (no dependencies touched)
  *   GET /api/health?deep=1   → also checks the database; 503 if it is unreachable
  * Only coarse yes/no answers are returned: never hostnames, keys or error text.

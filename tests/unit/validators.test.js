@@ -7,7 +7,6 @@ const validRegistration = {
   username: "asha-k",
   email: "ASHA@Example.com",
   password: "Passw0rd!",
-  accountType: "student",
   acceptTerms: true,
 };
 
@@ -20,8 +19,12 @@ describe("registerSchema", () => {
   it("requires accepting the terms", () => {
     expect(registerSchema.safeParse({ ...validRegistration, acceptTerms: false }).success).toBe(false);
   });
-  it("rejects unknown account types such as administrator", () => {
-    expect(registerSchema.safeParse({ ...validRegistration, accountType: "global_admin" }).success).toBe(false);
+  it("asks for no role, college or ID: only name, username, email and password", () => {
+    expect(registerSchema.safeParse(validRegistration).success).toBe(true);
+    // a smuggled role is dropped, never trusted
+    const parsed = registerSchema.parse({ ...validRegistration, accountType: "global_admin", collegeId: "x" });
+    expect(parsed).not.toHaveProperty("accountType");
+    expect(parsed).not.toHaveProperty("collegeId");
   });
 });
 
@@ -85,5 +88,26 @@ describe("profileSchema URL handling", () => {
 describe("privacySchema", () => {
   it("only allows known visibility values", () => {
     expect(privacySchema.safeParse({ visibility: "everyone-on-earth", allowMessagesFrom: "nobody", showClass: false }).success).toBe(false);
+  });
+});
+
+describe("optional role and college on a profile", () => {
+  const base = {
+    fullName: "Asha Kumar", username: "asha-k", headline: "", bio: "", graduationYear: "", currentYear: "", currentSemester: "",
+    skills: [], interests: [], githubUrl: "", portfolioUrl: "", linkedinUrl: "", twitterUrl: "",
+    openToCollaboration: false, preferredRoles: [], availability: "", openToMentoring: false, mentoringTopics: [],
+    industry: "", company: "", jobTitle: "",
+  };
+  it("accepts no role and no college", () => {
+    const parsed = profileSchema.parse({ ...base, accountType: null, collegeId: null });
+    expect(parsed.accountType).toBeNull();
+    expect(parsed.collegeId).toBeNull();
+  });
+  it("treats an empty role as not stated, and still rejects an unknown one", () => {
+    expect(profileSchema.parse({ ...base, accountType: "" }).accountType).toBeNull();
+    expect(profileSchema.safeParse({ ...base, accountType: "administrator" }).success).toBe(false);
+  });
+  it("only accepts a real college id", () => {
+    expect(profileSchema.safeParse({ ...base, collegeId: "not-a-uuid" }).success).toBe(false);
   });
 });

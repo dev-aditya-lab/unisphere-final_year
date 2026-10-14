@@ -260,20 +260,10 @@ describe("reactions, comments and bookmarks", () => {
     expect((await alice.client.from("post_feed").select("bookmarked").eq("id", p.id).single()).data.bookmarked).toBe(false);
   });
 
-  it("fails closed for suspended or restricted accounts and when verification is required", async () => {
+  it("fails closed for restricted accounts", async () => {
     const temp = await createUser("restricted-s");
     await admin.from("profiles").update({ status: "restricted" }).eq("id", temp.id);
     expect((await temp.client.from("posts").insert({ author_id: temp.id, slug: slug("x"), body: "hi" })).error).not.toBeNull();
-
-    const other = await createUser("unverified-s");
-    await admin.from("system_settings").update({ value: true }).eq("key", "college_verification_required");
-    try {
-      expect((await other.client.from("posts").insert({ author_id: other.id, slug: slug("x"), body: "hi" })).error).not.toBeNull();
-      await admin.from("profiles").update({ verification_status: "verified" }).eq("id", other.id);
-      expect((await other.client.from("posts").insert({ author_id: other.id, slug: slug("x"), body: "hi" })).error).toBeNull();
-    } finally {
-      await admin.from("system_settings").update({ value: false }).eq("key", "college_verification_required");
-    }
   });
 });
 

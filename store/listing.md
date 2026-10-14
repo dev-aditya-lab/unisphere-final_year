@@ -48,8 +48,8 @@ Browse the alumni directory, ask for mentoring, and keep your conversations in p
 NEVER MISS WHAT MATTERS
 Events with RSVP, waitlists and reminders. Clubs and communities. Official announcements from the college. Opportunities such as internships and competitions. Real-time notifications, with push on your phone if you want them.
 
-PRIVATE, VERIFIED AND SAFE
-UniSphere is closed to the public: only verified RGEC members can see anything. Verify with your student ID. It is checked privately against the college's own list and is never stored or shown, and each ID links to one account. Report anything, block anyone, and appeal any moderation decision: a different moderator reviews it.
+OPEN, PRIVATE AND SAFE
+Anyone can join with an email address. Nothing is public: you only see UniSphere when you are signed in. Connecting a college is optional and never counts as proof; where a college has shared its own student-ID list, a Verified badge is available as an optional extra. Report anything, block anyone, and appeal any moderation decision: a different moderator reviews it.
 
 YOUR PRIVACY, YOUR CHOICE
 You choose who sees your profile, your class details and who may message you. Download your data or delete your account whenever you like.
