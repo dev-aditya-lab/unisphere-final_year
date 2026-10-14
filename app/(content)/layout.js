@@ -1,7 +1,8 @@
 import { AppShell } from "@/components/shell/app-shell";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
-import { getAuthUser, getCurrentProfile } from "@/lib/auth/session";
+import { getAuthUser, getCurrentProfile, getMyPermissions } from "@/lib/auth/session";
+import { getFlags } from "@/lib/settings";
 
 /**
  * Member content pages (profiles, posts, ideas, projects, events, roadmap...). The proxy already sends logged-out
@@ -9,7 +10,8 @@ import { getAuthUser, getCurrentProfile } from "@/lib/auth/session";
  */
 export default async function ContentLayout({ children }) {
   const user = await getAuthUser();
-  const profile = user ? await getCurrentProfile() : null;
+  // Profile, feature flags and permissions do not depend on each other: fetch them together.
+  const [profile] = user ? await Promise.all([getCurrentProfile(), getFlags(), getMyPermissions()]) : [null];
   if (profile && profile.onboarded_at && ["active", "restricted"].includes(profile.status)) {
     return <AppShell profile={profile}>{children}</AppShell>;
   }

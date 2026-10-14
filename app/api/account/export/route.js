@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAuthUser } from "@/lib/auth/session";
+import { getStrictAuthUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { enforceRateLimit } from "@/lib/rate-limit";
 
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
  * additionally limited to rows they own. Other people's profiles, messages and content are never included.
  */
 export async function GET() {
-  const user = await getAuthUser();
+  const user = await getStrictAuthUser();
   if (!user) return new NextResponse("Unauthorised", { status: 401 });
   const limited = await enforceRateLimit("data-export", user.id, { limit: 3, windowSec: 3600 });
   if (limited) return NextResponse.json({ error: limited.error }, { status: 429 });

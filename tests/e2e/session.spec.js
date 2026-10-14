@@ -138,27 +138,25 @@ test.describe.serial("a signed-in member stays signed in", () => {
     await phone.close();
   });
 
-  test("a session revoked elsewhere, with an access token that still verifies, does not redirect-loop", async ({ page, context }) => {
+  test("a session revoked elsewhere never causes a redirect loop: it ends cleanly once the access token expires", async ({ page, context }) => {
     await login(page, u.email);
-    // The access token is untouched (still valid for up to an hour) but the session behind it is gone.
+    // Another device ends every session of this account. The access token in this browser is still valid for a while.
     const other = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
     await other.auth.signInWithPassword({ email: u.email, password: PASSWORD });
     await other.auth.signOut({ scope: "global" });
-    await page.goto("/projects");
-    await expect(page).toHaveURL(/\/login\?next=%2Fprojects/);
-    expect(await readSession(context)).toBeNull(); // the stale cookies were cleared on the way
-    await page.goto("/login");
-    await expect(page).toHaveURL(/\/login/); // and the login page is reachable (no bounce back into the app)
-  });
 
-  test("a revoked session sends the member to log in, with the page they wanted remembered", async ({ page, context }) => {
-    await login(page, u.email);
+    // Pages verify the signed token locally (fast), so this browser keeps working until the token runs out: no loop.
+    await page.goto("/projects");
+    await expect(page).toHaveURL(/\/projects/);
+
+    // When the token needs refreshing, the revoked session is refused and the member is sent to log in. (Supabase lets
+    // a just-revoked refresh token through for 10 seconds, to absorb races between tabs, so wait that out.)
+    await page.waitForTimeout(11_000);
     await expireAccessToken(context);
-    // Another device (or an administrator) ends every session of this account, including the browser's.
-    const other = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
-    await other.auth.signInWithPassword({ email: u.email, password: PASSWORD });
-    await other.auth.signOut({ scope: "global" });
     await page.goto("/projects");
     await expect(page).toHaveURL(/\/login\?next=%2Fprojects/);
+    expect(await readSession(context)).toBeNull();
+    await page.goto("/login");
+    await expect(page).toHaveURL(/\/login/); // reachable: no bounce back into the app
   });
 });
