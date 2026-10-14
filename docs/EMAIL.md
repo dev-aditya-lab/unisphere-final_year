@@ -5,7 +5,7 @@ which makes problems easy to find.
 
 | Kind | Examples | Sent by | Configured in |
 | --- | --- | --- | --- |
-| **Authentication** | Confirm your email, reset password, change email | **Supabase Auth** | Supabase → Authentication → SMTP and Email Templates (locally: `supabase/config.toml`) |
+| **Authentication** | Confirm your email, reset password | **UniSphere itself**, through Resend | `lib/email/templates.js` (`confirmEmailEmail`, `resetPasswordEmail`, `accountExistsEmail`), sent by `lib/services/auth-email.js` |
 | **Application** | Notification emails and digests, contact-form copies | **The app** (`lib/email`) | `RESEND_API_KEY`, `EMAIL_FROM` in the app environment |
 
 Both need the **same verified sending domain** and, in practice, the same Resend API key.
@@ -18,8 +18,11 @@ Both need the **same verified sending domain** and, in practice, the same Resend
 3. Wait until the domain shows *Verified*. Until then Resend only delivers to your own address.
 4. Create an API key with *Sending access*.
 5. App: `RESEND_API_KEY=re_...` and `EMAIL_FROM="UniSphere <no-reply@your-domain>"`; optionally `EMAIL_REPLY_TO`.
-6. Supabase (hosted): Authentication → SMTP: host `smtp.resend.com`, port `465`, username `resend`, password = the API
-   key, sender = the same `no-reply@your-domain` address. Paste the templates from `supabase/templates/`.
+6. Nothing to configure in Supabase for these emails. UniSphere asks Supabase only for a one-time token
+   (`auth.admin.generateLink`, which sends nothing) and emails the link itself, so the design, sender and domain are
+   yours and the link always points at `NEXT_PUBLIC_APP_URL`. Keep *Confirm email* switched on in Supabase →
+   Authentication → Providers → Email. Run `npx supabase db push` once for migration 0023 (`auth_email_state`).
+   (`supabase/templates/` is only used by the local Supabase stack and can be ignored.)
    Local CLI: `supabase/.env` holds `RESEND_API_KEY` and `config.toml` reads it with `env(RESEND_API_KEY)`.
 
 ## How notification email behaves
@@ -47,6 +50,7 @@ pointing at Resend). Use Resend's test addresses to exercise the real API safely
 | Sign-up email goes to Mailpit instead of Resend (local) | `supabase/.env` has the key and the stack was restarted (`supabase stop && supabase start`) |
 | App emails not sent, `email: not configured` in `/api/health?deep=1` | `RESEND_API_KEY` missing in the *app* environment (the worker does not send email itself; the app does) |
 | "The sender domain is not verified" | DNS records not propagated, or `EMAIL_FROM` uses a different domain from the verified one |
-| Emails arrive but links point to `localhost` | `NEXT_PUBLIC_APP_URL` (app) and Site URL (Supabase) are not set to the public URL, then rebuild/redeploy |
+| Emails arrive but links point to `localhost` | `NEXT_PUBLIC_APP_URL` is not set to the public URL at build time; fix it and redeploy |
+| Sign-up says "could not send the confirmation email" | Resend is not configured or the sender domain is not verified: check `RESEND_API_KEY`, `EMAIL_FROM` and Resend → Logs |
 | Members complain they get too many | They can change categories in Settings → Notifications; digest delay can be raised in `claim_notification_emails` |
 | Emails land in spam | Add DMARC, keep `From` consistent, avoid link shorteners, warm up gradually for a new domain |

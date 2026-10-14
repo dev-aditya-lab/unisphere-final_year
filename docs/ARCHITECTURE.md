@@ -86,6 +86,7 @@ Migrations in `supabase/migrations` are the single source of truth (forward-only
 | 0020 | New profiles are visible to signed-in members by default |
 | 0021 | Analytics cope with members who have not stated a role |
 | 0022 | Colleges that run a student-ID process are verified listings |
+| 0023 | `auth_email_state`: lets the server send account emails itself (confirm / reset) instead of Supabase |
 
 Design rules: RLS on everything; column-level `UPDATE` grants protect trust fields; counters and notifications are
 trigger-maintained; recursion in policies is avoided with definer helper functions; soft deletes keep audit history.
