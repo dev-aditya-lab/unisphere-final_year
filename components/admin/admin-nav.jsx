@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BadgeCheck, CalendarDays, ChartColumn, FileText, Flag, IdCard, Inbox, KeyRound, Landmark, LayoutDashboard,
-  Megaphone, MessageSquareHeart, Rocket, Scale, ScrollText, SlidersHorizontal, Sparkles, UserX, Users, UsersRound,
+  BadgeCheck, CalendarDays, ChartColumn, FileText, Flag, IdCard, IndianRupee, Inbox, KeyRound, Landmark, LayoutDashboard,
+  Megaphone, MessageSquareHeart, Rocket, Scale, ScrollText, ShieldCheck, SlidersHorizontal, Sparkles, UserX, Users, UsersRound,
 } from "lucide-react";
 import { ADMIN_GROUPS } from "@/lib/admin/nav";
 import { cn } from "@/lib/utils";
 
-const ICONS = { BadgeCheck, CalendarDays, ChartColumn, FileText, Flag, IdCard, Inbox, KeyRound, Landmark, LayoutDashboard, Megaphone, MessageSquareHeart, Rocket, Scale, ScrollText, SlidersHorizontal, Sparkles, UserX, Users, UsersRound };
+const ICONS = { BadgeCheck, CalendarDays, ChartColumn, FileText, Flag, IdCard, IndianRupee, ShieldCheck, Inbox, KeyRound, Landmark, LayoutDashboard, Megaphone, MessageSquareHeart, Rocket, Scale, ScrollText, SlidersHorizontal, Sparkles, UserX, Users, UsersRound };
 
 /** Grouped admin navigation (sidebar and mobile drawer). `counts` maps a count key to a waiting-item number. */
 export function AdminNav({ items, counts = {}, onNavigate }) {

@@ -14,6 +14,7 @@ const STATUS_VARIANT = {
   published: "success", removed: "danger", new: "warning", in_progress: "soft", spam: "mono", processing: "soft", completed: "success",
   low: "mono", medium: "warning", high: "danger", critical: "danger",
   verified: "success", unverified: "mono",
+  paid: "success", created: "warning", failed: "danger", refunded: "mono", awaiting_document: "warning", pending_review: "warning",
 };
 
 export function StatusBadge({ value, className }) {

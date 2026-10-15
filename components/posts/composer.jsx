@@ -134,6 +134,7 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
           author_avatar_key: profile.avatar_key ?? null,
           author_account_type: profile.account_type ?? null,
           author_verified: profile.verification_status === "verified",
+          author_blue_tick: Boolean(profile.blue_tick),
           created_at: new Date().toISOString(),
           edited_at: null,
           reaction_count: 0,

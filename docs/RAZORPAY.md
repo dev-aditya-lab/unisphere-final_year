@@ -3,6 +3,10 @@
 This lists what a payment provider's reviewer looks for on a website, what UniSphere now provides, and what only
 you can supply. Approval is Razorpay's decision, and nothing here guarantees it.
 
+> **Update:** UniSphere now has one paid item, the optional one-time **blue tick** (`docs/BLUE_TICK.md`). The pricing,
+> refund and delivery pages describe it and read the live price from settings. The rest of this page was written
+> before that and is kept for the checklist of what a reviewer expects.
+
 ## The hard requirement: you must sell something
 
 Razorpay approves businesses that **charge for a product or service** (or accept donations as a registered

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
 import { isAdPath, isGuestOnlyPath, isProtectedPath } from "@/lib/routes";
 import { monetag } from "@/lib/monetag";
+import { BLUE_TICK_PATH } from "@/lib/blue-tick";
 import { buildCsp, newNonce } from "@/lib/security/csp";
 
 /**
@@ -40,7 +41,9 @@ export async function proxy(request) {
   const nonce = newNonce();
   // The advertising-network origin is admitted on the few public explanatory pages that carry its tag, and nowhere else.
   const adNetworkOrigin = monetag.enabled && isAdPath(pathname) ? monetag.origin : null;
-  const csp = buildCsp({ nonce, isDev: process.env.NODE_ENV === "development", adNetworkOrigin });
+  // Razorpay Checkout is admitted on the one page where a member pays, and nowhere else.
+  const checkout = pathname === BLUE_TICK_PATH;
+  const csp = buildCsp({ nonce, isDev: process.env.NODE_ENV === "development", adNetworkOrigin, checkout });
   const session = await updateSession(request, {
     "x-pathname": pathname + search,
     "x-nonce": nonce,

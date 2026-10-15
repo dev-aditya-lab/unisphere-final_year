@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ConnectControls } from "@/components/people/connect-button";
 import { PostCard } from "@/components/posts/post-card";
 import { EmptyState } from "@/components/empty-state";
+import { BlueTick } from "@/components/ui/blue-tick";
 import { UserAvatar } from "@/components/user-avatar";
 import { getAuthUser } from "@/lib/auth/session";
 import { getProfilePage, resolveRenamedUsername } from "@/lib/services/profiles";
@@ -123,6 +124,7 @@ export default async function ProfilePage({ params, searchParams }) {
           <div className="mt-3">
             <h1 id="profile-name" className="flex items-center gap-2 text-2xl font-extrabold">
               {profile.full_name}
+              {profile.blue_tick && <BlueTick className="size-5" />}
               {profile.verification_status === "verified" && <BadgeCheck className="text-teal-text size-5" aria-label="Verified member" />}
             </h1>
             <p className="text-muted-foreground text-sm">

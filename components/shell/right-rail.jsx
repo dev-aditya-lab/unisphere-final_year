@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Hash } from "lucide-react";
 import { BadgeCheck } from "lucide-react";
+import { BlueTick } from "@/components/ui/blue-tick";
 import { UserAvatar } from "@/components/user-avatar";
 import { QuickConnect } from "@/components/people/quick-connect";
 import { getTrendingHashtags } from "@/lib/services/posts";
@@ -62,6 +63,7 @@ export async function RightRail({ showPeople = true, showTrending = true }) {
                     <div className="min-w-0 flex-1 leading-tight">
                       <Link prefetch={false} href={`/u/${p.username}`} className="flex items-center gap-1 truncate text-sm font-semibold hover:underline">
                         {p.full_name}
+                        {p.blue_tick && <BlueTick className="size-3.5" />}
                         {p.verified && <BadgeCheck className="text-teal-text size-3.5 shrink-0" aria-label="Verified" />}
                       </Link>
                       <p className="text-muted-foreground truncate text-xs">{reason}</p>

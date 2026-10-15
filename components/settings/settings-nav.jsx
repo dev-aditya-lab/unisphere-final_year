@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/settings/privacy", label: "Privacy" },
   { href: "/settings/notifications", label: "Notifications" },
   { href: "/settings/security", label: "Security" },
+  { href: "/settings/blue-tick", label: "Blue tick" },
 ];
 
 export function SettingsNav({ extra = [] }) {
