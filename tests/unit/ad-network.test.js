@@ -29,9 +29,10 @@ describe("Content-Security-Policy and the ad network", () => {
     const off = buildCsp({ nonce: "n", env });
     expect(off).not.toContain("quge5.com");
 
-    const on = buildCsp({ nonce: "n", env, adNetworkOrigin: monetag.origin });
+    const on = buildCsp({ nonce: "n", env, adNetworkOrigin: monetag.origins });
     expect(on).toMatch(/script-src [^;]*https:\/\/quge5\.com/);
     expect(on).toMatch(/connect-src [^;]*https:\/\/quge5\.com/);
+    expect(on).toMatch(/connect-src [^;]*https:\/\/6opo\.com/);
     expect(on).toContain("'strict-dynamic'");
     expect(on).toContain("object-src 'none'");
     expect(on).toContain("frame-ancestors 'none'");

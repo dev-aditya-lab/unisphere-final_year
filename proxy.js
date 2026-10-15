@@ -40,7 +40,7 @@ export async function proxy(request) {
   // A fresh nonce per request. Next.js reads it from the request's CSP header and tags its own scripts with it.
   const nonce = newNonce();
   // The advertising-network origin is admitted on the few public explanatory pages that carry its tag, and nowhere else.
-  const adNetworkOrigin = monetag.enabled && isAdPath(pathname) ? monetag.origin : null;
+  const adNetworkOrigin = monetag.enabled && isAdPath(pathname) ? monetag.origins : null;
   // Razorpay Checkout is admitted on the one page where a member pays, and nowhere else.
   const checkout = pathname === BLUE_TICK_PATH;
   const csp = buildCsp({ nonce, isDev: process.env.NODE_ENV === "development", adNetworkOrigin, checkout });
