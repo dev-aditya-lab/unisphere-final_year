@@ -1,9 +1,7 @@
 # UniSphere
 
-**The campus network of Ramgarh Engineering College (RGEC), Ramgarh, Jharkhand.**
+**One space for every college community.**
 Share projects and ideas, find related work and teammates, join clubs and events, learn from seniors and alumni.
-
-Designed and built by **Aditya Kumar Gupta, Sumit Jha, Sahil Nayak and Vishal Kumar**.
 
 | | |
 | --- | --- |
@@ -24,7 +22,7 @@ cp .env.example .env.local          # then fill in the values (see docs/SETUP.md
 npx supabase start                  # local Postgres, Auth, Realtime, Mailpit (ports 55321-55329)
 npx supabase db reset               # applies supabase/migrations and the dev seed
 npm run create-admin                # makes a local administrator; credentials go in .env.local as a comment
-npm run seed:demo                   # optional: a fictional RGEC community for demos and screenshots
+npm run seed:demo                   # optional: a fictional community for demos and screenshots
 
 npm run dev                         # http://localhost:3000
 npm run worker                      # optional second terminal: emails, push, reminders, deletions
@@ -89,5 +87,5 @@ docs/  store/         Documentation · store listing text and screenshots
 
 ## License
 
-Copyright (c) the UniSphere team (Aditya Kumar Gupta, Sumit Jha, Sahil Nayak, Vishal Kumar). All rights reserved
+Copyright (c) UniSphere. All rights reserved
 unless the team chooses to publish it under an open-source licence.

@@ -16,7 +16,9 @@ const nextConfig = {
       { source: "/privacy-preferences", destination: "/cookies", permanent: true },
       { source: "/cookie-policy", destination: "/cookies", permanent: true },
       { source: "/community-guidelines", destination: "/guidelines", permanent: true },
-      { source: "/content-policy", destination: "/guidelines", permanent: true },
+      { source: "/guest-controls", destination: "/cookies", permanent: true },
+      { source: "/user-agreement", destination: "/terms", permanent: true },
+      { source: "/copyright", destination: "/copyright-policy", permanent: true },
       { source: "/terms-of-service", destination: "/terms", permanent: true },
     ];
   },

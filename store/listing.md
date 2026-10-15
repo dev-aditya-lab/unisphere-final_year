@@ -7,10 +7,10 @@ stores' current limits; the counts below are for the English text.
 
 | Field | Value |
 | --- | --- |
-| App name (Play, 30 max) | `UniSphere: RGEC Campus` (22) |
-| App name (App Store, 30 max) | `UniSphere – RGEC` (16) |
+| App name (Play, 30 max) | `UniSphere: Campus Network` (25) |
+| App name (App Store, 30 max) | `UniSphere: Campus Network` (25) |
 | Subtitle (App Store, 30 max) | `Your campus. Your people.` (25) |
-| Developer / team | Aditya Kumar Gupta, Sumit Jha, Sahil Nayak, Vishal Kumar (Ramgarh Engineering College) |
+| Developer / team | `<your name or organisation: use what you are legally registered as>` |
 | Category | Education (Play) · Social Networking or Education (App Store) |
 | Support email | `<support email>` |
 | Website / marketing URL | `https://<your-domain>` |
@@ -18,20 +18,20 @@ stores' current limits; the counts below are for the English text.
 | Terms of service URL | `https://<your-domain>/terms` |
 | Account deletion URL | `https://<your-domain>/settings/security` |
 | Languages | English (India) |
-| Price | Free, no ads, no in-app purchases |
+| Price | Free, no in-app purchases. Ads: none unless you switch them on (docs/ADSENSE.md); declare them in the store forms if you do |
 
 ## Short description (Play, 80 max)
 
-> The campus network for Ramgarh Engineering College students and alumni. (71)
+> One space for every college community: projects, teammates, mentors, events. (76)
 
 ## Promotional text (App Store, 170 max)
 
-> Share projects, find teammates, discover related ideas, join events and clubs, and learn from seniors and alumni, all in one place made for RGEC. (147)
+> Share projects, find teammates, discover related ideas, join events and clubs, and learn from seniors and alumni, all in one space for every college community. (159)
 
 ## Full description (Play 4000 max / App Store 4000 max)
 
 ```
-UniSphere is the private campus network of Ramgarh Engineering College (RGEC), for RGEC students, alumni and faculty only. It brings them together around what people are actually building.
+UniSphere is one space for every college community. Students, alumni, teachers and clubs from any college come together around what people are actually building.
 
 SHARE WHAT YOU MAKE
 Post projects, ideas, questions and achievements. Add photos, #hashtags and @mentions, and choose exactly who can see each post: everyone, your college, your connections or only you.
@@ -57,12 +57,12 @@ You choose who sees your profile, your class details and who may message you. Do
 INSTALLABLE, FAST, MADE FOR PHONES
 Works like an app with one-tap access, a friendly offline screen and quick updates.
 
-Made for Ramgarh Engineering College by Aditya Kumar Gupta, Sumit Jha, Sahil Nayak and Vishal Kumar.
+UniSphere: one space for every college community.
 ```
 
 ## Keywords (App Store, 100 max)
 
-`RGEC,Ramgarh,college,campus,students,alumni,projects,teammates,events,clubs,mentoring,Jharkhand` (92)
+`college,campus,students,alumni,projects,teammates,events,clubs,mentoring,community,collaboration` (96)
 
 ## What's new (copy from Admin → Releases)
 
@@ -82,7 +82,7 @@ Screenshots show a fictional demo community (see `npm run seed:demo`); no real s
 
 ## Review notes (App Store Connect → App Review Information)
 
-> UniSphere is a campus social network for Ramgarh Engineering College. Sign in with the demo account below (already verified).
+> UniSphere is a campus social network for college communities. Sign in with the demo account below (already verified).
 > Reporting, blocking, a moderation queue, appeals and in-app account deletion (Settings → Security) are implemented.
 > Contact: `<support email>`.
 > Demo: `demo.ananya@demo.unisphere.test` / `<password you set>`.

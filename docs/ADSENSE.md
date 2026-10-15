@@ -67,12 +67,12 @@ origins (`tests/unit/ads.test.js` asserts this).
 
 ## Details you must confirm (the code cannot know them)
 
-- The operator named in the policies. They currently say UniSphere is built and run by the team on the About page
-  and make no claim of a registered company or legal address. Add that information if you have it.
+- The operator named in the policies. They describe UniSphere as an independent platform and name no company, owner
+  or legal address. Add that information if you have it, and decide who answers privacy and copyright requests.
 - Data retention periods. The privacy policy says data is kept while an account is active and "for a limited period
   afterwards where required", and that deletion has a 14-day grace period (the latter is what the code does).
-- The privacy contact route. It is the contact form with the subject "Privacy" and the support address set in
-  `/admin/settings`. Make sure that mailbox is monitored.
+- The privacy contact route: the contact form (subject "Privacy") and hello@unispheres.in, handled by Aditya Kumar
+  Gupta (`lib/constants.js`). Make sure that mailbox is monitored and that the 14-day reply target can be met.
 - Whether your audience includes visitors in regions that require consent, and whether you need other notices.
 - The legal text itself. The built-in pages are product-specific drafts, not legal advice. Administrators can replace
   each page from `/admin/settings`; have counsel review before launch.

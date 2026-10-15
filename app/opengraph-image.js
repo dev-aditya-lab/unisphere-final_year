@@ -1,6 +1,6 @@
 import { OG_SIZE, OG_TYPE, ogImage } from "@/lib/og";
 
-export const alt = "UniSphere: the campus network of Ramgarh Engineering College";
+export const alt = "UniSphere: one space for every college community";
 export const size = OG_SIZE;
 export const contentType = OG_TYPE;
 

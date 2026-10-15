@@ -10,17 +10,17 @@ developer accounts, signing keys and store review, which only the team (not the 
 
 ## A private app: say so plainly
 
-UniSphere is a **private community app** for Ramgarh Engineering College, not a public social network. State this in both
+UniSphere is a **private community app** (open to join, members-only to view), not a public social network. State this in both
 store listings and in the review notes: it needs a login, every account is verified against the college's own student-ID
 list, and the content is never public. Reviewers will need a **demo account that is already verified** (see "Review
-notes" in `store/listing.md`), because they cannot hold a real RGEC student ID. Google Play's *App access* form asks for
+notes" in `store/listing.md`), because they cannot hold a real student ID. Google Play's *App access* form asks for
 exactly this: choose "all or some functionality is restricted" and supply the demo credentials.
 
 ## What you need before you start
 
 | Item | Where it comes from |
 | --- | --- |
-| A production URL with HTTPS (for example `https://unisphere.rgec.example`) | Your hosting (see `docs/DEPLOYMENT.md`) |
+| A production URL with HTTPS (for example `https://unisphere.example`) | Your hosting (see `docs/DEPLOYMENT.md`) |
 | Google Play developer account (one-time registration fee, about US$25) | play.google.com/console |
 | Apple Developer Program membership (yearly fee, about US$99) | developer.apple.com — only for iOS |
 | A public support email address | Set it in **Admin → Settings → Public support email** and use the same one in both stores |
@@ -34,7 +34,7 @@ exactly this: choose "all or some functionality is restricted" and supply the de
 A Trusted Web Activity (TWA) is a thin Android app that opens the site full-screen, with no browser bar. Updates
 to the website reach everyone instantly; the Play listing only changes when you want it to.
 
-1. **Pick a package name** you will never change, for example `in.ac.rgec.unisphere` (reverse of a domain you control).
+1. **Pick a package name** you will never change, for example `com.example.unisphere` (reverse of a domain you control).
 2. **Install Bubblewrap**: `npm i -g @bubblewrap/cli` (needs JDK 17 and the Android SDK; Bubblewrap offers to download them).
 3. **Generate the project** in a separate folder (not inside this repo):
    ```
@@ -48,7 +48,7 @@ to the website reach everyone instantly; the Play listing only changes when you 
 6. **Link the app to the website** (Digital Asset Links). In Play Console open *Setup → App signing* and copy the
    **SHA-256 certificate fingerprint** of the *app signing key*. Put these in the server environment and redeploy:
    ```
-   ANDROID_PACKAGE_NAME=in.ac.rgec.unisphere
+   ANDROID_PACKAGE_NAME=com.example.unisphere
    ANDROID_SHA256_CERT_FINGERPRINTS=AA:BB:...:FF
    ```
    Check `https://<your-domain>/.well-known/assetlinks.json` returns your package and fingerprint. If it is wrong the app
@@ -56,7 +56,7 @@ to the website reach everyone instantly; the Play listing only changes when you 
 7. **Complete the store listing** from `store/listing.md`, upload screenshots, then fill in the forms below.
 8. **Testing requirement.** Google currently requires newly created personal developer accounts to run a closed test with a
    minimum number of testers for a minimum period before they can apply for production access. Check the current rule in
-   Play Console, and recruit testers from RGEC early (a class group works well).
+   Play Console, and recruit testers from your own college or community early (a class group works well).
 9. Roll out to production and monitor crashes and reviews in Play Console.
 
 Alternative without a command line: **PWABuilder** (pwabuilder.com) generates the same Android package from the manifest URL.
@@ -71,7 +71,7 @@ information. It has reporting, blocking and moderation. No gambling, no real-mon
 | Data | Collected | Why | Shared | Optional |
 | --- | --- | --- | --- | --- |
 | Name, email address | Yes | Account and sign-in | No | No |
-| Student ID | Processed, **not stored** (only an irreversible keyed hash is kept to prevent reuse) | Verify RGEC membership | No | Yes (manual review is the alternative) |
+| Student ID | Processed, **not stored** (only an irreversible keyed hash is kept to prevent reuse) | Verify college membership (optional) | No | Yes (manual review is the alternative) |
 | Profile details, photos, posts, messages | Yes (user-provided) | The product itself | Only with people the member allows | Yes |
 | Push subscription (device endpoint) | Yes, if the member turns push on | Notifications | No | Yes |
 | App activity (reports, votes, feedback) | Yes | Safety and product improvement | No | Yes |

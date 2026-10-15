@@ -3,7 +3,7 @@ import { isGuestOnlyPath, isProtectedPath } from "@/lib/routes";
 
 describe("route classification (closed network)", () => {
   it("keeps only the explanatory and sign-in pages open to logged-out visitors", () => {
-    for (const p of ["/", "/about", "/features", "/guidelines", "/privacy", "/terms", "/contact", "/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/auth/confirm", "/maintenance", "/.well-known/assetlinks.json"]) {
+    for (const p of ["/", "/about", "/features", "/faq", "/guidelines", "/content-policy", "/copyright-policy", "/brand-policy", "/accessibility", "/cookies", "/privacy", "/terms", "/contact", "/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/auth/confirm", "/maintenance", "/.well-known/assetlinks.json"]) {
       expect(isProtectedPath(p), p).toBe(false);
     }
   });

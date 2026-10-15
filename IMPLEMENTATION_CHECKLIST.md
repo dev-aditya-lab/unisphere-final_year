@@ -44,7 +44,7 @@ Legend: ✅ done and verified · 🟡 partly done · ⬜ not started
 - ✅ Tests at this point: 85 unit · 130 RLS/RBAC/admin integration · 38 Playwright e2e
 
 ## RGEC specifics ✅
-- ✅ Ramgarh Engineering College is the platform's college (RGEC, Ramgarh, Jharkhand); credits for the four-person team on About, footer and `humans.txt`
+- ✅ Ramgarh Engineering College was the first college in the directory. **Superseded:** public branding is now college-neutral ("One space for every college community") and carries no creator credits; RGEC remains only as seeded data and the first student-ID roster
 - ✅ Student-ID verification: private per-college list imported by staff, IDs stored only as keyed hashes, one account per ID, lockout after repeated misses, release/revoke/restore, audit-logged
 - ✅ Publishing requires a verified student ID in production (the dev seed switches it off); manual review remains the fallback
 

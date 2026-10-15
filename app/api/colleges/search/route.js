@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 const NO_STORE = { "Cache-Control": "private, no-store" };
 
 /**
- * GET /api/colleges/search?q=ramgarh
+ * GET /api/colleges/search?q=engineering
  * Autocomplete for the college picker. Signed-in members only, rate limited, never cached.
  * A GET (rather than a Server Action) so a newer keystroke can abort the request still in flight.
  */

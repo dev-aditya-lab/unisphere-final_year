@@ -12,7 +12,7 @@ Both need the **same verified sending domain** and, in practice, the same Resend
 
 ## Set up Resend
 
-1. Create a Resend account and add your domain (for example `mail.rgec.example` or the main domain).
+1. Create a Resend account and add your domain (for example `mail.example.com` or the main domain).
 2. Add the DNS records Resend shows: **SPF**, **DKIM**, and (recommended) a **DMARC** record such as
    `v=DMARC1; p=none; rua=mailto:postmaster@your-domain`.
 3. Wait until the domain shows *Verified*. Until then Resend only delivers to your own address.

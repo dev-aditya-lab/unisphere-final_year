@@ -1,4 +1,4 @@
-# Administrator guide (for RGEC staff)
+# Administrator guide (for college staff and platform administrators)
 
 This guide is for the people who run UniSphere day to day: administrators, moderators, verification staff and support
 agents. You do not need to be technical. Everything is in the **Admin console**, reached from your profile menu (top right)
@@ -40,7 +40,7 @@ appeal against your own decision (a global admin can); every action is written t
 
 ## Student IDs: the optional Verified badge
 
-Verification is optional and only offered where a college has shared its own list. RGEC members can earn a **Verified badge** by entering their **student ID**. IDs are not public, so a stranger cannot guess one. The
+Verification is optional and only offered where a college has shared its own list. Members of a college that has shared its list can earn a **Verified badge** by entering their **student ID**. IDs are not public, so a stranger cannot guess one. The
 college supplies its list of valid IDs, you import it, and each ID can be linked to **one** account.
 
 ### Importing the list

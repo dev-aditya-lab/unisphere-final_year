@@ -105,10 +105,11 @@ test.describe.serial("production readiness: security, SEO and accessibility", ()
     expect(llms.status()).toBe(200);
     expect(llms.headers()["content-type"]).toContain("text/plain");
     const text = await llms.text();
-    expect(text).toContain("Ramgarh Engineering College");
+    expect(text).toMatch(/every college community/i);
     expect(text).toMatch(/nothing inside is public/i);
     expect(text).toMatch(/open to anyone who wants to join/);
-    for (const name of ["Aditya Kumar Gupta", "Sumit Jha", "Sahil Nayak", "Vishal Kumar"]) expect(text).toContain(name);
+    // positioning is multi-college: no single institution and no personal attribution
+    expect(text).not.toMatch(/Ramgarh|RGEC|Aditya Kumar|Sumit Jha|Sahil Nayak|Vishal Kumar/);
   });
 
   test("logged-out visitors are sent to the login page for every member page, even ones marked public", async ({ request }) => {
@@ -118,7 +119,7 @@ test.describe.serial("production readiness: security, SEO and accessibility", ()
       expect(res.headers().location, path).toContain("/login");
     }
     // the sign-up and explanatory pages stay open
-    for (const path of ["/", "/about", "/features", "/login", "/register", "/contact", "/privacy", "/terms", "/guidelines"]) {
+    for (const path of ["/", "/about", "/features", "/faq", "/login", "/register", "/contact", "/privacy", "/terms", "/guidelines", "/content-policy", "/copyright-policy", "/brand-policy", "/accessibility", "/cookies"]) {
       expect((await request.get(path)).status(), path).toBe(200);
     }
     // there is no public preview of a member post either
@@ -129,7 +130,9 @@ test.describe.serial("production readiness: security, SEO and accessibility", ()
     await page.goto("/");
     const ld = (await page.locator('script[type="application/ld+json"]').allTextContents()).flatMap((t) => [].concat(JSON.parse(t)));
     const org = ld.find((d) => d["@type"] === "Organization");
-    expect(org.founder.map((f) => f.name)).toEqual(expect.arrayContaining(["Aditya Kumar Gupta", "Vishal Kumar"]));
+    expect(org.name).toBe("UniSphere");
+    expect(org.founder).toBeUndefined(); // no personal attribution in structured data
+    expect(JSON.stringify(org)).not.toMatch(/Ramgarh|CollegeOrUniversity/);
     expect(ld.some((d) => d["@type"] === "FAQPage")).toBe(true);
     // browsers hide the nonce attribute from the DOM (getAttribute is empty); the element's nonce property carries it
     expect(await page.locator('script[type="application/ld+json"]').first().evaluate((el) => el.nonce)).toBeTruthy();
@@ -168,7 +171,7 @@ test.describe.serial("production readiness: security, SEO and accessibility", ()
     // Reduced motion shows every page in its final state, so scroll-reveal fades cannot skew colour measurements.
     const ctxOpts = { reducedMotion: "reduce" };
     const anon = await (await browser.newContext(ctxOpts)).newPage();
-    for (const p of ["/", "/about", "/features", "/login", "/register", "/contact", "/guidelines"]) problems.push(...(await scan(anon, p)));
+    for (const p of ["/", "/about", "/features", "/faq", "/login", "/register", "/contact", "/guidelines", "/content-policy", "/privacy", "/terms", "/cookies", "/copyright-policy", "/brand-policy", "/accessibility"]) problems.push(...(await scan(anon, p)));
     const m = await (await browser.newContext(ctxOpts)).newPage();
     await login(m, member.email);
     for (const p of ["/feed", "/explore", "/projects", "/messages", "/settings/profile", "/settings/notifications", "/feedback", "/roadmap", "/changelog"]) problems.push(...(await scan(m, p)));

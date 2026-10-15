@@ -39,7 +39,7 @@ export default function AuthLayout({ children }) {
             ))}
           </ul>
         </div>
-        <p className="relative z-10 text-xs font-semibold">&copy; {new Date().getFullYear()} UniSphere · Made at RGEC</p>
+        <p className="relative z-10 text-xs font-semibold">&copy; {new Date().getFullYear()} UniSphere</p>
         {/* Brand motion: the orbit turns very slowly (transform only, stopped for reduced motion). */}
         <svg
           aria-hidden="true"

@@ -42,7 +42,7 @@ export async function ogImage({ label = "UniSphere", title, byline }) {
           <div style={{ display: "flex", fontSize: long ? 56 : 74, fontWeight: 800, lineHeight: 1.08, letterSpacing: -1.5 }}>{clip(title || "Your campus. Your people. Your next idea.", 120)}</div>
           {byline && <div style={{ display: "flex", fontSize: 30, color: "#675F52" }}>{clip(byline, 90)}</div>}
         </div>
-        <div style={{ display: "flex", fontSize: 26, color: "#675F52" }}>A campus network, open to everyone</div>
+        <div style={{ display: "flex", fontSize: 26, color: "#675F52" }}>One space for every college community</div>
       </div>
     ),
     { ...OG_SIZE },

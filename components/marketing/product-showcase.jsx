@@ -102,7 +102,7 @@ function DiscoverPanel() {
 function CollegePanel() {
   return (
     <div className="space-y-3">
-      <MockSearch>ramgarh</MockSearch>
+      <MockSearch>engineering</MockSearch>
       <ul className="space-y-2">
         {[
           ["Example Engineering College", "Already in the directory", "tone-teal"],

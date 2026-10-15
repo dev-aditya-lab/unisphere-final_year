@@ -13,8 +13,7 @@ import { FormAlert } from "@/components/forms/form-alert";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { emailSchema } from "@/lib/validators/auth";
 import { submitContactAction } from "@/lib/actions/contact";
-
-const SUBJECTS = ["General", "Support", "Privacy", "Report a problem", "Partnerships"];
+import { CONTACT_SUBJECTS as SUBJECTS } from "@/lib/content/contact-topics";
 
 const schema = z.object({
   name: z.string().trim().min(1, "Enter your name").max(100),
@@ -24,7 +23,7 @@ const schema = z.object({
   website: z.string().optional(),
 });
 
-export function ContactForm() {
+export function ContactForm({ defaultSubject = "General" }) {
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState(null);
   const [done, setDone] = useState(null);
@@ -34,7 +33,7 @@ export function ContactForm() {
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(schema), defaultValues: { name: "", email: "", subject: "General", message: "", website: "" } });
+  } = useForm({ resolver: zodResolver(schema), defaultValues: { name: "", email: "", subject: SUBJECTS.includes(defaultSubject) ? defaultSubject : "General", message: "", website: "" } });
 
   function onSubmit(values) {
     setServerError(null);

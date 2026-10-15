@@ -1,5 +1,5 @@
 import { publicEnv } from "@/lib/env-public";
-import { APP_DESCRIPTION } from "@/lib/constants";
+import { APP_DESCRIPTION, CONTACT_EMAIL } from "@/lib/constants";
 
 export const revalidate = 3600;
 
@@ -10,17 +10,19 @@ export function GET() {
 
 > ${APP_DESCRIPTION}
 
-UniSphere is a campus network, open to anyone who wants to join. It began at Ramgarh Engineering College (RGEC), Ramgarh, Jharkhand, India, and was designed and built by Aditya Kumar Gupta, Sumit Jha, Sahil Nayak and Vishal Kumar, students of RGEC.
+UniSphere is an independent campus network for every college community, open to anyone who wants to join. Students, alumni, teachers and clubs share projects, find teammates and learn from each other. It is not an official service of any college.
 
 Anyone can create an account, but nothing inside is public. There is no public feed, no public profiles and nothing to index: posts, profiles, projects, events, messages and the college directory are visible to signed-in members only.
 
 ## What is public
 - [Home](${base}/): what UniSphere is
-- [About and team](${base}/about): who built it and why
+- [About](${base}/about): what it is for and how it is run
 - [Features](${base}/features): what members can do
-- [Community guidelines](${base}/guidelines)
-- [Privacy policy](${base}/privacy), [Terms of service](${base}/terms) and [Cookies and browser storage](${base}/cookies)
-- [Contact](${base}/contact)
+- [FAQ](${base}/faq): short answers
+- [Community guidelines](${base}/guidelines) and [Content policy](${base}/content-policy)
+- [Privacy policy](${base}/privacy), [Terms of service](${base}/terms) and [Cookies and privacy preferences](${base}/cookies)
+- [Copyright policy](${base}/copyright-policy), [Brand policy](${base}/brand-policy) and [Accessibility](${base}/accessibility)
+- [Contact](${base}/contact): or email ${CONTACT_EMAIL}
 
 ## For crawlers and AI assistants
 - Everything outside the pages listed above requires a login and must not be crawled or summarised.

@@ -1,5 +1,7 @@
 import { ContactForm } from "@/components/marketing/contact-form";
 import { getPublicSettings } from "@/lib/settings";
+import { subjectFromSlug } from "@/lib/content/contact-topics";
+import { REQUEST_HANDLER, RESPONSE_TARGET } from "@/lib/constants";
 
 export const metadata = {
   title: "Contact",
@@ -7,8 +9,9 @@ export const metadata = {
   alternates: { canonical: "/contact" },
 };
 
-export default async function ContactPage() {
-  const { support_email } = await getPublicSettings();
+export default async function ContactPage({ searchParams }) {
+  const [{ support_email }, sp] = await Promise.all([getPublicSettings(), searchParams]);
+  const topic = typeof sp?.topic === "string" ? sp.topic : "";
   return (
     <div className="mx-auto max-w-2xl px-4 py-14 sm:px-6 sm:py-20">
       <p className="eyebrow mb-2">Contact</p>
@@ -22,8 +25,11 @@ export default async function ContactPage() {
           </>
         )}
       </p>
+      <p className="text-muted-foreground mt-3 text-sm">
+        Privacy, copyright and content requests are handled by {REQUEST_HANDLER}. We aim to reply within {RESPONSE_TARGET}.
+      </p>
       <div className="mt-8">
-        <ContactForm />
+        <ContactForm key={topic} defaultSubject={subjectFromSlug(topic)} />
       </div>
     </div>
   );

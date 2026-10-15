@@ -179,7 +179,7 @@ export function CollegeDirectoryRow({ college, canVerify, canMerge }) {
           >
             <div className="space-y-1.5">
               <Label htmlFor={`alias-${college.id}`} className="text-[13px] font-semibold">Add a searchable alias</Label>
-              <Input id={`alias-${college.id}`} value={alias} onChange={(e) => setAlias(e.target.value)} placeholder="e.g. RGEC, or a former name" maxLength={120} />
+              <Input id={`alias-${college.id}`} value={alias} onChange={(e) => setAlias(e.target.value)} placeholder="e.g. a short name, or a former name" maxLength={120} />
             </div>
             <Button type="submit" size="sm" variant="outline" disabled={pending || !alias.trim()}><Plus /> Add alias</Button>
           </form>

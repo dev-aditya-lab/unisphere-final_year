@@ -5,7 +5,7 @@ import { listReleases } from "@/lib/services/feedback";
 
 export const metadata = {
   title: "Changelog",
-  description: "Release notes for UniSphere, the campus network of Ramgarh Engineering College: what is new, improved and fixed in every version.",
+  description: "Release notes for UniSphere: what is new, improved and fixed in every version.",
 };
 
 const TONE = { new: "success", improved: "soft", fixed: "warning", security: "danger" };
