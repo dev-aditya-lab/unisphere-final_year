@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
-import { isGuestOnlyPath, isProtectedPath } from "@/lib/routes";
+import { isAdPath, isGuestOnlyPath, isProtectedPath } from "@/lib/routes";
+import { monetag } from "@/lib/monetag";
 import { buildCsp, newNonce } from "@/lib/security/csp";
 
 /**
@@ -37,7 +38,9 @@ export async function proxy(request) {
   const { pathname, search } = request.nextUrl;
   // A fresh nonce per request. Next.js reads it from the request's CSP header and tags its own scripts with it.
   const nonce = newNonce();
-  const csp = buildCsp({ nonce, isDev: process.env.NODE_ENV === "development" });
+  // The advertising-network origin is admitted on the few public explanatory pages that carry its tag, and nowhere else.
+  const adNetworkOrigin = monetag.enabled && isAdPath(pathname) ? monetag.origin : null;
+  const csp = buildCsp({ nonce, isDev: process.env.NODE_ENV === "development", adNetworkOrigin });
   const session = await updateSession(request, {
     "x-pathname": pathname + search,
     "x-nonce": nonce,

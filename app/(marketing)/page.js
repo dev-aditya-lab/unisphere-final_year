@@ -9,6 +9,7 @@ import { CampusGraph, OrbitRings, StepBuild, StepJoin, StepShare } from "@/compo
 import { AdSlot } from "@/components/ads/ad-slot";
 import { JsonLd } from "@/components/json-ld";
 import { ads } from "@/lib/ads";
+import { monetag } from "@/lib/monetag";
 import { HOME_FAQ_IDS, getFaq } from "@/lib/content/faq";
 import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE, CONTACT_EMAIL } from "@/lib/constants";
 import { publicEnv } from "@/lib/env-public";
@@ -58,7 +59,7 @@ const TILES = [
 ];
 
 export default function HomePage() {
-  const FAQ = getFaq({ adsEnabled: ads.enabled }).filter((f) => HOME_FAQ_IDS.includes(f.id));
+  const FAQ = getFaq({ adsEnabled: ads.enabled || monetag.enabled }).filter((f) => HOME_FAQ_IDS.includes(f.id));
   const jsonLd = [
     {
       "@context": "https://schema.org",

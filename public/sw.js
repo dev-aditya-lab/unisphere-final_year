@@ -101,13 +101,18 @@ self.addEventListener("fetch", (event) => {
 });
 
 // ── Web Push ────────────────────────────────────────────────────────────────
+// A browser keeps one push subscription per site, so a push can reach this worker that UniSphere did not send (for
+// example one made by an advertising network's tag on a public page). UniSphere's server marks every payload it sends
+// with `from: "unisphere"`, and this worker shows only those, so a third party's message is never presented with
+// UniSphere's name, icon and link.
 self.addEventListener("push", (event) => {
-  let data = {};
+  let data = null;
   try {
-    data = event.data ? event.data.json() : {};
+    data = event.data ? event.data.json() : null;
   } catch {
-    data = { body: event.data ? event.data.text() : "" };
+    data = null;
   }
+  if (!data || data.from !== "unisphere") return;
   const title = String(data.title || "UniSphere").slice(0, 80);
   event.waitUntil(
     self.registration.showNotification(title, {
@@ -116,7 +121,7 @@ self.addEventListener("push", (event) => {
       badge: "/icons/badge-96.png",
       tag: data.tag || undefined,
       renotify: Boolean(data.tag),
-      data: { url: typeof data.url === "string" ? data.url : "/notifications" },
+      data: { from: "unisphere", url: typeof data.url === "string" ? data.url : "/notifications" },
     }),
   );
 });
@@ -125,6 +130,7 @@ self.addEventListener("push", (event) => {
 const safePath = (u) => (typeof u === "string" && u.startsWith("/") && !u.startsWith("//") ? u : "/notifications");
 
 self.addEventListener("notificationclick", (event) => {
+  if (!event.notification.data || event.notification.data.from !== "unisphere") return; // not one of ours
   event.notification.close();
   const target = new URL(safePath(event.notification.data && event.notification.data.url), self.location.origin).href;
   event.waitUntil(

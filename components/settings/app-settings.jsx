@@ -13,6 +13,14 @@ const urlBase64ToUint8Array = (base64) => {
   return Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
 };
 
+/** True when this subscription was created with UniSphere's key (not, for example, an advertising network's). */
+function isOurs(sub, key) {
+  const k = sub?.options?.applicationServerKey;
+  if (!k) return false;
+  const a = new Uint8Array(k);
+  return a.length === key.length && a.every((v, i) => v === key[i]);
+}
+
 async function getRegistration() {
   const existing = await navigator.serviceWorker.getRegistration("/");
   return existing ?? navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" }).then(() => navigator.serviceWorker.ready);
@@ -30,8 +38,8 @@ export function AppSettings({ pushConfigured, vapidPublicKey }) {
 
   useEffect(() => {
     if (support !== "ready") return;
-    navigator.serviceWorker.getRegistration("/").then((reg) => reg?.pushManager.getSubscription()).then((sub) => setSubscribed(Boolean(sub)));
-  }, [support]);
+    navigator.serviceWorker.getRegistration("/").then((reg) => reg?.pushManager.getSubscription()).then((sub) => setSubscribed(isOurs(sub, urlBase64ToUint8Array(vapidPublicKey))));
+  }, [support, vapidPublicKey]);
 
   async function enable() {
     const result = await Notification.requestPermission();
@@ -39,7 +47,15 @@ export function AppSettings({ pushConfigured, vapidPublicKey }) {
     if (result !== "granted") return toast.error("Notifications are blocked. Allow them in your browser's site settings, then try again.");
     try {
       const reg = await getRegistration();
-      const sub = (await reg.pushManager.getSubscription()) ?? (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) }));
+      const key = urlBase64ToUint8Array(vapidPublicKey);
+      let sub = await reg.pushManager.getSubscription();
+      // A browser holds one push subscription per site. If another sender made it (an advertising network's tag on a
+      // public page), it cannot carry member notifications: replace it with one made with UniSphere's key.
+      if (sub && !isOurs(sub, key)) {
+        await sub.unsubscribe();
+        sub = null;
+      }
+      sub = sub ?? (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key }));
       const res = await fetch("/api/push/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subscription: sub.toJSON() }) });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "failed");
       setSubscribed(true);
@@ -52,7 +68,7 @@ export function AppSettings({ pushConfigured, vapidPublicKey }) {
   async function disable() {
     const reg = await navigator.serviceWorker.getRegistration("/");
     const sub = await reg?.pushManager.getSubscription();
-    if (sub) {
+    if (sub && isOurs(sub, urlBase64ToUint8Array(vapidPublicKey))) {
       await fetch("/api/push/subscribe", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ endpoint: sub.endpoint }) });
       await sub.unsubscribe();
     }
