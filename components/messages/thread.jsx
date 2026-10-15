@@ -15,6 +15,7 @@ import { deleteMessageAction, loadMessagesAction, markConversationReadAction, se
 import { useRealtimeChannel } from "@/hooks/use-realtime-channel";
 import { uploadFileWithProgress } from "@/lib/storage/client";
 import { useImageEditor } from "@/components/images/use-image-editor";
+import { createOpTracker } from "@/lib/client/op-id";
 import { privateFileUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +55,7 @@ export function Thread({ conversation, viewerId, initialMessages, initialCursor 
   const bottom = useRef(null);
   const fileInput = useRef(null);
   const { editImages, imageEditor } = useImageEditor();
+  const [op] = useState(createOpTracker);
   const typingTimeout = useRef(null);
   const lastTypingSent = useRef(0);
   const person = conversation.person;
@@ -125,14 +127,34 @@ export function Thread({ conversation, viewerId, initialMessages, initialCursor 
     const text = body;
     const attach = files;
     if (!text.trim() && attach.length === 0) return;
+    // The message shows up straight away as "Sending…", is replaced by the saved one, and goes back into the box
+    // (with its attachments) if it could not be sent. The key makes a retry of the same message safe.
+    const clientOpId = op.keyFor(JSON.stringify([conversation.id, text, attach.map((f) => f.id)]));
+    const tempId = `pending-${clientOpId}`;
     setBody("");
     setFiles([]);
+    setMessages((prev) =>
+      prev.some((m) => m.id === tempId)
+        ? prev
+        : [...prev, { id: tempId, conversation_id: conversation.id, sender_id: viewerId, body: text, status: "sent", created_at: new Date().toISOString(), edited_at: null, attachments: [], pending: true }],
+    );
     startTransition(async () => {
-      const res = await sendMessageAction({ conversationId: conversation.id, body: text, fileIds: attach.map((f) => f.id) });
-      if (res.ok) setMessages((prev) => (prev.some((x) => x.id === res.message.id) ? prev : [...prev, res.message]));
-      else {
-        setBody(text);
-        setFiles(attach);
+      let res;
+      try {
+        res = await sendMessageAction({ conversationId: conversation.id, body: text, fileIds: attach.map((f) => f.id), clientOpId });
+      } catch {
+        res = { ok: false, error: "We could not reach UniSphere. Your message is still in the box: try sending it again." };
+      }
+      if (res.ok) {
+        op.reset();
+        setMessages((prev) => {
+          const without = prev.filter((m) => m.id !== tempId);
+          return without.some((x) => x.id === res.message.id) ? without : [...without, res.message];
+        });
+      } else {
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        setBody((current) => current || text);
+        setFiles((current) => (current.length ? current : attach));
         toast.error(res.error);
       }
     });
@@ -174,7 +196,7 @@ export function Thread({ conversation, viewerId, initialMessages, initialCursor 
         <Link href="/messages" className="text-muted-foreground hover:text-foreground md:hidden" aria-label="Back to conversations"><ArrowLeft className="size-5" /></Link>
         <UserAvatar name={person.full_name} avatarKey={person.avatar_key} size="sm" />
         <div className="min-w-0 flex-1 leading-tight">
-          {person.username ? <Link href={`/u/${person.username}`} className="truncate text-sm font-semibold hover:underline">{person.full_name}</Link> : <span className="text-sm font-semibold">{person.full_name}</span>}
+          {person.username ? <Link prefetch={false} href={`/u/${person.username}`} className="truncate text-sm font-semibold hover:underline">{person.full_name}</Link> : <span className="text-sm font-semibold">{person.full_name}</span>}
           <p className="text-muted-foreground h-4 truncate text-xs" aria-live="polite">{typing ? "typing…" : person.headline ?? ""}</p>
         </div>
         <DropdownMenu>
@@ -210,11 +232,11 @@ export function Thread({ conversation, viewerId, initialMessages, initialCursor 
                       </>
                     )}
                     <p className={cn("mt-0.5 flex items-center justify-end gap-1 text-[10px]", mine ? "text-primary-foreground/70" : "text-muted-foreground")}>
-                      {time(m.created_at)}{m.edited_at ? " · edited" : ""}
-                      {mine && m.id === lastMine?.id && (seen ? <CheckCheck className="size-3" aria-label="Seen" /> : <Check className="size-3" aria-label="Sent" />)}
+                      {m.pending ? "Sending…" : time(m.created_at)}{m.edited_at ? " · edited" : ""}
+                      {mine && !m.pending && m.id === lastMine?.id && (seen ? <CheckCheck className="size-3" aria-label="Seen" /> : <Check className="size-3" aria-label="Sent" />)}
                     </p>
                   </div>
-                  {m.status !== "deleted" && (
+                  {m.status !== "deleted" && !m.pending && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" size="icon-xs" className="text-muted-foreground opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 focus-visible:opacity-100" aria-label="Message actions"><MoreHorizontal /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align={mine ? "end" : "start"}>

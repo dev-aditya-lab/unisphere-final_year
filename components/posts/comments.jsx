@@ -12,20 +12,31 @@ import { RichText } from "@/components/posts/rich-text";
 import { ReportDialog } from "@/components/posts/report-dialog";
 import { UserAvatar } from "@/components/user-avatar";
 import { addCommentAction, deleteCommentAction, editCommentAction, setCommentLikeAction } from "@/lib/actions/posts";
+import { createOpTracker } from "@/lib/client/op-id";
 import { cn } from "@/lib/utils";
 
 function CommentForm({ postId, parentId = null, viewer, onAdded, onCancel, autoFocus = false, placeholder = "Write a comment…" }) {
   const [body, setBody] = useState("");
   const [error, setError] = useState(null);
   const [pending, startTransition] = useTransition();
+  const [op] = useState(createOpTracker);
 
   function submit(e) {
     e.preventDefault();
     setError(null);
+    // Same text, same key: pressing the button again after a lost response returns the saved comment, not a second one.
+    const clientOpId = op.keyFor(JSON.stringify([postId, parentId, body]));
     startTransition(async () => {
-      const res = await addCommentAction({ postId, parentId, body });
+      let res;
+      try {
+        res = await addCommentAction({ postId, parentId, body, clientOpId });
+      } catch {
+        setError("We could not reach UniSphere. Your comment is still here: try again.");
+        return;
+      }
       if (res.ok) {
         setBody("");
+        op.reset();
         onAdded(res.comment);
         onCancel?.();
       } else setError(res.fieldErrors?.body ?? res.error);

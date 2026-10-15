@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { getBrowserClient } from "@/lib/supabase/client";
 
 /**
  * Subscribe to a Supabase Realtime channel as the signed-in member.
@@ -12,8 +11,12 @@ import { getBrowserClient } from "@/lib/supabase/client";
  *
  * `configure(channel)` attaches the `.on(...)` handlers. It is read through a ref, so it may close over
  * fresh state without causing re-subscription. Returns a ref to the live channel (for broadcast sends).
+ *
+ * The Supabase browser client (about 65 KB gzipped) is imported on demand, so pages that only need a live badge do
+ * not pay for it in the first bundle. `idle: true` also waits for the browser to be idle before connecting, for
+ * channels that are not needed to read the page (the notification bell); a conversation connects at once.
  */
-export function useRealtimeChannel(name, configure) {
+export function useRealtimeChannel(name, configure, { idle = false } = {}) {
   const channelRef = useRef(null);
   const configureRef = useRef(configure);
 
@@ -22,10 +25,14 @@ export function useRealtimeChannel(name, configure) {
   });
 
   useEffect(() => {
-    const supabase = getBrowserClient();
     let cancelled = false;
     let channel;
-    (async () => {
+    let supabase;
+    let idleHandle;
+    const start = async () => {
+      const { getBrowserClient } = await import("@/lib/supabase/client");
+      if (cancelled) return;
+      supabase = getBrowserClient();
       const { data } = await supabase.auth.getSession();
       if (data.session?.access_token) supabase.realtime.setAuth(data.session.access_token);
       if (cancelled) return;
@@ -33,13 +40,20 @@ export function useRealtimeChannel(name, configure) {
       configureRef.current(channel);
       channel.subscribe();
       channelRef.current = channel;
-    })();
+    };
+    if (idle && typeof window.requestIdleCallback === "function") idleHandle = window.requestIdleCallback(start, { timeout: 3000 });
+    else if (idle) idleHandle = setTimeout(start, 1500);
+    else start();
     return () => {
       cancelled = true;
-      if (channel) supabase.removeChannel(channel);
+      if (idleHandle !== undefined) {
+        if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idleHandle);
+        clearTimeout(idleHandle);
+      }
+      if (channel && supabase) supabase.removeChannel(channel);
       channelRef.current = null;
     };
-  }, [name]);
+  }, [name, idle]);
 
   return channelRef;
 }

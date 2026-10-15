@@ -3,8 +3,9 @@
 import { useId } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "motion/react";
-import { NAV_GROUPS } from "@/lib/nav";
+import { m } from "motion/react";
+import { NAV_GROUPS, shouldPrefetch } from "@/lib/nav";
+import { NavPending } from "@/components/shell/nav-pending";
 import { EASE } from "@/lib/motion";
 import { NavIcon } from "@/components/shell/nav-icons";
 import { CountBadge } from "@/components/motion/count-badge";
@@ -37,6 +38,7 @@ export function NavLinks({ items, counts = {}, onNavigate }) {
                   <li key={href}>
                     <Link
                       href={href}
+                      prefetch={shouldPrefetch(href) ? undefined : false}
                       onClick={onNavigate}
                       aria-current={active ? "page" : undefined}
                       className={cn(
@@ -45,7 +47,7 @@ export function NavLinks({ items, counts = {}, onNavigate }) {
                       )}
                     >
                       {active ? (
-                        <motion.span
+                        <m.span
                           layoutId={indicatorId}
                           aria-hidden="true"
                           transition={EASE.spring}
@@ -61,6 +63,7 @@ export function NavLinks({ items, counts = {}, onNavigate }) {
                       />
                       <span className="relative flex-1 truncate">{label}</span>
                       <CountBadge value={count ?? 0} label="unread" className="relative" />
+                      <NavPending className="relative" />
                     </Link>
                   </li>
                 );

@@ -22,22 +22,51 @@ export function EditPostDialog({ open, onOpenChange, post }) {
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [pending, startTransition] = useTransition();
+  // What this editor started from. Saves are only applied if the post still has these values (see updatePost).
+  const [base, setBase] = useState({ category: post.category, title: post.title ?? null, body: post.body ?? "", visibility: post.visibility });
+  // Set when the post was changed somewhere else: the server's current version, shown next to what you typed.
+  const [conflict, setConflict] = useState(null);
   const isRepost = Boolean(post.repost_of_id);
 
-  function save() {
+  function save({ overwrite = false } = {}) {
     setError(null);
     setFieldErrors({});
     startTransition(async () => {
-      const res = await updatePostAction({ postId: post.id, category, title, body, visibility });
+      let res;
+      try {
+        res = await updatePostAction({ postId: post.id, category, title, body, visibility, ...(overwrite ? {} : { base }) });
+      } catch {
+        setError("We could not reach UniSphere. Your changes are still here: check your connection and try again.");
+        return;
+      }
       if (res.ok) {
         toast.success("Post updated");
+        setConflict(null);
         onOpenChange(false);
         router.refresh();
+      } else if (res.code === "conflict" && res.current) {
+        setConflict(res.current);
       } else {
         setError(res.error);
         setFieldErrors(res.fieldErrors ?? {});
       }
     });
+  }
+
+  function loadLatest() {
+    if (!conflict) return;
+    setCategory(conflict.category);
+    setTitle(conflict.title ?? "");
+    setBody(conflict.body ?? "");
+    setVisibility(conflict.visibility);
+    setBase(conflict);
+    setConflict(null);
+  }
+
+  function keepMine() {
+    // Your text stays; the editor now starts from the latest version, so the next save is checked against it.
+    setBase(conflict);
+    setConflict(null);
   }
 
   return (
@@ -48,6 +77,24 @@ export function EditPostDialog({ open, onOpenChange, post }) {
           <DialogDescription>Edited posts show an “edited” label.</DialogDescription>
         </DialogHeader>
         {error && <FormAlert>{error}</FormAlert>}
+        {conflict && (
+          <div role="alert" className="border-warning bg-warning-soft text-warning-text space-y-3 rounded-lg border p-3 text-sm">
+            <p className="font-semibold">This post was changed somewhere else while you were editing it.</p>
+            <p>Your changes have not been saved and are still in the form. Choose how to continue:</p>
+            <div className="bg-background/70 text-foreground max-h-32 overflow-auto rounded-md p-2 text-xs whitespace-pre-wrap">
+              {conflict.title ? <strong className="block">{conflict.title}</strong> : null}
+              {conflict.body}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" size="sm" variant="outline" onClick={loadLatest}>
+                Load the latest version
+              </Button>
+              <Button type="button" size="sm" onClick={keepMine}>
+                Keep my changes
+              </Button>
+            </div>
+          </div>
+        )}
         <div className="space-y-4">
           {!isRepost && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -92,7 +139,7 @@ export function EditPostDialog({ open, onOpenChange, post }) {
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={save} disabled={pending || !body.trim()}>
+          <Button onClick={() => save()} disabled={pending || !body.trim() || Boolean(conflict)}>
             {pending ? "Saving…" : "Save changes"}
           </Button>
         </DialogFooter>

@@ -1,8 +1,12 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { ImageEditor } from "@/components/images/image-editor";
+import dynamic from "next/dynamic";
 import { isEditableImage } from "@/lib/images/process";
+
+// The editor (canvas code, crop UI, dialog) is only fetched when someone actually picks an image to edit; the pages
+// that use it (feed, messages, profile settings) do not carry it in their first bundle.
+const ImageEditor = dynamic(() => import("@/components/images/image-editor").then((m) => m.ImageEditor), { ssr: false });
 
 /**
  * Puts picked files through the image editor before they are uploaded.

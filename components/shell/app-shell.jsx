@@ -45,10 +45,10 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
           <NavLinks items={items} counts={counts} />
         </div>
         <div className="flex items-center justify-between gap-2 border-t p-3 text-xs">
-          <Link href="/guidelines" className="text-muted-foreground hover:text-foreground font-medium">
+          <Link href="/guidelines" prefetch={false} className="text-muted-foreground hover:text-foreground font-medium">
             Community guidelines
           </Link>
-          <Link href="/changelog" className="text-muted-foreground hover:text-foreground font-medium">
+          <Link href="/changelog" prefetch={false} className="text-muted-foreground hover:text-foreground font-medium">
             What&rsquo;s new
           </Link>
         </div>

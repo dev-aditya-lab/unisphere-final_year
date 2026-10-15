@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, ArrowRight, Check, Loader2, UserPlus, Users } from "lucide-react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -142,7 +142,7 @@ export function OnboardingForm({ profile, college = null, structure = null, comm
   return (
     <div className="surface-raised p-5 sm:p-8">
       <div className="bg-sunken mb-5 h-1.5 overflow-hidden rounded-full" aria-hidden="true">
-        <motion.div
+        <m.div
           className="bg-accent-hot h-full origin-left rounded-full"
           initial={false}
           animate={{ scaleX: (step + 1) / STEPS.length }}

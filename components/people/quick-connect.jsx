@@ -30,15 +30,20 @@ export function QuickConnect({ personId, size = "sm" }) {
       size={size}
       variant="outline"
       disabled={pending}
-      onClick={() =>
+      onClick={() => {
+        // Show "Requested" at once; the server's answer can upgrade it to "Connected" or roll it back.
+        setState("pending");
         startTransition(async () => {
           const res = await sendConnectionRequestAction({ recipientId: personId });
           if (res.ok) {
             setState(res.status === "connected" ? "connected" : "pending");
             toast.success(res.status === "connected" ? "You are now connected" : "Connection request sent");
-          } else toast.error(res.error);
-        })
-      }
+          } else {
+            setState("idle");
+            toast.error(res.error);
+          }
+        });
+      }}
     >
       <UserPlus /> Connect
     </Button>

@@ -50,7 +50,7 @@ export default async function OpportunitiesPage({ searchParams }) {
                   {o.status === "closed" && <Badge variant="mono">Closed</Badge>}
                   {o.deadline && <Badge variant="warning">Apply by {formatDate(o.deadline, { dateStyle: "medium", timeZone: "UTC" })}</Badge>}
                 </div>
-                <h2 className="font-heading mt-1.5 text-lg font-bold"><Link href={`/opportunities/${o.slug}`} className="hover:underline">{o.title}</Link></h2>
+                <h2 className="font-heading mt-1.5 text-lg font-bold"><Link prefetch={false} href={`/opportunities/${o.slug}`} className="hover:underline">{o.title}</Link></h2>
                 <p className="text-muted-foreground text-sm">{o.organization}{o.stipend ? ` · ${o.stipend}` : ""}</p>
                 <p className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 text-xs">
                   {o.location && <span className="flex items-center gap-1"><MapPin className="size-3.5" aria-hidden="true" />{o.location}</span>}

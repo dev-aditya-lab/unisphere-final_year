@@ -94,9 +94,9 @@ export default async function AlumniPage({ searchParams }) {
               {people.map((p) => (
                 <li key={p.id} className="surface flex flex-col p-4">
                   <div className="flex items-start gap-3">
-                    <Link href={`/u/${p.username}`} aria-label={`${p.full_name}'s profile`}><UserAvatar name={p.full_name} avatarKey={p.avatar_key} size="lg" /></Link>
+                    <Link prefetch={false} href={`/u/${p.username}`} aria-label={`${p.full_name}'s profile`}><UserAvatar name={p.full_name} avatarKey={p.avatar_key} size="lg" /></Link>
                     <div className="min-w-0">
-                      <Link href={`/u/${p.username}`} className="font-heading flex items-center gap-1 font-bold hover:underline">
+                      <Link prefetch={false} href={`/u/${p.username}`} className="font-heading flex items-center gap-1 font-bold hover:underline">
                         {p.full_name}{p.verified && <BadgeCheck className="text-teal-text size-4" aria-label="Verified" />}
                       </Link>
                       <p className="text-muted-foreground text-sm">
@@ -113,7 +113,7 @@ export default async function AlumniPage({ searchParams }) {
                   {p.skills?.length > 0 && <p className="text-muted-foreground mt-2 text-xs"><Briefcase className="mr-1 inline size-3" aria-hidden="true" />{p.skills.slice(0, 5).join(", ")}</p>}
                   <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
                     {p.open_to_mentoring ? <RequestMentorshipButton mentorId={p.id} mentorName={p.full_name} /> : <span className="text-muted-foreground text-xs">Not currently offering mentoring</span>}
-                    <Button asChild size="sm" variant="ghost"><Link href={`/u/${p.username}`}>View profile</Link></Button>
+                    <Button asChild size="sm" variant="ghost"><Link prefetch={false} href={`/u/${p.username}`}>View profile</Link></Button>
                   </div>
                 </li>
               ))}
@@ -143,7 +143,7 @@ export default async function AlumniPage({ searchParams }) {
                       <div className="flex items-center gap-2.5">
                         <UserAvatar name={r.person?.full_name ?? "Member"} avatarKey={r.person?.avatar_key} size="sm" />
                         <div className="leading-tight">
-                          {r.person ? <Link className="text-sm font-semibold hover:underline" href={`/u/${r.person.username}`}>{r.person.full_name}</Link> : <span className="text-sm font-semibold">Member</span>}
+                          {r.person ? <Link prefetch={false} className="text-sm font-semibold hover:underline" href={`/u/${r.person.username}`}>{r.person.full_name}</Link> : <span className="text-sm font-semibold">Member</span>}
                           <p className="text-muted-foreground text-xs">{timeAgo(r.created_at)}{r.topic ? ` · ${r.topic}` : ""}</p>
                         </div>
                       </div>
@@ -164,7 +164,7 @@ export default async function AlumniPage({ searchParams }) {
                 {requests.sent.map((r) => (
                   <li key={r.id} className="surface p-4">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-sm font-semibold">{r.person ? <Link href={`/u/${r.person.username}`} className="hover:underline">{r.person.full_name}</Link> : "Mentor"}<span className="text-muted-foreground font-normal"> · {timeAgo(r.created_at)}</span></p>
+                      <p className="text-sm font-semibold">{r.person ? <Link prefetch={false} href={`/u/${r.person.username}`} className="hover:underline">{r.person.full_name}</Link> : "Mentor"}<span className="text-muted-foreground font-normal"> · {timeAgo(r.created_at)}</span></p>
                       <div className="flex items-center gap-2">
                         <Badge variant={r.status === "accepted" ? "success" : r.status === "pending" ? "warning" : "mono"}>{STATUS_LABEL[r.status]}</Badge>
                         {r.status === "pending" && <CancelMentorship requestId={r.id} />}

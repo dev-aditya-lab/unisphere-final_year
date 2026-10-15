@@ -50,7 +50,7 @@ export default async function ProjectsPage({ searchParams }) {
           <ul className="mt-2 space-y-1 text-sm">
             {invitations.map((i) => (
               <li key={i.id}>
-                <Link href={`/projects/${i.project.slug}`} className="text-blue-text font-semibold hover:underline">{i.project.name}</Link>
+                <Link prefetch={false} href={`/projects/${i.project.slug}`} className="text-blue-text font-semibold hover:underline">{i.project.name}</Link>
                 <span className="text-muted-foreground"> from {i.project.owner_name}{i.role_label ? ` · ${i.role_label}` : ""}</span>
               </li>
             ))}

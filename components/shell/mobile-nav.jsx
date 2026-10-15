@@ -3,7 +3,7 @@
 import { useId, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { Menu, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "@/components/ui/sheet";
@@ -11,7 +11,8 @@ import { Logo } from "@/components/brand/logo";
 import { NavLinks } from "@/components/shell/nav-links";
 import { NavIcon } from "@/components/shell/nav-icons";
 import { CountBadge } from "@/components/motion/count-badge";
-import { MOBILE_BOTTOM_HREFS } from "@/lib/nav";
+import { MOBILE_BOTTOM_HREFS, shouldPrefetch } from "@/lib/nav";
+import { NavPending } from "@/components/shell/nav-pending";
 import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +47,7 @@ function Tab({ item, count, active, indicatorId }) {
   return (
     <Link
       href={href}
+      prefetch={shouldPrefetch(href) ? undefined : false}
       aria-current={active ? "page" : undefined}
       className={cn(
         "relative flex h-full flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors",
@@ -53,7 +55,7 @@ function Tab({ item, count, active, indicatorId }) {
       )}
     >
       {active && (
-        <motion.span
+        <m.span
           layoutId={indicatorId}
           aria-hidden="true"
           transition={EASE.spring}
@@ -65,6 +67,7 @@ function Tab({ item, count, active, indicatorId }) {
         <CountBadge value={count ?? 0} label="unread" className="absolute -top-2 -right-3 h-4 min-w-4 px-1 text-[10px]" />
       </span>
       {label}
+      <NavPending className="absolute top-1.5 right-3" />
     </Link>
   );
 }

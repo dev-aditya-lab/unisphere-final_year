@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ export function ThemeToggle({ className }) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className={className} aria-label="Change theme">
           <AnimatePresence mode="wait" initial={false}>
-            <motion.span
+            <m.span
               key={shown}
               initial={{ rotate: -70, scale: 0.5, opacity: 0 }}
               animate={{ rotate: 0, scale: 1, opacity: 1 }}
@@ -36,7 +36,7 @@ export function ThemeToggle({ className }) {
               className="grid place-items-center"
             >
               <Icon />
-            </motion.span>
+            </m.span>
           </AnimatePresence>
         </Button>
       </DropdownMenuTrigger>

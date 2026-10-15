@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Bookmark, Check, Flag, Heart, Link2, MessageCircle, MoreHorizontal, Pencil, Repeat2, Share2, SmilePlus, Trash2 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import { PopIcon } from "@/components/motion/pop-icon";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ import { deletePostAction, repostAction, setBookmarkAction, setReactionAction } 
 import { REACTIONS } from "@/lib/content/post-meta";
 import { publicEnv } from "@/lib/env-public";
 import { compactNumber } from "@/lib/format";
+import { useLatestWins } from "@/hooks/use-latest-wins";
 import { cn } from "@/lib/utils";
 
 const REACTION_LABEL = Object.fromEntries(REACTIONS.map((r) => [r.value, r.label]));
@@ -42,16 +43,44 @@ function postUrl(post) {
   return `${publicEnv.appUrl}${post.category === "ideas" ? "/ideas/" : "/posts/"}${post.slug}`;
 }
 
+/**
+ * Mounts a heavy dialog only once it has been opened (and keeps it, so its close animation still plays). A feed of 15
+ * posts would otherwise build four dialog trees per post that almost nobody opens.
+ */
+function MountOnOpen({ open, children }) {
+  const [mounted, setMounted] = useState(open);
+  if (open && !mounted) setMounted(true);
+  return mounted ? children : null;
+}
+
 export function PostActions({ post, viewerId, onDeleted, className }) {
   const router = useRouter();
   const loginHref = `/login?next=${encodeURIComponent(`/posts/${post.slug}`)}`;
   const isOwner = viewerId === post.author_id;
 
-  // Optimistic state: updated immediately, rolled back if the server rejects the change.
-  const [reaction, setReaction] = useState(post.my_reaction ?? null);
-  const [count, setCount] = useState(post.reaction_count ?? 0);
-  const [bookmarked, setBookmarked] = useState(Boolean(post.bookmarked));
-  const [, startTransition] = useTransition();
+  // Optimistic state: shown immediately, saved one request at a time with the member's latest choice winning, and
+  // rolled back (with a Retry) if the server rejects it. Rapid taps can no longer finish out of order.
+  const [reactionState, setReactionState] = useLatestWins(
+    { reaction: post.my_reaction ?? null, count: post.reaction_count ?? 0 },
+    {
+      equals: (a, b) => a.reaction === b.reaction,
+      save: async ({ reaction: next }) => {
+        const res = await setReactionAction({ postId: post.id, reaction: next });
+        return res.ok ? { ok: true, value: { reaction: res.myReaction, count: res.reactionCount } } : { ok: false, error: res.error };
+      },
+      onError: (message, attempted) =>
+        toast.error(message ?? "Could not save your reaction.", { action: { label: "Retry", onClick: () => setReactionState(attempted) } }),
+    },
+  );
+  const { reaction, count } = reactionState;
+  const [bookmarked, setBookmarked] = useLatestWins(Boolean(post.bookmarked), {
+    save: async (next) => {
+      const res = await setBookmarkAction({ postId: post.id, bookmarked: next });
+      return res.ok ? { ok: true } : { ok: false, error: res.error };
+    },
+    onError: (message, attempted) =>
+      toast.error(message ?? "Could not update your bookmark.", { action: { label: "Retry", onClick: () => setBookmarked(attempted) } }),
+  });
 
   const [reactOpen, setReactOpen] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
@@ -63,34 +92,13 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
   const [copied, setCopied] = useState(false);
 
   function react(next) {
-    const prev = { reaction, count };
     const value = next === reaction ? null : next;
-    setReaction(value);
-    setCount(count + (value && !reaction ? 1 : !value && reaction ? -1 : 0));
+    setReactionState({ reaction: value, count: count + (value && !reaction ? 1 : !value && reaction ? -1 : 0) });
     setReactOpen(false);
-    startTransition(async () => {
-      const res = await setReactionAction({ postId: post.id, reaction: value });
-      if (res.ok) {
-        setCount(res.reactionCount);
-        setReaction(res.myReaction);
-      } else {
-        setReaction(prev.reaction);
-        setCount(prev.count);
-        toast.error(res.error ?? "Could not save your reaction.");
-      }
-    });
   }
 
   function toggleBookmark() {
-    const prev = bookmarked;
-    setBookmarked(!prev);
-    startTransition(async () => {
-      const res = await setBookmarkAction({ postId: post.id, bookmarked: !prev });
-      if (!res.ok) {
-        setBookmarked(prev);
-        toast.error(res.error ?? "Could not update your bookmark.");
-      } else toast.success(!prev ? "Saved to bookmarks" : "Removed from bookmarks");
-    });
+    setBookmarked(!bookmarked);
   }
 
   async function copyLink() {
@@ -123,8 +131,9 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
     setDeleteOpen(false);
     if (res.ok) {
       toast.success("Post deleted");
-      onDeleted?.(post.id);
-      router.refresh();
+      // A list that owns the post removes it itself; refreshing the whole page as well would re-run every query on it.
+      if (onDeleted) onDeleted(post.id);
+      else router.refresh();
     } else toast.error(res.error);
   }
 
@@ -177,7 +186,7 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
 
       {/* Comment */}
       <Button asChild variant="ghost" size="sm" className={btn}>
-        <Link href={`${post.category === "ideas" ? "/ideas/" : "/posts/"}${post.slug}#comments`}>
+        <Link prefetch={false} href={`${post.category === "ideas" ? "/ideas/" : "/posts/"}${post.slug}#comments`}>
           <MessageCircle className="size-4" aria-hidden="true" />
           {post.comment_count > 0 ? <span className="tabular-nums">{compactNumber(post.comment_count)}</span> : <span className="sr-only sm:not-sr-only">Comment</span>}
           {post.comment_count > 0 && <span className="sr-only"> comments</span>}
@@ -220,7 +229,7 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
         )}
         <Button variant="ghost" size="icon-sm" className="text-muted-foreground" onClick={copyLink} aria-label="Copy link to post">
           <AnimatePresence mode="wait" initial={false}>
-            <motion.span
+            <m.span
               key={copied ? "done" : "share"}
               initial={{ scale: 0.4, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -229,7 +238,7 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
               className="grid place-items-center"
             >
               {copied ? <Check className="text-success-text size-4" /> : <Share2 className="size-4" />}
-            </motion.span>
+            </m.span>
           </AnimatePresence>
         </Button>
         <DropdownMenu>
@@ -265,7 +274,8 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
         </DropdownMenu>
       </div>
 
-      {/* Dialogs */}
+      {/* Dialogs: built only once they are first opened */}
+      <MountOnOpen open={quoteOpen}>
       <Dialog open={quoteOpen} onOpenChange={setQuoteOpen}>
         <DialogContent>
           <DialogHeader>
@@ -283,7 +293,9 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </MountOnOpen>
 
+      <MountOnOpen open={deleteOpen}>
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -298,9 +310,16 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </MountOnOpen>
 
-      <ReportDialog open={reportOpen} onOpenChange={setReportOpen} targetType="post" targetId={post.id} />
-      {isOwner && <EditPostDialog open={editOpen} onOpenChange={setEditOpen} post={post} />}
+      <MountOnOpen open={reportOpen}>
+        <ReportDialog open={reportOpen} onOpenChange={setReportOpen} targetType="post" targetId={post.id} />
+      </MountOnOpen>
+      {isOwner && (
+        <MountOnOpen open={editOpen}>
+          <EditPostDialog open={editOpen} onOpenChange={setEditOpen} post={post} />
+        </MountOnOpen>
+      )}
     </div>
   );
 }

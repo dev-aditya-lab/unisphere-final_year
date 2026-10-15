@@ -17,6 +17,9 @@ import { POST_CATEGORIES, POST_VISIBILITY, COMMUNITY_POST_VISIBILITY, CATEGORY_B
 import { uploadFileWithProgress } from "@/lib/storage/client";
 import { useImageEditor } from "@/components/images/use-image-editor";
 import { privateFileUrl } from "@/lib/media";
+import { createOpTracker } from "@/lib/client/op-id";
+import { emitPostCreated } from "@/lib/client/feed-events";
+import { clearDraft, readDraft, writeDraft } from "@/lib/client/drafts";
 import { cn } from "@/lib/utils";
 
 const MAX = 10000;
@@ -41,6 +44,30 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
   const [fieldErrors, setFieldErrors] = useState({});
   const [pending, startTransition] = useTransition();
   const [focused, setFocused] = useState(autoFocus);
+  const [op] = useState(createOpTracker);
+  const draftKey = `post:${profile.id}:${community?.id ?? "feed"}`;
+
+  // Restore an unsent draft once, after hydration (so the server and first client render still match).
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const d = readDraft(draftKey);
+      if (!d || typeof d.body !== "string" || !d.body) return;
+      setBody(d.body);
+      if (typeof d.title === "string") setTitle(d.title);
+      if (!lockCategory && CATEGORY_BY_VALUE[d.category]) setCategory(d.category);
+      setFocused(true);
+    }, 0);
+    return () => clearTimeout(t);
+  }, [draftKey, lockCategory]);
+
+  // Keep the draft up to date while typing (debounced, local only).
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (body.trim() || title.trim()) writeDraft(draftKey, { body, title, category });
+      else clearDraft(draftKey);
+    }, 500);
+    return () => clearTimeout(t);
+  }, [body, title, category, draftKey]);
 
   const meta = CATEGORY_BY_VALUE[category];
   const { editImages, imageEditor } = useImageEditor();
@@ -77,17 +104,56 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
     e.preventDefault();
     setError(null);
     setFieldErrors({});
+    const attachmentIds = attachments.map((a) => a.id);
+    // The same content keeps the same key, so pressing "Post" again after a lost response cannot publish it twice.
+    const clientOpId = op.keyFor(JSON.stringify([category, title, body, visibility, community?.id ?? null, attachmentIds]));
     startTransition(async () => {
-      const res = await createPostAction({ category, title, body, visibility, communityId: community?.id ?? null, attachmentIds: attachments.map((a) => a.id) });
+      let res;
+      try {
+        res = await createPostAction({ category, title, body, visibility, communityId: community?.id ?? null, attachmentIds, clientOpId });
+      } catch {
+        // The request never got an answer. Nothing is cleared: the text is still here, and posting again is safe.
+        setError("We could not reach UniSphere. Your post has not been lost: check your connection and press Post again.");
+        return;
+      }
       if (res.ok) {
         toast.success("Posted");
+        const created = {
+          id: res.id,
+          slug: res.slug,
+          category: res.category,
+          title: title.trim() ? title.trim() : null,
+          body: body.trim(),
+          visibility,
+          status: "published",
+          author_id: profile.id,
+          college_id: profile.college_id ?? null,
+          community_id: community?.id ?? null,
+          author_name: profile.full_name,
+          author_username: profile.username,
+          author_avatar_key: profile.avatar_key ?? null,
+          author_account_type: profile.account_type ?? null,
+          author_verified: profile.verification_status === "verified",
+          created_at: new Date().toISOString(),
+          edited_at: null,
+          reaction_count: 0,
+          comment_count: 0,
+          repost_count: 0,
+          reactions: {},
+          my_reaction: null,
+          bookmarked: false,
+          attachments: attachments.map((a) => ({ id: a.id, alt: null })),
+        };
         setTitle("");
         setBody("");
         setAttachments([]);
         setFocused(false);
+        clearDraft(draftKey);
+        op.reset();
         if (!lockCategory) setCategory(defaultCategory);
         onCreated?.(res);
-        router.refresh();
+        // A feed on this page shows the post at once; anywhere else the page is refreshed to show it.
+        if (!emitPostCreated(created)) router.refresh();
       } else {
         setError(res.error);
         setFieldErrors(res.fieldErrors ?? {});

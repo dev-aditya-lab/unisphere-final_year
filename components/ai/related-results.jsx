@@ -37,7 +37,7 @@ export function RelatedResults({ result, onImprove, improving }) {
           {related.map((r) => (
             <li key={r.id} className="rounded-lg border p-3">
               <div className="flex items-start justify-between gap-2">
-                <Link href={`${r.category === "ideas" ? "/ideas/" : "/posts/"}${r.slug}`} target="_blank" rel="noopener" className="font-heading flex items-center gap-1.5 text-sm font-bold hover:underline">
+                <Link prefetch={false} href={`${r.category === "ideas" ? "/ideas/" : "/posts/"}${r.slug}`} target="_blank" rel="noopener" className="font-heading flex items-center gap-1.5 text-sm font-bold hover:underline">
                   {r.title}
                   <ExternalLink className="text-muted-foreground size-3.5 shrink-0" aria-label="(opens in a new tab)" />
                 </Link>
@@ -85,7 +85,7 @@ export function RelatedResults({ result, onImprove, improving }) {
               <li key={p.id} className="flex items-start gap-2.5 rounded-lg border p-2.5">
                 <UserAvatar name={p.full_name} avatarKey={p.avatar_key} size="sm" />
                 <div className="min-w-0 text-sm">
-                  <Link href={`/u/${p.username}`} target="_blank" rel="noopener" className="flex items-center gap-1 font-semibold hover:underline">
+                  <Link prefetch={false} href={`/u/${p.username}`} target="_blank" rel="noopener" className="flex items-center gap-1 font-semibold hover:underline">
                     {p.full_name}
                     {p.verified && <BadgeCheck className="text-teal-text size-3.5" aria-label="Verified" />}
                   </Link>

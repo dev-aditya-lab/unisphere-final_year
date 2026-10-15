@@ -39,7 +39,7 @@ export function JoinPanel({ project, viewerId, myRole, request, invitation }) {
   if (!viewerId) {
     return (
       <Button asChild>
-        <Link href={`/login?next=${encodeURIComponent(`/projects/${project.slug}`)}`}>
+        <Link prefetch={false} href={`/login?next=${encodeURIComponent(`/projects/${project.slug}`)}`}>
           <UserPlus /> Log in to join
         </Link>
       </Button>

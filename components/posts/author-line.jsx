@@ -9,12 +9,12 @@ const TYPE_LABEL = { student: "Student", alumni: "Alumni", faculty: "Faculty", s
 export function AuthorLine({ name, username, avatarKey, verified, accountType, createdAt, edited, size = "md", showType = true }) {
   return (
     <div className="flex min-w-0 items-center gap-2.5">
-      <Link href={`/u/${username}`} aria-label={`${name}'s profile`} className="shrink-0">
+      <Link prefetch={false} href={`/u/${username}`} aria-label={`${name}'s profile`} className="shrink-0">
         <UserAvatar name={name} avatarKey={avatarKey} size={size} />
       </Link>
       <div className="min-w-0 leading-tight">
         <p className="flex min-w-0 items-center gap-1 text-sm font-semibold">
-          <Link href={`/u/${username}`} className="truncate hover:underline">
+          <Link prefetch={false} href={`/u/${username}`} className="truncate hover:underline">
             {name}
           </Link>
           {verified && <BadgeCheck className="text-teal-text size-3.5 shrink-0" aria-label="Verified member" />}

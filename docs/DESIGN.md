@@ -77,7 +77,9 @@ Icons are Lucide only. There are no emoji icons.
 
 ## Motion
 
-`lib/motion.js` defines durations (`fast .14`, `base .22`, `slow .38`), easings and spring presets. Primitives:
+`lib/motion.js` defines durations (`fast .14`, `base .22`, `slow .38`), easings and spring presets. Components use
+the light `m` element (not `motion`); the animation engine is loaded after hydration by `<LazyMotion strict>` in
+`components/providers.jsx` (see `docs/PERFORMANCE.md`). Primitives:
 
 - `app/(group)/template.js`: each page eases in (CSS only). It sits **inside** the group layout so the shell does
   not remount, and uses `backwards` fill so no transform lingers (a lingering transform would trap `position:

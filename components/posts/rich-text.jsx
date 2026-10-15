@@ -20,7 +20,7 @@ export function RichText({ text, className }) {
         }
         if (t.type === "mention") {
           return (
-            <Link key={i} href={`/u/${t.value}`} className="text-blue-text font-medium hover:underline">
+            <Link prefetch={false} key={i} href={`/u/${t.value}`} className="text-blue-text font-medium hover:underline">
               @{t.value}
             </Link>
           );

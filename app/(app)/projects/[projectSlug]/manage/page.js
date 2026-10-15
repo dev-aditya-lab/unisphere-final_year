@@ -33,7 +33,7 @@ export default async function ManageProjectPage({ params }) {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href={`/projects/${project.slug}`} className="text-muted-foreground hover:text-foreground mb-3 inline-flex items-center gap-1 text-sm">
+      <Link prefetch={false} href={`/projects/${project.slug}`} className="text-muted-foreground hover:text-foreground mb-3 inline-flex items-center gap-1 text-sm">
         <ArrowLeft className="size-4" /> Back to project
       </Link>
       <PageHeader eyebrow="Manage" title={project.name} />

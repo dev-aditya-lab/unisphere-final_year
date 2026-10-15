@@ -111,7 +111,7 @@ export function RsvpPanel({ event, viewerId, over }) {
   if (event.status === "cancelled") return <p className="text-destructive-text text-sm font-semibold">This event was cancelled.</p>;
   if (event.registration_mode === "none") return <p className="text-muted-foreground text-sm">No registration needed. Just show up.</p>;
   if (event.registration_mode === "external") return <Button asChild><a href={event.registration_url} target="_blank" rel="noopener noreferrer nofollow">Register on the organiser&rsquo;s site</a></Button>;
-  if (!viewerId) return <Button asChild><Link href={`/login?next=${encodeURIComponent(`/events/${event.slug}`)}`}>Log in to RSVP</Link></Button>;
+  if (!viewerId) return <Button asChild><Link prefetch={false} href={`/login?next=${encodeURIComponent(`/events/${event.slug}`)}`}>Log in to RSVP</Link></Button>;
   if (over) return <p className="text-muted-foreground text-sm">This event has ended.</p>;
 
   const my = event.my_status;
@@ -162,7 +162,7 @@ export function EventManagePanel({ event, attendees }) {
       {waitlist.length > 0 && <p className="text-sm"><strong>{waitlist.length}</strong> on the waitlist. They are promoted automatically when a seat opens.</p>}
       {interested.length > 0 && <p className="text-muted-foreground text-sm">{interested.length} interested.</p>}
       <div className="flex flex-wrap gap-2 border-t pt-4">
-        {event.status === "published" && <Button asChild variant="outline" size="sm"><Link href={`/events/${event.slug}/edit`}>Edit event</Link></Button>}
+        {event.status === "published" && <Button asChild variant="outline" size="sm"><Link prefetch={false} href={`/events/${event.slug}/edit`}>Edit event</Link></Button>}
         {event.status === "published" && (
           <AlertDialog>
             <AlertDialogTrigger asChild><Button variant="outline" size="sm">Cancel event</Button></AlertDialogTrigger>

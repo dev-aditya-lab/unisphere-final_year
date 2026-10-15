@@ -3,6 +3,7 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { WifiOff } from "lucide-react";
 import { toast } from "sonner";
+import { clearAllDrafts } from "@/lib/client/drafts";
 
 /**
  * Removes anything this device may have kept for the signed-in member (called when they log out). The service
@@ -10,6 +11,7 @@ import { toast } from "sonner";
  * public static one, and tells the worker to do the same.
  */
 export async function clearUserCaches() {
+  clearAllDrafts();
   try {
     if ("caches" in window) {
       const keys = await caches.keys();

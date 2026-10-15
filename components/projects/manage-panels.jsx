@@ -41,7 +41,7 @@ function Person({ person, sub }) {
       <UserAvatar name={person.full_name} avatarKey={person.avatar_key} size="sm" />
       <div className="min-w-0 leading-tight">
         {person.username ? (
-          <Link href={`/u/${person.username}`} className="flex items-center gap-1 truncate text-sm font-semibold hover:underline">
+          <Link prefetch={false} href={`/u/${person.username}`} className="flex items-center gap-1 truncate text-sm font-semibold hover:underline">
             {person.full_name}
             {person.verified && <BadgeCheck className="text-teal-text size-3.5" aria-label="Verified" />}
           </Link>

@@ -30,7 +30,7 @@ export function Logo({ className, href = "/", showWordmark = true, markClassName
   );
   if (!href) return <span className={cn("inline-flex items-center gap-2", className)}>{content}</span>;
   return (
-    <Link href={href} aria-label="UniSphere home" className={cn("inline-flex items-center gap-2", className)}>
+    <Link href={href} prefetch={false} aria-label="UniSphere home" className={cn("inline-flex items-center gap-2", className)}>
       {content}
     </Link>
   );

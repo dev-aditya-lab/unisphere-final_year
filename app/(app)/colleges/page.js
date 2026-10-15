@@ -63,7 +63,7 @@ export default async function CollegesPage({ searchParams }) {
           <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {items.map((c) => (
               <li key={c.id}>
-                <Link href={`/colleges/${c.slug}`} className="surface hover:border-foreground/50 flex h-full items-start gap-3 p-4 transition-colors">
+                <Link prefetch={false} href={`/colleges/${c.slug}`} className="surface hover:border-foreground/50 flex h-full items-start gap-3 p-4 transition-colors">
                   <span className="tone-chip tone-teal flex size-10 shrink-0 items-center justify-center rounded-lg">
                     <Landmark className="size-5" aria-hidden="true" />
                   </span>

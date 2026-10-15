@@ -70,13 +70,13 @@ export default async function ProjectPage({ params }) {
             {project.tagline && <p className="text-muted-foreground mt-1">{project.tagline}</p>}
             <p className="mt-3 flex items-center gap-2 text-sm">
               <UserAvatar name={project.owner_name} avatarKey={project.owner_avatar_key} size="xs" />
-              <Link href={`/u/${project.owner_username}`} className="font-semibold hover:underline">{project.owner_name}</Link>
+              <Link prefetch={false} href={`/u/${project.owner_username}`} className="font-semibold hover:underline">{project.owner_name}</Link>
               <span className="text-muted-foreground">· owner</span>
             </p>
           </div>
           {isManager && (
             <Button asChild variant="outline" size="sm">
-              <Link href={`/projects/${project.slug}/manage`}><Settings2 /> Manage</Link>
+              <Link prefetch={false} href={`/projects/${project.slug}/manage`}><Settings2 /> Manage</Link>
             </Button>
           )}
         </div>
@@ -131,7 +131,7 @@ export default async function ProjectPage({ params }) {
             <li key={m.user_id} className="flex items-center gap-2.5">
               <UserAvatar name={m.person.full_name} avatarKey={m.person.avatar_key} size="sm" />
               <div className="min-w-0 leading-tight">
-                {m.person.username ? <Link href={`/u/${m.person.username}`} className="truncate text-sm font-semibold hover:underline">{m.person.full_name}</Link> : <span className="text-sm font-semibold">{m.person.full_name}</span>}
+                {m.person.username ? <Link prefetch={false} href={`/u/${m.person.username}`} className="truncate text-sm font-semibold hover:underline">{m.person.full_name}</Link> : <span className="text-sm font-semibold">{m.person.full_name}</span>}
                 <p className="text-muted-foreground flex items-center gap-1 text-xs capitalize"><Users className="size-3" aria-hidden="true" />{m.title || m.role}</p>
               </div>
             </li>

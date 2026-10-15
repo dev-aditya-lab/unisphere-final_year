@@ -56,11 +56,11 @@ export async function RightRail({ showPeople = true, showTrending = true }) {
                       : "From your college";
                 return (
                   <li key={p.id} className="flex items-center gap-2.5">
-                    <Link href={`/u/${p.username}`} className="shrink-0" aria-label={`${p.full_name}'s profile`}>
+                    <Link prefetch={false} href={`/u/${p.username}`} className="shrink-0" aria-label={`${p.full_name}'s profile`}>
                       <UserAvatar name={p.full_name} avatarKey={p.avatar_key} size="sm" />
                     </Link>
                     <div className="min-w-0 flex-1 leading-tight">
-                      <Link href={`/u/${p.username}`} className="flex items-center gap-1 truncate text-sm font-semibold hover:underline">
+                      <Link prefetch={false} href={`/u/${p.username}`} className="flex items-center gap-1 truncate text-sm font-semibold hover:underline">
                         {p.full_name}
                         {p.verified && <BadgeCheck className="text-teal-text size-3.5 shrink-0" aria-label="Verified" />}
                       </Link>

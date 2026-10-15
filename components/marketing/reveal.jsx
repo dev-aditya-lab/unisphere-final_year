@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 
 /**
  * Subtle fade-up on scroll. Reduced-motion users get no animation (MotionConfig in Providers).
@@ -12,7 +12,7 @@ export function Reveal({ children, delay = 0, className, as = "div", immediate =
     const Plain = as;
     return <Plain className={className}>{children}</Plain>;
   }
-  const Comp = motion[as] ?? motion.div;
+  const Comp = m[as] ?? m.div;
   return (
     <Comp
       className={className}

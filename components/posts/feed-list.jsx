@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/posts/post-card";
 import { loadFeedAction } from "@/lib/actions/posts";
+import { onPostCreated } from "@/lib/client/feed-events";
 
 /**
  * Cursor-paginated feed. The first page is rendered by the server; further pages load when the
@@ -36,6 +37,20 @@ export function FeedList({ initialItems, initialCursor, scope, category, viewerI
       }
     });
   }, [cursor, scope, category]);
+
+  // A post the member just wrote appears at the top at once; the server's refreshed copy replaces it later.
+  useEffect(
+    () =>
+      onPostCreated((post) => {
+        if (post.community_id) return false; // community posts belong to the community page, not the main feed
+        if (scope === "public" && post.visibility !== "public") return false;
+        if (scope === "college" && !post.college_id) return false;
+        if (category && post.category !== category) return false;
+        setItems((prev) => (prev.some((p) => p.id === post.id) ? prev : [post, ...prev]));
+        return true;
+      }),
+    [scope, category],
+  );
 
   useEffect(() => {
     const el = sentinel.current;

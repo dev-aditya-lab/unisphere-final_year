@@ -69,7 +69,7 @@ export default async function EventsPage({ searchParams }) {
                     {e.community_name && <Badge variant="soft">{e.community_name}</Badge>}
                     <EventStatusChip my_status={e.my_status} />
                   </div>
-                  <h2 className="font-heading mt-1 text-lg font-bold"><Link href={`/events/${e.slug}`} className="hover:underline">{e.title}</Link></h2>
+                  <h2 className="font-heading mt-1 text-lg font-bold"><Link prefetch={false} href={`/events/${e.slug}`} className="hover:underline">{e.title}</Link></h2>
                   <p className="text-muted-foreground mt-0.5 text-sm">{formatEventRange(e.starts_at, e.ends_at, e.timezone)} <span className="text-xs">({tzLabel(e.timezone, new Date(e.starts_at))})</span></p>
                   <p className="text-muted-foreground mt-0.5 flex flex-wrap items-center gap-x-3 text-xs">
                     {e.location && <span className="flex items-center gap-1"><MapPin className="size-3.5" aria-hidden="true" />{e.location}</span>}

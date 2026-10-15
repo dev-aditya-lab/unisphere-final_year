@@ -32,7 +32,7 @@ export function ConversationList({ conversations, userId }) {
         const active = params?.conversationId === c.id;
         return (
           <li key={c.id}>
-            <Link href={`/messages/${c.id}`} aria-current={active ? "page" : undefined} className={cn("hover:bg-muted/60 flex items-center gap-3 p-3", active && "bg-accent/50")}>
+            <Link prefetch={false} href={`/messages/${c.id}`} aria-current={active ? "page" : undefined} className={cn("hover:bg-muted/60 flex items-center gap-3 p-3", active && "bg-accent/50")}>
               <UserAvatar name={c.person.full_name} avatarKey={c.person.avatar_key} size="md" />
               <span className="min-w-0 flex-1">
                 <span className="flex items-baseline justify-between gap-2">

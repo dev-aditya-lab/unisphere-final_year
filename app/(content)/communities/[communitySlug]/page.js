@@ -82,7 +82,7 @@ export default async function CommunityPage({ params }) {
               <li key={m.user_id} className="flex items-center gap-2.5">
                 <UserAvatar name={m.person.full_name} avatarKey={m.person.avatar_key} size="sm" />
                 <div className="min-w-0 leading-tight">
-                  {m.person.username ? <Link href={`/u/${m.person.username}`} className="truncate text-sm font-semibold hover:underline">{m.person.full_name}</Link> : <span className="text-sm font-semibold">{m.person.full_name}</span>}
+                  {m.person.username ? <Link prefetch={false} href={`/u/${m.person.username}`} className="truncate text-sm font-semibold hover:underline">{m.person.full_name}</Link> : <span className="text-sm font-semibold">{m.person.full_name}</span>}
                   {m.role !== "member" && <p className="text-muted-foreground text-xs capitalize">{m.role}</p>}
                 </div>
               </li>

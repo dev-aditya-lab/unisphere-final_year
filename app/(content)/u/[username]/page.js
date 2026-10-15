@@ -136,7 +136,7 @@ export default async function ProfilePage({ params, searchParams }) {
               <li className="flex items-center gap-1.5">
                 <Building2 className="size-4" aria-hidden="true" />
                 {college.slug ? (
-                  <Link href={`/colleges/${college.slug}`} className="hover:text-foreground underline-offset-2 hover:underline">
+                  <Link prefetch={false} href={`/colleges/${college.slug}`} className="hover:text-foreground underline-offset-2 hover:underline">
                     {college.name}
                   </Link>
                 ) : (
@@ -306,7 +306,7 @@ export default async function ProfilePage({ params, searchParams }) {
             {postsPage.nextCursor && (
               <div className="mt-5 text-center">
                 <Button asChild variant="outline">
-                  <Link href={`/u/${profile.username}?ts=${encodeURIComponent(postsPage.nextCursor.ts)}&id=${postsPage.nextCursor.id}`}>Older posts</Link>
+                  <Link prefetch={false} href={`/u/${profile.username}?ts=${encodeURIComponent(postsPage.nextCursor.ts)}&id=${postsPage.nextCursor.id}`}>Older posts</Link>
                 </Button>
               </div>
             )}

@@ -48,7 +48,7 @@ export default async function EventPage({ params }) {
           <Badge variant="mono">{EVENT_KINDS.find((k) => k.value === event.kind)?.label}</Badge>
           {event.status === "cancelled" && <Badge variant="danger">Cancelled</Badge>}
           {over && event.status !== "cancelled" && <Badge variant="mono">Past event</Badge>}
-          {event.community_name && <Badge variant="soft"><Link href={`/communities/${event.community_slug}`}>{event.community_name}</Link></Badge>}
+          {event.community_name && <Badge variant="soft"><Link prefetch={false} href={`/communities/${event.community_slug}`}>{event.community_name}</Link></Badge>}
         </div>
         <h1 className="mt-2 text-2xl font-extrabold sm:text-3xl">{event.title}</h1>
         <dl className="mt-4 space-y-2 text-sm">
@@ -56,11 +56,11 @@ export default async function EventPage({ params }) {
           {event.location && <div className="flex items-center gap-1.5"><dt className="sr-only">Where</dt><MapPin className="text-muted-foreground size-4" aria-hidden="true" /><dd>{event.location}</dd></div>}
           {event.mode !== "in_person" && event.online_url && (
             <div className="flex items-center gap-1.5"><dt className="sr-only">Online</dt><Video className="text-muted-foreground size-4" aria-hidden="true" />
-              <dd>{user ? <a href={event.online_url} target="_blank" rel="noopener noreferrer nofollow" className="text-blue-text font-medium hover:underline">Join link <ExternalLink className="inline size-3" /></a> : <Link href={`/login?next=/events/${event.slug}`} className="text-blue-text font-medium hover:underline">Log in to see the join link</Link>}</dd></div>
+              <dd>{user ? <a href={event.online_url} target="_blank" rel="noopener noreferrer nofollow" className="text-blue-text font-medium hover:underline">Join link <ExternalLink className="inline size-3" /></a> : <Link prefetch={false} href={`/login?next=/events/${event.slug}`} className="text-blue-text font-medium hover:underline">Log in to see the join link</Link>}</dd></div>
           )}
           <div className="flex items-center gap-1.5"><dt className="sr-only">Attendance</dt><Users className="text-muted-foreground size-4" aria-hidden="true" /><dd>{event.going_count} going{event.capacity ? ` of ${event.capacity} seats` : ""}{event.interested_count ? ` · ${event.interested_count} interested` : ""}</dd></div>
         </dl>
-        <p className="mt-4 flex items-center gap-2 text-sm"><UserAvatar name={event.organizer_name} avatarKey={event.organizer_avatar_key} size="xs" />Organised by <Link href={`/u/${event.organizer_username}`} className="font-semibold hover:underline">{event.organizer_name}</Link></p>
+        <p className="mt-4 flex items-center gap-2 text-sm"><UserAvatar name={event.organizer_name} avatarKey={event.organizer_avatar_key} size="xs" />Organised by <Link prefetch={false} href={`/u/${event.organizer_username}`} className="font-semibold hover:underline">{event.organizer_name}</Link></p>
         <div className="mt-5 flex flex-wrap items-center gap-3 border-t pt-4">
           <RsvpPanel event={event} viewerId={user?.id ?? null} over={over} />
           <Button asChild variant="ghost" size="sm"><a href={`/events/${event.slug}/calendar.ics`}><CalendarPlus /> Add to calendar</a></Button>

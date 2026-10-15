@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CheckCheck, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/user-avatar";
 import { loadNotificationsAction, markAllNotificationsReadAction, markNotificationReadAction } from "@/lib/actions/notifications";
@@ -39,11 +40,16 @@ export function NotificationList({ initialItems, initialCursor, category }) {
   }
 
   function markAll() {
+    // Optimistic: they read as read immediately; if the server refuses, the previous list comes back.
+    const before = items;
+    const now = new Date().toISOString();
+    setItems((prev) => prev.map((n) => ({ ...n, read_at: n.read_at ?? now })));
     startTransition(async () => {
       const res = await markAllNotificationsReadAction(category);
-      if (res.ok) {
-        setItems((prev) => prev.map((n) => ({ ...n, read_at: n.read_at ?? new Date().toISOString() })));
-        router.refresh();
+      if (res.ok) router.refresh();
+      else {
+        setItems(before);
+        toast.error(res.error ?? "Could not mark your notifications as read.");
       }
     });
   }

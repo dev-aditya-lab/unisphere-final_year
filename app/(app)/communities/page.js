@@ -58,7 +58,7 @@ export default async function CommunitiesPage({ searchParams }) {
                   {c.my_status === "active" && <Badge variant="success">Joined</Badge>}
                   {c.my_status === "pending" && <Badge variant="warning">Requested</Badge>}
                 </div>
-                <h2 className="font-heading mt-2 text-lg font-bold"><Link href={`/communities/${c.slug}`} className="hover:underline">{c.name}</Link></h2>
+                <h2 className="font-heading mt-2 text-lg font-bold"><Link prefetch={false} href={`/communities/${c.slug}`} className="hover:underline">{c.name}</Link></h2>
                 {c.description && <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">{c.description}</p>}
                 <p className="text-muted-foreground mt-3 flex items-center gap-1 text-xs"><Users className="size-3.5" aria-hidden="true" />{c.member_count} member{c.member_count === 1 ? "" : "s"}</p>
               </article>

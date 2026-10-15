@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { cn } from "@/lib/utils";
 
 const variants = {
@@ -14,8 +14,8 @@ const variants = {
  */
 export function PopIcon({ active, className, children }) {
   return (
-    <motion.span initial={false} animate={active ? "on" : "off"} variants={variants} className={cn("inline-grid place-items-center", className)}>
+    <m.span initial={false} animate={active ? "on" : "off"} variants={variants} className={cn("inline-grid place-items-center", className)}>
       {children}
-    </motion.span>
+    </m.span>
   );
 }

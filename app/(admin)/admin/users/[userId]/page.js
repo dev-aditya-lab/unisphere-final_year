@@ -50,7 +50,7 @@ export default async function MemberPage({ params }) {
                 <div><dt className="eyebrow">Email confirmed</dt><dd>{d.email_confirmed_at ? fmtDateTime(d.email_confirmed_at) : "Not yet"}</dd></div>
                 <div><dt className="eyebrow">Last sign-in</dt><dd>{fmtDateTime(d.last_sign_in_at)}</dd></div>
                 <div><dt className="eyebrow">Onboarded</dt><dd>{p.onboarded_at ? fmtDateTime(p.onboarded_at) : "No"}</dd></div>
-                <div><dt className="eyebrow">Profile</dt><dd><Link href={`/u/${p.username}`} className="text-blue-text font-semibold hover:underline">View public profile</Link></dd></div>
+                <div><dt className="eyebrow">Profile</dt><dd><Link prefetch={false} href={`/u/${p.username}`} className="text-blue-text font-semibold hover:underline">View public profile</Link></dd></div>
               </dl>
             </div>
             <dl className="mt-4 grid grid-cols-2 gap-3 border-t pt-4 text-sm sm:grid-cols-5">

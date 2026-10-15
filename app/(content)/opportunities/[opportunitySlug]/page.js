@@ -50,8 +50,8 @@ export default async function OpportunityPage({ params }) {
           <span className="capitalize">{o.mode.replace("_", " ")}</span>
         </p>
         <div className="mt-5 flex flex-wrap items-center gap-3 border-t pt-4">
-          {o.apply_url && o.status === "open" && (user ? <Button asChild><a href={o.apply_url} target="_blank" rel="noopener noreferrer nofollow ugc">Apply on the organiser&rsquo;s site <ExternalLink /></a></Button> : <Button asChild><Link href={`/login?next=/opportunities/${o.slug}`}>Log in to apply</Link></Button>)}
-          {o.poster && <p className="flex items-center gap-2 text-sm"><UserAvatar name={o.poster.full_name} avatarKey={o.poster.avatar_key} size="xs" />Shared by <Link href={`/u/${o.poster.username}`} className="font-semibold hover:underline">{o.poster.full_name}</Link></p>}
+          {o.apply_url && o.status === "open" && (user ? <Button asChild><a href={o.apply_url} target="_blank" rel="noopener noreferrer nofollow ugc">Apply on the organiser&rsquo;s site <ExternalLink /></a></Button> : <Button asChild><Link prefetch={false} href={`/login?next=/opportunities/${o.slug}`}>Log in to apply</Link></Button>)}
+          {o.poster && <p className="flex items-center gap-2 text-sm"><UserAvatar name={o.poster.full_name} avatarKey={o.poster.avatar_key} size="xs" />Shared by <Link prefetch={false} href={`/u/${o.poster.username}`} className="font-semibold hover:underline">{o.poster.full_name}</Link></p>}
         </div>
       </header>
       {o.description && <section className="surface p-5"><h2 className="eyebrow mb-3">Details</h2><p className="text-[15px] leading-relaxed whitespace-pre-wrap">{o.description}</p></section>}

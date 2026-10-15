@@ -67,7 +67,7 @@ export function CommunityForm({ community = null, hasCollege = true }) {
 export function JoinCommunityButton({ community, viewerId }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  if (!viewerId) return <Button asChild><Link href={`/login?next=${encodeURIComponent(`/communities/${community.slug}`)}`}><UserPlus /> Log in to join</Link></Button>;
+  if (!viewerId) return <Button asChild><Link prefetch={false} href={`/login?next=${encodeURIComponent(`/communities/${community.slug}`)}`}><UserPlus /> Log in to join</Link></Button>;
   const status = community.my_status;
   const run = (fn, ok) => startTransition(async () => { const res = await fn(community.id); if (res.ok) { toast.success(ok(res)); router.refresh(); } else toast.error(res.error); });
   if (status === "active") return community.my_role === "owner" ? <Badge variant="soft">You own this community</Badge> : <Button variant="outline" disabled={pending} onClick={() => run(leaveCommunityAction, () => "You left the community")}>Leave</Button>;
@@ -112,7 +112,7 @@ export function CommunityAdminPanel({ community, members, isOwner, canMakeOffici
             <li key={m.user_id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
               <div className="flex items-center gap-2.5">
                 <UserAvatar name={m.person.full_name} avatarKey={m.person.avatar_key} size="sm" />
-                {m.person.username ? <Link href={`/u/${m.person.username}`} className="text-sm font-semibold hover:underline">{m.person.full_name}</Link> : <span className="text-sm font-semibold">{m.person.full_name}</span>}
+                {m.person.username ? <Link prefetch={false} href={`/u/${m.person.username}`} className="text-sm font-semibold hover:underline">{m.person.full_name}</Link> : <span className="text-sm font-semibold">{m.person.full_name}</span>}
               </div>
               <div className="flex items-center gap-2">
                 {isOwner && m.role !== "owner" ? (
@@ -133,7 +133,7 @@ export function CommunityAdminPanel({ community, members, isOwner, canMakeOffici
         </ul>
       </section>
       <div className="flex flex-wrap gap-2 border-t pt-4">
-        <Button asChild variant="outline" size="sm"><Link href={`/communities/${community.slug}/edit`}>Edit details</Link></Button>
+        <Button asChild variant="outline" size="sm"><Link prefetch={false} href={`/communities/${community.slug}/edit`}>Edit details</Link></Button>
         {canMakeOfficial && (
           <Button variant="outline" size="sm" disabled={pending} onClick={() => run(() => setCommunityOfficialAction({ communityId: community.id, official: !community.is_official }), community.is_official ? "Official badge removed" : "Marked as official")}>
             <Shield /> {community.is_official ? "Remove official badge" : "Mark as official"}
