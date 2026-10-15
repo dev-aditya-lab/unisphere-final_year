@@ -1,5 +1,6 @@
 import { LegalPage } from "@/components/marketing/legal-page";
-import { PRIVACY } from "@/lib/content/legal";
+import { getPrivacySections } from "@/lib/content/legal";
+import { ads } from "@/lib/ads";
 import { getSetting } from "@/lib/settings";
 
 export const metadata = {
@@ -15,7 +16,7 @@ export default async function PrivacyPage() {
       eyebrow="Legal"
       title="Privacy policy"
       intro="Plain-language details about your information on UniSphere."
-      sections={PRIVACY}
+      sections={getPrivacySections({ adsEnabled: ads.enabled })}
       markdown={typeof md === "string" && md.trim() ? md : null}
     />
   );

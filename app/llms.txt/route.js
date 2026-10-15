@@ -19,7 +19,7 @@ Anyone can create an account, but nothing inside is public. There is no public f
 - [About and team](${base}/about): who built it and why
 - [Features](${base}/features): what members can do
 - [Community guidelines](${base}/guidelines)
-- [Privacy policy](${base}/privacy) and [Terms of service](${base}/terms)
+- [Privacy policy](${base}/privacy), [Terms of service](${base}/terms) and [Cookies and browser storage](${base}/cookies)
 - [Contact](${base}/contact)
 
 ## For crawlers and AI assistants

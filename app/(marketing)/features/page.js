@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { AdSlot } from "@/components/ads/ad-slot";
 
 export const metadata = {
   title: "Features",
@@ -71,7 +72,8 @@ export default function FeaturesPage() {
           </section>
         ))}
       </div>
-      <div className="mt-16">
+      <AdSlot className="mt-14" />
+      <div className="mt-10">
         <Button asChild size="lg">
           <Link href="/register">Join UniSphere</Link>
         </Button>

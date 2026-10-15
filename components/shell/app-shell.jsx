@@ -8,6 +8,7 @@ import { UserMenu } from "@/components/shell/user-menu";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { InstallBanner } from "@/components/pwa/install-banner";
 import { CelebrationListener } from "@/components/motion/celebrate";
+import { MotionFeatures } from "@/components/motion/motion-features";
 import { Button } from "@/components/ui/button";
 import { visibleNav } from "@/lib/nav";
 import { getFlags } from "@/lib/settings";
@@ -29,6 +30,7 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
     (await hasPermission("contact.manage"));
 
   return (
+    <MotionFeatures>
     <div className="min-h-dvh">
       <aside className="bg-sidebar pl-safe pt-safe fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r lg:flex">
         <div className="flex h-16 items-center px-5">
@@ -92,5 +94,6 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
       <BottomNav items={items} counts={counts} />
       <CelebrationListener />
     </div>
+    </MotionFeatures>
   );
 }

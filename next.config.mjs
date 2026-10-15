@@ -9,6 +9,17 @@ const nextConfig = {
       { protocol: "https", hostname: "**.r2.cloudflarestorage.com" },
     ],
   },
+  // Common names for pages that already exist. Permanent, and resolved before the auth proxy runs.
+  async redirects() {
+    return [
+      { source: "/privacy-policy", destination: "/privacy", permanent: true },
+      { source: "/privacy-preferences", destination: "/cookies", permanent: true },
+      { source: "/cookie-policy", destination: "/cookies", permanent: true },
+      { source: "/community-guidelines", destination: "/guidelines", permanent: true },
+      { source: "/content-policy", destination: "/guidelines", permanent: true },
+      { source: "/terms-of-service", destination: "/terms", permanent: true },
+    ];
+  },
   async headers() {
     const prod = process.env.NODE_ENV === "production";
     return [

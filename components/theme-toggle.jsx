@@ -1,7 +1,6 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { AnimatePresence, m } from "motion/react";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
@@ -26,18 +25,10 @@ export function ThemeToggle({ className }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className={className} aria-label="Change theme">
-          <AnimatePresence mode="wait" initial={false}>
-            <m.span
-              key={shown}
-              initial={{ rotate: -70, scale: 0.5, opacity: 0 }}
-              animate={{ rotate: 0, scale: 1, opacity: 1 }}
-              exit={{ rotate: 70, scale: 0.5, opacity: 0 }}
-              transition={{ duration: 0.16 }}
-              className="grid place-items-center"
-            >
-              <Icon />
-            </m.span>
-          </AnimatePresence>
+          {/* CSS only: a new key replays the short pop, so this control needs no animation library */}
+          <span key={shown} className="animate-pop grid place-items-center">
+            <Icon />
+          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44">

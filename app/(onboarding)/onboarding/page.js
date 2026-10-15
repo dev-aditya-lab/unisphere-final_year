@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { Logo } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { OnboardingForm } from "@/components/onboarding/onboarding-form";
+import { MotionFeatures } from "@/components/motion/motion-features";
 import { requireProfile } from "@/lib/auth/session";
 import { getCollegeStructure, getCollegeSummary } from "@/lib/services/colleges";
 import { listCommunities } from "@/lib/services/campus";
@@ -31,7 +32,9 @@ export default async function OnboardingPage() {
       <main id="main" className="mx-auto max-w-2xl px-4 pb-16 sm:px-6">
         <p className="eyebrow">Welcome, {profile.full_name.split(" ")[0]}</p>
         <h1 className="display-sm mt-2 mb-7">Let&rsquo;s set up your profile</h1>
-        <OnboardingForm profile={profile} college={college} structure={structure} communities={communities} />
+        <MotionFeatures>
+          <OnboardingForm profile={profile} college={college} structure={structure} communities={communities} />
+        </MotionFeatures>
       </main>
     </div>
   );

@@ -17,7 +17,7 @@ export async function SiteHeader() {
   const user = await getAuthUser();
   return (
     <header className="bg-background/85 supports-[backdrop-filter]:bg-background/75 pt-safe sticky top-0 z-40 border-b backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-3 sm:gap-6 sm:px-6">
         <Logo />
         <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
           {MARKETING_LINKS.map((l) => (
@@ -26,7 +26,7 @@ export async function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <div className="ml-auto flex items-center gap-1.5">
+        <div className="ml-auto flex items-center gap-1">
           <ThemeToggle />
           {user ? (
             <Button asChild size="sm">

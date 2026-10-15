@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
 import { APP_TAGLINE } from "@/lib/constants";
+import { PrivacyChoicesLink } from "@/components/ads/privacy-choices";
 
 const COLUMNS = [
   {
@@ -17,6 +18,7 @@ const COLUMNS = [
     links: [
       { href: "/guidelines", label: "Community guidelines" },
       { href: "/about", label: "About UniSphere" },
+      { href: "/features", label: "Features" },
       { href: "/contact", label: "Contact & support" },
     ],
   },
@@ -25,6 +27,7 @@ const COLUMNS = [
     links: [
       { href: "/privacy", label: "Privacy policy" },
       { href: "/terms", label: "Terms of service" },
+      { href: "/cookies", label: "Cookies and storage" },
     ],
   },
   {
@@ -62,7 +65,10 @@ export function SiteFooter() {
       </div>
       <div className="border-t">
         <div className="text-muted-foreground mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-5 text-xs sm:px-6">
-          <p>&copy; {new Date().getFullYear()} UniSphere. All rights reserved.</p>
+          <p className="flex flex-wrap items-center gap-x-3">
+            <span>&copy; {new Date().getFullYear()} UniSphere. All rights reserved.</span>
+            <PrivacyChoicesLink className="hover:text-foreground underline underline-offset-2" />
+          </p>
           <p>Made for Ramgarh Engineering College by Aditya Kumar Gupta, Sumit Jha, Sahil Nayak and Vishal Kumar.</p>
         </div>
       </div>

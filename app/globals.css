@@ -526,6 +526,23 @@
   animation: rise var(--dur-slow) var(--ease-out) backwards;
 }
 
+/* Scroll reveal for public sections: CSS only. Where scroll-driven animations are unsupported the section is simply
+   visible; reduced motion is handled by the global rule in @layer base. */
+@keyframes reveal-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: reveal-in linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { animation: none; }
+}
+
 /* Skeleton shimmer: low contrast, and a still block when motion is reduced. */
 .skeleton {
   border-radius: var(--radius-md);
