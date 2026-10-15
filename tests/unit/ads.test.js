@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { adsTxtLine, parseAdsConfig } from "@/lib/ads";
+import { DEFAULT_CLIENT_ID, adsTxtLine, parseAdsConfig, resolveClientId } from "@/lib/ads";
 import { buildCsp } from "@/lib/security/csp";
 
 const CLIENT = "ca-pub-1234567890123456";
@@ -26,6 +26,21 @@ describe("parseAdsConfig", () => {
     expect(parseAdsConfig({ clientId: CLIENT, enabled: "true" }).enabled).toBe(false);
     expect(parseAdsConfig({ clientId: CLIENT, slotId: "1234567890", enabled: "true" }).enabled).toBe(true);
     expect(parseAdsConfig({ clientId: CLIENT, slotId: "1234567890", enabled: "yes" }).enabled).toBe(false);
+  });
+});
+
+describe("default publisher ID", () => {
+  it("is well formed, and the environment can override it", () => {
+    expect(DEFAULT_CLIENT_ID).toBe("ca-pub-4948320690892487");
+    expect(parseAdsConfig({ clientId: DEFAULT_CLIENT_ID }).clientId).toBe(DEFAULT_CLIENT_ID);
+    expect(resolveClientId("")).toBe(DEFAULT_CLIENT_ID);
+    expect(resolveClientId("   ")).toBe(DEFAULT_CLIENT_ID);
+    expect(resolveClientId(undefined)).toBe(DEFAULT_CLIENT_ID);
+    expect(resolveClientId(CLIENT)).toBe(CLIENT);
+  });
+
+  it("only declares the site: ads stay off without an ad unit and the explicit switch", () => {
+    expect(parseAdsConfig({ clientId: DEFAULT_CLIENT_ID }).enabled).toBe(false);
   });
 });
 
@@ -64,18 +79,24 @@ describe("GET /ads.txt", () => {
     vi.unstubAllEnvs();
   });
 
-  it("is a comment only, never an invented entry, until a publisher ID is configured", async () => {
+  it("lists this site's own publisher ID by default, as plain text", async () => {
     vi.stubEnv("NEXT_PUBLIC_ADSENSE_CLIENT_ID", "");
     const { GET } = await import("@/app/ads.txt/route");
     const res = GET();
     expect(res.headers.get("content-type")).toContain("text/plain");
-    const text = await res.text();
-    expect(text.split("\n").filter((l) => l.trim() && !l.startsWith("#"))).toEqual([]);
+    expect(await res.text()).toBe("google.com, pub-4948320690892487, DIRECT, f08c47fec0942fa0\n");
   });
 
-  it("lists exactly the configured publisher", async () => {
+  it("lists exactly the configured publisher when one is set", async () => {
     vi.stubEnv("NEXT_PUBLIC_ADSENSE_CLIENT_ID", CLIENT);
     const { GET } = await import("@/app/ads.txt/route");
     expect(await GET().text()).toBe("google.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0\n");
+  });
+
+  it("never publishes a malformed ID: it falls back to a comment", async () => {
+    vi.stubEnv("NEXT_PUBLIC_ADSENSE_CLIENT_ID", "not-an-id");
+    const { GET } = await import("@/app/ads.txt/route");
+    const lines = (await GET().text()).split("\n").filter((l) => l.trim() && !l.startsWith("#"));
+    expect(lines).toEqual([]);
   });
 });

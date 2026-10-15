@@ -23,15 +23,16 @@ All values are optional and public by nature. Obtain them from your AdSense acco
 
 | Variable | Format | Effect |
 | --- | --- | --- |
-| `NEXT_PUBLIC_ADSENSE_CLIENT_ID` | `ca-pub-` + 16 digits | Adds `<meta name="google-adsense-account">` on public pages and the `/ads.txt` entry. Nothing is loaded. |
+| `NEXT_PUBLIC_ADSENSE_CLIENT_ID` | `ca-pub-` + 16 digits | Defaults to this site's publisher ID (`DEFAULT_CLIENT_ID` in `lib/ads.js`); set it only to override. Adds `<meta name="google-adsense-account">` on public pages and the `/ads.txt` entry. Nothing is loaded. |
 | `NEXT_PUBLIC_ADSENSE_SLOT_ID` | digits | The ad unit ID of a **Display ad** unit you created in AdSense. |
 | `NEXT_PUBLIC_ADS_ENABLED` | `true` | The explicit switch. Ads render only if the client ID, the slot ID and this are all set. |
 
 They are read at build time (`NEXT_PUBLIC_*`), so rebuild after changing them. `lib/ads.js` validates the formats;
 a malformed value is treated as absent.
 
-With none of them set: no ad script, no ad space, no consent control, and a Content-Security-Policy with no Google
-origins (`tests/unit/ads.test.js` asserts this).
+With only the publisher ID (the default): the meta tag and the `ads.txt` line exist, and there is no ad script, no ad
+space, no consent control, and a Content-Security-Policy with no Google origins (`tests/unit/ads.test.js` asserts
+this).
 
 ## What the code does
 
