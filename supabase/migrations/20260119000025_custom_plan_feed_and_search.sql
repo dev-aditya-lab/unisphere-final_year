@@ -103,7 +103,7 @@ with kw as (
 end;
 $$;
 
-create or replace function public.related_posts(p_keywords text[], p_embedding vector DEFAULT NULL::vector, p_exclude uuid DEFAULT NULL::uuid, p_limit integer DEFAULT 8)
+create or replace function public.related_posts(p_keywords text[], p_embedding extensions.vector DEFAULT NULL::extensions.vector, p_exclude uuid DEFAULT NULL::uuid, p_limit integer DEFAULT 8)
 returns TABLE(id uuid, slug text, title text, body text, category text, visibility text, author_id uuid, author_name text, author_username text, author_avatar_key text, created_at timestamp with time zone, reaction_count integer, comment_count integer, score real, semantic real, keyword real, shared_terms text[], used_embeddings boolean)
 language plpgsql
 stable
