@@ -12,6 +12,7 @@ const COLUMNS = [
     links: [
       { href: "/about", label: "About UniSphere" },
       { href: "/features", label: "Features" },
+      { href: "/pricing", label: "Pricing" },
       { href: "/#communities", label: "College communities" },
       { href: "/#how-it-works", label: "How it works" },
       { href: "/faq", label: "Frequently asked questions" },
@@ -32,6 +33,8 @@ const COLUMNS = [
       { href: "/privacy", label: "Privacy policy" },
       { href: "/cookies", label: "Cookies and privacy preferences" },
       { href: "/terms", label: "Terms of service" },
+      { href: "/refund-policy", label: "Refund and cancellation" },
+      { href: "/shipping-policy", label: "Shipping and delivery" },
       { href: "/copyright-policy", label: "Copyright policy" },
       { href: "/brand-policy", label: "Brand policy" },
     ],

@@ -22,6 +22,7 @@ Anyone can create an account, but nothing inside is public. There is no public f
 - [Community guidelines](${base}/guidelines) and [Content policy](${base}/content-policy)
 - [Privacy policy](${base}/privacy), [Terms of service](${base}/terms) and [Cookies and privacy preferences](${base}/cookies)
 - [Copyright policy](${base}/copyright-policy), [Brand policy](${base}/brand-policy) and [Accessibility](${base}/accessibility)
+- [Pricing](${base}/pricing), [Refund and cancellation](${base}/refund-policy) and [Shipping and delivery](${base}/shipping-policy)
 - [Contact](${base}/contact): or email ${CONTACT_EMAIL}
 
 ## For crawlers and AI assistants

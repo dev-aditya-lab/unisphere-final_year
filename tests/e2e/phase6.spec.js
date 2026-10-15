@@ -171,7 +171,7 @@ test.describe.serial("production readiness: security, SEO and accessibility", ()
     // Reduced motion shows every page in its final state, so scroll-reveal fades cannot skew colour measurements.
     const ctxOpts = { reducedMotion: "reduce" };
     const anon = await (await browser.newContext(ctxOpts)).newPage();
-    for (const p of ["/", "/about", "/features", "/faq", "/login", "/register", "/contact", "/guidelines", "/content-policy", "/privacy", "/terms", "/cookies", "/copyright-policy", "/brand-policy", "/accessibility"]) problems.push(...(await scan(anon, p)));
+    for (const p of ["/", "/about", "/features", "/faq", "/login", "/register", "/contact", "/guidelines", "/content-policy", "/privacy", "/terms", "/cookies", "/copyright-policy", "/brand-policy", "/accessibility", "/pricing", "/refund-policy", "/shipping-policy"]) problems.push(...(await scan(anon, p)));
     const m = await (await browser.newContext(ctxOpts)).newPage();
     await login(m, member.email);
     for (const p of ["/feed", "/explore", "/projects", "/messages", "/settings/profile", "/settings/notifications", "/feedback", "/roadmap", "/changelog"]) problems.push(...(await scan(m, p)));

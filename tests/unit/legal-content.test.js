@@ -13,7 +13,12 @@ import { CONTACT_EMAIL } from "@/lib/constants";
 import { CONTACT_TOPICS } from "@/lib/content/contact-topics";
 import { isProtectedPath } from "@/lib/routes";
 
+import { getDeliverySections, getPricingSections, getRefundSections } from "@/lib/content/commerce";
+
 const DOCS = {
+  pricing: getPricingSections(),
+  refund: getRefundSections(),
+  delivery: getDeliverySections(),
   guidelines: GUIDELINES,
   privacy: getPrivacySections({ adsEnabled: false }),
   privacyWithAds: getPrivacySections({ adsEnabled: true }),
@@ -51,7 +56,7 @@ describe("policy pages", () => {
   });
 
   it("give the verified contact address wherever a route to a person is described", () => {
-    for (const name of ["privacy", "copyright", "content", "accessibility", "brand", "terms"]) {
+    for (const name of ["privacy", "copyright", "content", "accessibility", "brand", "terms", "pricing", "refund", "delivery"]) {
       expect(JSON.stringify(DOCS[name]), name).toContain(CONTACT_EMAIL);
     }
   });
