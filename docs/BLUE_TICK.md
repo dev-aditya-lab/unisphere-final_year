@@ -24,8 +24,9 @@ member                         server                          administrator
 - **Price and on/off** are set at `/admin/payments` ("Blue tick price"). The default is off at ₹0, so nothing is sold
   until an administrator chooses a price. Changing it affects new purchases only.
 - **One-time**: there is no subscription and no expiry.
-- **Free tick**: `/admin/blue-tick?status=ticks`, "Give a blue tick free of charge". Needs a reason; an
-  administrator cannot give one to themselves.
+- **Free tick**: `/admin/blue-tick?status=ticks`, "Give a blue tick free of charge". Needs a reason. When
+  other administrators exist, nobody can give a tick to themselves or review their own application; the only
+  administrator can, and the audit log marks it `self_grant` / `self_review`.
 - **Webhook** (`/api/payments/razorpay/webhook`) is the safety net if a member closes the browser before the page
   confirms, and it records refunds made in the Razorpay dashboard. Both paths use the same idempotent database
   functions, so a repeated event changes nothing.

@@ -37,7 +37,7 @@ export default async function BlueTickAdminPage({ searchParams }) {
       {isTicks ? (
         <div className="space-y-6">
           {canManage && (
-            <Panel title="Give a blue tick free of charge" description="For people who should have it without paying or sending a document. You cannot give one to yourself.">
+            <Panel title="Give a blue tick free of charge" description="For people who should have it without paying or sending a document. If other administrators exist, one of them has to give you yours.">
               <GrantForm />
             </Panel>
           )}
