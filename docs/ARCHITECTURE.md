@@ -137,3 +137,18 @@ losing work.
    log entry, and (if members are affected) a `notify()` call.
 3. New page → it is members-only by default (`lib/routes.js` protects every path that is not on its short public list). Only add a page to that list, the sitemap and `robots.js` if it merely explains the product.
 4. New third-party origin → it must be added to the CSP deliberately in `lib/security/csp.js` and justified in review.
+
+## Image editing before upload
+
+Every place a member picks an image (profile photo and cover, post attachments, message attachments, the
+verification document) opens the image editor first. It runs entirely in the browser, so the server still
+validates the bytes it receives exactly as before (`lib/storage/policy.js`, `lib/storage/uploads.js`).
+
+- `components/images/use-image-editor.jsx`: `const { editImages, imageEditor } = useImageEditor()`; `editImages(files,
+  options)` resolves with the files to upload. PDFs and other non-images pass straight through.
+- `components/images/image-editor.jsx`: crop (drag, handles, keyboard), aspect presets or a locked ratio, rotate,
+  flip, brightness/contrast/saturation, output size presets, format and quality, with the exact resulting
+  dimensions and file size shown and checked against the upload limit. "Use original" skips editing.
+- `lib/images/geometry.js` (pure maths, unit-tested) and `lib/images/process.js` (canvas decode, preview, export).
+- Re-encoding through a canvas drops EXIF metadata (camera, GPS) from what is uploaded.
+- Avatars use a locked 1:1 round crop and covers a locked 3:1 crop, matching how they are displayed.

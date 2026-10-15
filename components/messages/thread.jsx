@@ -14,6 +14,7 @@ import { RichText } from "@/components/posts/rich-text";
 import { deleteMessageAction, loadMessagesAction, markConversationReadAction, sendMessageAction, setMutedAction } from "@/lib/actions/messages";
 import { useRealtimeChannel } from "@/hooks/use-realtime-channel";
 import { uploadFileWithProgress } from "@/lib/storage/client";
+import { useImageEditor } from "@/components/images/use-image-editor";
 import { privateFileUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
@@ -52,6 +53,7 @@ export function Thread({ conversation, viewerId, initialMessages, initialCursor 
   const [pending, startTransition] = useTransition();
   const bottom = useRef(null);
   const fileInput = useRef(null);
+  const { editImages, imageEditor } = useImageEditor();
   const typingTimeout = useRef(null);
   const lastTypingSent = useRef(0);
   const person = conversation.person;
@@ -105,8 +107,10 @@ export function Thread({ conversation, viewerId, initialMessages, initialCursor 
   }
 
   async function onPickFiles(e) {
-    const picked = Array.from(e.target.files ?? []).slice(0, 3 - files.length);
+    const chosen = Array.from(e.target.files ?? []).slice(0, 3 - files.length);
     e.target.value = "";
+    // Images open in the editor (crop, rotate, resize); PDFs go straight through.
+    const picked = await editImages(chosen);
     for (const file of picked) {
       setUploading((n) => n + 1);
       const res = await uploadFileWithProgress(file, "message_attachment");
@@ -257,6 +261,7 @@ export function Thread({ conversation, viewerId, initialMessages, initialCursor 
         <p className="text-muted-foreground border-t p-4 text-center text-sm">You can no longer send messages in this conversation. {person.full_name.split(" ")[0]} may have changed who can message them, or one of you has blocked the other.</p>
       )}
       {reportId && <ReportDialog open onOpenChange={(o) => !o && setReportId(null)} targetType="message" targetId={reportId} />}
+      {imageEditor}
     </div>
   );
 }

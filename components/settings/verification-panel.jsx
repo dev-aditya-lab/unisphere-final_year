@@ -21,6 +21,7 @@ import {
   verifyStudentIdAction,
 } from "@/lib/actions/verification";
 import { uploadFileWithProgress } from "@/lib/storage/client";
+import { useImageEditor } from "@/components/images/use-image-editor";
 
 const inviteForm = z.object({ code: z.string().trim().min(1, "Enter your invitation code") });
 const studentIdForm = z.object({ studentId: z.string().trim().min(4, "Enter your student ID").max(40) });
@@ -92,11 +93,15 @@ function ManualMethod({ onDone }) {
   const [doc, setDoc] = useState(null);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef(null);
+  const { editImages, imageEditor } = useImageEditor();
   const form = useForm({ resolver: zodResolver(manualForm), defaultValues: { info: "" } });
 
   async function onPick(e) {
-    const file = e.target.files?.[0];
+    const picked = e.target.files?.[0];
     e.target.value = "";
+    if (!picked) return;
+    // A photo of an ID can be cropped to the card and straightened before it is sent; a PDF is sent as it is.
+    const [file] = await editImages([picked], { title: "Crop your document" });
     if (!file) return;
     setUploading(true);
     const up = await uploadFileWithProgress(file, "verification_document");
@@ -135,6 +140,7 @@ function ManualMethod({ onDone }) {
       <SubmitButton pending={pending} pendingText="Submitting…" disabled={uploading}>
         <UserCheck /> Submit for review
       </SubmitButton>
+      {imageEditor}
     </form>
   );
 }

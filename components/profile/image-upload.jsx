@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { UserAvatar } from "@/components/user-avatar";
 import { uploadFileWithProgress } from "@/lib/storage/client";
+import { useImageEditor } from "@/components/images/use-image-editor";
+import { AVATAR_SIZES, COVER_SIZES } from "@/lib/images/geometry";
 import { setProfileImageAction } from "@/lib/actions/profile";
 import { mediaUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
@@ -22,10 +24,19 @@ export function ProfileImageUpload({ kind, currentKey, name }) {
   const [progress, setProgress] = useState(null);
   const [busy, setBusy] = useState(false);
   const [key, setKey] = useState(currentKey);
+  const { editImages, imageEditor } = useImageEditor();
 
   async function onPick(e) {
-    const file = e.target.files?.[0];
+    const picked = e.target.files?.[0];
     e.target.value = "";
+    if (!picked) return;
+    // The crop shape is fixed to how the image is shown: a square (round) avatar, a 3:1 cover.
+    const [file] = await editImages(
+      [picked],
+      kind === "avatar"
+        ? { title: "Adjust your profile photo", aspect: 1, lockAspect: true, shape: "round", sizes: AVATAR_SIZES, defaultSize: "medium" }
+        : { title: "Adjust your cover image", aspect: 3, lockAspect: true, sizes: COVER_SIZES, defaultSize: "large" },
+    );
     if (!file) return;
     setBusy(true);
     setProgress(0);
@@ -88,8 +99,9 @@ export function ProfileImageUpload({ kind, currentKey, name }) {
           )}
         </div>
         {progress !== null && <Progress value={progress} aria-label="Upload progress" className="h-1.5 w-48" />}
-        <p className="text-muted-foreground text-xs">JPG, PNG or WebP. Up to 5 MB.</p>
+        <p className="text-muted-foreground text-xs">JPG, PNG or WebP. You can crop and resize before it uploads.</p>
       </div>
+      {imageEditor}
     </div>
   );
 }

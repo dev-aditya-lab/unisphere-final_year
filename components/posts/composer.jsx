@@ -15,6 +15,7 @@ import { CategoryBadge } from "@/components/posts/category-badge";
 import { createPostAction } from "@/lib/actions/posts";
 import { POST_CATEGORIES, POST_VISIBILITY, COMMUNITY_POST_VISIBILITY, CATEGORY_BY_VALUE } from "@/lib/content/post-meta";
 import { uploadFileWithProgress } from "@/lib/storage/client";
+import { useImageEditor } from "@/components/images/use-image-editor";
 import { privateFileUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +43,7 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
   const [focused, setFocused] = useState(autoFocus);
 
   const meta = CATEGORY_BY_VALUE[category];
+  const { editImages, imageEditor } = useImageEditor();
 
   // The "write a post" buttons link to /feed#compose: open and focus the composer when that hash is present.
   useEffect(() => {
@@ -59,8 +61,9 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
   const expanded = focused || body.length > 0 || attachments.length > 0;
 
   async function onPickFiles(e) {
-    const files = Array.from(e.target.files ?? []).slice(0, 4 - attachments.length);
+    const picked = Array.from(e.target.files ?? []).slice(0, 4 - attachments.length);
     e.target.value = "";
+    const files = await editImages(picked);
     for (const file of files) {
       setUploading((n) => n + 1);
       const res = await uploadFileWithProgress(file, "post_attachment");
@@ -219,6 +222,7 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
           )}
         </div>
       </div>
+      {imageEditor}
     </form>
   );
 }
