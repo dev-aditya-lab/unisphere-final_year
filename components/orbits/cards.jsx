@@ -80,7 +80,7 @@ export function BalanceCard({ overview }) {
 
       {next && (
         <Link href="/orbits/achievements" className="hover:bg-card hover:border-primary/40 flex items-center gap-3 rounded-xl border bg-card/70 p-3 transition-[background-color,border-color,transform] active:scale-[0.99]">
-          <ProgressRing value={next.progress} max={next.target} size={52} label={`${next.title} ring`}><RewardIcon name={next.icon} size={26} locked /></ProgressRing>
+          <ProgressRing value={next.progress} max={next.target} size={52} label={`${next.title} ring`}><RewardIcon name={next.icon} imageKey={next.image_key} size={26} locked /></ProgressRing>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold">Next badge: {next.title}</p>
             <div className="mt-1.5"><Progress value={next.progress} max={next.target} label={`${next.title} progress`} /></div>
@@ -180,7 +180,7 @@ export function AchievementTile({ a, children }) {
             <circle cx="50" cy="50" r="47" fill="none" strokeWidth="2" strokeLinecap="round" pathLength="1" className="orbit-ring-draw text-primary stroke-current" opacity="0.55" />
           </svg>
         )}
-        <RewardIcon name={a.icon} rank={first?.rank >= 1 && first?.rank <= 10 ? first.rank : undefined} size={68} locked={!earned} alt={earned ? `${a.title}, earned` : `${a.title}, locked`} />
+        <RewardIcon name={a.icon} imageKey={a.image_key} rank={first?.rank >= 1 && first?.rank <= 10 ? first.rank : undefined} size={68} locked={!earned} alt={earned ? `${a.title}, earned` : `${a.title}, locked`} />
       </span>
       <div className="min-w-0">
         <p className="text-sm leading-tight font-bold">{a.title}</p>

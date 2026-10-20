@@ -1,7 +1,7 @@
 # Orbits: rewards, challenge, streak, badges and leaderboards
 
 Migrations: `supabase/migrations/20260125000032_orbits.sql`, then `20260126000033_orbits_glance.sql` (the header and feed reads and once-only celebrations). Apply both before deploying the app code (the Orbits pages show an
-error panel, not fake numbers, if it is missing). Tests: `tests/integration/orbits.test.js` (46), `tests/unit/orbits-cards.test.js` (7), `tests/unit/orbits-glance-store.test.js` (3), `tests/e2e/orbits-experience.spec.js` (7),
+error panel, not fake numbers, if it is missing). Tests: `tests/integration/orbits.test.js` (52), `tests/unit/orbits-cards.test.js` (7), `tests/unit/orbits-glance-store.test.js` (3), `tests/e2e/orbits-experience.spec.js` (7),
 `tests/e2e/orbits.spec.js` (10).
 
 ## How a reward happens
@@ -35,6 +35,10 @@ check-in does not count. A catch-up answer to an older question (offered only wh
 but is not a streak day. A broken streak resets the counter to 1 on the next contribution; Orbits are never removed for a missed day.
 There are no freezes or recovery credits.
 
+## Balance and earned
+
+The **Orbit Balance** is the sum of every ledger entry, corrections included. **Earned** is what the member did: it is the sum of `orbit_ledger.earned_amount`, which is fixed when an entry is written (migration `20260126000034_orbits_earned.sql`). A staff correction counts 0, taking back a correction counts 0, and reversing a reward counts its negative amount. "Earned today", the week bars, leaderboards (weekly, monthly and all time), season results, suspicious-earning checks and the "Orbits earned" badges all use earned, so a +1,000 correction can no longer show as "+1,025 today" beside "20 this week" or push someone toward a badge. The migration also withdraws, with a compensating entry, any "Orbits earned" badge that had only been reached through a correction.
+
 ## Daily Challenge
 
 `orbit_questions` has no grant for members: the answer key cannot be read through the API. `orbit_daily_question()` returns the
@@ -46,7 +50,7 @@ records provenance; there is no AI generation job in this feature.
 
 ## Leaderboards
 
-Metric: Orbits earned in the period (weekly Monday to Sunday, monthly calendar month, both IST) or, for all time, the Orbit Balance.
+Metric: Orbits earned in the period (weekly Monday to Sunday, monthly calendar month, both IST) or, for all time, total Orbits earned (see "Balance and earned"). A staff correction never moves a ranking.
 Ties: earliest to reach the score, then user id. Scopes: global; college (the *self-reported* `profiles.college_id`, labelled as unverified);
 connections (accepted connections plus yourself). Members who opted out, inactive accounts and profiles the viewer cannot see
 (`can_view_profile`) are excluded. Weekly and monthly boards are labelled in progress. Rank movement compares with the standing at the end
@@ -83,6 +87,10 @@ streak tiers; `graduation-cap`, `award`, `badge-check`, `user-graduation-cap`, `
 positions (the numeral is printed on each badge, so rank N uses the Nth file); `lock-keyhole` marks a locked badge (which is also dimmed and
 labelled "Locked" in words). Files are used through `next/image` (served resized, transparency kept, `object-contain`); the
 500x500 originals are 120 to 330 KB each and are not shipped as-is to small slots.
+
+## Badge pictures
+
+Admin -> Orbits -> Badges -> Edit has a **Badge picture** section. Choose a PNG, WebP or JPG (square with a transparent background looks best, up to 2 MB), check the preview on the checkerboard, and press Upload and use. The file goes through `/api/upload` with the purpose `orbit_badge`, which only a member holding `orbits.manage` can use (the route answers 403 and the database refuses the file record as well). The server decides the real file type from the bytes (SVG is not accepted), stores it in the public R2 bucket (or the private bucket served through `/api/media` when no public bucket is configured), and `orbit_admin_set_achievement_image` points the badge at it after checking it is a ready `orbit_badge` file, writing an audit entry. The picture it replaces is deleted from storage, and a picture that could not be attached is not left behind. **Use built-in artwork** restores the default. Members see the picture everywhere the badge appears (badges page, profile, Orbits page progress, celebration card, widgets); ranking positions 1 to 10 keep their numbered badge because the numeral is the meaning, and downloadable Orbit Cards keep the built-in artwork (a picture from storage on another origin would taint the drawing canvas). Migration `20260127000035_orbit_badge_images.sql`.
 
 ## Orbit Cards
 

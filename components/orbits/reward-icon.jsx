@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { rewardIconSrc } from "@/lib/orbits/icons";
+import { mediaUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
 /**
@@ -7,11 +8,15 @@ import { cn } from "@/lib/utils";
  * object-contain at its own aspect ratio, never inside an opaque box, so its edges stay clean. Pass `alt` when the
  * picture carries meaning on its own; without it the image is decorative and hidden from screen readers.
  * `locked` dims it for achievements that are not earned yet (the lock is shown by the caller as text as well).
+ * `imageKey` is a badge picture an administrator uploaded to storage; it replaces the built-in artwork, except for a ranking
+ * position 1 to 10, whose numbered badge is part of its meaning. It is served as it was uploaded (no resizing), so any transparency is kept.
  */
-export function RewardIcon({ name = "award", rank, size = 48, alt, locked = false, priority = false, className }) {
+export function RewardIcon({ name = "award", rank, imageKey, size = 48, alt, locked = false, priority = false, className }) {
+  const custom = imageKey && !(rank >= 1 && rank <= 10);
   return (
     <Image
-      src={rewardIconSrc({ name, rank })}
+      src={custom ? mediaUrl(imageKey) : rewardIconSrc({ name, rank })}
+      unoptimized={Boolean(custom)}
       alt={alt ?? ""}
       aria-hidden={alt ? undefined : true}
       width={size}

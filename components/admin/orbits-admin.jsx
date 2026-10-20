@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { ImagePlus, Loader2, Plus, RotateCcw } from "lucide-react";
+import { RewardIcon } from "@/components/orbits/reward-icon";
+import { uploadFileWithProgress } from "@/lib/storage/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { adjustOrbitsAction, saveQuestionAction, saveSeasonAction, setConfigAction, updateAchievementAction } from "@/lib/actions/orbits-admin";
+import { adjustOrbitsAction, saveQuestionAction, saveSeasonAction, setAchievementImageAction, setConfigAction, updateAchievementAction } from "@/lib/actions/orbits-admin";
 import { CATEGORY_LABEL } from "@/lib/orbits/icons";
 
 const field = "border-input bg-card h-10 w-full rounded-lg border px-3 text-sm";
@@ -128,6 +130,104 @@ export function ConfigRow({ name, label, hint, value }) {
   );
 }
 
+const PICTURE_TYPES = ["image/png", "image/webp", "image/jpeg"];
+
+/**
+ * A badge's picture. It saves on its own (separately from the wording below): the file goes to storage through the app's upload route, which
+ * checks the real file type, the size and that you may manage Orbits, and then the badge points at it. The built-in artwork is the default and
+ * can always be restored. The checkerboard shows whether the picture is really transparent.
+ */
+function BadgePicture({ a }) {
+  const router = useRouter();
+  const input = useRef(null);
+  const [current, setCurrent] = useState(a.image_key ?? null);
+  const [chosen, setChosen] = useState(null); // { file, url } : url is a local preview of the file
+  const file = chosen?.file ?? null;
+  const preview = chosen?.url ?? null;
+  const [progress, setProgress] = useState(null);
+  const [error, setError] = useState(null);
+  const [pending, startTransition] = useTransition();
+  const busy = pending || progress !== null;
+
+  useEffect(() => (preview ? () => URL.revokeObjectURL(preview) : undefined), [preview]);
+
+  function pick(e) {
+    const f = e.target.files?.[0];
+    setError(null);
+    if (!f) return setChosen(null);
+    if (!PICTURE_TYPES.includes(f.type)) return setError("Use a PNG, WebP or JPG picture. PNG or WebP keep a transparent background.");
+    if (f.size > 2 * 1024 * 1024) return setError("Keep the picture under 2 MB. A square 512 by 512 picture is plenty.");
+    setChosen({ file: f, url: URL.createObjectURL(f) });
+  }
+
+  async function save() {
+    if (!file) return;
+    setError(null);
+    setProgress(0);
+    const up = await uploadFileWithProgress(file, "orbit_badge", setProgress);
+    setProgress(null);
+    if (!up.ok) return setError(up.error ?? "The upload failed. Try again.");
+    startTransition(async () => {
+      let res;
+      try {
+        res = await setAchievementImageAction({ id: a.id, key: up.key });
+      } catch {
+        res = { ok: false, error: "Could not reach the server. Try again." };
+      }
+      if (!res.ok) return setError(res.error);
+      toast.success(res.message);
+      setCurrent(res.imageKey);
+      setChosen(null);
+      if (input.current) input.current.value = "";
+      router.refresh();
+    });
+  }
+
+  function reset() {
+    setError(null);
+    startTransition(async () => {
+      let res;
+      try {
+        res = await setAchievementImageAction({ id: a.id, key: null });
+      } catch {
+        res = { ok: false, error: "Could not reach the server. Try again." };
+      }
+      if (!res.ok) return setError(res.error);
+      toast.success(res.message);
+      setCurrent(null);
+      router.refresh();
+    });
+  }
+
+  const checker = "bg-[conic-gradient(var(--muted)_25%,transparent_0_50%,var(--muted)_0_75%,transparent_0)] bg-[length:14px_14px]";
+  return (
+    <fieldset className="space-y-2 rounded-xl border p-3" aria-busy={busy}>
+      <legend className="px-1 text-[13px] font-semibold">Badge picture</legend>
+      <div className="flex items-center gap-3">
+        <div className={`grid size-24 shrink-0 place-items-center rounded-xl border ${checker}`}>
+          {preview ? (
+            // eslint-disable-next-line @next/next/no-img-element -- a local preview of a file the administrator just chose
+            <img src={preview} alt="New picture, not saved yet" className="size-20 object-contain" />
+          ) : (
+            <RewardIcon name={a.icon} imageKey={current} size={80} alt={`Current picture of ${a.title}`} />
+          )}
+        </div>
+        <div className="min-w-0 flex-1 space-y-1.5 text-xs">
+          <p className="text-muted-foreground">{current ? "A custom picture is in use." : "The built-in artwork is in use."} Square PNG or WebP with a transparent background looks best, up to 2 MB.</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <input ref={input} id={`ac-img-${a.id}`} type="file" accept="image/png,image/webp,image/jpeg" onChange={pick} disabled={busy} className="sr-only" />
+            <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => input.current?.click()}><ImagePlus /> {file ? "Choose another" : "Choose picture"}</Button>
+            {file && <Button type="button" size="sm" disabled={busy} onClick={save}>{busy ? <Loader2 className="animate-spin" /> : null}{progress !== null ? `Uploading ${progress}%` : pending ? "Saving…" : "Upload and use"}</Button>}
+            {current && !file && <Button type="button" size="sm" variant="ghost" disabled={busy} onClick={reset}><RotateCcw /> Use built-in artwork</Button>}
+          </div>
+          {file && <p className="text-muted-foreground truncate">{file.name} is not saved yet.</p>}
+        </div>
+      </div>
+      {error && <p role="alert" className="text-destructive-text text-sm">{error}</p>}
+    </fieldset>
+  );
+}
+
 export function AchievementDialog({ a }) {
   const [open, setOpen] = useState(false);
   const [f, setF] = useState({ title: a.title, description: a.description, bonus: String(a.bonus), active: a.active });
@@ -140,6 +240,7 @@ export function AchievementDialog({ a }) {
           <DialogTitle>{a.title}</DialogTitle>
           <DialogDescription>The rule that earns this badge is fixed in the database; here you can reword it, change its Orbit bonus or switch it off for new awards. Members who earned it keep it.</DialogDescription>
         </DialogHeader>
+        <BadgePicture a={a} />
         <div className="space-y-3">
           <div className="space-y-1.5"><Label htmlFor="ac-title" className="text-[13px] font-semibold">Title</Label><Input id="ac-title" value={f.title} maxLength={60} onChange={(e) => setF({ ...f, title: e.target.value })} /></div>
           <div className="space-y-1.5"><Label htmlFor="ac-desc" className="text-[13px] font-semibold">Description</Label><Textarea id="ac-desc" rows={2} maxLength={200} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></div>

@@ -65,7 +65,7 @@ export default async function AdminOrbitsPage() {
           <ul className="divide-y">
             {achievements.map((a) => (
               <li key={a.id} className="flex items-center gap-3 py-2.5">
-                <RewardIcon name={a.icon} size={36} />
+                <RewardIcon name={a.icon} imageKey={a.image_key} size={36} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">
                     {a.title} {!a.active && <span className="text-muted-foreground font-normal">(off)</span>}

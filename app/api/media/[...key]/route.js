@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 // Only these purposes are public; the key shape is validated before touching storage.
 const KEY_PATTERN =
-  /^(avatar|cover|project_asset|community_image|event_banner)\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.(jpg|png|webp)$/;
+  /^(avatar|cover|project_asset|community_image|event_banner|orbit_badge)\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.(jpg|png|webp)$/;
 
 /**
  * Serves intentionally-public images (avatars, covers, banners) when no public bucket

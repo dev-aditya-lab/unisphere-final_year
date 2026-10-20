@@ -46,7 +46,7 @@ export async function OrbitsProfileSection({ username }) {
         <ul className="mt-4 flex flex-wrap gap-3" aria-label="Orbit Badges">
           {shown.map((a) => (
             <li key={`${a.id}-${a.earned_at}`} className="flex w-20 flex-col items-center gap-1 text-center" title={`${a.title}${a.period ? ` · ${a.period}` : ""} · ${formatDate(a.earned_at)}`}>
-              <RewardIcon name={a.icon} rank={a.rank >= 1 && a.rank <= 10 ? a.rank : undefined} size={56} alt={a.title} />
+              <RewardIcon name={a.icon} imageKey={a.image_key} rank={a.rank >= 1 && a.rank <= 10 ? a.rank : undefined} size={56} alt={a.title} />
               <span className="text-[11px] leading-tight font-semibold">{a.title}</span>
             </li>
           ))}

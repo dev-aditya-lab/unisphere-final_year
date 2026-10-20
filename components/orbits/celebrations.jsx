@@ -29,7 +29,7 @@ function BadgeReveal({ item }) {
       </svg>
       <Sparkles count={4} />
       <m.div initial={{ scale: 0.35, rotate: -14, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} transition={{ ...EASE.pop, delay: 0.15 }}>
-        <RewardIcon name={item.icon} rank={item.rank >= 1 && item.rank <= 10 ? item.rank : undefined} size={64} />
+        <RewardIcon name={item.icon} imageKey={item.image_key} rank={item.rank >= 1 && item.rank <= 10 ? item.rank : undefined} size={64} />
       </m.div>
     </div>
   );

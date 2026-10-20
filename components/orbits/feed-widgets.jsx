@@ -121,7 +121,7 @@ export function OrbitsWidget({ initial, next, rank }) {
       {next && (
         <Link href="/orbits/achievements" className="bg-card/80 hover:bg-card mt-2 flex items-center gap-3 rounded-xl border p-2.5 transition-colors">
           <ProgressRing value={next.progress} max={next.target} size={44} label={`${next.title} progress`}>
-            <RewardIcon name={next.icon} size={22} locked />
+            <RewardIcon name={next.icon} imageKey={next.image_key} size={22} locked />
           </ProgressRing>
           <div className="min-w-0 flex-1">
             <p className="eyebrow !text-[10px]">Next badge</p>

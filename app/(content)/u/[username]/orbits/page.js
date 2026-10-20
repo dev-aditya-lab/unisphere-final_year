@@ -62,7 +62,7 @@ export default async function MemberOrbitsPage({ params }) {
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {list.map((a) => (
               <li key={`${a.id}-${a.earned_at}`} className="bg-card flex flex-col items-center gap-2 rounded-2xl border p-4 text-center">
-                <RewardIcon name={a.icon} rank={a.rank >= 1 && a.rank <= 10 ? a.rank : undefined} size={72} alt={a.title} />
+                <RewardIcon name={a.icon} imageKey={a.image_key} rank={a.rank >= 1 && a.rank <= 10 ? a.rank : undefined} size={72} alt={a.title} />
                 <p className="text-sm font-bold">{a.title}</p>
                 <p className="text-muted-foreground text-xs">
                   {formatDate(a.earned_at)}

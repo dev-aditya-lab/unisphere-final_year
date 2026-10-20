@@ -22,7 +22,8 @@ const ledger = async (u, kind) => {
 };
 const sumLedger = async (u) => (await ledger(u)).reduce((s, r) => s + r.amount, 0);
 let keyN = 0;
-const give = (u, amount, day = today()) => admin.from("orbit_ledger").insert({ user_id: u.id, kind: "manual_adjustment", amount, idempotency_key: `t-${tag}-${++keyN}`, day, source_type: "test" });
+// a reward (counts as earned); staff corrections are tested on their own because they deliberately do not count
+const give = (u, amount, day = today()) => admin.from("orbit_ledger").insert({ user_id: u.id, kind: "post", amount, idempotency_key: `t-${tag}-${++keyN}`, day, source_type: "test" });
 
 let a, b, c, d, e, outsider, gadmin, cadmin, quiet;
 const questionIds = [];
@@ -649,5 +650,129 @@ describe("the at-a-glance read and once-only celebrations (migration 20260126000
     const res = await u.client.from("orbit_user_achievements").update({ celebrated_at: new Date().toISOString() }).eq("user_id", u.id).select();
     expect(res.data ?? []).toEqual([]);
     expect((await rpc(u, "orbit_glance", {})).data.pending).toBe(1);
+  });
+});
+
+describe("what counts as earned (migration 20260126000034)", () => {
+  it("keeps staff corrections out of earned today, the week, the bars, the badge progress and the leaderboard", async () => {
+    const u = await createUser("orb-earned");
+    await rpc(u, "orbit_claim_checkin", {}); // +5, a real reward
+    const adj = await rpc(gadmin, "orbit_admin_adjust", { p_user: u.id, p_amount: 1000, p_reason: "testing the correction", p_key: `earned-${tag}-1` });
+    expect(adj.error).toBeNull();
+
+    const o = (await rpc(u, "orbit_overview", {})).data;
+    expect(o.balance).toBe(1005); // the balance is everything the ledger says
+    expect(o.earned_today).toBe(5); // earned is only what the member did
+    expect(o.earned_week).toBe(5);
+    expect(o.week_days.at(-1).earned).toBe(5);
+    expect(o.earned_today).toBeLessThanOrEqual(o.earned_week);
+    const progress = o.next_achievement;
+    if (progress?.target >= 1000) expect(progress.progress).toBeLessThan(1000); // a correction is not progress toward "1,000 Orbits earned"
+    expect((await admin.from("orbit_balances").select("balance, earned_total").eq("user_id", u.id).single()).data).toEqual({ balance: 1005, earned_total: 5 });
+
+    expect((await rpc(u, "orbit_my_rank", { p_scope: "global", p_period: "weekly" })).data[0].score).toBe(5);
+    expect((await rpc(u, "orbit_my_rank", { p_scope: "global", p_period: "alltime" })).data[0].score).toBe(5);
+    expect((await ledger(u)).map((r) => r.earned_amount).sort((x, y) => x - y)).toEqual([0, 5]);
+    expect((await rpc(u, "orbit_glance", {})).data.balance).toBe(1005);
+  });
+
+  it("does not subtract earned Orbits when a correction is taken back, and does subtract when a reward is", async () => {
+    const u = await createUser("orb-earned-rev");
+    await rpc(u, "orbit_claim_checkin", {});
+    await rpc(gadmin, "orbit_admin_adjust", { p_user: u.id, p_amount: 50, p_reason: "first correction", p_key: `earned-${tag}-2` });
+    const rows = await ledger(u);
+    const correction = rows.find((r) => r.kind === "manual_adjustment");
+    const reward = rows.find((r) => r.kind === "checkin");
+
+    expect((await rpc(gadmin, "orbit_admin_reverse", { p_entry: correction.id, p_reason: "taking the correction back" })).error).toBeNull();
+    let b = (await admin.from("orbit_balances").select("balance, earned_total").eq("user_id", u.id).single()).data;
+    expect(b).toEqual({ balance: 5, earned_total: 5 }); // the reward is untouched
+
+    expect((await rpc(gadmin, "orbit_admin_reverse", { p_entry: reward.id, p_reason: "reward was not deserved" })).error).toBeNull();
+    b = (await admin.from("orbit_balances").select("balance, earned_total").eq("user_id", u.id).single()).data;
+    expect(b).toEqual({ balance: 0, earned_total: 0 });
+    expect((await rpc(u, "orbit_overview", {})).data.earned_today).toBe(0);
+  });
+
+  it("does not award an 'Orbits earned' badge for Orbits that were only added by staff", async () => {
+    const u = await createUser("orb-earned-badge");
+    await rpc(gadmin, "orbit_admin_adjust", { p_user: u.id, p_amount: 1000, p_reason: "large correction", p_key: `earned-${tag}-3` });
+    await rpc(u, "orbit_claim_checkin", {});
+    const earnedBadges = (await admin.from("orbit_user_achievements").select("achievement_id, orbit_achievements!inner(criteria)").eq("user_id", u.id).eq("orbit_achievements.criteria->>type", "earned")).data;
+    expect(earnedBadges).toEqual([]);
+  });
+});
+
+describe("badge pictures (migration 20260127000035)", () => {
+  const keyFor = (owner) => `orbit_badge/${owner.id}/${crypto.randomUUID()}.png`;
+  const fileRow = (owner, key, extra = {}) => ({ owner_id: owner.id, bucket: "public", storage_key: key, purpose: "orbit_badge", mime_type: "image/png", size_bytes: 1234, original_name: "badge.png", ...extra });
+  let badgeId;
+  const made = [];
+
+  beforeAll(async () => {
+    badgeId = (await admin.from("orbit_achievements").select("id").eq("active", true).neq("category", "ranking").limit(1).single()).data.id;
+  });
+  afterAll(async () => {
+    await admin.from("orbit_achievements").update({ image_key: null }).eq("id", badgeId);
+    if (made.length) await admin.from("files").delete().in("storage_key", made);
+  });
+
+  it("lets only a manager of Orbits create a badge picture record, and anyone signed in see it once it is ready", async () => {
+    const key = keyFor(gadmin);
+    made.push(key);
+    const asMember = await a.client.from("files").insert(fileRow(a, keyFor(a)));
+    expect(asMember.error).not.toBeNull(); // a member cannot create an orbit_badge file
+    const asCollegeAdmin = await cadmin.client.from("files").insert(fileRow(cadmin, keyFor(cadmin)));
+    expect(asCollegeAdmin.error).not.toBeNull();
+    const mine = await gadmin.client.from("files").insert(fileRow(gadmin, key)).select("id").single();
+    expect(mine.error).toBeNull();
+    expect((await a.client.from("files").select("id").eq("storage_key", key)).data).toEqual([]); // still pending: private to its owner
+    await admin.from("files").update({ status: "ready", ready_at: new Date().toISOString() }).eq("storage_key", key);
+    expect((await a.client.from("files").select("id").eq("storage_key", key)).data).toHaveLength(1);
+  });
+
+  it("attaches only a ready badge upload, only for managers, audits it, and clears back to the built-in artwork", async () => {
+    const ready = keyFor(gadmin);
+    const pending = keyFor(gadmin);
+    made.push(ready, pending);
+    const ins = await admin.from("files").insert([fileRow(gadmin, ready, { status: "ready", ready_at: new Date().toISOString() }), fileRow(gadmin, pending, { status: "pending", ready_at: null })]);
+    expect(ins.error).toBeNull();
+    const wrongPurpose = `avatar/${gadmin.id}/${crypto.randomUUID()}.png`;
+    made.push(wrongPurpose);
+    await admin.from("files").insert(fileRow(gadmin, wrongPurpose, { purpose: "avatar", status: "ready", ready_at: new Date().toISOString() }));
+
+    for (const bad of [pending, wrongPurpose, "orbit_badge/not-a-real-key.png", "../../etc/passwd"]) {
+      expect((await rpc(gadmin, "orbit_admin_set_achievement_image", { p_id: badgeId, p_key: bad })).error, bad).not.toBeNull();
+    }
+    expect((await rpc(a, "orbit_admin_set_achievement_image", { p_id: badgeId, p_key: ready })).error).not.toBeNull();
+    expect((await rpc(cadmin, "orbit_admin_set_achievement_image", { p_id: badgeId, p_key: ready })).error).not.toBeNull();
+    expect((await rpc(gadmin, "orbit_admin_set_achievement_image", { p_id: "no_such_badge", p_key: ready })).error).not.toBeNull();
+
+    const set = await rpc(gadmin, "orbit_admin_set_achievement_image", { p_id: badgeId, p_key: ready });
+    expect(set.error).toBeNull();
+    expect(set.data).toEqual({ previous: null, image_key: ready });
+    const cleared = await rpc(gadmin, "orbit_admin_set_achievement_image", { p_id: badgeId, p_key: null });
+    expect(cleared.data).toEqual({ previous: ready, image_key: null });
+    const audit = (await admin.from("audit_logs").select("action, metadata").eq("actor_id", gadmin.id).eq("action", "orbits.badge_image")).data;
+    expect(audit.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("returns the picture with the badge in every member-facing read", async () => {
+    const key = keyFor(gadmin);
+    made.push(key);
+    await admin.from("files").insert(fileRow(gadmin, key, { status: "ready", ready_at: new Date().toISOString() }));
+    await rpc(gadmin, "orbit_admin_set_achievement_image", { p_id: badgeId, p_key: key });
+    const viewer = await createUser("orb-badge-img");
+    await admin.from("orbit_user_achievements").insert({ user_id: viewer.id, achievement_id: badgeId });
+
+    const mine = (await rpc(viewer, "orbit_my_achievements", {})).data.find((x) => x.id === badgeId);
+    expect(mine.image_key).toBe(key);
+    const profile = (await rpc(a, "orbit_profile_summary", { p_username: viewer.username })).data;
+    expect(profile.achievements.find((x) => x.id === badgeId)?.image_key ?? key).toBe(key);
+    const taken = (await rpc(viewer, "orbit_take_celebrations", {})).data.find((x) => x.achievement_id === badgeId);
+    expect(taken.image_key).toBe(key);
+    // a badge with no picture reports null, so the built-in artwork is used
+    await rpc(gadmin, "orbit_admin_set_achievement_image", { p_id: badgeId, p_key: null });
+    expect((await rpc(viewer, "orbit_my_achievements", {})).data.find((x) => x.id === badgeId).image_key).toBeNull();
   });
 });
