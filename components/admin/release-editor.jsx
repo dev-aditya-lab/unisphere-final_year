@@ -48,11 +48,11 @@ export function ReleaseEditor({ release = null, suggestedVersion = "0.9.0" }) {
         <div className="space-y-1.5"><Label htmlFor={`t-${uid}`} className="text-[13px] font-semibold">Title</Label><input id={`t-${uid}`} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} className={`${field} w-full`} /></div>
       </div>
       <div className="space-y-1.5"><Label htmlFor={`s-${uid}`} className="text-[13px] font-semibold">One-line summary (optional)</Label><Textarea id={`s-${uid}`} value={summary} onChange={(e) => setSummary(e.target.value)} rows={2} maxLength={300} /></div>
-      <fieldset className="space-y-2">
+      <fieldset className="min-w-0 space-y-2">
         <legend className="text-[13px] font-semibold">Changes</legend>
         {items.map((it, i) => (
           <div key={i} className="flex gap-2">
-            <select aria-label={`Type of change ${i + 1}`} value={it.kind} onChange={(e) => setItem(i, { kind: e.target.value })} className={field}>
+            <select aria-label={`Type of change ${i + 1}`} value={it.kind} onChange={(e) => setItem(i, { kind: e.target.value })} className={`${field} max-w-[8.5rem] min-w-0 shrink`}>
               {RELEASE_KINDS.map((k) => <option key={k.value} value={k.value}>{k.label}</option>)}
             </select>
             <input aria-label={`Change ${i + 1}`} value={it.text} onChange={(e) => setItem(i, { text: e.target.value })} maxLength={240} className={`${field} min-w-0 flex-1`} placeholder="Describe the change in plain words" />

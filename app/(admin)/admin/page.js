@@ -7,7 +7,8 @@ import { RangeFilter } from "@/components/admin/range-filter";
 import { getMyPermissions } from "@/lib/auth/session";
 import { getScope } from "@/lib/admin/scope";
 import { parseRange } from "@/lib/admin/range";
-import { getOverview, getSeries } from "@/lib/services/admin";
+import { getAiOverview, getOverview, getSeries, listAudit } from "@/lib/services/admin";
+import { fmtDateTime } from "@/components/admin/ui";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Overview" };
@@ -30,6 +31,12 @@ export default async function AdminOverviewPage({ searchParams }) {
       return { ...q, value: q.count(data) };
     }),
   );
+
+  // Two small, bounded panels, each only for the staff who may see that data (the database re-checks both).
+  const [recent, ai] = await Promise.all([
+    names.has("audit.view") ? listAudit({ limit: 6 }).then((r) => r.rows).catch(() => null) : null,
+    names.has("ai.view") ? getAiOverview(7).catch(() => null) : null,
+  ]);
 
   const scope = names.has("analytics.view") ? await getScope("analytics.view", sp.college) : null;
   const range = parseRange(sp);
@@ -58,7 +65,7 @@ export default async function AdminOverviewPage({ searchParams }) {
         <>
           <RangeFilter basePath="/admin" range={range} scope={scope} />
           <section aria-label="Key numbers" className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <StatCard label="Members" value={fmtNumber(overview.members)} hint={`+${fmtNumber(overview.new_members)} in period`} />
+            <StatCard label="Members" value={fmtNumber(overview.members)} hint={`+${fmtNumber(overview.new_members)} joined in period. Counts onboarded accounts that are not suspended.`} />
             <StatCard label="Active contributors" value={fmtNumber(overview.active_members)} hint="Posted, commented or messaged" />
             <StatCard label="Verified" value={fmtNumber(overview.verified_members)} hint={overview.members ? `${Math.round((overview.verified_members / overview.members) * 100)}% of members` : "—"} />
             <StatCard label="Posts" value={fmtNumber(overview.posts_period)} hint={`${fmtNumber(overview.posts_total)} all-time`} />
@@ -79,6 +86,36 @@ export default async function AdminOverviewPage({ searchParams }) {
         </>
       ) : (
         <Panel title="Your tools" description="Use the menu to open the queues and tools your role covers." />
+      )}
+
+      {(recent || ai) && (
+        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {recent && (
+            <Panel title="Recent administrative actions" description="The latest entries in the audit log." actions={<Link href="/admin/audit" className="text-blue-text text-sm font-semibold hover:underline">Open audit log</Link>}>
+              {recent.length === 0 ? (
+                <p className="text-muted-foreground text-sm">Nothing recorded yet.</p>
+              ) : (
+                <ol className="divide-y text-sm">
+                  {recent.map((r) => (
+                    <li key={r.id} className="flex flex-wrap items-baseline justify-between gap-x-3 py-2">
+                      <span><span className="font-medium">{r.action}</span> <span className="text-muted-foreground">by {r.actor?.full_name ?? "system"}</span></span>
+                      <time dateTime={r.created_at} className="text-muted-foreground text-xs">{fmtDateTime(r.created_at)}</time>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </Panel>
+          )}
+          {ai && (
+            <Panel title="AI, last 7 days" description="Counts only: prompts and replies are never stored." actions={<Link href="/admin/ai" className="text-blue-text text-sm font-semibold hover:underline">AI status</Link>}>
+              <dl className="grid grid-cols-3 gap-3 text-sm">
+                <div><dt className="eyebrow">Requests</dt><dd className="font-heading text-xl font-bold tabular-nums">{fmtNumber(ai.total)}</dd></div>
+                <div><dt className="eyebrow">Tokens in / out</dt><dd className="font-heading text-xl font-bold tabular-nums">{fmtNumber(ai.input_tokens)} / {fmtNumber(ai.output_tokens)}</dd></div>
+                <div><dt className="eyebrow">Failures</dt><dd className="font-heading text-xl font-bold tabular-nums">{fmtNumber(Object.entries(ai.by_status ?? {}).filter(([k]) => ["error", "timeout", "invalid_output"].includes(k)).reduce((s, [, n]) => s + n, 0))}</dd></div>
+              </dl>
+            </Panel>
+          )}
+        </div>
       )}
     </>
   );

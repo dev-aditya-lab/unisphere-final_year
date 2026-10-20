@@ -117,10 +117,14 @@ export function Pager({ basePath, page, total, params = {} }) {
   );
 }
 
-/** Responsive table: scrolls horizontally inside its card on small screens instead of breaking the page. */
+/**
+ * Responsive table: scrolls horizontally inside its card on small screens instead of breaking the page.
+ * `relative` matters: visually hidden text (sr-only) is absolutely positioned, and without a positioned ancestor the
+ * scroll container does not clip it, so a link in the last column made the whole page scroll sideways on a phone.
+ */
 export function DataTable({ caption, columns, children, empty }) {
   return (
-    <div className="surface overflow-x-auto">
+    <div className="surface relative overflow-x-auto">
       <table className="w-full text-left text-sm">
         <caption className="sr-only">{caption}</caption>
         <thead className="bg-muted/50 text-muted-foreground text-xs">

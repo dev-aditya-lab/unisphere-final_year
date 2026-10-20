@@ -39,10 +39,10 @@ export default async function RosterPage({ searchParams }) {
         description={`${college.name} keeps a private list of valid student IDs. Members enter their ID once; it is matched against this list and linked to exactly one account. IDs are stored only as keyed hashes, so nobody — including administrators — can read them back.`}
       />
       {allowed.length > 1 && (
-        <form method="get" className="mb-4 flex items-end gap-2 text-[13px]">
+        <form method="get" className="mb-4 flex flex-wrap items-end gap-2 text-[13px]">
           <label>
             <span className="text-muted-foreground mb-1 block text-xs font-medium">College</span>
-            <select name="college" defaultValue={college.id} className="border-input bg-card h-9 rounded-md border px-2 text-sm">
+            <select name="college" defaultValue={college.id} className="border-input bg-card h-9 max-w-full rounded-md border px-2 text-sm">
               {allowed.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </label>
