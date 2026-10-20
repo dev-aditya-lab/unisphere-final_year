@@ -9,6 +9,7 @@ import { PostCard } from "@/components/posts/post-card";
 import { EmptyState } from "@/components/empty-state";
 import { BlueTick } from "@/components/ui/blue-tick";
 import { UserAvatar } from "@/components/user-avatar";
+import { OrbitsProfileSection } from "@/components/orbits/profile-section";
 import { getAuthUser } from "@/lib/auth/session";
 import { getProfilePage, resolveRenamedUsername } from "@/lib/services/profiles";
 import { getPostsByAuthor } from "@/lib/services/posts";
@@ -262,6 +263,8 @@ export default async function ProfilePage({ params, searchParams }) {
           </ul>
         </section>
       )}
+
+      <OrbitsProfileSection username={profile.username} />
 
       {achievements.length > 0 && (
         <section className="surface p-5" aria-labelledby="ach-title">
