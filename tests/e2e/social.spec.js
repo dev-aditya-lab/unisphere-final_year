@@ -113,7 +113,7 @@ test.describe.serial("social flow between two members", () => {
     await admin.from("profiles").update({ visibility: "college" }).eq("id", alice.id);
   });
 
-  test("a deleted post disappears for everyone and its page returns 404", async ({ browser }) => {
+  test("a deleted post disappears for everyone and its page shows not found", async ({ browser }) => {
     const alicePage = await (await browser.newContext()).newPage();
     await login(alicePage, alice.email);
     const { data: post } = await admin.from("posts").select("slug").ilike("body", `%${tag}%`).single();
@@ -125,8 +125,9 @@ test.describe.serial("social flow between two members", () => {
 
     const bobPage = await (await browser.newContext()).newPage();
     await login(bobPage, bob.email);
-    const res = await bobPage.goto(`/posts/${post.slug}`);
-    expect(res.status()).toBe(404);
+    // The post page streams behind a skeleton (loading.js), so a missing post answers 200 with the not-found page rather than a 404 status.
+    await bobPage.goto(`/posts/${post.slug}`);
+    await expect(bobPage.getByText("We could not find that page")).toBeVisible();
   });
 
   test("members can report content and are told when a post is gone", async ({ browser }) => {

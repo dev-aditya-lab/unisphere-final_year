@@ -25,7 +25,7 @@ function OriginalEmbed({ post }) {
   return (
     <div className="bg-muted/50 mt-3 rounded-xl border p-3">
       <AuthorLine name={post.original_author_name} username={post.original_author_username} avatarKey={post.original_author_avatar_key} createdAt={post.original_created_at} size="xs" showType={false} />
-      <Link prefetch={false} href={href} className="mt-2 block">
+      <Link href={href} className="mt-2 block">
         {post.original_title && <p className="font-heading font-semibold hover:underline">{post.original_title}</p>}
         <p className="text-muted-foreground mt-0.5 text-sm [overflow-wrap:anywhere]">{excerpt(post.original_body, 220)}</p>
       </Link>
@@ -109,7 +109,7 @@ export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed,
               {full ? (
                 post.title
               ) : (
-                <Link prefetch={false} href={href} className="hover:underline">
+                <Link href={href} className="hover:underline">
                   {post.title}
                 </Link>
               )}
@@ -117,7 +117,7 @@ export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed,
           )}
           <RichText text={long ? excerpt(post.body, 500) : post.body} className={cn("text-[15px] leading-[1.65] sm:text-base sm:leading-[1.7]", post.title && "mt-1.5")} />
           {long && (
-            <Link prefetch={false} href={href} className="text-primary-text mt-1 inline-block text-sm font-semibold hover:underline">
+            <Link href={href} className="text-primary-text mt-1 inline-block text-sm font-semibold hover:underline">
               Read more
             </Link>
           )}

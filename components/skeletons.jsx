@@ -74,3 +74,30 @@ export function PageSkeleton() {
     </div>
   );
 }
+
+/** Detail pages (profile, post, project, event, community...): a header block, a short body and a side card. */
+export function DetailSkeleton() {
+  return (
+    <div role="status" aria-label="Loading" className="space-y-6">
+      <div aria-hidden="true" className="surface space-y-4 p-5 sm:p-6">
+        <div className="flex items-center gap-4">
+          <div className="skeleton size-16 shrink-0 rounded-full" />
+          <div className="flex-1 space-y-2.5">
+            <Bar className="h-6 w-1/2" />
+            <Bar className="w-1/3" />
+          </div>
+        </div>
+        <div className="space-y-2.5">
+          <Bar />
+          <Bar className="w-5/6" />
+          <Bar className="w-2/3" />
+        </div>
+      </div>
+      <div aria-hidden="true" className="space-y-4">
+        <PostSkeleton />
+        <PostSkeleton />
+      </div>
+      <span className="sr-only">Loading</span>
+    </div>
+  );
+}

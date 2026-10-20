@@ -1,0 +1,89 @@
+{
+  "label": "stage4",
+  "base": "http://localhost:3100",
+  "runs": 5,
+  "throttle": "cpu x4, 80 ms RTT, 12/6 Mbit",
+  "results": [
+    {
+      "scenario": "feed -> Explore (nav)",
+      "runs": 5,
+      "feedback_p50": 17,
+      "feedback_max": 18,
+      "ready_p50": 762,
+      "ready_max": 806,
+      "prefetch_requests_p50": 44
+    },
+    {
+      "scenario": "feed -> Projects (nav)",
+      "runs": 5,
+      "feedback_p50": 20,
+      "feedback_max": 22,
+      "ready_p50": 554,
+      "ready_max": 603,
+      "prefetch_requests_p50": 44
+    },
+    {
+      "scenario": "feed -> Events (nav)",
+      "runs": 5,
+      "feedback_p50": 17,
+      "feedback_max": 18,
+      "ready_p50": 668,
+      "ready_max": 672,
+      "prefetch_requests_p50": 44
+    },
+    {
+      "scenario": "feed -> Communities (nav)",
+      "runs": 5,
+      "feedback_p50": 16,
+      "feedback_max": 18,
+      "ready_p50": 665,
+      "ready_max": 686,
+      "prefetch_requests_p50": 44
+    },
+    {
+      "scenario": "feed -> post (card)",
+      "runs": 5,
+      "feedback_p50": 16,
+      "feedback_max": 19,
+      "ready_p50": 625,
+      "ready_max": 654,
+      "prefetch_requests_p50": 44
+    },
+    {
+      "scenario": "feed -> profile (author)",
+      "runs": 5,
+      "feedback_p50": 16,
+      "feedback_max": 18,
+      "ready_p50": 973,
+      "ready_max": 1009,
+      "prefetch_requests_p50": 44
+    },
+    {
+      "scenario": "projects -> project",
+      "runs": 5,
+      "feedback_p50": 16,
+      "feedback_max": 19,
+      "ready_p50": 430,
+      "ready_max": 439,
+      "prefetch_requests_p50": 38
+    },
+    {
+      "scenario": "events -> event",
+      "runs": 5,
+      "feedback_p50": 16,
+      "feedback_max": 17,
+      "ready_p50": 252,
+      "ready_max": 392,
+      "prefetch_requests_p50": 38
+    },
+    {
+      "scenario": "communities -> community",
+      "runs": 5,
+      "feedback_p50": 16,
+      "feedback_max": 17,
+      "ready_p50": 427,
+      "ready_max": 447,
+      "prefetch_requests_p50": 38
+    }
+  ]
+}

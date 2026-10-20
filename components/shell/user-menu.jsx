@@ -41,7 +41,7 @@ export function UserMenu({ profile, isStaff }) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link prefetch={false} href={`/u/${profile.username}`}>
+          <Link href={`/u/${profile.username}`}>
             <User /> View profile
           </Link>
         </DropdownMenuItem>

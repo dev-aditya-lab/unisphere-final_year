@@ -68,6 +68,7 @@ export function usePointerDepth() {
   return ref;
 }
 
+const MIN_ANIMATED_SIZE = 100;
 const RING = { rx: 46, ry: 15, tilt: -24 };
 const BACK_PATH = `M${50 - RING.rx} 50 A${RING.rx} ${RING.ry} 0 0 0 ${50 + RING.rx} 50 A${RING.rx} ${RING.ry} 0 0 0 ${50 - RING.rx} 50`;
 const FRONT_ARC = `M${50 - RING.rx} 50 A${RING.rx} ${RING.ry} 0 0 0 ${50 + RING.rx} 50`;
@@ -109,7 +110,11 @@ function RingLayer({ front, animate, dots }) {
 export function OrbitalIcon({ size = 64, scale = 0.62, name = "orbit", alt, priority = false, animate = true, dots = true, bump = 0, className }) {
   const reduce = useReducedMotion();
   const { ref, paused, props } = usePauseOffscreen();
-  const moving = animate && !reduce;
+  // The travelling lights are SVG SMIL, which Chrome re-lays-out on every frame for as long as they run (measured: ~60
+  // layouts a second, half of a throttled phone's main thread, with nothing else happening). At header and nav sizes
+  // the lights are about half a pixel wide, so nobody can see them, yet the header pill is always on screen and so
+  // never paused. Only the Orbits page hero (112 px) gets them; the feed widget (96 px) keeps its ring and planet.
+  const moving = animate && !reduce && size >= MIN_ANIMATED_SIZE;
 
   // SMIL does not follow CSS: pause the travelling lights ourselves while off screen.
   useEffect(() => {

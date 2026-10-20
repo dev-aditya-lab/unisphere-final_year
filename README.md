@@ -64,7 +64,7 @@ The full walk-through, including every environment variable, is in [docs/SETUP.m
 ## Project layout
 
 ```
-app/                  Routes: (marketing) (auth) (onboarding) (app) (content) (admin)/admin, api/
+app/                  Routes: (marketing) (auth) (onboarding) (member)/{(app),(content)} (admin)/admin, api/
 components/           UI by area (shell, posts, projects, admin, pwa, ...) + shadcn/ui primitives
 lib/                  actions/ (Server Actions) · services/ (data access) · ai/ · storage/ · email/ · security/
 supabase/             migrations (the source of truth for the database) · templates · seed.sql (dev only)

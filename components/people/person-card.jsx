@@ -15,12 +15,12 @@ export function PersonCard({ person, reason, actions, className, showSkills = tr
   const skills = (person.skills ?? []).slice(0, 4);
   return (
     <div className={cn("surface grid w-full min-w-0 grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 gap-y-3 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto]", className)}>
-      <Link prefetch={false} href={`/u/${person.username}`} aria-label={`${person.full_name}'s profile`} className="shrink-0">
+      <Link href={`/u/${person.username}`} aria-label={`${person.full_name}'s profile`} className="shrink-0">
         <UserAvatar name={person.full_name} avatarKey={person.avatar_key} size="lg" />
       </Link>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2">
-          <Link prefetch={false} href={`/u/${person.username}`} className="font-heading flex items-center gap-1 font-bold hover:underline">
+          <Link href={`/u/${person.username}`} className="font-heading flex items-center gap-1 font-bold hover:underline">
             {person.full_name}
             {person.blue_tick && <BlueTick className="size-4" />}
             {person.verified && <BadgeCheck className="text-teal-text size-4" aria-label="Verified member" />}

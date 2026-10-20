@@ -1,0 +1,80 @@
+{
+  "label": "baseline",
+  "base": "http://localhost:3100",
+  "runs": 5,
+  "throttle": "cpu x4, 80 ms RTT, 12/6 Mbit",
+  "results": [
+    {
+      "scenario": "feed -> Explore (nav)",
+      "runs": 5,
+      "feedback_p50": 20,
+      "feedback_max": 22,
+      "ready_p50": 1573,
+      "ready_max": 1864
+    },
+    {
+      "scenario": "feed -> Projects (nav)",
+      "runs": 5,
+      "feedback_p50": 13,
+      "feedback_max": 15,
+      "ready_p50": 904,
+      "ready_max": 986
+    },
+    {
+      "scenario": "feed -> Events (nav)",
+      "runs": 5,
+      "feedback_p50": 12,
+      "feedback_max": 16,
+      "ready_p50": 1071,
+      "ready_max": 1288
+    },
+    {
+      "scenario": "feed -> Communities (nav)",
+      "runs": 5,
+      "feedback_p50": 14,
+      "feedback_max": 16,
+      "ready_p50": 920,
+      "ready_max": 1244
+    },
+    {
+      "scenario": "feed -> post (card)",
+      "runs": 5,
+      "feedback_p50": 1393,
+      "feedback_max": 1444,
+      "ready_p50": 1396,
+      "ready_max": 1447
+    },
+    {
+      "scenario": "feed -> profile (author)",
+      "runs": 5,
+      "feedback_p50": 3016,
+      "feedback_max": 3478,
+      "ready_p50": 3019,
+      "ready_max": 3480
+    },
+    {
+      "scenario": "projects -> project",
+      "runs": 5,
+      "feedback_p50": 582,
+      "feedback_max": 686,
+      "ready_p50": 584,
+      "ready_max": 688
+    },
+    {
+      "scenario": "events -> event",
+      "runs": 5,
+      "feedback_p50": 673,
+      "feedback_max": 730,
+      "ready_p50": 675,
+      "ready_max": 732
+    },
+    {
+      "scenario": "communities -> community",
+      "runs": 5,
+      "feedback_p50": 863,
+      "feedback_max": 918,
+      "ready_p50": 865,
+      "ready_max": 920
+    }
+  ]
+}

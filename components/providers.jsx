@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { PwaProvider } from "@/components/pwa/pwa-provider";
+import { RouteProgress } from "@/components/shell/route-progress";
 
 export function Providers({ children }) {
   return (
@@ -12,6 +13,7 @@ export function Providers({ children }) {
           (components/motion/motion-features.jsx), so pages that do not animate with it never download it. */}
       <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
       <PwaProvider />
+      <RouteProgress />
       <Toaster position="bottom-right" />
     </ThemeProvider>
   );

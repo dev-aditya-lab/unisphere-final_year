@@ -17,7 +17,7 @@ export function ProjectCard({ project, className }) {
     <article className={cn("surface flex flex-col p-4 sm:p-5", className)}>
       <div className="flex items-start justify-between gap-2">
         <h2 className="font-heading text-lg leading-snug font-bold">
-          <Link prefetch={false} href={`/projects/${project.slug}`} className="hover:underline">
+          <Link href={`/projects/${project.slug}`} className="hover:underline">
             {project.name}
           </Link>
         </h2>

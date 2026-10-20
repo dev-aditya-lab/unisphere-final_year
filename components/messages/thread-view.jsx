@@ -185,7 +185,7 @@ export function ThreadView({ conversationId, viewerId, onBack }) {
         <div className="min-w-0 flex-1 leading-tight">
           {person ? (
             person.username ? (
-              <Link prefetch={false} href={`/u/${person.username}`} className="block truncate text-sm font-semibold hover:underline">
+              <Link href={`/u/${person.username}`} className="block truncate text-sm font-semibold hover:underline">
                 {person.full_name}
               </Link>
             ) : (

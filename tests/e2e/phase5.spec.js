@@ -85,8 +85,9 @@ test.describe.serial("administration", () => {
     // the removed post is gone for everyone else, and the author was notified with the reason
     const other = await (await browser.newContext()).newPage();
     await login(other, reporter.email);
-    const res = await other.goto(`/posts/${post.slug}`);
-    expect(res.status()).toBe(404);
+    // The post page streams behind a skeleton (loading.js), so a missing post answers 200 with the not-found page rather than a 404 status.
+    await other.goto(`/posts/${post.slug}`);
+    await expect(other.getByText("We could not find that page")).toBeVisible();
     const { data: notes } = await admin.from("notifications").select("data").eq("user_id", member.id).eq("type", "moderation_content_removed");
     expect(notes[0].data.reason).toBe("Spam: unsolicited promotion");
   });

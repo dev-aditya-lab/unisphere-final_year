@@ -53,8 +53,9 @@ A returning member must not be logged out by a refresh, a browser restart or rel
 | `(marketing)` | Landing, about, features, legal, contact: the only pages a logged-out visitor can see | Public header and footer |
 | `(auth)` | Login, register, password reset, email verification | Split layout |
 | `(onboarding)` | First-run profile steps | Focused flow |
-| `(app)` | Feed, explore, search, projects, messages, notifications, settings, feedback | Member shell (sidebar, bell, install banner) |
-| `(content)` | Member content pages: posts, ideas, profiles, projects, events, communities, opportunities, roadmap, changelog. Login required | Member shell, or the verification screen for unverified accounts |
+| `(member)` | One layout shared by `(app)` and `(content)`: the member shell (sidebar, bell, install banner). Requires a signed-in, onboarded account (others are sent to onboarding or the suspended page). It is shared so the shell stays mounted when a member moves between the two groups | Member shell |
+| `(member)/(app)` | Feed, explore, search, projects, messages, notifications, settings, feedback | Inherits the member shell |
+| `(member)/(content)` | Member content pages: posts, ideas, profiles, projects, events, communities, opportunities, roadmap, changelog. Login required. Has a `loading.js` skeleton, so a missing record answers 200 with the not-found page instead of a 404 status | Inherits the member shell |
 | `(admin)/admin` | The admin console | Separate admin shell; staff only |
 | `app/api/*` | `cron/tick`, `upload`, `files/[id]`, `media/*`, `push/subscribe`, `account/export`, `admin/*` (CSV), `health` | n/a |
 

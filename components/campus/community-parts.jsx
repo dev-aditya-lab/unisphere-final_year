@@ -112,7 +112,7 @@ export function CommunityAdminPanel({ community, members, isOwner, canMakeOffici
             <li key={m.user_id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
               <div className="flex items-center gap-2.5">
                 <UserAvatar name={m.person.full_name} avatarKey={m.person.avatar_key} size="sm" />
-                {m.person.username ? <Link prefetch={false} href={`/u/${m.person.username}`} className="text-sm font-semibold hover:underline">{m.person.full_name}</Link> : <span className="text-sm font-semibold">{m.person.full_name}</span>}
+                {m.person.username ? <Link href={`/u/${m.person.username}`} className="text-sm font-semibold hover:underline">{m.person.full_name}</Link> : <span className="text-sm font-semibold">{m.person.full_name}</span>}
               </div>
               <div className="flex items-center gap-2">
                 {isOwner && m.role !== "owner" ? (

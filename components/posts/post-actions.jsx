@@ -143,7 +143,7 @@ export function PostActions({ post, viewerId, className }) {
 
       {/* Comment */}
       <Button asChild variant="ghost" size="sm" className={ACTION}>
-        <Link prefetch={false} href={commentHref} aria-label={post.comment_count > 0 ? `Comments (${post.comment_count})` : "Comment"}>
+        <Link href={commentHref} aria-label={post.comment_count > 0 ? `Comments (${post.comment_count})` : "Comment"}>
           <MessageCircle className="size-[18px]" aria-hidden="true" />
           {post.comment_count > 0 && <span className="tabular-nums">{compactNumber(post.comment_count)}</span>}
         </Link>
