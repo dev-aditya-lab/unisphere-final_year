@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ImagePlus, Loader2, Plus, RotateCcw } from "lucide-react";
+import { ImagePlus, Loader2, Plus, RotateCcw, Sparkles } from "lucide-react";
 import { RewardIcon } from "@/components/orbits/reward-icon";
 import { uploadFileWithProgress } from "@/lib/storage/client";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { adjustOrbitsAction, saveQuestionAction, saveSeasonAction, setAchievementImageAction, setConfigAction, updateAchievementAction } from "@/lib/actions/orbits-admin";
+import { adjustOrbitsAction, draftQuestionAction, saveQuestionAction, saveSeasonAction, setAchievementImageAction, setConfigAction, updateAchievementAction } from "@/lib/actions/orbits-admin";
 import { CATEGORY_LABEL } from "@/lib/orbits/icons";
 
 const field = "border-input bg-card h-10 w-full rounded-lg border px-3 text-sm";
@@ -41,10 +41,13 @@ function useRun(action, onDone) {
   return { run, error, pending, setError };
 }
 
+/** Tomorrow's date in IST (UTC+5:30) as YYYY-MM-DD, the default day for a generated question. */
+const tomorrowIst = () => new Date(Date.now() + (24 + 5.5) * 3600_000).toISOString().slice(0, 10);
+
 const EMPTY = { id: null, question: "", options: ["", "", "", ""], correct: 0, explanation: "", category: "general", date: "", status: "draft", source: "manual" };
 
 /** Create or edit a daily question. The correct answer is chosen explicitly; scheduling needs the date to be free. */
-export function QuestionDialog({ question = null, label, variant = "outline" }) {
+export function QuestionDialog({ question = null, label, variant = "outline", aiDraft = false, autoDraft = false }) {
   const [open, setOpen] = useState(false);
   const initial = question
     ? { id: question.id, question: question.question, options: question.options, correct: question.correct_index, explanation: question.explanation, category: question.category, date: question.publish_date, status: question.status, source: question.source }
@@ -52,12 +55,19 @@ export function QuestionDialog({ question = null, label, variant = "outline" }) 
   const [f, setF] = useState(initial);
   const { run, error, pending, setError } = useRun(saveQuestionAction, () => setOpen(false));
   const locked = question && question.answers > 0;
+  const [ai, setAi] = useState({ topic: "", difficulty: "medium" });
+  const drafting = useRun(draftQuestionAction, (res) => setF((p) => ({ ...p, ...res.draft, date: p.date || tomorrowIst(), source: "ai_draft" })));
   const setOpt = (i, v) => setF((p) => ({ ...p, options: p.options.map((o, j) => (j === i ? v : o)) }));
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setError(null); }}>
+    <Dialog open={open} onOpenChange={(o) => {
+      setOpen(o);
+      if (!o) setError(null);
+      // "Generate with AI" starts drafting as soon as the form opens, so one click gives a question to review.
+      else if (autoDraft && !question && !f.question) drafting.run({ category: f.category, topic: ai.topic, difficulty: ai.difficulty });
+    }}>
       <DialogTrigger asChild>
-        <Button variant={variant} size="sm">{question ? null : <Plus />}{label}</Button>
+        <Button variant={variant} size="sm">{question ? null : autoDraft ? <Sparkles /> : <Plus />}{label}</Button>
       </DialogTrigger>
       <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
@@ -65,6 +75,22 @@ export function QuestionDialog({ question = null, label, variant = "outline" }) 
           <DialogDescription>Check the facts before scheduling: members trust the answer and the explanation.{locked ? " Members have answered, so the wording and the correct answer are locked." : ""}</DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
+          {aiDraft && !question && (
+            <fieldset className="space-y-2 rounded-xl border p-3" aria-busy={drafting.pending}>
+              <legend className="px-1 text-[13px] font-semibold">Draft with AI</legend>
+              <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+                <Input aria-label="Topic (optional)" placeholder="Topic, for example binary search (optional)" maxLength={120} value={ai.topic} onChange={(e) => setAi({ ...ai, topic: e.target.value })} />
+                <select aria-label="Difficulty" className={`${field} sm:w-32`} value={ai.difficulty} onChange={(e) => setAi({ ...ai, difficulty: e.target.value })}><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button type="button" size="sm" variant="secondary" disabled={drafting.pending} onClick={() => drafting.run({ category: f.category, topic: ai.topic, difficulty: ai.difficulty })}>
+                  {drafting.pending ? <Loader2 className="animate-spin" /> : <Sparkles />}{drafting.pending ? "Drafting…" : "Draft a question"}
+                </Button>
+                <p className="text-muted-foreground text-xs">Uses the category chosen below and replaces what is in the form. Models make mistakes, so verify the answer yourself.</p>
+              </div>
+              {drafting.error && <p role="alert" className="text-destructive-text text-sm">{drafting.error}</p>}
+            </fieldset>
+          )}
           <div className="space-y-1.5"><Label htmlFor="q-text" className="text-[13px] font-semibold">Question</Label><Textarea id="q-text" rows={2} maxLength={400} value={f.question} disabled={locked} onChange={(e) => setF({ ...f, question: e.target.value })} /></div>
           <fieldset className="min-w-0 space-y-2">
             <legend className="text-[13px] font-semibold">Answers (select the correct one)</legend>

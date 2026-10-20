@@ -47,3 +47,15 @@ next-env.d.ts
 /playwright-report/
 /supabase/.temp/
 /supabase/.branches/
+/playstore
+# Android (Bubblewrap / Play Store): never commit signing keys or build output
+playstore/*.keystore
+playstore/*.jks
+playstore/*.p12
+playstore/*.aab
+playstore/*.apk
+playstore/.gradle/
+playstore/build/
+playstore/app/build/
+*.keystore
+*.jks

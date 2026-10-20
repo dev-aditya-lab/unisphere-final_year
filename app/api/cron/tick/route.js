@@ -5,6 +5,7 @@ import { processEmbeddingJobs } from "@/lib/ai/embeddings/jobs";
 import { processNotificationEmails } from "@/lib/services/notification-email";
 import { processPushNotifications } from "@/lib/services/push";
 import { runMaintenanceTasks } from "@/lib/services/maintenance";
+import { draftNextDailyQuestion, publishDueDailyQuestion } from "@/lib/services/orbit-question-automation";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -31,7 +32,7 @@ function authorised(request) {
 }
 
 /**
- * Background work tick: embedding jobs, notification email batches, push notifications, event reminders, orphan cleanup.
+ * Background work tick: embedding jobs, notification email batches, push notifications, event reminders, orphan cleanup, and the Daily Challenge automation (draft at 16:00 IST, publish at 02:00 IST).
  * Called by `npm run worker` (a loop) or any scheduler: UptimeRobot, Vercel cron, a server cron job.
  * Nothing here runs unless something calls it, and it is refused without CRON_SECRET.
  */
@@ -44,6 +45,9 @@ async function run(request) {
     ["notificationEmails", () => processNotificationEmails({ limit: 100 })],
     ["push", () => processPushNotifications({ limit: 100 })],
     ["maintenance", () => runMaintenanceTasks()],
+    // Publishing comes before drafting: drafting waits for the AI (up to a minute) and must never delay the 02:00 publish.
+    ["orbitQuestionPublish", () => publishDueDailyQuestion()],
+    ["orbitQuestionDraft", () => draftNextDailyQuestion()],
   ]) {
     try {
       result[name] = await fn();

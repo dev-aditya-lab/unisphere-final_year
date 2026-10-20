@@ -19,6 +19,8 @@ const LABELS = {
   helpful_min_chars: ["Helpful answer minimum length", "Characters an answer needs to be eligible."],
   streak_bonus: ["Streak milestone bonuses", 'Bonus Orbits when a streak reaches each length, as JSON such as {"7":10}. Paid once per length per member.'],
   min_group_size: ["Smallest Top 10 group", "A college or connections group needs this many members to award a Top 10 badge."],
+  auto_question_draft: ["AI drafts tomorrow's question at 16:00", "1 = the worker asks the AI for a draft each afternoon (IST), 0 = off. It is only ever a draft."],
+  auto_question_publish: ["Publish an unapproved AI draft at 02:00", "1 = an AI draft nobody approved goes live at 02:00 IST on its day if nothing else is live, 0 = off. Approve or archive a draft to stop it."],
   suspicious_daily_orbits: ["Review threshold", "Orbits earned in one day above which a member is listed for review."],
 };
 

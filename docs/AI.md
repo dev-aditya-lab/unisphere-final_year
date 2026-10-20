@@ -37,6 +37,8 @@ Matching itself is done with SQL (full-text, skill overlap, optional vector simi
 | `AI_ENABLED` | env | Master switch for the whole server |
 | `GROQ_API_KEY` | env | The provider (via LangChain `ChatGroq`, JSON-object responses) |
 | `GROQ_MODEL_FAST` / `GROQ_MODEL_SMART` / `GROQ_MODEL_SAFETY` | env | Models per tier: fast for tags/titles/classification, smart for reasoning, safety for triage |
+| `NVIDIA_AI_API_KEY`, `NVIDIA_AI_MODEL`, `NVIDIA_AI_BASE_URL` | env | NVIDIA's hosted API, used only by the admin "Draft with AI" for Daily Challenge questions (task `draft_daily_question`, 60 s timeout, `reasoning_effort: low`). It never falls back to Groq and Groq tasks never use it |
+| `auto_question_draft`, `auto_question_publish` | Admin → Orbits | Switches for the automatic Daily Challenge draft (16:00 IST) and publish (02:00 IST), see `docs/ORBITS.md` |
 | `AI_FALLBACK_BASE_URL`, `_API_KEY`, `_MODEL` | env | Optional second provider (any OpenAI-compatible API) tried if Groq fails |
 | `AI_DAILY_LIMIT_PER_USER`, `AI_REQUEST_TIMEOUT_MS` | env | Guardrails |
 | Feature flags `ai_features`, `ai_idea_discovery`, `ai_post_assistant`, `ai_matching`, `ai_moderation_assist` | Admin → Settings | Switch features off at runtime |

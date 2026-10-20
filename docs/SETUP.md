@@ -76,6 +76,7 @@ deletions simply wait.
 | **Redis** (rate limits, AI throttling, caches) | `REDIS_URL=redis://localhost:6379`. Keys are prefixed `unisphere:` so sharing an existing Redis is safe | Per-process in-memory limits |
 | **File storage** (Cloudflare R2) | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_R2_ACCESS_KEY_ID`, `CLOUDFLARE_R2_SECRET_ACCESS_KEY`, `CLOUDFLARE_R2_BUCKET_NAME` (+ the public bucket variables for CDN avatars). Run `npm run setup:storage` once to create buckets/CORS | Uploads are refused with a clear message |
 | **Email** (Resend) | `RESEND_API_KEY`, `EMAIL_FROM` (a verified domain). See [EMAIL.md](EMAIL.md) | In development mail goes to Mailpit at http://127.0.0.1:55324; in production sends fail loudly |
+| **AI** (NVIDIA, Daily Challenge drafts) | `NVIDIA_AI_API_KEY`, optional `NVIDIA_AI_MODEL` | "Draft with AI" is hidden in Admin -> Orbits -> Daily Challenge; questions are written by hand |
 | **AI** (Groq) | `GROQ_API_KEY`, optional `GROQ_MODEL_*`. Check `/admin/ai` | AI buttons show a polite "not available" and every feature has a non-AI fallback |
 | **Semantic search** | `EMBEDDING_PROVIDER` (`openai-compatible` or `gemini`) + key/model/URL | Keyword and concept search only |
 | **Push notifications** | `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`. Generate with `npx web-push generate-vapid-keys` | The "Push notifications" control explains it is not set up |

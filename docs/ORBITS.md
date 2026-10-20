@@ -45,8 +45,25 @@ The **Orbit Balance** is the sum of every ledger entry, corrections included. **
 question and options only; `orbit_submit_answer()` records the answer and then returns the key and explanation. A page's HTML before
 answering contains neither (tested). One live (scheduled or published) question per date; once anyone has answered, its wording and key
 are frozen. Admins create, schedule, preview-by-editing, archive and see answer counts and correctness in Admin -> Orbits -> Daily
-Challenge. **No questions are seeded**: content has to be written and verified by a person. The "started from an AI draft" box only
-records provenance; there is no AI generation job in this feature.
+Challenge. **No questions are seeded**: content has to be written and verified by a person. **Draft with AI** (New question, shown when
+`NVIDIA_AI_API_KEY` is set) asks NVIDIA's hosted model (`NVIDIA_AI_MODEL`, default `openai/gpt-oss-20b`) for a question in the chosen
+category, with an optional topic and difficulty, and fills the form: nothing is saved or scheduled until the administrator checks the
+answer and presses Save. The answer's position is shuffled server-side, the 30 newest questions are sent so it does not repeat them, and
+the saved question is marked "Started from an AI draft". 
+
+**Automatic daily question** (migration `20260128000036`, run by the worker tick, so `npm run worker` or a scheduler calling
+`/api/cron/tick` must be running; all times IST):
+
+| When | What |
+| --- | --- |
+| From 16:00 | If tomorrow has no question at all (an archived one counts), the AI drafts one: status **draft**, source `ai_draft`, category rotating daily (never Campus life). Failed attempts retry every 30 minutes, at most 8. Between 00:00 and 02:00 it still drafts for the day that is about to start. |
+| From 02:00 on the day | If no question is scheduled or published for the day, the newest **unapproved AI draft** for it is published. It stays "not yet reviewed" in Admin, and the audit log records `orbits.question_auto_published`. |
+
+Approving a draft (Status: Scheduled or Published) or archiving it stops the automatic publish; a draft written by an administrator
+(`source = manual`) is never published automatically. If the AI fails all evening and no draft exists, nothing is published and members
+see the usual fallback. Both steps have a switch in Admin -> Orbits -> Reward values (`auto_question_draft`, `auto_question_publish`;
+1 = on, 0 = off). Because a question can go live unreviewed, check the Daily Challenge list each evening; answers are frozen once
+members answer.
 
 ## Leaderboards
 
