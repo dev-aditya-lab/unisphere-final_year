@@ -17,22 +17,23 @@ function isActive(pathname, href) {
 }
 
 /**
- * Grouped vertical navigation used by the desktop sidebar and the mobile drawer.
- * The active item is a "sticker" (bright card, ink outline, offset shadow) that slides between destinations.
+ * Grouped vertical navigation for the desktop sidebar.
+ * The active item is a soft indigo pill with a bar on its leading edge (so it is not told apart by colour alone),
+ * and the pill slides between destinations.
  */
 export function NavLinks({ items, counts = {}, onNavigate }) {
   const pathname = usePathname();
   const indicatorId = useId();
   const live = useLiveMessageCount(counts["/messages"]);
   return (
-    <nav aria-label="Primary" className="space-y-6">
+    <nav aria-label="Primary" className="space-y-5">
       {NAV_GROUPS.map((group) => {
         const groupItems = items.filter((i) => i.group === group.id);
         if (groupItems.length === 0) return null;
         return (
           <div key={group.id}>
-            <p className="eyebrow mb-2 px-3">{group.label}</p>
-            <ul className="space-y-1">
+            <p className="eyebrow mb-1.5 px-3">{group.label}</p>
+            <ul className="space-y-0.5">
               {groupItems.map(({ href, label, icon }) => {
                 const active = isActive(pathname, href);
                 const count = href === "/messages" ? live : counts[href];
@@ -44,25 +45,18 @@ export function NavLinks({ items, counts = {}, onNavigate }) {
                       onClick={onNavigate}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors duration-150",
-                        active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                        "group relative flex h-9 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors duration-150",
+                        active ? "text-primary-text font-semibold" : "text-muted-foreground hover:text-foreground",
                       )}
                     >
                       {active ? (
-                        <m.span
-                          layoutId={indicatorId}
-                          aria-hidden="true"
-                          transition={EASE.spring}
-                          className="border-foreground bg-card absolute inset-0 rounded-lg border shadow-[2px_2px_0_0_var(--hard)]"
-                        />
+                        <m.span layoutId={indicatorId} aria-hidden="true" transition={EASE.spring} className="bg-primary-soft absolute inset-0 rounded-lg">
+                          <span className="bg-primary absolute top-2 bottom-2 left-0 w-[3px] rounded-full" />
+                        </m.span>
                       ) : (
                         <span aria-hidden="true" className="bg-accent absolute inset-0 rounded-lg opacity-0 transition-opacity duration-150 group-hover:opacity-100" />
                       )}
-                      <NavIcon
-                        name={icon}
-                        className={cn("relative size-[18px] shrink-0 transition-transform duration-150 group-hover:-rotate-6", active && "text-coral-text")}
-                        aria-hidden="true"
-                      />
+                      <NavIcon name={icon} className="relative size-[18px] shrink-0" aria-hidden="true" />
                       <span className="relative flex-1 truncate">{label}</span>
                       <CountBadge value={count ?? 0} label="unread" className="relative" />
                       <NavPending className="relative" />

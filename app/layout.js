@@ -1,14 +1,12 @@
 import { headers } from "next/headers";
-import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { THEME_INIT_SCRIPT } from "@/components/theme-provider";
 import { publicEnv } from "@/lib/env-public";
 import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE } from "@/lib/constants";
 import "./globals.css";
 
-// Display: Bricolage Grotesque, a characterful grotesque with ink-trap detail that reads as "student magazine".
-// Body: Plus Jakarta Sans, open and friendly with excellent small-size legibility. Both are variable fonts.
-const display = Bricolage_Grotesque({ variable: "--font-display", subsets: ["latin"], display: "swap" });
+// One family for everything: Plus Jakarta Sans, open and modern, with excellent small-size legibility (variable font).
 const body = Plus_Jakarta_Sans({ variable: "--font-body", subsets: ["latin"], display: "swap" });
 
 export const metadata = {
@@ -39,8 +37,8 @@ export const metadata = {
 
 export const viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FBF6EC" },
-    { media: "(prefers-color-scheme: dark)", color: "#14120F" },
+    { media: "(prefers-color-scheme: light)", color: "#F8FAFC" },
+    { media: "(prefers-color-scheme: dark)", color: "#0B0F1A" },
   ],
   colorScheme: "light dark",
   width: "device-width",
@@ -57,7 +55,7 @@ export default async function RootLayout({ children }) {
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${display.variable} ${body.variable}`}
+      className={body.variable}
     >
       <head>
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />

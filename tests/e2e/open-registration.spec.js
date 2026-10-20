@@ -107,6 +107,7 @@ test.describe.serial("open registration", () => {
     await expect(page.getByRole("tab", { name: "My college" })).toHaveCount(0);
     await expect(page.getByRole("tab", { name: "All members" })).toBeVisible();
 
+    await page.getByLabel("Start a post").click();
     await page.getByLabel("Post text").fill(`Hello from someone with no college ${run}`);
     await page.getByRole("combobox", { name: "Who can see this post" }).click();
     await expect(page.getByRole("option", { name: "My college" })).toHaveCount(0);

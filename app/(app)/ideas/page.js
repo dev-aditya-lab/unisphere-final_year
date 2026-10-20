@@ -23,7 +23,7 @@ export default async function IdeasPage({ searchParams }) {
   return (
     <TwoColumn aside={<RightRail showPeople={false} />}>
       <PageHeader eyebrow="Ideas" title="Share an idea, find who is already on it" description="Post an idea to get feedback and teammates. Related ideas and projects from your campus show up as you write." />
-      <div className="space-y-5">
+      <div className="space-y-4">
         <Composer profile={profile} defaultCategory="ideas" lockCategory ai={ai} />
         <FeedFilters scope={scope} category={null} hideCategories hasCollege={Boolean(profile.college_id)} />
         <FeedList

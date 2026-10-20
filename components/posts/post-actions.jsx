@@ -3,49 +3,26 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bookmark, Check, Flag, Heart, Link2, MessageCircle, MoreHorizontal, Pencil, Repeat2, Share2, SmilePlus, Trash2 } from "lucide-react";
+import { Bookmark, Check, Heart, MessageCircle, Pencil, Repeat2, Share2, SmilePlus } from "lucide-react";
 import { AnimatePresence, m } from "motion/react";
 import { PopIcon } from "@/components/motion/pop-icon";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ReportDialog } from "@/components/posts/report-dialog";
-import { EditPostDialog } from "@/components/posts/edit-post-dialog";
-import { deletePostAction, repostAction, setBookmarkAction, setReactionAction } from "@/lib/actions/posts";
+import { useCopyLink } from "@/components/posts/use-copy-link";
+import { repostAction, setBookmarkAction, setReactionAction } from "@/lib/actions/posts";
 import { REACTIONS } from "@/lib/content/post-meta";
-import { publicEnv } from "@/lib/env-public";
 import { compactNumber } from "@/lib/format";
 import { useLatestWins } from "@/hooks/use-latest-wins";
 import { cn } from "@/lib/utils";
 
 const REACTION_LABEL = Object.fromEntries(REACTIONS.map((r) => [r.value, r.label]));
 
-function postUrl(post) {
-  return `${publicEnv.appUrl}${post.category === "ideas" ? "/ideas/" : "/posts/"}${post.slug}`;
-}
-
 /**
- * Mounts a heavy dialog only once it has been opened (and keeps it, so its close animation still plays). A feed of 15
- * posts would otherwise build four dialog trees per post that almost nobody opens.
+ * Mounts a heavy dialog only once it has been opened (and keeps it, so its close animation still plays).
  */
 function MountOnOpen({ open, children }) {
   const [mounted, setMounted] = useState(open);
@@ -53,7 +30,11 @@ function MountOnOpen({ open, children }) {
   return mounted ? children : null;
 }
 
-export function PostActions({ post, viewerId, onDeleted, className }) {
+// Every action is at least 40px tall on a phone (36px with a mouse) and reads as a quiet, tinted-on-hover control.
+const ACTION = "text-muted-foreground hover:text-foreground h-10 gap-1.5 rounded-full px-3 text-[13px] font-medium sm:h-9 max-sm:min-w-10";
+
+/** The action row under a post: react, comment, repost, bookmark and share. The post's own menu lives in its header. */
+export function PostActions({ post, viewerId, className }) {
   const router = useRouter();
   const loginHref = `/login?next=${encodeURIComponent(`/posts/${post.slug}`)}`;
   const isOwner = viewerId === post.author_id;
@@ -85,31 +66,13 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
   const [reactOpen, setReactOpen] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [quote, setQuote] = useState("");
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [reportOpen, setReportOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopyLink(post);
 
   function react(next) {
     const value = next === reaction ? null : next;
     setReactionState({ reaction: value, count: count + (value && !reaction ? 1 : !value && reaction ? -1 : 0) });
     setReactOpen(false);
-  }
-
-  function toggleBookmark() {
-    setBookmarked(!bookmarked);
-  }
-
-  async function copyLink() {
-    try {
-      await navigator.clipboard.writeText(postUrl(post));
-      toast.success("Link copied");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
-    } catch {
-      toast.error("Could not copy the link");
-    }
   }
 
   async function doRepost(comment) {
@@ -124,20 +87,7 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
     } else toast.error(res.error);
   }
 
-  async function doDelete() {
-    setBusy(true);
-    const res = await deletePostAction(post.id);
-    setBusy(false);
-    setDeleteOpen(false);
-    if (res.ok) {
-      toast.success("Post deleted");
-      // A list that owns the post removes it itself; refreshing the whole page as well would re-run every query on it.
-      if (onDeleted) onDeleted(post.id);
-      else router.refresh();
-    } else toast.error(res.error);
-  }
-
-  const btn = "text-muted-foreground hover:text-foreground h-8 gap-1.5 px-2 text-xs font-medium";
+  const commentHref = `${post.category === "ideas" ? "/ideas/" : "/posts/"}${post.slug}#comments`;
 
   return (
     <div className={cn("flex items-center gap-0.5", className)}>
@@ -148,27 +98,31 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
             <Button
               variant="ghost"
               size="sm"
-              className={cn(btn, reaction && "text-coral-text hover:text-coral-text")}
+              className={cn(ACTION, reaction && "text-rose-text hover:text-rose-text")}
               onClick={() => react(reaction ?? "like")}
               aria-pressed={Boolean(reaction)}
               aria-label={reaction ? `You reacted: ${REACTION_LABEL[reaction]}. Click to remove` : "Like"}
             >
               <PopIcon active={Boolean(reaction)}>
-                <Heart className={cn("size-4", reaction && "fill-current")} aria-hidden="true" />
+                <Heart className={cn("size-[18px]", reaction && "fill-current")} aria-hidden="true" />
               </PopIcon>
-              <span>{reaction ? REACTION_LABEL[reaction] : "Like"}</span>
-              {count > 0 && <span className="tabular-nums">· {compactNumber(count)}</span>}
+              {(count > 0 || reaction) && (
+                <span className="tabular-nums">
+                  {count > 0 && compactNumber(count)}
+                  {reaction && <span className="hidden sm:inline">{count > 0 ? " · " : ""}{REACTION_LABEL[reaction]}</span>}
+                </span>
+              )}
             </Button>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon-sm" className="text-muted-foreground -ml-1" aria-label="Choose a reaction">
+              <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-foreground -ml-1.5 rounded-full max-sm:size-10" aria-label="Choose a reaction">
                 <SmilePlus className="size-4" />
               </Button>
             </PopoverTrigger>
           </div>
-          <PopoverContent align="start" className="w-auto p-1.5">
-            <div role="group" aria-label="Reactions" className="flex gap-1">
+          <PopoverContent align="start" className="w-auto max-w-[calc(100vw-1.5rem)] p-1.5">
+            <div role="group" aria-label="Reactions" className="flex flex-wrap gap-1">
               {REACTIONS.map((r) => (
-                <Button key={r.value} variant={reaction === r.value ? "soft" : "ghost"} size="sm" onClick={() => react(r.value)} className="h-8 text-xs">
+                <Button key={r.value} variant={reaction === r.value ? "soft" : "ghost"} size="sm" onClick={() => react(r.value)} className="h-9 text-xs">
                   {r.label}
                 </Button>
               ))}
@@ -176,20 +130,19 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
           </PopoverContent>
         </Popover>
       ) : (
-        <Button asChild variant="ghost" size="sm" className={btn}>
-          <Link href={loginHref}>
-            <Heart className="size-4" aria-hidden="true" />
-            Like {count > 0 && <span className="tabular-nums">· {compactNumber(count)}</span>}
+        <Button asChild variant="ghost" size="sm" className={ACTION}>
+          <Link href={loginHref} aria-label={count > 0 ? `Like (${count})` : "Like"}>
+            <Heart className="size-[18px]" aria-hidden="true" />
+            {count > 0 && <span className="tabular-nums">{compactNumber(count)}</span>}
           </Link>
         </Button>
       )}
 
       {/* Comment */}
-      <Button asChild variant="ghost" size="sm" className={btn}>
-        <Link prefetch={false} href={`${post.category === "ideas" ? "/ideas/" : "/posts/"}${post.slug}#comments`}>
-          <MessageCircle className="size-4" aria-hidden="true" />
-          {post.comment_count > 0 ? <span className="tabular-nums">{compactNumber(post.comment_count)}</span> : <span className="sr-only sm:not-sr-only">Comment</span>}
-          {post.comment_count > 0 && <span className="sr-only"> comments</span>}
+      <Button asChild variant="ghost" size="sm" className={ACTION}>
+        <Link prefetch={false} href={commentHref} aria-label={post.comment_count > 0 ? `Comments (${post.comment_count})` : "Comment"}>
+          <MessageCircle className="size-[18px]" aria-hidden="true" />
+          {post.comment_count > 0 && <span className="tabular-nums">{compactNumber(post.comment_count)}</span>}
         </Link>
       </Button>
 
@@ -197,8 +150,8 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
       {viewerId && post.visibility !== "private" && post.visibility !== "connections" && post.visibility !== "community" && !isOwner ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className={btn} aria-label="Repost options">
-              <Repeat2 className="size-4" aria-hidden="true" />
+            <Button variant="ghost" size="sm" className={ACTION} aria-label={post.repost_count > 0 ? `Repost options (${post.repost_count} reposts)` : "Repost options"}>
+              <Repeat2 className="size-[18px]" aria-hidden="true" />
               {post.repost_count > 0 && <span className="tabular-nums">{compactNumber(post.repost_count)}</span>}
             </Button>
           </DropdownMenuTrigger>
@@ -212,8 +165,8 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : post.repost_count > 0 ? (
-        <span className="text-muted-foreground flex items-center gap-1.5 px-2 text-xs">
-          <Repeat2 className="size-4" aria-hidden="true" />
+        <span className="text-muted-foreground flex h-10 items-center gap-1.5 px-3 text-[13px] font-medium sm:h-9">
+          <Repeat2 className="size-[18px]" aria-hidden="true" />
           <span className="tabular-nums">{compactNumber(post.repost_count)}</span>
           <span className="sr-only"> reposts</span>
         </span>
@@ -221,13 +174,20 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
 
       <div className="ml-auto flex items-center">
         {viewerId && (
-          <Button variant="ghost" size="icon-sm" className={cn("text-muted-foreground", bookmarked && "text-sun-text")} onClick={toggleBookmark} aria-pressed={bookmarked} aria-label={bookmarked ? "Remove bookmark" : "Bookmark"}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className={cn("text-muted-foreground hover:text-foreground rounded-full max-sm:size-10", bookmarked && "text-primary-text hover:text-primary-text")}
+            onClick={() => setBookmarked(!bookmarked)}
+            aria-pressed={bookmarked}
+            aria-label={bookmarked ? "Remove bookmark" : "Bookmark"}
+          >
             <PopIcon active={bookmarked}>
-              <Bookmark className={cn("size-4", bookmarked && "fill-current")} />
+              <Bookmark className={cn("size-[18px]", bookmarked && "fill-current")} />
             </PopIcon>
           </Button>
         )}
-        <Button variant="ghost" size="icon-sm" className="text-muted-foreground" onClick={copyLink} aria-label="Copy link to post">
+        <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-foreground rounded-full max-sm:size-10" onClick={copy} aria-label="Copy link to post">
           <AnimatePresence mode="wait" initial={false}>
             <m.span
               key={copied ? "done" : "share"}
@@ -237,89 +197,31 @@ export function PostActions({ post, viewerId, onDeleted, className }) {
               transition={{ duration: 0.14 }}
               className="grid place-items-center"
             >
-              {copied ? <Check className="text-success-text size-4" /> : <Share2 className="size-4" />}
+              {copied ? <Check className="text-success-text size-[18px]" /> : <Share2 className="size-[18px]" />}
             </m.span>
           </AnimatePresence>
         </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm" className="text-muted-foreground" aria-label="More actions">
-              <MoreHorizontal className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem onSelect={copyLink}>
-              <Link2 /> Copy link
-            </DropdownMenuItem>
-            {isOwner && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => setEditOpen(true)}>
-                  <Pencil /> Edit post
-                </DropdownMenuItem>
-                <DropdownMenuItem variant="destructive" onSelect={() => setDeleteOpen(true)}>
-                  <Trash2 /> Delete post
-                </DropdownMenuItem>
-              </>
-            )}
-            {viewerId && !isOwner && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => setReportOpen(true)}>
-                  <Flag /> Report post
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
-      {/* Dialogs: built only once they are first opened */}
       <MountOnOpen open={quoteOpen}>
-      <Dialog open={quoteOpen} onOpenChange={setQuoteOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Quote this post</DialogTitle>
-            <DialogDescription>Your comment appears above the original, which stays credited to its author.</DialogDescription>
-          </DialogHeader>
-          <Textarea rows={4} maxLength={2000} value={quote} onChange={(e) => setQuote(e.target.value)} aria-label="Your comment" placeholder="Add your thoughts…" />
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setQuoteOpen(false)}>
-              Cancel
-            </Button>
-            <Button disabled={!quote.trim() || busy} onClick={() => doRepost(quote.trim())}>
-              {busy ? "Posting…" : "Post quote"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        <Dialog open={quoteOpen} onOpenChange={setQuoteOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Quote this post</DialogTitle>
+              <DialogDescription>Your comment appears above the original, which stays credited to its author.</DialogDescription>
+            </DialogHeader>
+            <Textarea rows={4} maxLength={2000} value={quote} onChange={(e) => setQuote(e.target.value)} aria-label="Your comment" placeholder="Add your thoughts…" />
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setQuoteOpen(false)}>
+                Cancel
+              </Button>
+              <Button disabled={!quote.trim() || busy} onClick={() => doRepost(quote.trim())}>
+                {busy ? "Posting…" : "Post quote"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </MountOnOpen>
-
-      <MountOnOpen open={deleteOpen}>
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this post?</AlertDialogTitle>
-            <AlertDialogDescription>It disappears for everyone, including its comments. This cannot be undone.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Keep it</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive-text text-background hover:bg-destructive-text/90" onClick={doDelete}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      </MountOnOpen>
-
-      <MountOnOpen open={reportOpen}>
-        <ReportDialog open={reportOpen} onOpenChange={setReportOpen} targetType="post" targetId={post.id} />
-      </MountOnOpen>
-      {isOwner && (
-        <MountOnOpen open={editOpen}>
-          <EditPostDialog open={editOpen} onOpenChange={setEditOpen} post={post} />
-        </MountOnOpen>
-      )}
     </div>
   );
 }

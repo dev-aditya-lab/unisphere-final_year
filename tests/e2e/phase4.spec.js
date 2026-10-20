@@ -169,7 +169,7 @@ test.describe.serial("notifications, messaging, events and the worker", () => {
     await bp.waitForLoadState("networkidle");
     await bp.getByRole("button", { name: "Join", exact: true }).click();
     await expect(bp.getByRole("button", { name: "Leave" })).toBeVisible();
-    await bp.getByLabel("Post text").click();
+    await bp.getByLabel("Start a post").click();
     await bp.getByLabel("Post text").fill(`Welcome to the club ${tag}`);
     await bp.getByRole("button", { name: "Post", exact: true }).click();
     await expect(bp.getByText(`Welcome to the club ${tag}`)).toBeVisible({ timeout: 20_000 });

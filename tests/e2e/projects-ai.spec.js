@@ -81,7 +81,7 @@ test.describe.serial("projects, teammates and AI assist", () => {
     await admin.from("posts").insert({ author_id: author.id, slug: `seed-${Date.now()}`, title: "Mess waste tracker", body: "Tracks leftover food in the hostel mess to reduce food waste.", category: "projects", visibility: "college" });
     const page = await (await browser.newContext()).newPage();
     await login(page, owner.email);
-    await page.getByLabel("Post text").click();
+    await page.getByLabel("Start a post").click();
     await expect(page.getByTestId("ai-assist")).toBeVisible();
     // AI controls stay disabled until there is enough text to work with
     await expect(page.getByRole("button", { name: "Suggest tags" })).toBeDisabled();
@@ -96,8 +96,7 @@ test.describe.serial("projects, teammates and AI assist", () => {
     await page.getByRole("region", { name: "Hashtag ideas" }).getByRole("button", { name: /^#/ }).first().click();
     await expect(page.getByLabel("Post text")).toHaveValue(new RegExp(`^${draft.slice(0, 20)}.*#\\w+`));
 
-    await page.getByRole("combobox", { name: "Post type" }).click();
-    await page.getByRole("option", { name: "Idea" }).click();
+    await page.getByRole("group", { name: "Post type" }).getByRole("button", { name: "Idea" }).click();
     await page.getByRole("button", { name: "Find related work" }).click();
     await expect(page.getByRole("region", { name: "Related work on your campus" })).toBeVisible({ timeout: 40_000 });
     await expect(page.getByRole("region", { name: "Related work on your campus" }).getByText("Mess waste tracker").first()).toBeVisible();
@@ -113,7 +112,7 @@ test.describe.serial("projects, teammates and AI assist", () => {
     await page.getByRole("button", { name: "Save privacy settings" }).click();
     await expect(page.getByText("Privacy settings saved.")).toBeVisible();
     await page.goto("/feed");
-    await page.getByLabel("Post text").click();
+    await page.getByLabel("Start a post").click();
     await expect(page.getByText("AI assist is turned off in your privacy settings.")).toBeVisible();
     await expect(page.getByTestId("ai-assist")).toHaveCount(0);
   });

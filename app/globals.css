@@ -3,104 +3,104 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   UniSphere design system, version 2: "campus zine"
+   UniSphere design system, version 3: "clean light"
    ─────────────────────────────────────────────────────────────────────────────
-   A warm paper-and-ink base with loud, friendly spot colour, the way a student magazine or a club poster is made.
-     Ink      the text and the main buttons: a warm near-black, never pure #000
-     Paper    the page: a warm off-white. Cards are brighter than the page, never boxed twice
-     Coral    the one hot accent: the primary call to action, active states, notification counts
-     Sun      highlights, achievements, celebration
-     Teal     intelligence: anything the AI did, plus success
-     Blue     the brand blue from the logo: links, focus and information
-   Each content type (project, idea, question…) owns a hue so the feed can be read at a glance.
+   A white, calm interface where content leads and colour is rare enough to mean something.
+     Page      a cool near-white (#F8FAFC). Surfaces are pure white and sit on it with a hairline, not a box
+     Ink       text and icons: a deep slate, never pure black. Secondary text is a mid slate (AA on every surface)
+     Indigo    the single brand accent: primary actions, links, focus, the selected state
+     Hues      teal, sun, rose, plum, leaf, coral and blue stay as a small palette for content types and status
 
-   Rules: text colours always come from the `*-text` tokens (AA on paper and on their own tint); the plain hues are
-   for fills, strokes and large display type. Dark mode is designed separately, not inverted: it is a warm charcoal
-   with separated elevation steps, softer hues and no pure white.
+   Rules: text colours always come from the `*-text` tokens (AA on white and on their own tint); the plain hues are
+   for fills and strokes. Borders are hairlines (#E5E7EB), elevation is one soft shadow, and there are no black
+   outlines on ordinary controls. Dark mode is designed separately, not inverted: a cool slate with separated
+   elevation steps, a lighter indigo and no pure white.
    ───────────────────────────────────────────────────────────────────────────── */
 :root {
   --radius: 0.75rem;
 
   /* surfaces */
-  --background: #fbf6ec;
-  --foreground: #1b1812;
-  --card: #fffefb;
-  --card-foreground: #1b1812;
-  --popover: #fffefb;
-  --popover-foreground: #1b1812;
-  --sunken: #f3ecdd;           /* wells, table headers, code, inputs at rest */
+  --background: #f8fafc;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --sunken: #f1f5f9;           /* wells, table headers, code, filter tracks */
   --raised: #ffffff;
 
   /* actions */
-  --primary: #1b1812;
-  --primary-foreground: #fbf6ec;
-  --secondary: #f1e8d6;
-  --secondary-foreground: #1b1812;
-  --accent: #f1e8d6;           /* quiet hover / selected backgrounds */
-  --accent-foreground: #1b1812;
-  --hot: #ff5a36;              /* the call-to-action accent */
-  --hot-foreground: #1b1812;
-  --hot-text: #c3330f;
-  --hot-soft: #ffe4db;
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --primary-text: #4338ca;     /* indigo as text or icon on white / on its own tint */
+  --primary-soft: #eef2ff;     /* the subtle selected / hover surface */
+  --secondary: #f1f5f9;
+  --secondary-foreground: #111827;
+  --accent: #f1f5f9;           /* quiet hover backgrounds */
+  --accent-foreground: #111827;
+  --hot: #4f46e5;              /* legacy alias of the primary: the one loud action on a screen */
+  --hot-foreground: #ffffff;
+  --hot-text: #4338ca;
+  --hot-soft: #eef2ff;
 
   /* text */
-  --muted: #f3ecdd;
-  --muted-foreground: #675f52;
-  --faint: #8a8172;            /* decorative only: placeholders, dividers' labels */
+  --muted: #f1f5f9;
+  --muted-foreground: #5b6b82;
+  --faint: #6f7c90;            /* placeholders and decorative labels */
 
   /* lines and focus */
-  --border: #e4d9c6;
-  --border-strong: #c9bba2;
-  --input: #bcae94;
-  --ring: #2f4fd8;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --input: #d1d5db;
+  --ring: #4f46e5;
 
   /* status */
-  --destructive: #d83a3a;
-  --destructive-text: #a82020;
-  --destructive-soft: #fde5e3;
-  --success: #12936f;
-  --success-text: #0b6a50;
-  --success-soft: #d9f3ea;
-  --warning: #e8a317;
-  --warning-text: #7a4e00;
-  --warning-soft: #fff0c4;
-  --info: #2f4fd8;
-  --info-text: #2a44b8;
-  --info-soft: #e4eaff;
+  --destructive: #dc2626;
+  --destructive-text: #b91c1c;
+  --destructive-soft: #fee2e2;
+  --success: #16a34a;
+  --success-text: #15803d;
+  --success-soft: #dcfce7;
+  --warning: #d97706;
+  --warning-text: #b45309;
+  --warning-soft: #fef3c7;
+  --info: #2563eb;
+  --info-text: #1d4ed8;
+  --info-soft: #dbeafe;
 
   /* the hue wheel: fills and strokes */
-  --stone: #8a8172;
-  --teal: #12a58a;
-  --sun: #ffc83d;
-  --blue: #2f4fd8;
+  --stone: #8794a8;
+  --teal: #0d9488;
+  --sun: #f5b82e;
+  --blue: #3b82f6;
   --leaf: #4f9a2b;
-  --coral: #ff5a36;
+  --coral: #f2603c;
   --rose: #e0407a;
   --plum: #8a4bb8;
 
-  /* the same hues as text (>= 4.5:1 on paper and on a 14% tint of themselves) */
-  --stone-text: #5e5649;
-  --teal-text: #0b6b5a;
-  --sun-text: #7a4e00;
-  --blue-text: #2a44b8;
+  /* the same hues as text (>= 4.5:1 on white and on a 14% tint of themselves) */
+  --stone-text: #526077;
+  --teal-text: #0f6b62;
+  --sun-text: #8a5a00;
+  --blue-text: #1d4ed8;
   --leaf-text: #3b6f1d;
   --coral-text: #b72f0c;
   --rose-text: #a8225a;
   --plum-text: #6c3796;
 
-  --chart-1: #2f4fd8;
-  --chart-2: #12a58a;
-  --chart-3: #ff5a36;
-  --chart-4: #e8a317;
+  --chart-1: #4f46e5;
+  --chart-2: #0d9488;
+  --chart-3: #f2603c;
+  --chart-4: #d97706;
   --chart-5: #8a4bb8;
 
-  --sidebar: #f6efe1;
+  --sidebar: #ffffff;
 
-  /* depth */
-  --shadow-card: 0 1px 0 rgb(27 24 18 / 0.04), 0 10px 28px -16px rgb(27 24 18 / 0.2);
-  --shadow-pop: 0 2px 0 rgb(27 24 18 / 0.06), 0 18px 40px -18px rgb(27 24 18 / 0.35);
-  --hard: var(--foreground);   /* the colour of the offset "sticker" shadow on primary actions */
-  --lift-shadow: 3px 3px 0 0 var(--hard);
+  /* depth: one soft elevation, a stronger one for things that float above the page */
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.05);
+  --shadow-pop: 0 4px 6px -2px rgb(16 24 40 / 0.05), 0 16px 32px -8px rgb(16 24 40 / 0.14);
+  --hard: var(--foreground);   /* only the marketing and sign-in pages still use the offset "sticker" shadow */
+  --lift-shadow: 0 6px 16px -6px rgb(16 24 40 / 0.16);
 
   /* motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -111,83 +111,85 @@
 }
 
 .dark {
-  /* A warm charcoal with four clearly separated steps, so layers read without borders or glows. */
-  --background: #14120f;
-  --foreground: #f5efe3;
-  --card: #1d1a16;
-  --card-foreground: #f5efe3;
-  --popover: #25211c;
-  --popover-foreground: #f5efe3;
-  --sunken: #100e0b;
-  --raised: #2a2621;
+  /* A cool slate with four clearly separated steps, so layers read without borders or glows. */
+  --background: #0b0f1a;
+  --foreground: #f1f5f9;
+  --card: #121826;
+  --card-foreground: #f1f5f9;
+  --popover: #171e2e;
+  --popover-foreground: #f1f5f9;
+  --sunken: #080b14;
+  --raised: #1b2336;
 
-  --primary: #f5efe3;
-  --primary-foreground: #14120f;
-  --secondary: #2a2621;
-  --secondary-foreground: #f5efe3;
-  --accent: #2a2621;
-  --accent-foreground: #f5efe3;
-  --hot: #ff7a59;
-  --hot-foreground: #1b1008;
-  --hot-text: #ff9b80;
-  --hot-soft: #3a1f17;
+  --primary: #818cf8;
+  --primary-foreground: #0b0f1a;
+  --primary-text: #a5b4fc;
+  --primary-soft: #1e2247;
+  --secondary: #1b2336;
+  --secondary-foreground: #f1f5f9;
+  --accent: #1b2336;
+  --accent-foreground: #f1f5f9;
+  --hot: #818cf8;
+  --hot-foreground: #0b0f1a;
+  --hot-text: #a5b4fc;
+  --hot-soft: #1e2247;
 
-  --muted: #211e19;
-  --muted-foreground: #b6ad9d;
-  --faint: #8c8374;
+  --muted: #172033;
+  --muted-foreground: #9aa8bd;
+  --faint: #8190a6;
 
-  --border: #38322a;
-  --border-strong: #52493d;
-  --input: #5b5144;
-  --ring: #8fa8ff;
+  --border: #232c3f;
+  --border-strong: #334155;
+  --input: #3a465c;
+  --ring: #a5b4fc;
 
-  --destructive: #ff6b6b;
-  --destructive-text: #ff9a9a;
-  --destructive-soft: #3b1b1b;
-  --success: #3dd6b0;
-  --success-text: #6fe3c5;
-  --success-soft: #12342c;
-  --warning: #ffc24a;
-  --warning-text: #ffd27a;
+  --destructive: #f87171;
+  --destructive-text: #fca5a5;
+  --destructive-soft: #3b1b1f;
+  --success: #4ade80;
+  --success-text: #86efac;
+  --success-soft: #12342a;
+  --warning: #fbbf24;
+  --warning-text: #fcd34d;
   --warning-soft: #3a2d0e;
-  --info: #8fa8ff;
-  --info-text: #b3c3ff;
-  --info-soft: #1d2547;
+  --info: #60a5fa;
+  --info-text: #93c5fd;
+  --info-soft: #172554;
 
-  --stone: #a49b8b;
-  --teal: #3dd6b0;
-  --sun: #ffd166;
-  --blue: #8fa8ff;
+  --stone: #94a3b8;
+  --teal: #2dd4bf;
+  --sun: #fcd34d;
+  --blue: #60a5fa;
   --leaf: #8fd35f;
-  --coral: #ff7a59;
+  --coral: #fb8c6b;
   --rose: #ff7fab;
   --plum: #c79bff;
 
-  --stone-text: #c7bfb0;
-  --teal-text: #6fe3c5;
-  --sun-text: #ffd985;
-  --blue-text: #b3c3ff;
+  --stone-text: #b6c2d4;
+  --teal-text: #5eead4;
+  --sun-text: #fde68a;
+  --blue-text: #93c5fd;
   --leaf-text: #b4e48d;
-  --coral-text: #ff9b80;
+  --coral-text: #fdba9f;
   --rose-text: #ffa6c4;
   --plum-text: #dcbfff;
 
-  --chart-1: #8fa8ff;
-  --chart-2: #3dd6b0;
-  --chart-3: #ff7a59;
-  --chart-4: #ffc24a;
+  --chart-1: #818cf8;
+  --chart-2: #2dd4bf;
+  --chart-3: #fb8c6b;
+  --chart-4: #fbbf24;
   --chart-5: #c79bff;
 
-  --sidebar: #18150f;
+  --sidebar: #0f1422;
 
-  --shadow-card: 0 1px 0 rgb(0 0 0 / 0.3), 0 14px 32px -18px rgb(0 0 0 / 0.8);
-  --shadow-pop: 0 2px 0 rgb(0 0 0 / 0.4), 0 22px 48px -20px rgb(0 0 0 / 0.9);
-  --lift-shadow: 3px 3px 0 0 color-mix(in srgb, var(--coral) 70%, transparent);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-pop: 0 4px 6px -2px rgb(0 0 0 / 0.4), 0 20px 40px -10px rgb(0 0 0 / 0.7);
+  --lift-shadow: 0 8px 20px -8px rgb(0 0 0 / 0.7);
 }
 
 @theme inline {
   --font-sans: var(--font-body), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-heading: var(--font-display), var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-body), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
 
   --color-background: var(--background);
@@ -200,6 +202,8 @@
   --color-raised: var(--raised);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-text: var(--primary-text);
+  --color-primary-soft: var(--primary-soft);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-accent: var(--accent);
@@ -287,19 +291,18 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-size: 0.9375rem;
     line-height: 1.6;
-    font-feature-settings: "ss01", "cv11";
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
     /* the installed app should not bounce or pull-to-refresh by accident */
     overscroll-behavior-y: none;
   }
 
-  /* Display type: Bricolage Grotesque. Headings are heavy but not shouty: 700 for pages, 800 only for display. */
+  /* Headings share the body family (Plus Jakarta Sans): 700 for pages, 800 only for marketing display. */
   h1, h2, h3, h4 {
     font-family: var(--font-heading);
-    letter-spacing: -0.025em;
+    letter-spacing: -0.02em;
     font-weight: 700;
-    line-height: 1.12;
+    line-height: 1.2;
     text-wrap: balance;
   }
   h1 { font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem); }
@@ -311,7 +314,7 @@
   a { text-underline-offset: 3px; }
 
   ::selection {
-    background: color-mix(in srgb, var(--coral) 35%, transparent);
+    background: color-mix(in srgb, var(--primary) 28%, transparent);
   }
 
   :focus-visible {
@@ -330,9 +333,9 @@
     font: inherit;
     color: var(--foreground);
   }
-  select:hover { border-color: color-mix(in srgb, var(--foreground) 40%, transparent); }
+  select:hover { border-color: color-mix(in srgb, var(--muted-foreground) 55%, transparent); }
   select:focus-visible { outline: none; border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 35%, transparent); }
-  input[type="checkbox"], input[type="radio"] { accent-color: var(--coral); width: 1.0625rem; height: 1.0625rem; }
+  input[type="checkbox"], input[type="radio"] { accent-color: var(--primary); width: 1.0625rem; height: 1.0625rem; }
 
   button, [role="button"], a, summary, label, input[type="checkbox"], input[type="radio"] {
     touch-action: manipulation;
@@ -384,18 +387,9 @@
     gap: 0.5rem;
     font-size: 0.6875rem;
     font-weight: 700;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted-foreground);
-  }
-  .eyebrow::before {
-    content: "";
-    width: 0.4rem;
-    height: 0.4rem;
-    border-radius: 1px;
-    background: var(--coral);
-    transform: rotate(45deg);
-    flex: none;
   }
 
   .prose-uni { font-size: 0.9375rem; line-height: 1.75; }
@@ -405,7 +399,7 @@
   .prose-uni ul { margin-bottom: 1rem; list-style: disc; padding-left: 1.25rem; }
   .prose-uni ol { margin-bottom: 1rem; list-style: decimal; padding-left: 1.25rem; }
   .prose-uni li { margin-bottom: 0.375rem; }
-  .prose-uni a { color: var(--blue-text); text-decoration: underline; }
+  .prose-uni a { color: var(--primary-text); text-decoration: underline; }
   .prose-uni strong { font-weight: 700; }
 
   .skip-link {
@@ -414,7 +408,7 @@
 }
 
 /* ── Surfaces ────────────────────────────────────────────────────────────────── */
-/* Bright panel on the warm page. Used sparingly: not every block is a card. */
+/* White panel on the light page, with a hairline. Used sparingly: not every block is a card. */
 @utility surface {
   background: var(--card);
   border: 1px solid var(--border);
@@ -433,17 +427,12 @@
   border: 1px solid transparent;
   border-radius: var(--radius-lg);
 }
-/* Tactile hover: the element lifts and a hard offset shadow appears, like a sticker being peeled. */
+/* Hover for clickable panels: a soft shadow and a slightly stronger hairline. No movement, no outline. */
 @utility lift {
-  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  transition: box-shadow var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
   &:hover {
-    transform: translate(-2px, -2px);
     box-shadow: var(--lift-shadow);
-    border-color: var(--foreground);
-  }
-  &:active {
-    transform: translate(0, 0);
-    box-shadow: 0 0 0 0 transparent;
+    border-color: var(--border-strong);
   }
 }
 /* Press feedback for custom clickable elements. */

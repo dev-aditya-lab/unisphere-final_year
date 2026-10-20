@@ -12,7 +12,7 @@ export function LogoMark({ className, tile = false, priority = false }) {
     <span
       className={cn(
         "inline-flex shrink-0 items-center justify-center rounded-lg",
-        tile ? "bg-[#FBF6EC] p-0.5" : "dark:bg-[#FBF6EC] dark:p-0.5",
+        tile ? "bg-white p-0.5" : "dark:bg-white dark:p-0.5",
         className ?? "size-8",
       )}
     >

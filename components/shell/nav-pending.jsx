@@ -14,7 +14,7 @@ export function NavPending({ className }) {
     <span
       aria-hidden="true"
       className={cn(
-        "bg-coral size-1.5 shrink-0 rounded-full opacity-0 transition-opacity duration-150",
+        "bg-primary size-1.5 shrink-0 rounded-full opacity-0 transition-opacity duration-150",
         pending && "animate-pulse opacity-100",
         className,
       )}

@@ -5,42 +5,21 @@ import { useLiveMessageCount } from "@/lib/chat/unread-store";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { m } from "motion/react";
-import { Menu, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "@/components/ui/sheet";
-import { Logo } from "@/components/brand/logo";
-import { NavLinks } from "@/components/shell/nav-links";
+import { Ellipsis, Plus } from "lucide-react";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { NavIcon } from "@/components/shell/nav-icons";
 import { CountBadge } from "@/components/motion/count-badge";
-import { MOBILE_BOTTOM_HREFS, shouldPrefetch } from "@/lib/nav";
+import { MOBILE_BOTTOM_HREFS, NAV_GROUPS, shouldPrefetch } from "@/lib/nav";
 import { NavPending } from "@/components/shell/nav-pending";
 import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
-export function MobileDrawer({ items, counts }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open navigation menu">
-          <Menu />
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="bg-sidebar w-[19rem] overflow-y-auto p-0">
-        <SheetHeader className="border-b p-4 text-left">
-          <SheetTitle asChild>
-            <div>
-              <Logo href="/" />
-            </div>
-          </SheetTitle>
-          <SheetDescription className="sr-only">Site navigation</SheetDescription>
-        </SheetHeader>
-        <div className="p-3">
-          <NavLinks items={items} counts={counts} onNavigate={() => setOpen(false)} />
-        </div>
-      </SheetContent>
-    </Sheet>
-  );
+const isActive = (pathname, href) => pathname === href || pathname.startsWith(`${href}/`);
+
+const TAB = "relative flex h-full w-full flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors outline-none focus-visible:bg-accent";
+
+function Indicator({ id }) {
+  return <m.span layoutId={id} aria-hidden="true" transition={EASE.spring} className="bg-primary absolute top-0 h-[3px] w-8 rounded-b-full" />;
 }
 
 function Tab({ item, count, active, indicatorId }) {
@@ -50,21 +29,11 @@ function Tab({ item, count, active, indicatorId }) {
       href={href}
       prefetch={shouldPrefetch(href) ? undefined : false}
       aria-current={active ? "page" : undefined}
-      className={cn(
-        "relative flex h-full flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors",
-        active ? "text-foreground" : "text-muted-foreground",
-      )}
+      className={cn(TAB, active ? "text-primary-text" : "text-muted-foreground")}
     >
-      {active && (
-        <m.span
-          layoutId={indicatorId}
-          aria-hidden="true"
-          transition={EASE.spring}
-          className="bg-coral absolute top-0 h-[3px] w-8 rounded-b-full"
-        />
-      )}
+      {active && <Indicator id={indicatorId} />}
       <span className="relative">
-        <NavIcon name={icon} className={cn("size-[22px] transition-transform duration-150", active && "scale-110")} aria-hidden="true" />
+        <NavIcon name={icon} className="size-[22px]" strokeWidth={active ? 2.4 : 2} aria-hidden="true" />
         <CountBadge value={count ?? 0} label="unread" className="absolute -top-2 -right-3 h-4 min-w-4 px-1 text-[10px]" />
       </span>
       {label}
@@ -73,10 +42,71 @@ function Tab({ item, count, active, indicatorId }) {
   );
 }
 
-/** Phone navigation: four destinations and a raised "post" button in the middle, clear of the home indicator. */
+/** Every destination, as a grouped grid in a bottom sheet. */
+function MoreSheet({ open, onOpenChange, items, counts, liveMessages }) {
+  const pathname = usePathname();
+  const groups = NAV_GROUPS.map((g) => ({ ...g, items: items.filter((i) => i.group === g.id) })).filter((g) => g.items.length > 0);
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="bottom" className="max-h-[85dvh] gap-0 overflow-y-auto rounded-t-2xl p-0">
+        <SheetHeader className="px-4 pt-4 pb-2 text-left">
+          <SheetTitle className="text-base">More</SheetTitle>
+          <SheetDescription className="sr-only">All sections of UniSphere</SheetDescription>
+        </SheetHeader>
+        <nav aria-label="All sections" className="space-y-5 px-4 pt-2 pb-5">
+          {groups.map((group) => (
+            <div key={group.id}>
+              <p className="eyebrow mb-2">{group.label}</p>
+              <ul className="grid grid-cols-3 gap-2">
+                {group.items.map(({ href, label, icon }) => {
+                  const active = isActive(pathname, href);
+                  const count = href === "/messages" ? liveMessages : counts[href];
+                  return (
+                    <li key={href}>
+                      <Link
+                        href={href}
+                        prefetch={shouldPrefetch(href) ? undefined : false}
+                        onClick={() => onOpenChange(false)}
+                        aria-current={active ? "page" : undefined}
+                        className={cn(
+                          "relative flex min-h-[4.5rem] flex-col items-center justify-center gap-1.5 rounded-xl border px-1 py-2 text-center text-xs font-semibold transition-colors",
+                          active ? "border-primary/40 bg-primary-soft text-primary-text" : "bg-card text-foreground hover:bg-accent",
+                        )}
+                      >
+                        <span className="relative">
+                          <NavIcon name={icon} className="size-5" aria-hidden="true" />
+                          <CountBadge value={count ?? 0} label="unread" className="absolute -top-2 -right-3 h-4 min-w-4 px-1 text-[10px]" />
+                        </span>
+                        <span className="w-full truncate">{label}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+          <div className="text-muted-foreground flex items-center justify-between border-t pt-4 text-xs font-medium">
+            <Link href="/guidelines" prefetch={false} onClick={() => onOpenChange(false)} className="hover:text-foreground">
+              Community guidelines
+            </Link>
+            <Link href="/changelog" prefetch={false} onClick={() => onOpenChange(false)} className="hover:text-foreground">
+              What&rsquo;s new
+            </Link>
+          </div>
+        </nav>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+/**
+ * Phone navigation: three destinations, a post button in the middle (in the bar, not floating over the feed) and a
+ * More tab that opens everything else. Clear of the home indicator through the safe-area inset.
+ */
 export function BottomNav({ items, counts = {} }) {
   const pathname = usePathname();
   const indicatorId = useId();
+  const [moreOpen, setMoreOpen] = useState(false);
   const liveMessages = useLiveMessageCount(counts["/messages"]);
   const countFor = (href) => (href === "/messages" ? liveMessages : counts[href]);
   const bottom = MOBILE_BOTTOM_HREFS.map((href) => items.find((i) => i.href === href)).filter(Boolean);
@@ -84,35 +114,50 @@ export function BottomNav({ items, counts = {} }) {
   const mid = Math.ceil(bottom.length / 2);
   const left = bottom.slice(0, mid);
   const right = bottom.slice(mid);
-  const isActive = (href) => pathname === href || pathname.startsWith(`${href}/`);
+  // A section that lives in the More sheet is open: the More tab is the one to highlight.
+  const moreActive = !bottom.some((i) => isActive(pathname, i.href)) && items.some((i) => isActive(pathname, i.href));
   return (
     <nav
       aria-label="Quick navigation"
-      className="bg-card/95 supports-[backdrop-filter]:bg-card/90 pl-safe pr-safe fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur-md lg:hidden"
+      className="bg-card/95 supports-[backdrop-filter]:bg-card/85 pl-safe pr-safe fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur-md lg:hidden"
     >
       <div className="pb-safe">
-        <ul className="mx-auto grid h-16 max-w-lg grid-cols-5">
+        <ul className="mx-auto grid h-14 max-w-lg grid-cols-5 items-stretch">
           {left.map((item) => (
             <li key={item.href}>
-              <Tab item={item} count={countFor(item.href)} active={isActive(item.href)} indicatorId={indicatorId} />
+              <Tab item={item} count={countFor(item.href)} active={isActive(pathname, item.href)} indicatorId={indicatorId} />
             </li>
           ))}
-          <li className="relative">
+          <li className="grid place-items-center">
             <Link
               href="/feed#compose"
               aria-label="Write a post"
-              className="border-foreground bg-accent-hot text-accent-hot-foreground absolute -top-5 left-1/2 grid size-14 -translate-x-1/2 place-items-center rounded-2xl border shadow-[2px_2px_0_0_var(--hard)] transition-transform duration-150 active:translate-x-[calc(-50%+2px)] active:translate-y-0.5 active:shadow-none"
+              className="bg-primary text-primary-foreground focus-visible:ring-ring/40 grid h-9 w-12 place-items-center rounded-xl shadow-xs transition-transform duration-150 outline-none focus-visible:ring-[3px] active:scale-95"
             >
-              <Plus className="size-7" strokeWidth={2.75} aria-hidden="true" />
+              <Plus className="size-5" strokeWidth={2.5} aria-hidden="true" />
             </Link>
           </li>
           {right.map((item) => (
             <li key={item.href}>
-              <Tab item={item} count={countFor(item.href)} active={isActive(item.href)} indicatorId={indicatorId} />
+              <Tab item={item} count={countFor(item.href)} active={isActive(pathname, item.href)} indicatorId={indicatorId} />
             </li>
           ))}
+          <li>
+            <button
+              type="button"
+              onClick={() => setMoreOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={moreOpen}
+              className={cn(TAB, moreActive ? "text-primary-text" : "text-muted-foreground")}
+            >
+              {moreActive && <Indicator id={indicatorId} />}
+              <Ellipsis className="size-[22px]" strokeWidth={moreActive ? 2.4 : 2} aria-hidden="true" />
+              More
+            </button>
+          </li>
         </ul>
       </div>
+      <MoreSheet open={moreOpen} onOpenChange={setMoreOpen} items={items} counts={counts} liveMessages={liveMessages} />
     </nav>
   );
 }

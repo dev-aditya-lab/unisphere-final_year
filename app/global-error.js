@@ -5,7 +5,7 @@
 export default function GlobalError({ reset }) {
   return (
     <html lang="en">
-      <body style={{ margin: 0, fontFamily: "system-ui, sans-serif", background: "#FBF6EC", color: "#1B1812" }}>
+      <body style={{ margin: 0, fontFamily: "system-ui, sans-serif", background: "#F8FAFC", color: "#111827" }}>
         <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, textAlign: "center" }}>
           <div style={{ maxWidth: 440 }}>
             <h1 style={{ fontSize: 28, margin: 0 }}>UniSphere hit a problem</h1>

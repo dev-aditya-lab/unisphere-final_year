@@ -24,7 +24,7 @@ test.describe.serial("social flow between two members", () => {
     await login(page, alice.email);
     await expect(page.getByRole("heading", { name: "Feed" })).toBeAttached();
 
-    await page.getByLabel("Post text").click();
+    await page.getByLabel("Start a post").click();
     await page.getByLabel("Post text").fill(`${marker} with #${tag} and @${bob.username}`);
     await page.getByRole("button", { name: "Post", exact: true }).click();
     await expect(page.getByText("Posted")).toBeVisible();

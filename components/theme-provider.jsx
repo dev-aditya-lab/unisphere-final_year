@@ -29,7 +29,7 @@ function prefersDark() {
 
 // The browser chrome (address bar, the installed app's title bar) follows these; keep them in step with the
 // chosen theme, which can differ from the operating system's preference.
-const CHROME_COLOR = { light: "#FBF6EC", dark: "#14120F" };
+const CHROME_COLOR = { light: "#F8FAFC", dark: "#0B0F1A" };
 
 function apply(theme) {
   const dark = theme === "dark" || (theme === "system" && prefersDark());

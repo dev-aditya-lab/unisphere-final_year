@@ -29,7 +29,7 @@ export default async function FeedPage({ searchParams }) {
   return (
     <TwoColumn aside={<RightRail />}>
       <h1 className="sr-only">Feed</h1>
-      <div className="space-y-5">
+      <div className="space-y-4">
         <AnnouncementsBanner items={announcements} />
         <Composer profile={profile} ai={ai} />
         <FeedFilters scope={scope} category={category} hasCollege={Boolean(profile.college_id)} />

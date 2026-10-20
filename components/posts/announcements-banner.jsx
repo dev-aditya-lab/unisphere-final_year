@@ -8,7 +8,7 @@ export function AnnouncementsBanner({ items }) {
   return (
     <section aria-label="Official announcements" className="space-y-2">
       {items.map((a) => (
-        <article key={a.id} className="border-primary/30 bg-accent/50 rounded-lg border p-4">
+        <article key={a.id} className="border-primary/20 bg-primary-soft rounded-2xl border p-4">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="default"><Megaphone /> Official announcement</Badge>
             {a.pinned && <Badge variant="mono"><Pin /> Pinned</Badge>}

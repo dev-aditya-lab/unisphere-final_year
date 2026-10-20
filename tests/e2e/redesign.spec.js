@@ -31,7 +31,7 @@ test.describe.serial("redesigned shell", () => {
     await page.getByRole("menuitemradio", { name: "Dark" }).click();
     await expect(page.locator("html")).toHaveClass(/dark/);
     const chrome = await page.locator('meta[name="theme-color"]').first().getAttribute("content");
-    expect(chrome?.toLowerCase()).toBe("#14120f");
+    expect(chrome?.toLowerCase()).toBe("#0b0f1a");
 
     await page.reload();
     await expect(page.locator("html")).toHaveClass(/dark/);
@@ -81,7 +81,7 @@ test.describe.serial("redesigned shell", () => {
 
   test("the offline fallback and the installable manifest use the new palette", async ({ request }) => {
     const manifest = await (await request.get("/manifest.webmanifest")).json();
-    expect(manifest.theme_color.toLowerCase()).toBe("#fbf6ec");
+    expect(manifest.theme_color.toLowerCase()).toBe("#f8fafc");
     expect(manifest.display).toBe("standalone");
     const sw = await (await request.get("/sw.js")).text();
     expect(sw).toContain("CLEAR_USER_CACHES");
