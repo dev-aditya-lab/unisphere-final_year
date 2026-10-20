@@ -1,0 +1,91 @@
+{
+  "label": "baseline-run1",
+  "base": "http://localhost:3100",
+  "history": 120,
+  "at": "2026-10-15T10:41:02.421Z",
+  "scenarios": {
+    "coldOpen": {
+      "msToLastMessageVisible": 491.9,
+      "wallMs": 1398,
+      "requests": {
+        "document": 1,
+        "rsc-render": 24,
+        "server-action": 1
+      },
+      "jsKBTransferred": 366
+    },
+    "revisitByClick": {
+      "msToLastMessageVisible": 125.1,
+      "requests": {
+        "rsc-render": 1,
+        "server-action": 1
+      }
+    },
+    "typing": {
+      "chars": 66,
+      "wallMs": 2096,
+      "slowEvents": {
+        "n": 258,
+        "p50": 16,
+        "p95": 32,
+        "max": 32
+      },
+      "longTasks": {
+        "n": 0,
+        "totalMs": 0
+      },
+      "longFrames": {
+        "n": 0,
+        "scriptMs": 0
+      }
+    },
+    "send": {
+      "msEnterToBubble": 15.4,
+      "msEnterToConfirmed": 66.1,
+      "requests": {
+        "server-action": 1
+      },
+      "rowsInDatabase": 1,
+      "dbStatements": 6
+    },
+    "incoming": {
+      "msBobInsertToAliceBubble": {
+        "n": 5,
+        "p50": 335,
+        "p95": 370,
+        "max": 370
+      },
+      "dbStatementsPerMessage": 44.8,
+      "requestsPerMessage": {
+        "server-action": 2,
+        "rsc-render": 7
+      }
+    },
+    "incomingWhileReadingOlder": {
+      "scrollTopBefore": 0,
+      "scrollTopAfter": 2301,
+      "keptPosition": false
+    },
+    "loadOlder": {
+      "messagesBefore": 37,
+      "messagesAfter": 67,
+      "anchorDriftPx": -2151,
+      "anchorKept": false
+    }
+  },
+  "realtimeJoins": [
+    "realtime:notifications:4d68b0b1-ac05-44b2-81c1-0ed2ad18bd01",
+    "realtime:inbox:4d68b0b1-ac05-44b2-81c1-0ed2ad18bd01",
+    "realtime:thread:5d107de0-aaa3-4f4b-b0a7-07bd530e3dfe",
+    "realtime:notifications:4d68b0b1-ac05-44b2-81c1-0ed2ad18bd01",
+    "realtime:inbox:4d68b0b1-ac05-44b2-81c1-0ed2ad18bd01",
+    "realtime:notifications:4d68b0b1-ac05-44b2-81c1-0ed2ad18bd01",
+    "realtime:thread:5d107de0-aaa3-4f4b-b0a7-07bd530e3dfe"
+  ],
+  "distinctRealtimeTopics": 3,
+  "totalRealtimeJoins": 7,
+  "longTasksTotal": {
+    "n": 0,
+    "ms": 0
+  }
+}

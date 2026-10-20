@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { useLiveMessageCount } from "@/lib/chat/unread-store";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { m } from "motion/react";
@@ -76,6 +77,8 @@ function Tab({ item, count, active, indicatorId }) {
 export function BottomNav({ items, counts = {} }) {
   const pathname = usePathname();
   const indicatorId = useId();
+  const liveMessages = useLiveMessageCount(counts["/messages"]);
+  const countFor = (href) => (href === "/messages" ? liveMessages : counts[href]);
   const bottom = MOBILE_BOTTOM_HREFS.map((href) => items.find((i) => i.href === href)).filter(Boolean);
   if (bottom.length < 2) return null;
   const mid = Math.ceil(bottom.length / 2);
@@ -91,7 +94,7 @@ export function BottomNav({ items, counts = {} }) {
         <ul className="mx-auto grid h-16 max-w-lg grid-cols-5">
           {left.map((item) => (
             <li key={item.href}>
-              <Tab item={item} count={counts[item.href]} active={isActive(item.href)} indicatorId={indicatorId} />
+              <Tab item={item} count={countFor(item.href)} active={isActive(item.href)} indicatorId={indicatorId} />
             </li>
           ))}
           <li className="relative">
@@ -105,7 +108,7 @@ export function BottomNav({ items, counts = {} }) {
           </li>
           {right.map((item) => (
             <li key={item.href}>
-              <Tab item={item} count={counts[item.href]} active={isActive(item.href)} indicatorId={indicatorId} />
+              <Tab item={item} count={countFor(item.href)} active={isActive(item.href)} indicatorId={indicatorId} />
             </li>
           ))}
         </ul>

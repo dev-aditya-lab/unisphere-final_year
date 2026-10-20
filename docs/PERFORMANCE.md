@@ -93,6 +93,9 @@ Client-side navigations between app pages finished in 70 to 130 ms. Failure path
 browser: a response lost after the server saved the post (one row, text kept, retry safe), a conflicting edit, three
 rapid taps ending in the right state, and a message sent over a slow connection (14 scripted checks, all passing).
 
+> Messaging was reworked afterwards (local-first client, atomic send, one realtime channel). Its audit, numbers
+> and rollout are in [MESSAGING.md](./MESSAGING.md).
+
 ## Not done, deliberately
 
 - **Virtualisation.** Lists are cursor-paginated with 15 items per page; measured scroll showed no long tasks.
@@ -100,7 +103,8 @@ rapid taps ending in the right state, and a message sent over a slow connection 
   remove them from the critical path.
 - **Optimistic profile or project edits.** They need authorization and validation answers; they use pending states.
 - **A queue.** `after()` already runs the work that does not block a response; no job needs a separate worker.
-- **Service worker.** It already caches static assets only and never private responses; no change.
+- **Service worker.** It still caches static assets only and never private responses. (Messaging later added a
+  Background Sync handler that delivers the chat outbox; see docs/MESSAGING.md.)
 
 ## Rollout notes
 

@@ -1,0 +1,88 @@
+{
+  "label": "after-run1",
+  "base": "http://localhost:3100",
+  "history": 120,
+  "at": "2026-10-15T10:54:22.644Z",
+  "scenarios": {
+    "coldOpen": {
+      "msToLastMessageVisible": 270.5,
+      "wallMs": 1156,
+      "requests": {
+        "document": 1,
+        "rsc-render": 12,
+        "api": 1
+      },
+      "jsKBTransferred": 411
+    },
+    "revisitByClick": {
+      "msToLastMessageVisible": 86.3,
+      "requests": {
+        "api": 1
+      }
+    },
+    "typing": {
+      "chars": 66,
+      "wallMs": 1047,
+      "slowEvents": {
+        "n": 124,
+        "p50": 16,
+        "p95": 16,
+        "max": 16
+      },
+      "longTasks": {
+        "n": 0,
+        "totalMs": 0
+      },
+      "longFrames": {
+        "n": 0,
+        "scriptMs": 0
+      }
+    },
+    "send": {
+      "msEnterToBubble": 7.9,
+      "msEnterToConfirmed": 46.6,
+      "requests": {
+        "api": 1
+      },
+      "rowsInDatabase": 1,
+      "dbStatements": 2
+    },
+    "incoming": {
+      "msBobInsertToAliceBubble": {
+        "n": 5,
+        "p50": 308,
+        "p95": 537,
+        "max": 537
+      },
+      "dbStatementsPerMessage": 4.8,
+      "requestsPerMessage": {
+        "api": 1
+      }
+    },
+    "incomingWhileReadingOlder": {
+      "scrollTopBefore": 2400,
+      "scrollTopAfter": 2400,
+      "keptPosition": true
+    },
+    "loadOlder": {
+      "messagesBefore": 67,
+      "messagesAfter": 97,
+      "anchorDriftPx": 0,
+      "anchorKept": true
+    }
+  },
+  "realtimeJoins": [
+    "realtime:chat:a9880bd9-da73-49ac-b916-1c899e1baee8",
+    "realtime:typing:117e3e3b-1d6f-4d66-aadd-b5f226350a08",
+    "realtime:notifications:a9880bd9-da73-49ac-b916-1c899e1baee8",
+    "realtime:chat:a9880bd9-da73-49ac-b916-1c899e1baee8",
+    "realtime:notifications:a9880bd9-da73-49ac-b916-1c899e1baee8",
+    "realtime:typing:117e3e3b-1d6f-4d66-aadd-b5f226350a08"
+  ],
+  "distinctRealtimeTopics": 3,
+  "totalRealtimeJoins": 6,
+  "longTasksTotal": {
+    "n": 0,
+    "ms": 0
+  }
+}

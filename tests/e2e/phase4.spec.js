@@ -74,17 +74,19 @@ test.describe.serial("notifications, messaging, events and the worker", () => {
     await bobPage.goto(convUrl);
     await bobPage.waitForLoadState("networkidle");
 
+    // The inbox row now shows the latest message live too, so message text is looked up inside the open conversation.
+    const thread = (page) => page.getByRole("region", { name: "Conversation" });
     await alicePage.getByLabel("Message", { exact: true }).fill("Hello Bob, are you free to chat?");
     await alicePage.getByRole("button", { name: "Send message" }).click();
-    await expect(alicePage.getByText("Hello Bob, are you free to chat?")).toBeVisible();
+    await expect(thread(alicePage).getByRole("log").getByText("Hello Bob, are you free to chat?")).toBeVisible();
     // bob sees it without reloading
-    await expect(bobPage.getByText("Hello Bob, are you free to chat?")).toBeVisible({ timeout: 20_000 });
+    await expect(thread(bobPage).getByRole("log").getByText("Hello Bob, are you free to chat?")).toBeVisible({ timeout: 20_000 });
     // alice sees the "Seen" receipt once bob has the thread open
     await expect(alicePage.getByLabel("Seen")).toBeVisible({ timeout: 20_000 });
 
     await bobPage.getByLabel("Message", { exact: true }).fill("Yes! Let's talk.");
     await bobPage.keyboard.press("Enter");
-    await expect(alicePage.getByText("Yes! Let's talk.")).toBeVisible({ timeout: 20_000 });
+    await expect(thread(alicePage).getByRole("log").getByText("Yes! Let's talk.")).toBeVisible({ timeout: 20_000 });
 
     // a stranger cannot open the conversation
     const carol = await createUser("carol-p4");

@@ -6,12 +6,19 @@ import { toast } from "sonner";
 import { clearAllDrafts } from "@/lib/client/drafts";
 
 /**
- * Removes anything this device may have kept for the signed-in member (called when they log out). The service
- * worker never stores private pages or API responses, so this is belt and braces: it drops every cache except the
- * public static one, and tells the worker to do the same.
+ * Removes anything this device may have kept for the signed-in member (called when they log out): the on-device
+ * message store, drafts and the caches. The service worker never stores private pages or API responses, so the cache
+ * part is belt and braces: it drops every cache except the public static one, and tells the worker to do the same.
  */
 export async function clearUserCaches() {
   clearAllDrafts();
+  try {
+    // The on-device message store (conversations, unsent drafts, undelivered messages) and every other tab's copy.
+    const { wipeChatData } = await import("@/lib/chat/registry");
+    await wipeChatData();
+  } catch {
+    /* the store is already gone, or the browser forbids it */
+  }
   try {
     if ("caches" in window) {
       const keys = await caches.keys();
@@ -55,8 +62,12 @@ export function PwaProvider() {
     if (process.env.NODE_ENV !== "production" && process.env.NEXT_PUBLIC_PWA_DEV !== "true") return;
 
     let reloading = false;
+    // The very first install also fires controllerchange (the worker claims the page). Nothing is stale then, and a
+    // reload would interrupt whatever the member just started (a message being written). Only a hand-over from an
+    // older worker to a newer one needs the page to restart.
+    const hadController = Boolean(navigator.serviceWorker.controller);
     const onControllerChange = () => {
-      if (reloading) return;
+      if (reloading || !hadController) return;
       reloading = true;
       window.location.reload();
     };
@@ -95,7 +106,7 @@ export function PwaProvider() {
       className="bg-foreground text-background fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-2 px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 text-center text-[13px] font-semibold"
     >
       <WifiOff className="size-4 shrink-0" aria-hidden="true" />
-      You are offline. Posts and messages will not load or send until you reconnect.
+      You are offline. Pages will not load until you reconnect. Messages you write are kept and sent when you are back.
     </div>
   );
 }

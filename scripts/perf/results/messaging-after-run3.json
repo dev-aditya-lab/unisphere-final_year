@@ -1,0 +1,87 @@
+{
+  "label": "after-run3",
+  "base": "http://localhost:3100",
+  "history": 120,
+  "at": "2026-10-15T10:55:33.483Z",
+  "scenarios": {
+    "coldOpen": {
+      "msToLastMessageVisible": 285.2,
+      "wallMs": 891,
+      "requests": {
+        "document": 1,
+        "rsc-render": 12,
+        "api": 1
+      },
+      "jsKBTransferred": 411
+    },
+    "revisitByClick": {
+      "msToLastMessageVisible": 71.1,
+      "requests": {
+        "api": 1
+      }
+    },
+    "typing": {
+      "chars": 66,
+      "wallMs": 1043,
+      "slowEvents": {
+        "n": 126,
+        "p50": 16,
+        "p95": 16,
+        "max": 16
+      },
+      "longTasks": {
+        "n": 0,
+        "totalMs": 0
+      },
+      "longFrames": {
+        "n": 0,
+        "scriptMs": 0
+      }
+    },
+    "send": {
+      "msEnterToBubble": 10.5,
+      "msEnterToConfirmed": 58.9,
+      "requests": {
+        "api": 1
+      },
+      "rowsInDatabase": 1,
+      "dbStatements": 2
+    },
+    "incoming": {
+      "msBobInsertToAliceBubble": {
+        "n": 5,
+        "p50": 350,
+        "p95": 351,
+        "max": 351
+      },
+      "dbStatementsPerMessage": 4.8,
+      "requestsPerMessage": {
+        "api": 1
+      }
+    },
+    "incomingWhileReadingOlder": {
+      "scrollTopBefore": 2400,
+      "scrollTopAfter": 2400,
+      "keptPosition": true
+    },
+    "loadOlder": {
+      "messagesBefore": 67,
+      "messagesAfter": 97,
+      "anchorDriftPx": 0,
+      "anchorKept": true
+    }
+  },
+  "realtimeJoins": [
+    "realtime:chat:e477bb34-96f2-40a8-a4a2-ff340a012bfe",
+    "realtime:notifications:e477bb34-96f2-40a8-a4a2-ff340a012bfe",
+    "realtime:chat:e477bb34-96f2-40a8-a4a2-ff340a012bfe",
+    "realtime:notifications:e477bb34-96f2-40a8-a4a2-ff340a012bfe",
+    "realtime:typing:3d1daba0-1535-4606-bd8f-274cd2c70df4"
+  ],
+  "distinctRealtimeTopics": 3,
+  "totalRealtimeJoins": 5,
+  "longTasksTotal": {
+    "n": 0,
+    "ms": 0
+  }
+}

@@ -9,7 +9,7 @@
  * private. Those always come from the network, so nothing personal is ever left in a shared device's
  * cache after logging out.
  */
-const VERSION = "v2";
+const VERSION = "v3";
 const STATIC_CACHE = `unisphere-static-${VERSION}`;
 const SHELL = ["/logo-mark.png", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/badge-96.png"];
 // Next.js dev files are not content-hashed, so on localhost they must never be served from cache.
@@ -98,6 +98,76 @@ self.addEventListener("fetch", (event) => {
   if (LOCAL) return;
   if (path.startsWith("/_next/static/")) event.respondWith(cacheFirst(request));
   else if (isStaticAsset(path)) event.respondWith(staleWhileRevalidate(request));
+});
+
+// ── Chat outbox (Background Sync) ──────────────────────────────────────────
+// The page keeps unsent messages in its own IndexedDB (database "unisphere-chat:<user id>", store "outbox"). When a
+// message is written offline the page asks for a one-off sync; if the browser supports it and the page is closed
+// before connectivity returns, this handler sends them with the member's cookies. It is an accelerator, not the
+// mechanism: browsers may never fire it (iOS, Firefox), and the open page always flushes its own outbox. Sending
+// is idempotent (the same client_op_id), so a message that both paths try is stored once.
+// It reads only the outbox and writes only the sent message back; it never touches inbox or draft stores.
+const CHAT_DB_PREFIX = "unisphere-chat:";
+
+const idbRequest = (req) => new Promise((resolve, reject) => { req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); });
+const idbDone = (tx) => new Promise((resolve, reject) => { tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error); });
+
+async function flushChatOutbox() {
+  if (!self.indexedDB || !indexedDB.databases) return;
+  const names = (await indexedDB.databases()).map((d) => d.name).filter((n) => n && n.startsWith(CHAT_DB_PREFIX));
+  let mustRetry = false;
+  let changed = false;
+  for (const name of names) {
+    const db = await idbRequest(indexedDB.open(name)).catch(() => null);
+    if (!db) continue;
+    try {
+      if (!db.objectStoreNames.contains("outbox") || !db.objectStoreNames.contains("messages")) continue;
+      const entries = await idbRequest(db.transaction("outbox").objectStore("outbox").getAll());
+      entries.sort((a, b) => a.queued_at - b.queued_at);
+      for (const entry of entries) {
+        if (entry.state === "failed") continue;
+        let res;
+        try {
+          res = await fetch("/api/messages/" + entry.conversation_id, {
+            method: "POST",
+            credentials: "same-origin",
+            cache: "no-store",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ body: entry.body, fileIds: (entry.files || []).map((f) => f.id), clientOpId: entry.client_op_id }),
+          });
+        } catch {
+          mustRetry = true;
+          break; // still offline: stop, the browser will try the sync again
+        }
+        const data = await res.json().catch(() => null);
+        const tx = db.transaction(["outbox", "messages"], "readwrite");
+        if (res.ok && data && data.ok && data.message) {
+          tx.objectStore("outbox").delete(entry.client_op_id);
+          tx.objectStore("messages").put(data.message);
+          changed = true;
+        } else if (res.status === 401 || res.status === 408 || res.status === 429 || res.status >= 500) {
+          mustRetry = true; // the page deals with a lost session; transient errors are retried later
+          tx.abort();
+          break;
+        } else {
+          tx.objectStore("outbox").put({ ...entry, state: "failed", error: (data && data.error) || "This message could not be sent.", error_code: (data && data.code) || null });
+          changed = true;
+        }
+        await idbDone(tx).catch(() => {});
+      }
+    } finally {
+      db.close();
+    }
+  }
+  if (changed) {
+    const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    windows.forEach((w) => w.postMessage({ type: "CHAT_OUTBOX_CHANGED" }));
+  }
+  if (mustRetry) throw new Error("outbox not fully delivered");
+}
+
+self.addEventListener("sync", (event) => {
+  if (event.tag === "unisphere-outbox") event.waitUntil(flushChatOutbox());
 });
 
 // ── Web Push ────────────────────────────────────────────────────────────────

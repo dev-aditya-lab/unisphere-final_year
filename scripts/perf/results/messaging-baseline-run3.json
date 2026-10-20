@@ -1,0 +1,90 @@
+{
+  "label": "baseline-run3",
+  "base": "http://localhost:3100",
+  "history": 120,
+  "at": "2026-10-15T10:53:22.898Z",
+  "scenarios": {
+    "coldOpen": {
+      "msToLastMessageVisible": 251.9,
+      "wallMs": 1076,
+      "requests": {
+        "document": 1,
+        "server-action": 1,
+        "rsc-render": 15
+      },
+      "jsKBTransferred": 366
+    },
+    "revisitByClick": {
+      "msToLastMessageVisible": 123.1,
+      "requests": {
+        "rsc-render": 1,
+        "server-action": 1
+      }
+    },
+    "typing": {
+      "chars": 66,
+      "wallMs": 2069,
+      "slowEvents": {
+        "n": 152,
+        "p50": 16,
+        "p95": 24,
+        "max": 24
+      },
+      "longTasks": {
+        "n": 0,
+        "totalMs": 0
+      },
+      "longFrames": {
+        "n": 0,
+        "scriptMs": 0
+      }
+    },
+    "send": {
+      "msEnterToBubble": 15.1,
+      "msEnterToConfirmed": 67.3,
+      "requests": {
+        "server-action": 1
+      },
+      "rowsInDatabase": 1,
+      "dbStatements": 8
+    },
+    "incoming": {
+      "msBobInsertToAliceBubble": {
+        "n": 5,
+        "p50": 317,
+        "p95": 376,
+        "max": 376
+      },
+      "dbStatementsPerMessage": 44.4,
+      "requestsPerMessage": {
+        "server-action": 2,
+        "rsc-render": 7
+      }
+    },
+    "incomingWhileReadingOlder": {
+      "scrollTopBefore": 0,
+      "scrollTopAfter": 2301,
+      "keptPosition": false
+    },
+    "loadOlder": {
+      "messagesBefore": 37,
+      "messagesAfter": 67,
+      "anchorDriftPx": -2151,
+      "anchorKept": false
+    }
+  },
+  "realtimeJoins": [
+    "realtime:inbox:0d2c05ef-4c4f-420d-b02f-1bbd42c3e49b",
+    "realtime:thread:1ded6918-0946-4d30-b556-e25089f639b2",
+    "realtime:notifications:0d2c05ef-4c4f-420d-b02f-1bbd42c3e49b",
+    "realtime:inbox:0d2c05ef-4c4f-420d-b02f-1bbd42c3e49b",
+    "realtime:notifications:0d2c05ef-4c4f-420d-b02f-1bbd42c3e49b",
+    "realtime:thread:1ded6918-0946-4d30-b556-e25089f639b2"
+  ],
+  "distinctRealtimeTopics": 3,
+  "totalRealtimeJoins": 6,
+  "longTasksTotal": {
+    "n": 0,
+    "ms": 0
+  }
+}

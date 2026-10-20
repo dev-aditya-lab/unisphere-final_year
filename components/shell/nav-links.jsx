@@ -9,6 +9,7 @@ import { NavPending } from "@/components/shell/nav-pending";
 import { EASE } from "@/lib/motion";
 import { NavIcon } from "@/components/shell/nav-icons";
 import { CountBadge } from "@/components/motion/count-badge";
+import { useLiveMessageCount } from "@/lib/chat/unread-store";
 import { cn } from "@/lib/utils";
 
 function isActive(pathname, href) {
@@ -22,6 +23,7 @@ function isActive(pathname, href) {
 export function NavLinks({ items, counts = {}, onNavigate }) {
   const pathname = usePathname();
   const indicatorId = useId();
+  const live = useLiveMessageCount(counts["/messages"]);
   return (
     <nav aria-label="Primary" className="space-y-6">
       {NAV_GROUPS.map((group) => {
@@ -33,7 +35,7 @@ export function NavLinks({ items, counts = {}, onNavigate }) {
             <ul className="space-y-1">
               {groupItems.map(({ href, label, icon }) => {
                 const active = isActive(pathname, href);
-                const count = counts[href];
+                const count = href === "/messages" ? live : counts[href];
                 return (
                   <li key={href}>
                     <Link

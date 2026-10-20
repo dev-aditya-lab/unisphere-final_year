@@ -1,23 +1,38 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { ConversationList } from "@/components/messages/conversation-list";
+import { MessagesApp } from "@/components/messages/messages-app";
+import { InboxSeed } from "@/components/messages/seeds";
 import { requireProfile } from "@/lib/auth/session";
-import { listConversations } from "@/lib/services/messages";
+import { getInbox } from "@/lib/services/messages";
 import { isFlagEnabled } from "@/lib/settings";
 
 export const metadata = { title: "Messages", robots: { index: false, follow: false } };
 
-/** Two-pane inbox on desktop; on mobile the list and the open thread take turns. */
+/**
+ * The messaging area is one client application: the inbox and the open conversation render from the engine
+ * (components/messages), which keeps them on the device and updates them incrementally. The server's job here is
+ * to authorise and to hand over a first answer. The inbox streams in after the shell, so the page does not wait
+ * for it, and nothing in this tree re-renders when a message arrives.
+ */
 export default async function MessagesLayout({ children }) {
   if (!(await isFlagEnabled("messaging"))) notFound();
   const { user } = await requireProfile();
-  const conversations = await listConversations(user.id);
   return (
-    <div className="surface grid grid-cols-1 h-[calc(100dvh-9.5rem)] min-h-[28rem] overflow-hidden md:grid-cols-[20rem_minmax(0,1fr)] lg:h-[calc(100dvh-8rem)]">
-      <section aria-label="Inbox" className="min-h-0 overflow-y-auto border-r max-md:[&:has(+[data-open=true])]:hidden">
-        <h1 className="font-heading border-b p-3 text-lg font-bold">Messages</h1>
-        <ConversationList conversations={conversations} userId={user.id} />
-      </section>
+    <MessagesApp viewerId={user.id}>
+      <Suspense fallback={null}>
+        <InboxData userId={user.id} />
+      </Suspense>
       {children}
-    </div>
+    </MessagesApp>
   );
+}
+
+async function InboxData({ userId }) {
+  let conversations;
+  try {
+    conversations = await getInbox(userId);
+  } catch {
+    return null; // the client asks again through /api/messages/inbox and shows its own error state
+  }
+  return <InboxSeed conversations={conversations} />;
 }
