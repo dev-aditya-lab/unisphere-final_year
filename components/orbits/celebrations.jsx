@@ -15,9 +15,9 @@ const AUTO_DISMISS_MS = 14_000;
 
 function specFor(item, who, url) {
   const base = { url, ...(who ?? {}) };
-  if (item.category === "streak") return buildCardSpec({ kind: "streak", days: item.target, ...base });
-  if (item.category === "ranking") return buildCardSpec({ kind: "achievement", title: item.title, icon: item.icon, scope: item.scope, period: item.period, rank: item.rank, ...base });
-  return buildCardSpec({ kind: "achievement", title: item.title, icon: item.icon, ...base });
+  if (item.category === "streak") return buildCardSpec({ kind: "streak", days: item.target, imageKey: item.image_key, ...base });
+  if (item.category === "ranking") return buildCardSpec({ kind: "achievement", title: item.title, icon: item.icon, imageKey: item.image_key, scope: item.scope, period: item.period, rank: item.rank, ...base });
+  return buildCardSpec({ kind: "achievement", title: item.title, icon: item.icon, imageKey: item.image_key, ...base });
 }
 
 function BadgeReveal({ item }) {

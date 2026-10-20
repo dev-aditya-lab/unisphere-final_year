@@ -71,4 +71,16 @@ describe("Orbit Card text", () => {
     expect(season.sub).toBe("2nd · Global · Season 1");
     expect(season.badge.rank).toBe(2);
   });
+
+  it("carries a badge picture an administrator uploaded, except where the numbered ranking badge is the meaning", () => {
+    const key = "orbit_badge/11111111-1111-4111-8111-111111111111/22222222-2222-4222-8222-222222222222.png";
+    expect(buildCardSpec({ kind: "achievement", title: "Sharp Mind", icon: "brain", imageKey: key }).badge).toEqual({ name: "brain", rank: undefined, imageKey: key });
+    expect(buildCardSpec({ kind: "streak", days: 7, imageKey: key }).badge).toEqual({ name: "flame", imageKey: key });
+    // a top-ten position keeps its numbered badge, like RewardIcon on screen
+    const ranked = buildCardSpec({ kind: "achievement", title: "Orbit Elite", icon: "award", rank: 2, scope: "global", period: "Season 1", imageKey: key });
+    expect(ranked.badge.rank).toBe(2);
+    expect(ranked.badge.imageKey).toBeUndefined();
+    // no upload: the card stays on the built-in artwork
+    expect(buildCardSpec({ kind: "achievement", title: "Sharp Mind", icon: "brain" }).badge.imageKey).toBeUndefined();
+  });
 });

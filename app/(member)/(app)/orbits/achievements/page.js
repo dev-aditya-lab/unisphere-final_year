@@ -22,9 +22,9 @@ const GROUPS = [
 
 function specFor(a, e, profile, url) {
   const who = profile.orbits_cards_public ? { name: profile.full_name, username: profile.username } : {};
-  if (a.category === "streak") return buildCardSpec({ kind: "streak", days: a.target, url, ...who });
-  if (a.category === "ranking") return buildCardSpec({ kind: "achievement", title: a.title, icon: a.icon, scope: e.scope, period: e.period, rank: e.rank, url, ...who });
-  return buildCardSpec({ kind: "achievement", title: a.title, icon: a.icon, url, ...who });
+  if (a.category === "streak") return buildCardSpec({ kind: "streak", days: a.target, imageKey: a.image_key, url, ...who });
+  if (a.category === "ranking") return buildCardSpec({ kind: "achievement", title: a.title, icon: a.icon, imageKey: a.image_key, scope: e.scope, period: e.period, rank: e.rank, url, ...who });
+  return buildCardSpec({ kind: "achievement", title: a.title, icon: a.icon, imageKey: a.image_key, url, ...who });
 }
 
 export default async function AchievementsPage() {

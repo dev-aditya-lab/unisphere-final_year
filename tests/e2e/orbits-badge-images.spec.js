@@ -106,6 +106,14 @@ test.describe.serial("Badge pictures", () => {
     await expect(tile.locator(`img[src*="${key}"]`)).toHaveCount(1);
     const other = m.page.locator('li[data-earned="false"] img[src*="icons%2Freward"]').first();
     await expect(other).toBeAttached(); // the others keep the built-in artwork
+
+    // The Orbit Card must use the same picture: its canvas asks for the upload through our own domain (?proxy=1), because a
+    // canvas cannot read an image from the storage domain.
+    const asked = m.page.waitForRequest((r) => r.url().includes(`/api/media/${key}`) && r.url().includes("proxy=1"));
+    await tile.getByRole("button", { name: "Share" }).click();
+    await asked;
+    // Tests have no storage, so the picture cannot load; the card then falls back to the built-in artwork instead of failing.
+    await expect(m.page.getByRole("button", { name: "Download" })).toBeEnabled({ timeout: 15_000 });
     await m.context.close();
 
     const a = await as(browser, "gadmin");

@@ -76,7 +76,7 @@ export default async function MemberOrbitsPage({ params }) {
                     variant="ghost"
                     filename={`orbit-${a.id}`}
                     url={url}
-                    spec={buildCardSpec({ kind: a.id.startsWith("streak_") ? "streak" : "achievement", days: Number(a.id.split("_")[1]), title: a.title, icon: a.icon, scope: a.scope, period: a.period, rank: a.rank, name: s.user.full_name, username: s.user.username, url })}
+                    spec={buildCardSpec({ kind: a.id.startsWith("streak_") ? "streak" : "achievement", days: Number(a.id.split("_")[1]), title: a.title, icon: a.icon, imageKey: a.image_key, scope: a.scope, period: a.period, rank: a.rank, name: s.user.full_name, username: s.user.username, url })}
                   />
                 )}
               </li>
