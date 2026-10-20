@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { safeNext } from "@/lib/safe-redirect";
+import { redirectToPath } from "@/lib/security/relative-redirect";
 
 export const dynamic = "force-dynamic";
 
@@ -15,17 +15,17 @@ const PASS_THROUGH_ERRORS = new Set(["profile_missing"]);
  * would send the visitor to /login again.
  */
 export async function GET(request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const next = safeNext(searchParams.get("next"), "/feed");
   const error = searchParams.get("error");
 
   const supabase = await createClient();
   await supabase.auth.signOut({ scope: "local" }).catch(() => {});
 
-  const target = new URL("/login", origin);
-  target.searchParams.set("next", next);
-  if (error && PASS_THROUGH_ERRORS.has(error)) target.searchParams.set("error", error);
-  const res = NextResponse.redirect(target);
+  // Relative, so it is right behind a proxy (request.url there is the server's own address, not the public domain).
+  const query = new URLSearchParams({ next });
+  if (error && PASS_THROUGH_ERRORS.has(error)) query.set("error", error);
+  const res = redirectToPath(`/login?${query.toString()}`);
   res.headers.set("Cache-Control", "private, no-store");
   return res;
 }

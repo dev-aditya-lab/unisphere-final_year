@@ -51,6 +51,7 @@ pointing at Resend). Use Resend's test addresses to exercise the real API safely
 | App emails not sent, `email: not configured` in `/api/health?deep=1` | `RESEND_API_KEY` missing in the *app* environment (the worker does not send email itself; the app does) |
 | "The sender domain is not verified" | DNS records not propagated, or `EMAIL_FROM` uses a different domain from the verified one |
 | Emails arrive but links point to `localhost` | `NEXT_PUBLIC_APP_URL` is not set to the public URL at build time; fix it and redeploy |
+| The email shows the right domain, but clicking it opens `localhost:10000` (or another internal port) | Fixed in code: `/auth/confirm` and `/auth/session-ended` now redirect with a relative `Location`. Behind a proxy the server only knows its own address (Render's port is 10000), so never build a redirect from `new URL(request.url).origin`; use `redirectToPath()` (`lib/security/relative-redirect.js`) |
 | Sign-up says "could not send the confirmation email" | Resend is not configured or the sender domain is not verified: check `RESEND_API_KEY`, `EMAIL_FROM` and Resend → Logs |
 | Members complain they get too many | They can change categories in Settings → Notifications; digest delay can be raised in `claim_notification_emails` |
 | Emails land in spam | Add DMARC, keep `From` consistent, avoid link shorteners, warm up gradually for a new domain |
