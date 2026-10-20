@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { PenLine, Search } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
@@ -10,6 +11,10 @@ import { InstallBanner } from "@/components/pwa/install-banner";
 import { CelebrationListener } from "@/components/motion/celebrate";
 import { MotionFeatures } from "@/components/motion/motion-features";
 import { Button } from "@/components/ui/button";
+import { OrbitHeaderPill } from "@/components/orbits/glance-server";
+import { OrbitPillSkeleton } from "@/components/orbits/header-pill";
+import { OrbitCelebrations } from "@/components/orbits/celebrations";
+import { publicEnv } from "@/lib/env-public";
 import { visibleNav } from "@/lib/nav";
 import { getFlags } from "@/lib/settings";
 import { hasPermission } from "@/lib/auth/session";
@@ -77,6 +82,9 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
               </div>
             </form>
             <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
+              <Suspense fallback={<OrbitPillSkeleton />}>
+                <OrbitHeaderPill />
+              </Suspense>
               <ThemeToggle className="hidden sm:inline-flex" />
               <NotificationBell key={bellCount} userId={profile.id} initialCount={bellCount} />
               <UserMenu profile={profile} isStaff={isStaff} />
@@ -92,6 +100,10 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
       </div>
       <BottomNav items={items} counts={counts} />
       <CelebrationListener />
+      <OrbitCelebrations
+        who={profile.orbits_cards_public ? { name: profile.full_name, username: profile.username } : null}
+        url={profile.orbits_cards_public ? `${publicEnv.appUrl}/u/${profile.username}/orbits` : null}
+      />
     </div>
     </MotionFeatures>
   );

@@ -15,6 +15,7 @@ import { CategoryBadge } from "@/components/posts/category-badge";
 import { CategoryIcon } from "@/components/posts/category-icons";
 import { SuggestTextarea } from "@/components/posts/suggest-textarea";
 import { createPostAction } from "@/lib/actions/posts";
+import { ORBITS_CHANGED } from "@/lib/orbits/glance-store";
 import { POST_CATEGORIES, POST_VISIBILITY, COMMUNITY_POST_VISIBILITY, CATEGORY_BY_VALUE } from "@/lib/content/post-meta";
 import { uploadFileWithProgress } from "@/lib/storage/client";
 import { useImageEditor } from "@/components/images/use-image-editor";
@@ -289,6 +290,7 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
       }
       if (res.ok) {
         toast.success("Posted");
+        window.dispatchEvent(new Event(ORBITS_CHANGED)); // a post can earn Orbits: let the header ask the server again
         const created = {
           id: res.id,
           slug: res.slug,

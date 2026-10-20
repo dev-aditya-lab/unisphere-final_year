@@ -9,6 +9,7 @@ import { NavPending } from "@/components/shell/nav-pending";
 import { EASE } from "@/lib/motion";
 import { NavIcon } from "@/components/shell/nav-icons";
 import { CountBadge } from "@/components/motion/count-badge";
+import { OrbitNavMark } from "@/components/orbits/nav-bits";
 import { useLiveMessageCount } from "@/lib/chat/unread-store";
 import { cn } from "@/lib/utils";
 
@@ -44,9 +45,11 @@ export function NavLinks({ items, counts = {}, onNavigate }) {
                       prefetch={shouldPrefetch(href) ? undefined : false}
                       onClick={onNavigate}
                       aria-current={active ? "page" : undefined}
+                      title={href === "/orbits" ? "Orbits: earn rewards, keep your streak, answer the daily challenge" : undefined}
                       className={cn(
                         "group relative flex h-9 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors duration-150",
                         active ? "text-primary-text font-semibold" : "text-muted-foreground hover:text-foreground",
+                        href === "/orbits" && !active && "text-primary-text/90 hover:shadow-[inset_0_0_0_1px_var(--orbit-line),0_4px_14px_-8px_color-mix(in_srgb,var(--primary)_55%,transparent)]",
                       )}
                     >
                       {active ? (
@@ -56,7 +59,7 @@ export function NavLinks({ items, counts = {}, onNavigate }) {
                       ) : (
                         <span aria-hidden="true" className="bg-accent absolute inset-0 rounded-lg opacity-0 transition-opacity duration-150 group-hover:opacity-100" />
                       )}
-                      <NavIcon name={icon} className="relative size-[18px] shrink-0" aria-hidden="true" />
+                      {href === "/orbits" ? <span className="relative"><OrbitNavMark size={28} /></span> : <NavIcon name={icon} className="relative size-[18px] shrink-0" aria-hidden="true" />}
                       <span className="relative flex-1 truncate">{label}</span>
                       <CountBadge value={count ?? 0} label="unread" className="relative" />
                       <NavPending className="relative" />

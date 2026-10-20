@@ -102,7 +102,7 @@ export function FeedFilters({ scope, category, hideCategories = false, hasColleg
                 active ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
               )}
             >
-              {Icon && <Icon className="size-3.5 shrink-0 max-[380px]:hidden" aria-hidden="true" />}
+              {Icon && <Icon className="size-3.5 shrink-0 max-[440px]:hidden" aria-hidden="true" />}
               {s.label}
             </Link>
           );

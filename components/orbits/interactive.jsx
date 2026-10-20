@@ -4,65 +4,52 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CircleAlert, Loader2, RotateCw } from "lucide-react";
+import { AnimatePresence, m } from "motion/react";
+import { Check, CircleAlert, Loader2, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BoardRows } from "@/components/orbits/leaderboard-list";
 import { RewardIcon } from "@/components/orbits/reward-icon";
 import { Section, SeeAll } from "@/components/orbits/cards";
-import { claimCheckinAction, loadLeaderboardAction, submitAnswerAction } from "@/lib/actions/orbits";
+import { GainChip, burstFrom } from "@/components/orbits/fx";
+import { useClaimCheckin } from "@/components/orbits/use-claim";
+import { loadLeaderboardAction, submitAnswerAction } from "@/lib/actions/orbits";
+import { publishGlance } from "@/lib/orbits/glance-store";
+import { EASE } from "@/lib/motion";
 import { CATEGORY_LABEL, SCOPES } from "@/lib/orbits/icons";
 import { cn } from "@/lib/utils";
 
 /** Daily Orbit Bonus: the reward is shown before claiming; the server decides, and repeated clicks cannot pay twice. */
 export function DailyBonusCard({ checkin }) {
-  const router = useRouter();
-  const [claimed, setClaimed] = useState(checkin.claimed_today);
-  const [gain, setGain] = useState(null);
-  const [error, setError] = useState(null);
-  const [pending, startTransition] = useTransition();
-
-  function claim() {
-    setError(null);
-    startTransition(async () => {
-      let res;
-      try {
-        res = await claimCheckinAction();
-      } catch {
-        res = { ok: false, error: "We could not reach UniSphere. Check your connection and try again." };
-      }
-      if (res.ok) {
-        setClaimed(true);
-        if (res.data.claimed) {
-          setGain(res.data.amount);
-          toast.success(`You earned +${res.data.amount} Orbits!`);
-        }
-        router.refresh();
-      } else setError(res.error);
-    });
-  }
+  const { claimed, claim, pending, error, gain } = useClaimCheckin(checkin.claimed_today);
+  const btn = useRef(null);
 
   return (
-    <Section aria-label="Daily Orbit Bonus" className="flex items-center gap-4">
-      <RewardIcon name="calendar-check" size={64} alt="Daily check-in" />
+    <Section aria-label="Daily Orbit Bonus" className="relative flex items-center gap-4">
+      <span className="relative shrink-0">
+        <RewardIcon name="calendar-check" size={64} alt="Daily check-in" className={cn(gain && "orbit-bump")} />
+        <GainChip key={gain?.id} amount={gain?.amount} className="-top-1 left-10" />
+      </span>
       <div className="min-w-0 flex-1">
         <p className="eyebrow">Daily Orbit Bonus</p>
-        {claimed ? (
-          <p className="text-sm font-semibold" role="status">
-            {gain ? `You earned +${gain} Orbits!` : "Claimed today."} <span className="text-muted-foreground font-normal">Come back tomorrow.</span>
-          </p>
-        ) : (
-          <p className="text-sm">
-            <span className="font-semibold">+{checkin.reward} Orbits</span> <span className="text-muted-foreground">waiting for you today.</span>
-          </p>
-        )}
+        <p className="text-sm" role="status">
+          {claimed ? (
+            <>
+              <span className="font-semibold">{gain ? `You earned +${gain.amount} Orbits!` : "Claimed today."}</span> <span className="text-muted-foreground">Come back tomorrow.</span>
+            </>
+          ) : (
+            <>
+              <span className="font-semibold">+{checkin.reward} Orbits</span> <span className="text-muted-foreground">waiting for you today.</span>
+            </>
+          )}
+        </p>
         {error && (
           <p role="alert" className="text-destructive-text mt-1 flex items-center gap-1.5 text-xs">
             <CircleAlert className="size-3.5 shrink-0" aria-hidden="true" /> {error}
           </p>
         )}
       </div>
-      <Button onClick={claim} disabled={claimed || pending} aria-busy={pending} className="shrink-0">
-        {pending ? <Loader2 className="animate-spin" /> : null}
+      <Button ref={btn} onClick={() => claim(btn.current)} disabled={claimed || pending} aria-busy={pending} className={cn("shrink-0", !claimed && "orbit-glint relative overflow-hidden")}>
+        {pending ? <Loader2 className="animate-spin" /> : claimed ? <Check /> : null}
         {claimed ? "Claimed" : pending ? "Claiming…" : "Claim"}
       </Button>
     </Section>
@@ -96,6 +83,7 @@ export function ChallengeCard({ question }) {
   }
 
   const answered = Boolean(result);
+  const fresh = result?.earnedParticipation != null; // answered just now in this tab, not a revisit
 
   function submit() {
     if (selected === null) return;
@@ -109,8 +97,11 @@ export function ChallengeCard({ question }) {
       }
       if (!res.ok) return setError(res.error);
       const d = res.data;
+      publishGlance(d.glance);
       setSelected(d.selected);
       setResult({ selected: d.selected, is_correct: d.is_correct, correct_index: d.correct_index, explanation: d.explanation, earnedParticipation: d.earned_participation, earnedCorrect: d.earned_correct, already: d.already_answered });
+      // Celebrate only what the server confirmed: a first answer that was correct. A repeat or a wrong answer is quiet.
+      if (!d.already_answered && d.is_correct) burstFrom(radios.current[d.selected], { count: 26, spread: 0.6 });
       if (!d.already_answered) toast.success(d.is_correct ? `Correct answer! +${d.earned_participation + d.earned_correct} Orbits.` : `Thanks for answering. +${d.earned_participation} Orbits.`);
       router.refresh();
     });
@@ -129,7 +120,7 @@ export function ChallengeCard({ question }) {
   const earned = result ? (result.earnedParticipation ?? 0) + (result.earnedCorrect ?? 0) || result.earned || 0 : 0;
 
   return (
-    <Section aria-label="Daily Challenge" className="space-y-4">
+    <Section id="challenge" aria-label="Daily Challenge" className="scroll-mt-20 space-y-4">
       <div className="flex items-start gap-3">
         <RewardIcon name="brain" size={56} className="mt-0.5" />
         <div className="min-w-0">
@@ -145,9 +136,12 @@ export function ChallengeCard({ question }) {
           const isCorrect = answered && result.correct_index === i;
           const isWrongChoice = answered && chosen && !result.is_correct;
           return (
-            <button
+            <m.button
               key={i}
               ref={(el) => (radios.current[i] = el)}
+              whileTap={answered || pending ? undefined : { scale: 0.985 }}
+              transition={fresh && (isCorrect || isWrongChoice) ? { duration: 0.4, ease: EASE.out } : EASE.spring}
+              animate={fresh && isCorrect ? { scale: [1, 1.02, 1] } : fresh && isWrongChoice ? { x: [0, -4, 4, -2, 0] } : undefined}
               type="button"
               role="radio"
               aria-checked={chosen}
@@ -164,12 +158,12 @@ export function ChallengeCard({ question }) {
               )}
             >
               <span className={cn("grid size-6 shrink-0 place-items-center rounded-full border text-xs font-bold", chosen && !answered && "border-primary bg-primary text-primary-foreground")} aria-hidden="true">
-                {"ABCD"[i]}
+                {chosen && !answered ? <Check className="orbit-pop size-3.5" strokeWidth={3} /> : "ABCD"[i]}
               </span>
               <span className="min-w-0 flex-1">{opt}</span>
-              {isCorrect && <span className="flex items-center gap-1 text-xs font-bold"><RewardIcon name="circle-check" size={22} />Correct</span>}
-              {isWrongChoice && <span className="flex items-center gap-1 text-xs font-bold"><RewardIcon name="circle-x" size={22} />Your answer</span>}
-            </button>
+              {isCorrect && <span className="orbit-pop flex items-center gap-1 text-xs font-bold"><RewardIcon name="circle-check" size={22} />Correct</span>}
+              {isWrongChoice && <span className="orbit-pop flex items-center gap-1 text-xs font-bold"><RewardIcon name="circle-x" size={22} />Your answer</span>}
+            </m.button>
           );
         })}
       </div>
@@ -186,7 +180,7 @@ export function ChallengeCard({ question }) {
           {pending ? "Checking…" : "Submit answer"}
         </Button>
       ) : (
-        <div className="bg-muted/50 space-y-2 rounded-xl p-3.5 text-sm" role="status">
+        <m.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: EASE.out }} className="bg-muted/50 space-y-2 rounded-xl p-3.5 text-sm" role="status">
           <p className="flex items-center gap-2 font-bold">
             <RewardIcon name={result.is_correct ? "circle-check" : "circle-x"} size={28} />
             {result.is_correct ? "Correct answer!" : "Not quite."}
@@ -200,7 +194,7 @@ export function ChallengeCard({ question }) {
             </p>
           )}
           <Link href="/orbits/learning" className="text-primary-text inline-block text-xs font-semibold hover:underline">See previous questions</Link>
-        </div>
+        </m.div>
       )}
     </Section>
   );

@@ -1,4 +1,7 @@
+import { Suspense } from "react";
 import { Newspaper } from "lucide-react";
+import { OrbitsFeedStrip, OrbitsFeedWidget } from "@/components/orbits/glance-server";
+import { OrbitsWidgetSkeleton } from "@/components/orbits/feed-widgets";
 import { Composer } from "@/components/posts/composer";
 import { FeedFilters } from "@/components/posts/feed-filters";
 import { FeedList } from "@/components/posts/feed-list";
@@ -35,10 +38,23 @@ export default async function FeedPage({ searchParams }) {
   ]);
 
   return (
-    <TwoColumn aside={<RightRail />}>
+    <TwoColumn
+      aside={
+        <div className="space-y-5">
+          <Suspense fallback={<OrbitsWidgetSkeleton />}>
+            <OrbitsFeedWidget />
+          </Suspense>
+          <RightRail />
+        </div>
+      }
+    >
       <h1 className="sr-only">Feed</h1>
       <div className="space-y-4">
         <AnnouncementsBanner items={announcements} />
+        {/* Below xl the sidebar is hidden, so a compact "today" strip takes its place (it renders nothing on xl and up) */}
+        <Suspense fallback={<div aria-hidden="true" className="skeleton h-[4.25rem] xl:hidden" />}>
+          <OrbitsFeedStrip />
+        </Suspense>
         <Composer profile={profile} ai={ai} />
         <FeedFilters
           scope={scope}

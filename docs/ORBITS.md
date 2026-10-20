@@ -1,7 +1,7 @@
 # Orbits: rewards, challenge, streak, badges and leaderboards
 
-Migration: `supabase/migrations/20260125000032_orbits.sql`. Apply it before deploying the app code (the Orbits pages show an
-error panel, not fake numbers, if it is missing). Tests: `tests/integration/orbits.test.js` (41), `tests/unit/orbits-cards.test.js` (7),
+Migrations: `supabase/migrations/20260125000032_orbits.sql`, then `20260126000033_orbits_glance.sql` (the header and feed reads and once-only celebrations). Apply both before deploying the app code (the Orbits pages show an
+error panel, not fake numbers, if it is missing). Tests: `tests/integration/orbits.test.js` (46), `tests/unit/orbits-cards.test.js` (7), `tests/unit/orbits-glance-store.test.js` (3), `tests/e2e/orbits-experience.spec.js` (7),
 `tests/e2e/orbits.spec.js` (10).
 
 ## How a reward happens
@@ -58,6 +58,22 @@ dates, globally, per college with at least `min_group_size` participants, and am
 presses the button, or automatically on the worker tick after the season's last day (`npm run worker` or any scheduler that calls
 `/api/cron/tick`; without one, finalise by hand). A live position is never shown as a badge: an Orbit Card for a live rank says "3rd on the
 college leaderboard, this week so far".
+
+## Where Orbits appears, and how it moves
+
+| Place | Component | Purpose |
+| --- | --- | --- |
+| Header (every page, every size) | `header-pill.jsx` | Quick balance and a link. A coral dot appears only for an unseen badge or an unclaimed daily bonus, and its reason is also in the link's accessible name. |
+| Feed sidebar (xl and wider) | `feed-widgets.jsx` `OrbitsWidget` | Full dashboard: balance, streak, challenge, nearest badge with a progress ring, weekly global standing, and one state-aware button (claim, then challenge, then explore). |
+| Feed, above the composer (below xl) | `OrbitsStrip` | The same three facts as a compact strip for screens that have no sidebar, and the one next step. It scrolls sideways inside itself on a phone, never the page. |
+| Sidebar navigation, More sheet | `nav-bits.jsx` | Planet icon with its ring, a title tooltip, a featured Orbits card at the top of More, and a dot on More. |
+| Orbits pages | `cards.jsx`, `interactive.jsx` | Orbital balance hero, progress rings, animated week bars and streak cells, answer feedback, badge rings. |
+
+**Data.** `orbit_glance()` is one cheap read (balance, bonus state, streak, challenge state, unseen-badge count). The header, widget and strip all read it through `getGlance` (memoised per request) inside `<Suspense>`, so a slow read never delays the feed; while it loads they show a fixed-size skeleton, and if it fails they show a plain fallback with no number. In the browser one small store (`lib/orbits/glance-store.js`) holds the latest snapshot and accepts a snapshot only if its database timestamp is newer, so every widget agrees and a late response can never move a number backwards. Actions that change Orbits return the new snapshot with their confirmation. The header asks again after navigation, when the tab returns, or after a post, at most every 45 s (8 s on Orbits pages), through `refreshGlanceAction` (rate limited).
+
+**Celebrations happen once.** A reward claim celebrates only when the server answers `claimed: true`. A badge is celebrated from `orbit_user_achievements.celebrated_at`: `orbit_take_celebrations()` marks the member's unseen badges and returns them in one statement, so a refresh, a second tab or a revisit cannot replay it (tested with two parallel callers). Badges earned before the migration were marked seen. Season badges are celebrated the next time the member opens the app after an admin finalises. The card is a polite live region, never takes focus or blocks the page, shows the badge's real name, description (its criteria) and any paid bonus, and offers Share achievement.
+
+**Motion.** Uses the existing `motion` package (`m`, `animate`, `useInView`), no new dependency. Ambient effects (orbit ring, travelling lights, twinkling stars, glint on the claim button, ring and bar draws) are CSS or SVG, transform and opacity only, and pause while off screen. Pointer depth is a few pixels of transform on fine pointers only. Confetti is the existing small canvas burst and is skipped for reduced motion; reduced motion also removes the travelling lights and shortens every CSS animation to one frame. Numbers count with `animate()` writing into the DOM (not React state), continue from what is on screen if a new value arrives, and are plain text at rest.
 
 ## Artwork
 

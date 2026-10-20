@@ -540,3 +540,71 @@
   background-size: 200% 100%;
   animation: shimmer 1.6s linear infinite;
 }
+
+/* ── Orbits: a small branded layer (indigo to violet) used by the rewards widgets, header pill and celebrations ───────────
+   Ambient motion here is CSS (transform and opacity only, paused when off screen); the global reduced-motion rule above
+   shortens every one of these to a single still frame. */
+:root {
+  --orbit-violet: #7c3aed;
+  --orbit-wash: color-mix(in srgb, var(--primary) 6%, var(--card));
+  --orbit-line: color-mix(in srgb, var(--primary) 22%, var(--border));
+}
+.dark {
+  --orbit-violet: #a78bfa;
+  --orbit-wash: color-mix(in srgb, var(--primary) 12%, var(--card));
+  --orbit-line: color-mix(in srgb, var(--primary) 30%, var(--border));
+}
+@keyframes ring-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes ring-fill {
+  from { stroke-dashoffset: 1; }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.1; transform: scale(0.55) rotate(0deg); }
+  50% { opacity: 0.95; transform: scale(1) rotate(24deg); }
+}
+@keyframes glint {
+  0%, 62%, 100% { transform: translateX(-130%) skewX(-18deg); }
+  82% { transform: translateX(230%) skewX(-18deg); }
+}
+@keyframes bump {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.16); }
+  100% { transform: scale(1); }
+}
+@keyframes float-up {
+  0% { opacity: 0; transform: translateY(8px) scale(0.9); }
+  15% { opacity: 1; transform: translateY(0) scale(1); }
+  78% { opacity: 1; transform: translateY(-4px); }
+  100% { opacity: 0; transform: translateY(-16px); }
+}
+@keyframes sheen-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+.orbit-ring-draw { stroke-dasharray: 1; animation: ring-draw 1100ms var(--ease-out) both; }
+.orbit-ring-fill { stroke-dasharray: 1; transition: stroke-dashoffset 700ms var(--ease-out); animation: ring-fill 1100ms var(--ease-out) both; }
+.orbit-twinkle { animation: twinkle 3.6s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+.orbit-glint::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(100deg, transparent 35%, rgb(255 255 255 / 0.38) 50%, transparent 65%);
+  animation: glint 5.5s ease-in-out infinite;
+}
+.orbit-bump { animation: bump 620ms var(--ease-out); }
+.orbit-gain { animation: float-up 2.4s ease-out both; }
+.orbit-enter { animation: sheen-in var(--dur-slow) var(--ease-out) both; }
+[data-orbit-paused="true"] .orbit-twinkle,
+[data-orbit-paused="true"].orbit-glint::after,
+[data-orbit-paused="true"] .orbit-glint::after { animation-play-state: paused; }
+/* Pointer depth: the parent sets --px and --py (-1 to 1) from the pointer; layers shift by a few pixels, GPU transform only. */
+.orbit-depth { transform: translate3d(calc(var(--px, 0) * var(--d, 4) * 1px), calc(var(--py, 0) * var(--d, 4) * 1px), 0); transition: transform 180ms var(--ease-out); will-change: transform; }
+@media (prefers-reduced-motion: reduce), (hover: none) { .orbit-depth { transform: none; will-change: auto; } }
+@keyframes grow-y { from { transform: scaleY(0); } }
+@keyframes grow-x { from { transform: scaleX(0); } }
+.orbit-grow-y { transform-origin: bottom; animation: grow-y 700ms var(--ease-out) both; }
+.orbit-grow-x { transform-origin: left; animation: grow-x 800ms var(--ease-out) both; }
+.orbit-pop { animation: pop var(--dur-slow) var(--ease-out) both; }
+@keyframes today-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 35%, transparent); } 50% { box-shadow: 0 0 0 5px transparent; } }
+.orbit-today { animation: today-pulse 2.6s ease-in-out infinite; }

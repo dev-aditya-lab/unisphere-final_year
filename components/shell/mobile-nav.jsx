@@ -9,6 +9,7 @@ import { Ellipsis, Plus } from "lucide-react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { NavIcon } from "@/components/shell/nav-icons";
 import { CountBadge } from "@/components/motion/count-badge";
+import { MoreDot, OrbitMoreCard, OrbitNavMark } from "@/components/orbits/nav-bits";
 import { MOBILE_BOTTOM_HREFS, NAV_GROUPS, shouldPrefetch } from "@/lib/nav";
 import { NavPending } from "@/components/shell/nav-pending";
 import { EASE } from "@/lib/motion";
@@ -54,6 +55,7 @@ function MoreSheet({ open, onOpenChange, items, counts, liveMessages }) {
           <SheetDescription className="sr-only">All sections of UniSphere</SheetDescription>
         </SheetHeader>
         <nav aria-label="All sections" className="space-y-5 px-4 pt-2 pb-5">
+          {items.some((i) => i.href === "/orbits") && <OrbitMoreCard onNavigate={() => onOpenChange(false)} />}
           {groups.map((group) => (
             <div key={group.id}>
               <p className="eyebrow mb-2">{group.label}</p>
@@ -74,7 +76,7 @@ function MoreSheet({ open, onOpenChange, items, counts, liveMessages }) {
                         )}
                       >
                         <span className="relative">
-                          <NavIcon name={icon} className="size-5" aria-hidden="true" />
+                          {href === "/orbits" ? <OrbitNavMark size={30} /> : <NavIcon name={icon} className="size-5" aria-hidden="true" />}
                           <CountBadge value={count ?? 0} label="unread" className="absolute -top-2 -right-3 h-4 min-w-4 px-1 text-[10px]" />
                         </span>
                         <span className="w-full truncate">{label}</span>
@@ -151,7 +153,10 @@ export function BottomNav({ items, counts = {} }) {
               className={cn(TAB, moreActive ? "text-primary-text" : "text-muted-foreground")}
             >
               {moreActive && <Indicator id={indicatorId} />}
-              <Ellipsis className="size-[22px]" strokeWidth={moreActive ? 2.4 : 2} aria-hidden="true" />
+              <span className="relative">
+                <Ellipsis className="size-[22px]" strokeWidth={moreActive ? 2.4 : 2} aria-hidden="true" />
+              </span>
+              <MoreDot />
               More
             </button>
           </li>

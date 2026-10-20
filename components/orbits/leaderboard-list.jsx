@@ -9,7 +9,7 @@ export function BoardRows({ rows, meId, size = 36 }) {
       {rows.map((r) => {
         const move = r.prev_rank ? Number(r.prev_rank) - Number(r.rank) : null;
         return (
-          <li key={r.user_id} className={cn("flex items-center gap-3 py-2", r.user_id === meId && "bg-primary-soft/60 -mx-2 rounded-lg px-2")} data-me={r.user_id === meId}>
+          <li key={r.user_id} className={cn("hover:bg-accent/60 -mx-2 flex items-center gap-3 rounded-lg px-2 py-2 transition-colors", r.user_id === meId && "bg-primary-soft/60 hover:bg-primary-soft")} data-me={r.user_id === meId}>
             <RankBadge rank={Number(r.rank)} size={size} />
             <Link href={`/u/${r.username}`} prefetch={false} className="min-w-0 flex-1 rounded hover:underline">
               <span className="block truncate text-sm font-semibold">

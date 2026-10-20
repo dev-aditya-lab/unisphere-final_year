@@ -8,7 +8,7 @@
 
 const COLORS = ["#FF5A36", "#FFC83D", "#1FB89A", "#6AA7FF", "#F4EEE3", "#1B1812"];
 
-export function fireConfetti({ x = 0.5, y = 0.35, count = 70, spread = 1 } = {}) {
+export function fireConfetti({ x = 0.5, y = 0.35, count = 70, spread = 1, colors = COLORS } = {}) {
   if (typeof window === "undefined") return;
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
 
@@ -33,7 +33,7 @@ export function fireConfetti({ x = 0.5, y = 0.35, count = 70, spread = 1 } = {})
       vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 5,
       w: 6 + Math.random() * 6, h: 3 + Math.random() * 5,
       rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.4,
-      color: COLORS[i % COLORS.length], round: i % 5 === 0,
+      color: colors[i % colors.length], round: i % 5 === 0,
     };
   });
 

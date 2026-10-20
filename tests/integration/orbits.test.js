@@ -582,3 +582,72 @@ describe("achievements for the member", () => {
     expect(o.recent.length).toBeGreaterThan(0);
   });
 });
+
+describe("the at-a-glance read and once-only celebrations (migration 20260126000033)", () => {
+  it("reports the member's own numbers, from the same tables the Orbits page reads", async () => {
+    const u = await createUser("orb-glance");
+    const fresh = (await rpc(u, "orbit_glance", {})).data;
+    expect(fresh).toMatchObject({ balance: 0, pending: 0, checkin: { claimed_today: false, reward: 5 }, streak: { current: 0, contributed_today: false } });
+    expect(typeof fresh.at).toBe("number");
+
+    await rpc(u, "orbit_claim_checkin", {});
+    const g = (await rpc(u, "orbit_glance", {})).data;
+    const overview = (await rpc(u, "orbit_overview", {})).data;
+    expect(g.balance).toBe(5);
+    expect(g.balance).toBe(overview.balance);
+    expect(g.checkin.claimed_today).toBe(true);
+    expect(g.streak).toEqual({ current: overview.streak.current, best: overview.streak.best, contributed_today: overview.streak.contributed_today, next_milestone: overview.streak.next_milestone, next_bonus: overview.streak.next_bonus });
+    expect(g.at).toBeGreaterThanOrEqual(fresh.at);
+  });
+
+  it("tells whether today's challenge is open and answered, and never shows another member's state", async () => {
+    await admin.from("orbit_questions").delete().gte("publish_date", istDay(-10));
+    const q = await makeQuestion();
+    const u = await createUser("orb-glance-q");
+    const other = await createUser("orb-glance-q2");
+    expect((await rpc(u, "orbit_glance", {})).data.challenge).toMatchObject({ answered: false, fallback: false, reward: 10 });
+    await rpc(u, "orbit_submit_answer", { p_question: q, p_selected: 1 });
+    expect((await rpc(u, "orbit_glance", {})).data.challenge.answered).toBe(true);
+    expect((await rpc(other, "orbit_glance", {})).data.challenge.answered).toBe(false);
+  });
+
+  it("counts unseen badges, hands each over exactly once even in parallel, and marks them seen", async () => {
+    const u = await createUser("orb-celebrate");
+    expect((await rpc(u, "orbit_glance", {})).data.pending).toBe(0);
+    const ach = (await admin.from("orbit_achievements").select("id, title, description").eq("active", true).limit(2)).data;
+    await admin.from("orbit_user_achievements").insert(ach.map((x) => ({ user_id: u.id, achievement_id: x.id })));
+    expect((await rpc(u, "orbit_glance", {})).data.pending).toBe(2);
+
+    // two tabs asking at the same moment: between them, every badge appears once
+    const [r1, r2] = await Promise.all([rpc(u, "orbit_take_celebrations", {}), rpc(u, "orbit_take_celebrations", {})]);
+    const all = [...r1.data, ...r2.data];
+    expect(all).toHaveLength(2);
+    expect(new Set(all.map((x) => x.achievement_id))).toEqual(new Set(ach.map((x) => x.id)));
+    expect(all[0]).toEqual(expect.objectContaining({ title: expect.any(String), description: expect.any(String), icon: expect.any(String), bonus: expect.any(Number) }));
+    expect((await rpc(u, "orbit_glance", {})).data.pending).toBe(0);
+    expect((await rpc(u, "orbit_take_celebrations", {})).data).toEqual([]);
+  });
+
+  it("does not celebrate old badges, and never takes another member's", async () => {
+    const mine = await createUser("orb-celebrate-me");
+    const theirs = await createUser("orb-celebrate-them");
+    const ach = (await admin.from("orbit_achievements").select("id").eq("active", true).limit(1).single()).data;
+    await admin.from("orbit_user_achievements").insert({ user_id: theirs.id, achievement_id: ach.id });
+    expect((await rpc(mine, "orbit_take_celebrations", {})).data).toEqual([]);
+    expect((await rpc(theirs, "orbit_glance", {})).data.pending).toBe(1); // still theirs to see
+    // rows from before the migration were marked seen: nothing in the table that was earned earlier is waiting
+    const old = (await admin.from("orbit_user_achievements").select("id").is("celebrated_at", null).lt("earned_at", new Date(Date.now() - 3_600_000).toISOString())).data;
+    expect(old).toEqual([]);
+  });
+
+  it("is closed to anonymous callers, and a member cannot rewrite the seen marker through the API", async () => {
+    expect((await anon().rpc("orbit_glance", {})).error).not.toBeNull();
+    expect((await anon().rpc("orbit_take_celebrations", {})).error).not.toBeNull();
+    const u = await createUser("orb-celebrate-api");
+    const ach = (await admin.from("orbit_achievements").select("id").eq("active", true).limit(1).single()).data;
+    await admin.from("orbit_user_achievements").insert({ user_id: u.id, achievement_id: ach.id });
+    const res = await u.client.from("orbit_user_achievements").update({ celebrated_at: new Date().toISOString() }).eq("user_id", u.id).select();
+    expect(res.data ?? []).toEqual([]);
+    expect((await rpc(u, "orbit_glance", {})).data.pending).toBe(1);
+  });
+});
