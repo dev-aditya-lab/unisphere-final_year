@@ -6,7 +6,9 @@ import { EmptyState } from "@/components/empty-state";
 import { RightRail } from "@/components/shell/right-rail";
 import { TwoColumn } from "@/components/shell/two-column";
 import { requireProfile } from "@/lib/auth/session";
-import { getFeedPage } from "@/lib/services/posts";
+import { getFeedPage, getTrendingHashtags } from "@/lib/services/posts";
+import { getForYouPage } from "@/lib/services/feed";
+import { TuneFeed } from "@/components/posts/tune-feed";
 import { getAiUiState } from "@/lib/ai/ui-state";
 import { AnnouncementsBanner } from "@/components/posts/announcements-banner";
 import { getAnnouncements } from "@/lib/services/campus";
@@ -14,17 +16,23 @@ import { CATEGORY_BY_VALUE } from "@/lib/content/post-meta";
 
 export const metadata = { title: "Feed", robots: { index: false, follow: false } };
 
-const SCOPES = new Set(["college", "following", "public"]);
+// "For you" is the default for everyone: it needs no college, no interests and no history (see lib/feed/rank.js).
+const SCOPES = new Set(["for_you", "college", "following", "public"]);
+const DEFAULT_SCOPE = "for_you";
 
 export default async function FeedPage({ searchParams }) {
   const { profile, user } = await requireProfile();
   const sp = await searchParams;
-  const defaultScope = profile.college_id ? "college" : "public";
   // "My college" only exists once a college is connected; without one the feed is general.
-  const scope = SCOPES.has(sp.scope) && !(sp.scope === "college" && !profile.college_id) ? sp.scope : defaultScope;
+  const scope = SCOPES.has(sp.scope) && !(sp.scope === "college" && !profile.college_id) ? sp.scope : DEFAULT_SCOPE;
   const category = CATEGORY_BY_VALUE[sp.category] ? sp.category : null;
 
-  const [page, ai, announcements] = await Promise.all([getFeedPage({ scope, category }), getAiUiState(profile), getAnnouncements(3)]);
+  const [page, ai, announcements, topics] = await Promise.all([
+    scope === "for_you" ? getForYouPage({ profile, category }) : getFeedPage({ scope, category }),
+    getAiUiState(profile),
+    getAnnouncements(3),
+    scope === "for_you" ? getTrendingHashtags(10) : [],
+  ]);
 
   return (
     <TwoColumn aside={<RightRail />}>
@@ -32,16 +40,25 @@ export default async function FeedPage({ searchParams }) {
       <div className="space-y-4">
         <AnnouncementsBanner items={announcements} />
         <Composer profile={profile} ai={ai} />
-        <FeedFilters scope={scope} category={category} hasCollege={Boolean(profile.college_id)} />
+        <FeedFilters
+          scope={scope}
+          category={category}
+          hasCollege={Boolean(profile.college_id)}
+          includeForYou
+          defaultScope={DEFAULT_SCOPE}
+          actions={scope === "for_you" ? <TuneFeed interests={profile.interests ?? []} topics={topics.map((t) => t.tag)} personalized={profile.personalize_feed !== false} /> : null}
+        />
         <FeedList
-          key={`${scope}-${category}-${page.items[0]?.id ?? "empty"}`}
+          // Changing interests re-ranks the page without necessarily changing its order: the list must still be replaced
+          key={`${scope}-${category}-${(profile.interests ?? []).join(",")}-${page.items[0]?.id ?? "empty"}`}
           initialItems={page.items}
           initialCursor={page.nextCursor}
           scope={scope}
           category={category}
           viewerId={user.id}
+          canSummarize={ai.assist}
           empty={
-            <EmptyState icon={Newspaper} title={scope === "following" ? "Nothing from people you follow yet" : "No posts here yet"}>
+            <EmptyState icon={Newspaper} title={scope === "following" ? "Nothing from people you follow yet" : scope === "for_you" ? "Nothing to show yet" : "No posts here yet"}>
               {scope === "following"
                 ? "Follow people or send connection requests and their posts will show up here."
                 : category

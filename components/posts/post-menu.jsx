@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Flag, Link2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { EyeOff, Flag, Link2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -20,6 +20,7 @@ import { ReportDialog } from "@/components/posts/report-dialog";
 import { EditPostDialog } from "@/components/posts/edit-post-dialog";
 import { useCopyLink } from "@/components/posts/use-copy-link";
 import { deletePostAction } from "@/lib/actions/posts";
+import { dismissPostAction, restorePostAction } from "@/lib/actions/discovery";
 
 /**
  * Mounts a heavy dialog only once it has been opened (and keeps it, so its close animation still plays). A feed of 15
@@ -32,7 +33,7 @@ function MountOnOpen({ open, children }) {
 }
 
 /** The overflow menu in a post's header: copy link for everyone, edit and delete for the author, report for others. */
-export function PostMenu({ post, viewerId, onDeleted }) {
+export function PostMenu({ post, viewerId, onDeleted, onDismissed }) {
   const router = useRouter();
   const isOwner = viewerId === post.author_id;
   const { copy } = useCopyLink(post);
@@ -52,6 +53,22 @@ export function PostMenu({ post, viewerId, onDeleted }) {
       if (onDeleted) onDeleted(post.id);
       else router.refresh();
     } else toast.error(res.error);
+  }
+
+  // "Show less like this": private to the member, takes the post out of the list at once and can be undone.
+  async function dismiss() {
+    const res = await dismissPostAction({ postId: post.id });
+    if (!res.ok) return toast.error(res.error ?? "Could not save that.");
+    onDismissed(post.id);
+    toast("Got it. You will see less like this.", {
+      action: {
+        label: "Undo",
+        onClick: async () => {
+          const undone = await restorePostAction({ postId: post.id });
+          toast(undone.ok ? "Restored. It will be back the next time your feed loads." : (undone.error ?? "Could not undo that."));
+        },
+      },
+    });
   }
 
   return (
@@ -80,6 +97,11 @@ export function PostMenu({ post, viewerId, onDeleted }) {
           {viewerId && !isOwner && (
             <>
               <DropdownMenuSeparator />
+              {onDismissed && (
+                <DropdownMenuItem onSelect={dismiss}>
+                  <EyeOff /> Show less like this
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onSelect={() => setReportOpen(true)}>
                 <Flag /> Report post
               </DropdownMenuItem>

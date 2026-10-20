@@ -104,10 +104,10 @@ test.describe.serial("open registration", () => {
     await login(page, newcomer.email, newcomer.password);
     await page.goto("/feed");
     // no "My college" scope without a college
-    await expect(page.getByRole("tab", { name: "My college" })).toHaveCount(0);
-    await expect(page.getByRole("tab", { name: "All members" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "My college" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "All members" })).toBeVisible();
 
-    await page.getByLabel("Start a post").click();
+    await page.locator('[aria-label="Start a post"]:visible').click();
     await page.getByLabel("Post text").fill(`Hello from someone with no college ${run}`);
     await page.getByRole("combobox", { name: "Who can see this post" }).click();
     await expect(page.getByRole("option", { name: "My college" })).toHaveCount(0);

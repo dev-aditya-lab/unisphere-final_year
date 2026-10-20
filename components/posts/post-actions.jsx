@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useCopyLink } from "@/components/posts/use-copy-link";
+import { emitPostChanged } from "@/lib/client/feed-events";
 import { repostAction, setBookmarkAction, setReactionAction } from "@/lib/actions/posts";
 import { REACTIONS } from "@/lib/content/post-meta";
 import { compactNumber } from "@/lib/format";
@@ -47,6 +48,7 @@ export function PostActions({ post, viewerId, className }) {
       equals: (a, b) => a.reaction === b.reaction,
       save: async ({ reaction: next }) => {
         const res = await setReactionAction({ postId: post.id, reaction: next });
+        if (res.ok) emitPostChanged(post.id, { my_reaction: res.myReaction, reaction_count: res.reactionCount, reactions: res.reactions });
         return res.ok ? { ok: true, value: { reaction: res.myReaction, count: res.reactionCount } } : { ok: false, error: res.error };
       },
       onError: (message, attempted) =>
@@ -57,6 +59,7 @@ export function PostActions({ post, viewerId, className }) {
   const [bookmarked, setBookmarked] = useLatestWins(Boolean(post.bookmarked), {
     save: async (next) => {
       const res = await setBookmarkAction({ postId: post.id, bookmarked: next });
+      if (res.ok) emitPostChanged(post.id, { bookmarked: next });
       return res.ok ? { ok: true } : { ok: false, error: res.error };
     },
     onError: (message, attempted) =>

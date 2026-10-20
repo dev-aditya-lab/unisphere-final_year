@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Flag, Heart, MoreHorizontal, Pencil, Reply, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { SuggestTextarea } from "@/components/posts/suggest-textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AuthorLine } from "@/components/posts/author-line";
 import { RichText } from "@/components/posts/rich-text";
@@ -50,13 +50,14 @@ function CommentForm({ postId, parentId = null, viewer, onAdded, onCancel, autoF
         <label htmlFor={`comment-${parentId ?? "root"}`} className="sr-only">
           {parentId ? "Write a reply" : "Write a comment"}
         </label>
-        <Textarea
+        <SuggestTextarea
           id={`comment-${parentId ?? "root"}`}
+          hashtags={false}
           rows={parentId ? 2 : 3}
           maxLength={2000}
           value={body}
           autoFocus={autoFocus}
-          onChange={(e) => setBody(e.target.value)}
+          onChange={setBody}
           placeholder={placeholder}
           aria-invalid={Boolean(error)}
         />
@@ -176,7 +177,7 @@ function CommentItem({ comment, replies, viewer, postId, depth, onAdded, onChang
                 <label htmlFor={`edit-${comment.id}`} className="sr-only">
                   Edit comment
                 </label>
-                <Textarea id={`edit-${comment.id}`} rows={3} maxLength={2000} value={editText} onChange={(e) => setEditText(e.target.value)} />
+                <SuggestTextarea id={`edit-${comment.id}`} hashtags={false} rows={3} maxLength={2000} value={editText} onChange={setEditText} />
                 <div className="flex justify-end gap-2">
                   <Button variant="ghost" size="sm" onClick={() => setEditing(false)}>
                     Cancel

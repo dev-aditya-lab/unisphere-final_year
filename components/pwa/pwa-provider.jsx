@@ -13,6 +13,13 @@ import { clearAllDrafts } from "@/lib/client/drafts";
 export async function clearUserCaches() {
   clearAllDrafts();
   try {
+    // Feed pages kept for a quick return to the feed.
+    const { clearFeedCache } = await import("@/lib/client/feed-cache");
+    await clearFeedCache();
+  } catch {
+    /* nothing stored, or the browser forbids it */
+  }
+  try {
     // The on-device message store (conversations, unsent drafts, undelivered messages) and every other tab's copy.
     const { wipeChatData } = await import("@/lib/chat/registry");
     await wipeChatData();

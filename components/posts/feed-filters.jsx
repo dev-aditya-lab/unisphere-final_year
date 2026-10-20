@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, Globe, GraduationCap, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, Compass, Globe, GraduationCap, Users } from "lucide-react";
 import { CategoryIcon } from "@/components/posts/category-icons";
 import { FEED_SCOPES, POST_CATEGORIES } from "@/lib/content/post-meta";
 import { cn } from "@/lib/utils";
 
-const SCOPE_ICON = { college: GraduationCap, following: Users, public: Globe };
+const SCOPE_ICON = { for_you: Compass, college: GraduationCap, following: Users, public: Globe };
 
 function href(pathname, params, patch) {
   const next = new URLSearchParams(params.toString());
@@ -52,8 +52,8 @@ function useScrollEdges(ref) {
  *     on the side that has more.
  * Both live in the URL, so they are shareable, survive a refresh and always match the posts shown.
  */
-export function FeedFilters({ scope, category, hideCategories = false, hasCollege = true }) {
-  const scopes = hasCollege ? FEED_SCOPES : FEED_SCOPES.filter((s) => s.value !== "college");
+export function FeedFilters({ scope, category, hideCategories = false, hasCollege = true, includeForYou = false, defaultScope = "college", actions = null }) {
+  const scopes = FEED_SCOPES.filter((s) => (includeForYou || s.value !== "for_you") && (hasCollege || s.value !== "college"));
   const pathname = usePathname();
   const params = useSearchParams();
   const scroller = useRef(null);
@@ -86,6 +86,7 @@ export function FeedFilters({ scope, category, hideCategories = false, hasColleg
 
   return (
     <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
       <nav aria-label="Whose posts" className="bg-muted flex w-full rounded-xl p-1 sm:inline-flex sm:w-auto">
         {scopes.map((s) => {
           const Icon = SCOPE_ICON[s.value];
@@ -93,7 +94,7 @@ export function FeedFilters({ scope, category, hideCategories = false, hasColleg
           return (
             <Link
               key={s.value}
-              href={href(pathname, params, { scope: s.value === "college" ? null : s.value })}
+              href={href(pathname, params, { scope: s.value === defaultScope ? null : s.value })}
               scroll={false}
               aria-current={active ? "true" : undefined}
               className={cn(
@@ -107,6 +108,8 @@ export function FeedFilters({ scope, category, hideCategories = false, hasColleg
           );
         })}
       </nav>
+      {actions}
+      </div>
 
       {!hideCategories && (
         <div className="relative -mx-3 sm:mx-0">

@@ -24,7 +24,7 @@ export function PrivacyForm({ profile }) {
     formState: { isDirty },
   } = useForm({
     resolver: zodResolver(privacySchema),
-    defaultValues: { visibility: profile.visibility, allowMessagesFrom: profile.allow_messages_from, showClass: profile.show_class, aiAssistEnabled: profile.ai_assist_enabled },
+    defaultValues: { visibility: profile.visibility, allowMessagesFrom: profile.allow_messages_from, showClass: profile.show_class, aiAssistEnabled: profile.ai_assist_enabled, personalizeFeed: profile.personalize_feed !== false },
   });
 
   function onSubmit(values) {
@@ -103,6 +103,22 @@ export function PrivacyForm({ profile }) {
             <p className="text-muted-foreground text-xs">Off by default. Your department and graduation year are separate profile fields.</p>
           </div>
           <Controller control={control} name="showClass" render={({ field }) => <Switch id="showClass" checked={field.value} onCheckedChange={field.onChange} />} />
+        </div>
+      </section>
+
+      <section className="surface p-5 sm:p-6">
+        <h2 className="text-lg font-bold">Feed personalisation</h2>
+        <p className="text-muted-foreground mt-0.5 text-sm">
+          The &ldquo;For you&rdquo; feed is ranked by simple rules on UniSphere itself, with no AI model: your interests, who you follow, and what you have liked, saved or commented on. Nothing is shared with anyone.
+        </p>
+        <div className="mt-4 flex items-start justify-between gap-4 rounded-md border p-3">
+          <div>
+            <Label htmlFor="personalizeFeed" className="text-sm font-semibold">
+              Personalise my feed
+            </Label>
+            <p className="text-muted-foreground text-xs">Turn off to see the newest and most substantial posts with a mix of topics, ignoring your interests and activity.</p>
+          </div>
+          <Controller control={control} name="personalizeFeed" render={({ field }) => <Switch id="personalizeFeed" checked={field.value} onCheckedChange={field.onChange} />} />
         </div>
       </section>
 

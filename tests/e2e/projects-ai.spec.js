@@ -81,7 +81,7 @@ test.describe.serial("projects, teammates and AI assist", () => {
     await admin.from("posts").insert({ author_id: author.id, slug: `seed-${Date.now()}`, title: "Mess waste tracker", body: "Tracks leftover food in the hostel mess to reduce food waste.", category: "projects", visibility: "college" });
     const page = await (await browser.newContext()).newPage();
     await login(page, owner.email);
-    await page.getByLabel("Start a post").click();
+    await page.locator('[aria-label="Start a post"]:visible').click();
     await expect(page.getByTestId("ai-assist")).toBeVisible();
     // AI controls stay disabled until there is enough text to work with
     await expect(page.getByRole("button", { name: "Suggest tags" })).toBeDisabled();
@@ -112,7 +112,7 @@ test.describe.serial("projects, teammates and AI assist", () => {
     await page.getByRole("button", { name: "Save privacy settings" }).click();
     await expect(page.getByText("Privacy settings saved.")).toBeVisible();
     await page.goto("/feed");
-    await page.getByLabel("Start a post").click();
+    await page.locator('[aria-label="Start a post"]:visible').click();
     await expect(page.getByText("AI assist is turned off in your privacy settings.")).toBeVisible();
     await expect(page.getByTestId("ai-assist")).toHaveCount(0);
   });

@@ -2,11 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AiError } from "@/lib/ai/errors";
 
 // The runner is exercised with fake providers; nothing here touches the network, Redis or the database.
-const state = { chain: [], availability: { ok: true }, limits: { ok: true }, optedOut: false, cache: new Map(), usage: [] };
+const state = { model: "model-v1", chain: [], availability: { ok: true }, limits: { ok: true }, optedOut: false, cache: new Map(), usage: [] };
 
 vi.mock("@/lib/ai/config", () => ({
   aiAvailability: async () => state.availability,
   providerChain: () => state.chain,
+  aiModels: () => ({ fast: state.model, smart: state.model, safety: state.model }),
 }));
 vi.mock("@/lib/ai/usage", () => ({
   checkAiLimits: async () => state.limits,
@@ -21,7 +22,7 @@ vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => ({ from: () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { ai_assist_enabled: !state.optedOut } }) }) }) }) }),
 }));
 
-const { runAiTask, parseModelJson } = await import("@/lib/ai");
+const { runAiTask, parseModelJson, clearAiMemoryCache } = await import("@/lib/ai");
 
 function provider(name, replies) {
   const calls = [];
@@ -46,6 +47,8 @@ beforeEach(() => {
   state.optedOut = false;
   state.cache = new Map();
   state.usage = [];
+  state.model = "model-v1";
+  clearAiMemoryCache();
 });
 
 describe("parseModelJson", () => {
@@ -203,6 +206,50 @@ describe("runAiTask: switches, limits and caching", () => {
     // different text is not served from the cache
     await runAiTask("suggest_tags", { title: "a", body: "other text" }, {});
     expect(p.calls).toHaveLength(2);
+  });
+
+  it("reuses a summary from this process when Redis is not configured, and an edited post gets a new one", async () => {
+    const reply = JSON.stringify({ summary: "A short summary.", keyPoints: ["one"] });
+    const p = provider("fake", [reply]);
+    state.chain = [link(p)];
+    const long = "A long post about campus life. ".repeat(40);
+    await runAiTask("summarize_post", { title: "t", body: long }, {});
+    state.cache = new Map(); // the shared cache is empty or absent: only the in-process copy remains
+    const again = await runAiTask("summarize_post", { title: "t", body: long }, {});
+    expect(again.meta.cached).toBe(true);
+    expect(p.calls).toHaveLength(1);
+    // the author edits the post: the cache key changes, so the old summary can never be shown for the new text
+    await runAiTask("summarize_post", { title: "t", body: long + " One more sentence." }, {});
+    expect(p.calls).toHaveLength(2);
+  });
+
+  it("does not reuse a cached result across a model change", async () => {
+    const reply = JSON.stringify({ summary: "S.", keyPoints: [] });
+    const p = provider("fake", [reply]);
+    state.chain = [link(p)];
+    await runAiTask("summarize_post", { title: "", body: "same body ".repeat(80) }, {});
+    state.model = "model-v2";
+    await runAiTask("summarize_post", { title: "", body: "same body ".repeat(80) }, {});
+    expect(p.calls).toHaveLength(2);
+  });
+
+  it("shares one model call between identical requests that arrive together", async () => {
+    const reply = JSON.stringify({ summary: "S.", keyPoints: [] });
+    const p = provider("fake", [reply]);
+    state.chain = [link(p)];
+    const input = { title: "", body: "concurrent body ".repeat(60) };
+    const results = await Promise.all([runAiTask("summarize_post", input, {}), runAiTask("summarize_post", input, {}), runAiTask("summarize_post", input, {})]);
+    expect(p.calls).toHaveLength(1);
+    expect(results.every((r) => r.ok && r.data.summary === "S.")).toBe(true);
+  });
+
+  it("bounds the summary's output tokens and validates its shape", async () => {
+    const p = provider("fake", [JSON.stringify({ summary: "x".repeat(900), keyPoints: [] }), JSON.stringify({ summary: "x".repeat(900), keyPoints: [] })]);
+    state.chain = [link(p)];
+    const res = await runAiTask("summarize_post", { title: "", body: "body ".repeat(150) }, {});
+    expect(res.ok).toBe(false);
+    expect(res.code).toBe("invalid_output");
+    expect(p.calls[0].maxTokens).toBeLessThanOrEqual(450);
   });
 
   it("does not cache tasks that must be fresh", async () => {

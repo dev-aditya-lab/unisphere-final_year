@@ -44,6 +44,9 @@ test.describe.serial("notifications, messaging, events and the worker", () => {
     await expect(alicePage.getByText(`reacted to your post “Bell post ${tag}”`)).toBeVisible();
     await alicePage.getByRole("button", { name: "Mark all as read" }).click();
     await expect(alicePage.getByText("All caught up")).toBeVisible();
+    // "All caught up" is shown at once (optimistic); reload only after the server has really recorded the read, or the
+    // reload can render before the write and show the old count.
+    await expect.poll(async () => (await admin.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", alice.id).is("read_at", null)).count).toBe(0);
     await alicePage.reload();
     await expect(alicePage.locator("header").getByRole("link", { name: /^Notifications$/ })).toBeVisible();
   });
@@ -169,7 +172,7 @@ test.describe.serial("notifications, messaging, events and the worker", () => {
     await bp.waitForLoadState("networkidle");
     await bp.getByRole("button", { name: "Join", exact: true }).click();
     await expect(bp.getByRole("button", { name: "Leave" })).toBeVisible();
-    await bp.getByLabel("Start a post").click();
+    await bp.locator('[aria-label="Start a post"]:visible').click();
     await bp.getByLabel("Post text").fill(`Welcome to the club ${tag}`);
     await bp.getByRole("button", { name: "Post", exact: true }).click();
     await expect(bp.getByText(`Welcome to the club ${tag}`)).toBeVisible({ timeout: 20_000 });

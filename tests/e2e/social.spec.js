@@ -24,36 +24,46 @@ test.describe.serial("social flow between two members", () => {
     await login(page, alice.email);
     await expect(page.getByRole("heading", { name: "Feed" })).toBeAttached();
 
-    await page.getByLabel("Start a post").click();
+    await page.locator('[aria-label="Start a post"]:visible').click();
     await page.getByLabel("Post text").fill(`${marker} with #${tag} and @${bob.username}`);
     await page.getByRole("button", { name: "Post", exact: true }).click();
-    await expect(page.getByText("Posted")).toBeVisible();
+    await expect(page.getByText("Posted", { exact: true })).toBeVisible();
     await expect(page.getByText(marker)).toBeVisible();
 
     const { data: post } = await admin.from("posts").select("id, author_id, college_id, visibility").ilike("body", `%${tag}%`).single();
     expect(post).toMatchObject({ author_id: alice.id, visibility: "college" });
-    const { data: tags } = await admin.from("hashtags").select("tag, use_count").eq("tag", tag);
-    expect(tags).toEqual([{ tag, use_count: 1 }]);
-    const { data: mentions } = await admin.from("mentions").select("mentioned_user_id").eq("entity_id", post.id);
-    expect(mentions).toEqual([{ mentioned_user_id: bob.id }]);
+    // Tags and mentions are derived after the response (see createPost), so they are polled for, not read at once.
+    await expect
+      .poll(async () => (await admin.from("hashtags").select("tag, use_count").eq("tag", tag)).data, { timeout: 15_000 })
+      .toEqual([{ tag, use_count: 1 }]);
+    await expect
+      .poll(async () => (await admin.from("mentions").select("mentioned_user_id").eq("entity_id", post.id)).data, { timeout: 15_000 })
+      .toEqual([{ mentioned_user_id: bob.id }]);
   });
 
   test("bob sees it, reacts, bookmarks and comments", async ({ browser }) => {
     const page = await (await browser.newContext()).newPage();
     await login(page, bob.email);
-    const card = page.locator("article", { hasText: marker });
+    // The default "For you" feed is ranked, so a brand-new post is not guaranteed a place on page one among many older
+    // ones. This test is about reacting and bookmarking, so it reads the newest-first college feed.
+    await page.goto("/feed?scope=college");
+    const card = page.locator("article:visible", { hasText: marker });
     await expect(card).toBeVisible();
 
     await card.getByRole("button", { name: "Like", exact: true }).click();
     await expect(card.getByRole("button", { name: /You reacted: Like/ })).toBeVisible();
     await card.getByRole("button", { name: "Bookmark" }).click();
-    await expect(page.getByText("Saved to bookmarks")).toBeVisible();
+    // Bookmarking is optimistic and has no toast: the button flips at once, then the row must land in the database.
+    await expect(card.getByRole("button", { name: "Remove bookmark" })).toBeVisible();
 
     const { data: post } = await admin.from("posts").select("id, slug").ilike("body", `%${tag}%`).single();
     // The UI updates optimistically; wait for the server write to land.
+    await expect.poll(async () => (await admin.from("bookmarks").select("post_id", { count: "exact", head: true }).eq("user_id", bob.id)).count).toBe(1);
     await expect.poll(async () => (await admin.from("posts").select("reaction_count").eq("id", post.id).single()).data.reaction_count).toBe(1);
 
+    await page.waitForLoadState("networkidle"); // let the feed finish its own requests before leaving it
     await page.goto(`/posts/${post.slug}`);
+    await expect(page).toHaveURL(new RegExp(post.slug));
     await page.getByLabel("Write a comment").fill("Looks great, how are you powering it?");
     await page.getByRole("button", { name: "Comment", exact: true }).click();
     await expect(page.getByText("Looks great, how are you powering it?")).toBeVisible();

@@ -6,19 +6,20 @@ import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/posts/post-card";
 import { PostSkeleton } from "@/components/skeletons";
 import { loadFeedAction } from "@/lib/actions/posts";
-import { onPostCreated } from "@/lib/client/feed-events";
+import { onPostChanged, onPostCreated } from "@/lib/client/feed-events";
+import { forgetPost, readFeedCache, writeFeedCache } from "@/lib/client/feed-cache";
 
 // Each card parses its text and builds its menus; without this every "load more" or delete re-ran all of them. The
 // post objects are replaced only when they change, and `onDeleted` is stable, so unaffected cards skip rendering.
-const FeedItem = memo(function FeedItem({ post, viewerId, onDeleted }) {
-  return <PostCard post={post} viewerId={viewerId} onDeleted={onDeleted} />;
+const FeedItem = memo(function FeedItem({ post, viewerId, onDeleted, onDismissed, canSummarize }) {
+  return <PostCard post={post} viewerId={viewerId} onDeleted={onDeleted} onDismissed={onDismissed} canSummarize={canSummarize} />;
 });
 
 /**
  * Cursor-paginated feed. The first page is rendered by the server; further pages load when the
  * sentinel scrolls into view (with a visible "Load more" button as the keyboard/no-JS-observer fallback).
  */
-export function FeedList({ initialItems, initialCursor, scope, category, viewerId, empty }) {
+export function FeedList({ initialItems, initialCursor, scope, category, viewerId, empty, canSummarize = false }) {
   const [items, setItems] = useState(initialItems);
   const [cursor, setCursor] = useState(initialCursor);
   const [error, setError] = useState(null);
@@ -50,7 +51,45 @@ export function FeedList({ initialItems, initialCursor, scope, category, viewerI
     });
   }, [cursor, scope, category]);
 
-  const removePost = useCallback((id) => setItems((prev) => prev.filter((p) => p.id !== id)), []);
+  // Pages the member already scrolled through come back from this device when they return to the feed. Only when the
+  // server's first page still starts with the same post (nothing new arrived or moved), and only the pages after it.
+  const feedKey = `${scope}|${category ?? ""}`;
+  const firstId = initialItems[0]?.id;
+  const extraAfter = initialItems.length;
+  useEffect(() => {
+    if (!viewerId || !firstId) return;
+    let live = true;
+    readFeedCache(viewerId, feedKey).then((cached) => {
+      if (!live || !cached || cached.items[0]?.id !== firstId || cached.items.length <= extraAfter) return;
+      setItems((prev) => {
+        if (prev.length > extraAfter) return prev; // the member already loaded more: keep what they have
+        const seen = new Set(prev.map((p) => p.id));
+        return [...prev, ...cached.items.filter((p) => !seen.has(p.id))];
+      });
+      setCursor(cached.cursor);
+    });
+    return () => {
+      live = false;
+    };
+  }, [viewerId, feedKey, firstId, extraAfter]);
+
+  // Keep the on-device copy current while pages are loaded (debounced; nothing is written for the first page alone).
+  useEffect(() => {
+    if (!viewerId || items.length <= extraAfter) return;
+    const t = setTimeout(() => writeFeedCache(viewerId, feedKey, { items, cursor }), 400);
+    return () => clearTimeout(t);
+  }, [viewerId, feedKey, items, cursor, extraAfter]);
+
+  // A saved reaction or bookmark updates this list's copy of that post only.
+  useEffect(() => onPostChanged((id, patch) => setItems((prev) => (prev.some((p) => p.id === id) ? prev.map((p) => (p.id === id ? { ...p, ...patch } : p)) : prev))), []);
+
+  const removePost = useCallback(
+    (id) => {
+      setItems((prev) => prev.filter((p) => p.id !== id));
+      if (viewerId) forgetPost(viewerId, id);
+    },
+    [viewerId],
+  );
 
   // A post the member just wrote appears at the top at once; the server's refreshed copy replaces it later.
   useEffect(
@@ -58,6 +97,7 @@ export function FeedList({ initialItems, initialCursor, scope, category, viewerI
       onPostCreated((post) => {
         if (post.community_id) return false; // community posts belong to the community page, not the main feed
         if (scope === "public" && post.visibility !== "public") return false;
+        if (scope === "for_you" && post.visibility === "private") return false;
         if (scope === "college" && !post.college_id) return false;
         if (category && post.category !== category) return false;
         setItems((prev) => (prev.some((p) => p.id === post.id) ? prev : [post, ...prev]));
@@ -83,7 +123,7 @@ export function FeedList({ initialItems, initialCursor, scope, category, viewerI
       <ul className="-mx-3 sm:mx-0 sm:space-y-4 max-sm:[&>li+li]:-mt-px" aria-label="Posts">
         {items.map((post) => (
           <li key={post.id}>
-            <FeedItem post={post} viewerId={viewerId} onDeleted={removePost} />
+            <FeedItem post={post} viewerId={viewerId} onDeleted={removePost} onDismissed={scope === "for_you" ? removePost : undefined} canSummarize={canSummarize} />
           </li>
         ))}
       </ul>

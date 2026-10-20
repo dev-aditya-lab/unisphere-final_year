@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { Globe, GraduationCap, Lock, Repeat2, ShieldAlert, Users } from "lucide-react";
+import { Compass, Globe, GraduationCap, Lock, Repeat2, ShieldAlert, Users } from "lucide-react";
 import { AuthorLine } from "@/components/posts/author-line";
 import { CategoryBadge } from "@/components/posts/category-badge";
 import { PostActions } from "@/components/posts/post-actions";
 import { PostMedia } from "@/components/posts/post-media";
+import { PostSummary } from "@/components/posts/post-summary";
 import { PostMenu } from "@/components/posts/post-menu";
 import { RichText } from "@/components/posts/rich-text";
 import { excerpt } from "@/lib/text";
@@ -40,7 +41,7 @@ function OriginalEmbed({ post }) {
  * rounded card. The category badge is shown only for a specific type (the default "General" says nothing), and the
  * audience only when it is narrower than everyone.
  */
-export function PostCard({ post, viewerId, full = false, onDeleted, className, headingLevel = "h2" }) {
+export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed, canSummarize = false, className, headingLevel = "h2" }) {
   const Heading = headingLevel;
   const href = postPath(post);
   const isRepost = Boolean(post.repost_of_id);
@@ -63,6 +64,12 @@ export function PostCard({ post, viewerId, full = false, onDeleted, className, h
 
   return (
     <article className={cn(shell, className)} aria-label={post.title || `Post by ${post.author_name}`}>
+      {post.why && (
+        <p className="text-muted-foreground mb-2 flex items-center gap-1.5 text-xs font-medium">
+          <Compass className="size-3.5" aria-hidden="true" />
+          {post.why}
+        </p>
+      )}
       {isRepost && (
         <p className="text-muted-foreground mb-2 flex items-center gap-1.5 text-xs font-medium">
           <Repeat2 className="size-3.5" aria-hidden="true" />
@@ -91,7 +98,7 @@ export function PostCard({ post, viewerId, full = false, onDeleted, className, h
             </>
           )}
         </AuthorLine>
-        <PostMenu post={post} viewerId={viewerId} onDeleted={onDeleted} />
+        <PostMenu post={post} viewerId={viewerId} onDeleted={onDeleted} onDismissed={onDismissed} />
       </div>
 
       {!isPlainRepost && (
@@ -116,6 +123,8 @@ export function PostCard({ post, viewerId, full = false, onDeleted, className, h
           )}
         </div>
       )}
+
+      {canSummarize && !isRepost && post.body.length >= 600 && <PostSummary post={post} />}
 
       {isRepost && <OriginalEmbed post={post} />}
       <PostMedia items={post.attachments} className="mt-3" />
