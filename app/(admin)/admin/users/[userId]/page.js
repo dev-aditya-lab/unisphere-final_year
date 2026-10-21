@@ -5,9 +5,10 @@ import { z } from "zod";
 import { PageHeader } from "@/components/shell/page-header";
 import { Panel, StatusBadge, fmtDateTime } from "@/components/admin/ui";
 import { ActionDialog } from "@/components/admin/action-dialog";
+import { PermanentDelete } from "@/components/admin/permanent-delete";
 import { EditProfileDialog, TimedModerationDialog, UserNoteForm } from "@/components/admin/user-tools";
 import { UserAvatar } from "@/components/user-avatar";
-import { hasPermission } from "@/lib/auth/session";
+import { getAuthUser, hasPermission } from "@/lib/auth/session";
 import { moderateUserAction, revokeRoleAction, revokeUserSessionsAction, sendRecoveryAction } from "@/lib/actions/admin";
 import { getUserDetail, getUserPosts } from "@/lib/services/admin";
 
@@ -22,11 +23,11 @@ export default async function MemberPage({ params }) {
   const d = await getUserDetail(userId);
   const p = d.profile;
   const college = p.college_id;
-  const [canWarn, canRestrict, canSuspend, canReinstate, canRoles, canEdit, canSessions, canExport, posts] = await Promise.all([
+  const [canWarn, canRestrict, canSuspend, canReinstate, canRoles, canEdit, canSessions, canExport, canPurge, viewer, posts] = await Promise.all([
     hasPermission("moderation.warn", college), hasPermission("users.restrict", college), hasPermission("users.suspend", college),
     hasPermission("users.reinstate", college), hasPermission("roles.manage_limited", college),
     hasPermission("users.edit", college), hasPermission("users.sessions", college), hasPermission("users.export", college),
-    getUserPosts(userId),
+    hasPermission("users.purge"), getAuthUser(), getUserPosts(userId),
   ]);
   const postTotal = Number(posts[0]?.total_count ?? 0);
   const admin = d.roles.some((r) => r.role === "global_admin" || r.role === "college_admin");
@@ -155,6 +156,15 @@ export default async function MemberPage({ params }) {
                   <History className="size-4" aria-hidden="true" /> Audit history for this member
                 </Link>
               </div>
+            </Panel>
+          )}
+
+          {canPurge && viewer?.id !== p.id && (
+            <Panel title="Danger zone" description="Permanent. Recorded in the audit log, and asks for your password.">
+              <p className="text-muted-foreground mb-3 text-xs">
+                Erases this member&rsquo;s whole account with everything they posted. To only hide their content or lock the account, use the actions above instead.
+              </p>
+              <PermanentDelete kind="user" id={p.id} name={p.username} label="Erase account permanently" className="w-full" />
             </Panel>
           )}
 

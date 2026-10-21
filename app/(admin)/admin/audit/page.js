@@ -8,7 +8,7 @@ export const metadata = { title: "Audit log" };
 
 const GROUPS = [
   ["", "All activity"], ["moderation.", "Moderation decisions"], ["report.", "Reports"], ["appeal.", "Appeals"], ["role.", "Role changes"],
-  ["verification.", "Verification"], ["settings.", "Settings"], ["flag.", "Feature flags"], ["announcement.", "Announcements"], ["account", "Account deletion"],
+  ["verification.", "Verification"], ["settings.", "Settings"], ["flag.", "Feature flags"], ["announcement.", "Announcements"], ["account", "Account deletion"], ["content.purged", "Permanent deletions"], ["user.purge", "Member erasures"],
 ];
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 

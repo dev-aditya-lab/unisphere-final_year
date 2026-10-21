@@ -73,6 +73,35 @@ use the existing `moderation.warn`.
   see or act on them. A college is never inferred from what a member selected; `verification_status` is the only claim of
   affiliation and comes from the existing verification flow.
 
+## Permanent deletion (migration 0048)
+
+"Remove" hides content and can be undone. **Delete** does not. Both are global-administrator-only for permanent deletion
+(permissions `content.purge` and `users.purge`; no other role holds them, so a college admin sees only Remove).
+
+* **Where.** A *Delete* button beside *Remove* on Posts, Communities and Events, and *Erase account permanently* in the
+  Danger zone of a member's page (not shown for your own account, and refused for anyone holding a staff role: remove the
+  role first).
+* **Three steps.** 1 Review: what goes with it, read from the database just now (comments, replies, likes, bookmarks,
+  images, members, events). 2 Reason: at least 10 characters, kept in the audit log and shown to the owner, plus an
+  acknowledgement. 3 Confirm: the item's address (post/community/event slug, member username) typed back exactly, and the
+  administrator's own password (5 attempts per 15 minutes). The database re-checks the permission, the reason and the typed
+  address, so a forged request fails the same way.
+* **What a post deletion takes.** The post, its comments and replies, likes on the post and on comments, bookmarks,
+  hashtag links, attachments, "not relevant" feedback, mentions, notifications, the search vector and any slug redirect;
+  open reports about it are closed as resolved; plain reposts of it go too (a quote repost stays, as an ordinary post);
+  the author's Orbits reward for it is taken back; the stored image files are removed from storage. A community deletion
+  takes every post in it (with all of the above) and its community-only events. Orbits ledger entries are kept (a reversal
+  is added), and the moderation history and audit log are never touched.
+* **A member's own "Delete post"** now does the same thing (`delete_own_post`); it used to only hide the post and leave its
+  comments and likes in the database. A post a moderator removed cannot be deleted by its author (it is a moderation record,
+  and may be under appeal). Posts deleted before this change were cleaned up by the migration.
+* **Erasing a member** reuses the account-deletion routine (docs/DPDP_RETENTION.md), so what is kept (payment records,
+  reports about the account) is exactly what a self-erasure keeps. The administrator chooses whether the member's sent
+  messages are erased too.
+* **Audit.** `content.purged` (kind, slug, title, owner, reason, counts) and `user.purge_started`, under Audit log.
+* **Not covered:** comments, projects, opportunities and messages have no console delete (a comment is removed through its
+  report, and goes when its post or its author does). Say if you want one.
+
 ## Not implemented, and why (owner decisions)
 
 * **Separate restrictions for posting, commenting and messaging.** Restriction today is one account state enforced in RLS on

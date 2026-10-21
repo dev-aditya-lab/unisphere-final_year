@@ -4,11 +4,13 @@ import { PageHeader } from "@/components/shell/page-header";
 import { Button } from "@/components/ui/button";
 import { DataTable, EmptyRow, Pager, StatusBadge, fmtDate } from "@/components/admin/ui";
 import { ActionDialog } from "@/components/admin/action-dialog";
+import { PermanentDelete } from "@/components/admin/permanent-delete";
+import { hasPermission } from "@/lib/auth/session";
 import { moderatePostAction, setListingRemovedAction } from "@/lib/actions/admin";
 import { listContent } from "@/lib/services/admin";
 
 const COPY = {
-  post: { title: "Posts", path: "/admin/posts", eyebrow: "Community", description: "Every post in your colleges, including removed ones. To act on a post that was reported, open the report so the decision is recorded against it.", statuses: ["published", "removed"], href: (r) => `/posts/${r.slug}` },
+  post: { title: "Posts", path: "/admin/posts", eyebrow: "Community", description: "Every post in your colleges, including removed ones. To act on a post that was reported, open the report so the decision is recorded against it. Global administrators can also delete a post permanently, with its comments and likes.", statuses: ["published", "removed"], href: (r) => `/posts/${r.slug}` },
   community: { title: "Communities", path: "/admin/communities", eyebrow: "Community", description: "Clubs and communities. Removing one hides it for everyone and tells its creator why; it can be restored.", statuses: ["active", "removed"], href: (r) => `/communities/${r.slug}` },
   event: { title: "Events", path: "/admin/events", eyebrow: "Community", description: "All events. Removing one hides it and tells the organiser why; it can be restored.", statuses: ["published", "cancelled", "removed"], href: (r) => `/events/${r.slug}` },
 };
@@ -20,7 +22,7 @@ export async function ContentList({ kind, searchParams }) {
   const q = (sp.q ?? "").toString().trim().slice(0, 80) || null;
   const status = copy.statuses.includes(sp.status) ? sp.status : null;
   const page = Math.max(1, Number(sp.page) || 1);
-  const rows = await listContent({ kind, q, status, page });
+  const [rows, canPurge] = await Promise.all([listContent({ kind, q, status, page }), hasPermission("content.purge")]);
   const total = Number(rows[0]?.total_count ?? 0);
 
   return (
@@ -56,6 +58,7 @@ export async function ContentList({ kind, searchParams }) {
             <td className="px-4 py-3"><StatusBadge value={r.status} /></td>
             <td className="text-muted-foreground px-4 py-3 whitespace-nowrap">{fmtDate(r.created_at)}</td>
             <td className="px-4 py-3 text-right whitespace-nowrap">
+              <div className="flex justify-end gap-2">
               {kind === "post" ? (
                 r.status === "published" ? (
                   <ActionDialog label="Remove" destructive title="Remove this post" description="It disappears for everyone but its author, who is told why and may appeal." action={moderatePostAction} args={{ id: r.id, action: "remove" }} reasonLabel="Reason shown to the author" />
@@ -67,6 +70,8 @@ export async function ContentList({ kind, searchParams }) {
               ) : (
                 <ActionDialog label="Remove" destructive title={`Remove this ${kind}`} description="It is hidden for everyone. The creator is told why." action={setListingRemovedAction} args={{ kind, id: r.id, removed: true }} reasonLabel="Reason shown to the creator" />
               )}
+              {canPurge && <PermanentDelete kind={kind} id={r.id} name={r.title} label="Delete" />}
+              </div>
             </td>
           </tr>
         ))}

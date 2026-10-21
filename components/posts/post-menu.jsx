@@ -116,7 +116,7 @@ export function PostMenu({ post, viewerId, onDeleted, onDismissed }) {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete this post?</AlertDialogTitle>
-              <AlertDialogDescription>It disappears for everyone, including its comments. This cannot be undone.</AlertDialogDescription>
+              <AlertDialogDescription>It is deleted for good, together with its comments, likes and images. This cannot be undone.</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Keep it</AlertDialogCancel>
