@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Landmark, MapPin, Search } from "lucide-react";
+import { Landmark, MapPin, Search } from "@/components/icons/lucide-compat";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/shell/page-header";
 import { AddCollegeButton } from "@/components/colleges/college-actions";

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Lightbulb, ShieldCheck, Users } from "lucide-react";
+import { Lightbulb, ShieldCheck, Users } from "@/components/icons/lucide-compat";
 import { Logo } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { APP_TAGLINE } from "@/lib/constants";

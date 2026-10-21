@@ -1,7 +1,9 @@
 import { CoverArt } from "@/components/profile/cover-art";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Building2, ExternalLink, GraduationCap, Handshake, Link2, Trophy, Briefcase, Users } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { Handshake } from "@/components/icons/lucide-compat";
+import { Building2, GraduationCap, Link2, Trophy, Briefcase, Users } from "@/components/icons/lucide-compat";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConnectControls } from "@/components/people/connect-button";

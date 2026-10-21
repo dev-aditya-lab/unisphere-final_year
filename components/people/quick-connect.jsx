@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Check, Clock, UserPlus } from "lucide-react";
+import { Check } from "lucide-react";
+import { Clock, UserPlus } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { sendConnectionRequestAction } from "@/lib/actions/social";

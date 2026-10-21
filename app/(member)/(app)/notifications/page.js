@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell } from "lucide-react";
+import { Bell } from "@/components/icons/lucide-compat";
 import { EmptyState } from "@/components/empty-state";
 import { NotificationList } from "@/components/notifications/notification-list";
 import { PageHeader } from "@/components/shell/page-header";

@@ -2,7 +2,8 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronRight, CircleAlert, Loader2, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowRight, ChevronRight, Loader2, TrendingDown } from "lucide-react";
+import { CircleAlert, TrendingUp } from "@/components/icons/lucide-compat";
 import { AnimatedNumber, useIncrease } from "@/components/orbits/animated-number";
 import { GainChip, OrbitalIcon, ProgressRing, Sparkles, usePointerDepth } from "@/components/orbits/fx";
 import { RewardIcon } from "@/components/orbits/reward-icon";

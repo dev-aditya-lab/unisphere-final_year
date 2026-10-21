@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Bell } from "lucide-react";
-import { m } from "motion/react";
+import { AnimatedIcon } from "@/components/icons/animated-icon";
 import { CountBadge } from "@/components/motion/count-badge";
 import { Button } from "@/components/ui/button";
 import { useRealtimeChannel } from "@/hooks/use-realtime-channel";
@@ -29,10 +28,8 @@ export function NotificationBell({ userId, initialCount }) {
   return (
     <Button asChild variant="ghost" size="icon" className="relative">
       <Link href="/notifications" aria-label={count > 0 ? `Notifications, ${count} unread` : "Notifications"}>
-        {/* The bell rings once whenever the count goes up (a live notification arrived). */}
-        <m.span key={rings} initial={false} animate={rings ? { rotate: [0, -16, 14, -8, 0] } : undefined} transition={{ duration: 0.5 }} className="grid place-items-center" style={{ transformOrigin: "50% 15%" }}>
-          <Bell />
-        </m.span>
+        {/* The bell rings once whenever the count goes up (a live notification arrived), never on page load. */}
+        <AnimatedIcon name="bell" size={24} pulse={rings} />
         <CountBadge value={count} label="unread" max={9} className="pointer-events-none absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 text-[10px]" />
       </Link>
     </Button>

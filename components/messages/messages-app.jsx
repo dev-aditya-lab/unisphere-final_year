@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle } from "@/components/icons/lucide-compat";
 import { ConversationList } from "@/components/messages/conversation-list";
 import { MessagesProvider } from "@/components/messages/messages-provider";
 import { ThreadView } from "@/components/messages/thread-view";

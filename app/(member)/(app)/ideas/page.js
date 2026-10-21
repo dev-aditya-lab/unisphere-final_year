@@ -1,4 +1,4 @@
-import { Lightbulb } from "lucide-react";
+import { Lightbulb } from "@/components/icons/lucide-compat";
 import { Composer } from "@/components/posts/composer";
 import { FeedList } from "@/components/posts/feed-list";
 import { FeedFilters } from "@/components/posts/feed-filters";

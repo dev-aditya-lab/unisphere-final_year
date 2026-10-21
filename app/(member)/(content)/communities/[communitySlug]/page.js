@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Users } from "lucide-react";
+import { Users } from "@/components/icons/lucide-compat";
 import { CommunityAdminPanel, JoinCommunityButton, OfficialBadge } from "@/components/campus/community-parts";
 import { EmptyState } from "@/components/empty-state";
 import { Composer } from "@/components/posts/composer";

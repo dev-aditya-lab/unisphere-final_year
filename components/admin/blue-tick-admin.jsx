@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Gift, RotateCcw, Undo2, X } from "lucide-react";
+import { Check, RotateCcw, Undo2, X } from "lucide-react";
+import { Gift } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { ActionDialog, QuickAction } from "@/components/admin/action-dialog";
 import { Button } from "@/components/ui/button";

@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { CircleAlert } from "lucide-react";
+import { CircleAlert } from "@/components/icons/lucide-compat";
 import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/posts/post-card";
 import { PostSkeleton } from "@/components/skeletons";

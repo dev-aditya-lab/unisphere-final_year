@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2, CircleAlert } from "lucide-react";
+import { CheckCircle2, CircleAlert } from "@/components/icons/lucide-compat";
 import { PageHeader } from "@/components/shell/page-header";
 import { Panel, StatCard, StatusBadge, fmtDateTime } from "@/components/admin/ui";
 import { getMyPermissions } from "@/lib/auth/session";

@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, Clock, LogOut, UserPlus, X } from "lucide-react";
+import { Check, LogOut, X } from "lucide-react";
+import { Clock, UserPlus } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";

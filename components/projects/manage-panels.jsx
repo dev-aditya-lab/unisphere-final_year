@@ -3,7 +3,8 @@
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, Loader2, Plus, Search, Sparkles, Trash2, UserMinus, X } from "lucide-react";
+import { Check, Loader2, Plus, UserMinus, X } from "lucide-react";
+import { Search, Sparkles, Trash2 } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

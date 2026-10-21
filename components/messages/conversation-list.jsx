@@ -1,7 +1,8 @@
 "use client";
 
 import { memo, useDeferredValue, useMemo, useState } from "react";
-import { BellOff, MessageCircle, Search } from "lucide-react";
+import { BellOff } from "lucide-react";
+import { MessageCircle, Search } from "@/components/icons/lucide-compat";
 import { UserAvatar } from "@/components/user-avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { timeAgo } from "@/lib/format";

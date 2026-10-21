@@ -2,7 +2,8 @@
 
 import { AiConsentPrompt } from "@/components/privacy/ai-consent-prompt";
 import { useState, useTransition } from "react";
-import { Check, Loader2, Search, ShieldCheck, Sparkles, Wand2, X } from "lucide-react";
+import { Check, Loader2, X } from "lucide-react";
+import { Search, ShieldCheck, Sparkles, Wand2 } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { RelatedResults } from "@/components/ai/related-results";

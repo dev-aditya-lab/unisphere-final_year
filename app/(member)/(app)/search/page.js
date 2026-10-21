@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SearchX } from "lucide-react";
+import { SearchX } from "@/components/icons/lucide-compat";
 import { EmptyState } from "@/components/empty-state";
 import { PersonCard } from "@/components/people/person-card";
 import { QuickConnect } from "@/components/people/quick-connect";

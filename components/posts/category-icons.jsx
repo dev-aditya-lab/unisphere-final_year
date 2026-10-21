@@ -1,4 +1,5 @@
-import { BriefcaseBusiness, CalendarDays, CircleHelp, FolderKanban, GraduationCap, LayoutGrid, Lightbulb, MessageCircle, Trophy } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
+import { BriefcaseBusiness, CalendarDays, CircleHelp, FolderKanban, GraduationCap, Lightbulb, MessageCircle, Trophy } from "@/components/icons/lucide-compat";
 import { CATEGORY_BY_VALUE } from "@/lib/content/post-meta";
 
 // Lucide icon for each `icon` name in lib/content/post-meta.js. A category added there without an entry here falls back

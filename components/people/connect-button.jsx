@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, Clock, Flag, MessageCircle, MoreHorizontal, ShieldBan, UserCheck, UserMinus, UserPlus, X } from "lucide-react";
+import { Check, MoreHorizontal, UserMinus, X } from "lucide-react";
+import { Clock, Flag, MessageCircle, ShieldBan, UserCheck, UserPlus } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";

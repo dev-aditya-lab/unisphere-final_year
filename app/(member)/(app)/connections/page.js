@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Link2, ShieldBan, UserPlus, Users } from "lucide-react";
+import { Link2, ShieldBan, UserPlus, Users } from "@/components/icons/lucide-compat";
 import { EmptyState } from "@/components/empty-state";
 import { IncomingRequestActions, OutgoingRequestActions, RemoveConnectionButton, UnblockButton } from "@/components/people/connection-actions";
 import { PersonCard } from "@/components/people/person-card";

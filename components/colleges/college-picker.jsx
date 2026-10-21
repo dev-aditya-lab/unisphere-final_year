@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState, useTransition } from "react";
-import { GraduationCap, Landmark, Loader2, MapPin, Plus, Search, X } from "lucide-react";
+import { Loader2, Plus, X } from "lucide-react";
+import { GraduationCap, Landmark, MapPin, Search } from "@/components/icons/lucide-compat";
 import { ListingBadge, collegeLocation } from "@/components/colleges/listing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

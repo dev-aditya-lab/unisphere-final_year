@@ -35,7 +35,7 @@ function Tab({ item, count, active, indicatorId }) {
     >
       {active && <Indicator id={indicatorId} />}
       <span className="relative">
-        <NavIcon name={icon} className="size-[22px]" strokeWidth={active ? 2.4 : 2} aria-hidden="true" />
+        <NavIcon name={icon} active={active} size={26} />
         <CountBadge value={count ?? 0} label="unread" className="absolute -top-2 -right-3 h-4 min-w-4 px-1 text-[10px]" />
       </span>
       {label}
@@ -77,7 +77,7 @@ function MoreSheet({ open, onOpenChange, items, counts, liveMessages }) {
                         )}
                       >
                         <span className="relative">
-                          {href === "/orbits" ? <OrbitNavMark size={30} /> : <NavIcon name={icon} className="size-5" aria-hidden="true" />}
+                          {href === "/orbits" ? <OrbitNavMark size={30} /> : <NavIcon name={icon} active={active} size={26} />}
                           <CountBadge value={count ?? 0} label="unread" className="absolute -top-2 -right-3 h-4 min-w-4 px-1 text-[10px]" />
                         </span>
                         <span className="w-full truncate">{label}</span>

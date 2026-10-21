@@ -1,0 +1,124 @@
+/* UniSphere icon family (components/icons): plain single-colour icons that follow the text colour, with one distinctive motion each.
+   Motion is transform and opacity on the drawing's own parts, one shot per hover or event (never a loop), and it is switched off
+   for reduced motion. Spec in docs/ICONS.md. */
+
+.ui-icon {
+  display: inline-block; flex: none; overflow: visible; transform-origin: 50% 55%;
+  transition: transform 240ms var(--ease-out), opacity 180ms ease, stroke-width 180ms ease;
+}
+.ui-icon .soft { fill: currentColor; stroke: none; opacity: 0; transition: opacity 200ms ease; }
+.ui-icon[data-fill="soft"] .soft { opacity: 0.18; }
+.ui-icon[data-fill="solid"] .soft { opacity: 1; }
+.ui-icon[data-fill="solid"] { stroke-width: 1.5; }
+
+.ui-icon[data-state="idle"] { opacity: 0.72; }
+.ui-icon[data-state="disabled"] { opacity: 0.4; }
+.ui-icon[data-state="active"] { stroke-width: 2; transform: translateY(-1px); }
+.ui-icon[data-state="loading"] { animation: ui-breathe 1.5s ease-in-out infinite; }
+@keyframes ui-breathe { 50% { opacity: 0.4; transform: scale(0.94); } }
+
+/* Hover, focus and press belong to the enclosing control (or to any `.ui-host`), so an icon needs no handlers of its own. */
+:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon[data-anim]:not([data-state="disabled"]) { transform: translateY(-1.5px) scale(1.07); }
+:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon[data-state="idle"] { opacity: 1; }
+:is(a, button, [role="tab"], [role="menuitem"], .ui-host):active .ui-icon[data-anim] { transform: scale(0.88); transition-duration: 90ms; }
+:is(button:disabled, [aria-disabled="true"]) .ui-icon { opacity: 0.4; transform: none; }
+
+.ui-icon .p-a, .ui-icon .p-b { transform-box: fill-box; transform-origin: center; }
+.ui-icon[data-fx="bell"] .p-a { transform-origin: 50% 6%; }
+.ui-icon[data-fx="tassel"] .p-a { transform-origin: 50% 0; }
+.ui-icon[data-fx="lid"] .p-a { transform-origin: 18% 85%; }
+.ui-icon[data-fx="wave"] .p-a { transform-origin: 0 50%; }
+.ui-icon[data-fx="hand"] .p-a { transform-box: view-box; transform-origin: 50% 50%; }
+.ui-icon[data-fx="gear"] .p-a { transform-box: view-box; transform-origin: 50% 50%; }
+.ui-icon[data-fx="orbit"] .p-a { transform-box: view-box; transform-origin: 50% 50%; }
+.ui-icon[data-fx="write"] .p-a { transform-origin: 20% 80%; }
+.ui-icon[data-fx="balance"] .p-a { transform-box: view-box; transform-origin: 50% 29%; }
+.ui-icon[data-fx="draw"] .p-a { stroke-dasharray: 1; }
+.ui-icon[data-fx="bulb"] .p-b { opacity: 0; }
+
+/* One motion per glyph, played on hover or focus, or while data-play="true" (set by <AnimatedIcon pulse>). */
+@keyframes ui-swing { 20% { transform: rotate(-16deg); } 40% { transform: rotate(12deg); } 60% { transform: rotate(-7deg); } 80% { transform: rotate(3deg); } }
+@keyframes ui-clap { 30% { transform: translateX(2px); } 65% { transform: translateX(-2px); } }
+@keyframes ui-turn { to { transform: rotate(45deg); } }
+@keyframes ui-needle { 30% { transform: rotate(70deg); } 62% { transform: rotate(-40deg); } 82% { transform: rotate(14deg); } }
+@keyframes ui-beat { 25% { transform: scale(1.22); } 50% { transform: scale(0.95); } 72% { transform: scale(1.08); } }
+@keyframes ui-typing { 35% { transform: translateY(-2.4px); } 70% { transform: translateY(0); } }
+@keyframes ui-rays { 30% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes ui-plane { 40% { transform: translate(5px, -5px); opacity: 0; } 41% { transform: translate(-5px, 5px); } 100% { transform: none; opacity: 1; } }
+@keyframes ui-hop { 40% { transform: translateY(-2.4px); } 70% { transform: translateY(0.6px); } }
+@keyframes ui-twirl { 60% { transform: rotate(72deg) scale(1.14); } 100% { transform: rotate(72deg); } }
+@keyframes ui-twinkle { 50% { transform: scale(1.3) rotate(45deg); } }
+@keyframes ui-pop { 0% { transform: scale(0.55); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes ui-shake { 20% { transform: translateX(-1.5px) rotate(-5deg); } 45% { transform: translateX(1.5px) rotate(5deg); } 70% { transform: translateX(-1px) rotate(-2deg); } }
+@keyframes ui-hand { to { transform: rotate(360deg); } }
+@keyframes ui-lock { 40% { transform: translateY(-2.2px); } 70% { transform: translateY(0.4px); } }
+@keyframes ui-wave { 25% { transform: rotate(-5deg) skewY(-3deg); } 60% { transform: rotate(3deg) skewY(2deg); } }
+@keyframes ui-lid { 40% { transform: rotate(-16deg); } }
+@keyframes ui-lens { 50% { transform: scale(1.12); } }
+@keyframes ui-columns { 40% { transform: translateY(-1.6px); } 70% { transform: translateY(0.4px); } }
+@keyframes ui-door { 40% { transform: scaleY(0.82); } 70% { transform: scaleY(1.06); } }
+@keyframes ui-cal { 40% { transform: translateY(-1.8px); } 70% { transform: translateY(0.5px); } }
+@keyframes ui-link { 40% { transform: translateX(2.2px); } 75% { transform: translateX(-0.8px); } }
+@keyframes ui-flip { 50% { transform: scaleX(0.15); } }
+@keyframes ui-drop { 30% { transform: translateY(-3px); } 60% { transform: translateY(1px) scaleY(0.92); } }
+@keyframes ui-write { 25% { transform: rotate(-10deg) translateX(-1px); } 55% { transform: rotate(5deg); } }
+@keyframes ui-launch { 35% { transform: translateY(-3px); } 100% { transform: none; } }
+@keyframes ui-flame { 30% { opacity: 1; transform: scaleY(1.4); } 100% { opacity: 0.8; } }
+@keyframes ui-waves { 30% { opacity: 0.2; transform: translateX(-1px); } 60% { opacity: 1; transform: translateX(1px); } }
+@keyframes ui-balance { 25% { transform: rotate(-9deg); } 55% { transform: rotate(6deg); } 80% { transform: rotate(-2deg); } }
+@keyframes ui-slide { 35% { transform: translateX(2.5px); } 70% { transform: translateX(-1.5px); } }
+@keyframes ui-orbit { to { transform: rotate(360deg); } }
+@keyframes ui-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="bell"] .p-a { animation: ui-swing 800ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="bell"] .p-b { animation: ui-clap 800ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="gear"] .p-a { animation: ui-turn 600ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="needle"] .p-a { animation: ui-needle 900ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="beat"] .p-a { animation: ui-beat 600ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="typing"] .p-b { animation: ui-typing 640ms ease-in-out calc(var(--i, 0) * 90ms); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="bulb"] .p-b { animation: ui-rays 900ms ease-out; }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="bulb"] .p-a { animation: ui-beat 600ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="plane"] .p-a { animation: ui-plane 700ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="door"] .p-a { animation: ui-door 520ms var(--ease-out); transform-origin: 50% 100%; }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="hop"] .p-a { animation: ui-hop 520ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="twirl"] .p-a { animation: ui-twirl 700ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="twinkle"] .p-a { animation: ui-twinkle 800ms ease-in-out; }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="twinkle"] .p-b { animation: ui-twinkle 800ms ease-in-out 120ms; }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="pop"] .p-a { animation: ui-pop 480ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="shake"] .p-a { animation: ui-shake 560ms ease-in-out; }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="hand"] .p-a { animation: ui-hand 900ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="lock"] .p-a { animation: ui-lock 520ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="wave"] .p-a { animation: ui-wave 800ms ease-in-out; }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="lid"] .p-a { animation: ui-lid 520ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="lens"] .p-a { animation: ui-lens 520ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="columns"] .p-a { animation: ui-columns 560ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="tassel"] .p-a { animation: ui-swing 800ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="calendar"] .p-a { animation: ui-cal 520ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="calendar"] .p-b { animation: ui-pop 520ms var(--ease-out) 120ms; }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="link"] .p-a { animation: ui-link 600ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="flip"] .p-a { animation: ui-flip 700ms ease-in-out; }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="drop"] .p-a { animation: ui-drop 560ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="write"] .p-a { animation: ui-write 700ms ease-in-out; }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="launch"] .p-a { animation: ui-launch 700ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="launch"] .p-b { animation: ui-flame 700ms ease-out; }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="waves"] .p-b { animation: ui-waves 700ms ease-in-out; }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="waves"] .p-a { animation: ui-hop 520ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="balance"] .p-a { animation: ui-balance 900ms ease-in-out; }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="slide"] .p-a { animation: ui-slide 640ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="orbit"] .p-a { animation: ui-orbit 900ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="draw"] .p-a { animation: ui-draw 700ms var(--ease-out); }
+:is(:is(a, button, [role="tab"], [role="menuitem"], .ui-host):is(:hover, :focus-visible) .ui-icon, .ui-icon[data-play="true"])[data-fx="turn"] .p-a { animation: ui-swing 700ms var(--ease-out); }
+
+/* Beads: the pending indicator (components/icons/beads.jsx). They take the text colour, so they read on any button. */
+.ui-beads { display: inline-flex; align-items: center; gap: 3px; height: 1em; }
+.ui-beads > i { width: 0.42em; height: 0.42em; border-radius: 9999px; background: currentColor; animation: ui-bead 900ms ease-in-out infinite; }
+.ui-beads > i:nth-child(2) { animation-delay: 120ms; }
+.ui-beads > i:nth-child(3) { animation-delay: 240ms; }
+@keyframes ui-bead { 0%, 70%, 100% { transform: translateY(0); opacity: 0.5; } 35% { transform: translateY(-0.28em); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-icon, .ui-icon * { animation: none !important; transition: none !important; }
+  .ui-icon[data-state="active"], .ui-icon[data-anim] { transform: none !important; }
+  .ui-icon[data-fx="bulb"] .p-b { opacity: 0 !important; }
+  .ui-beads > i { animation: none; opacity: 0.85; }
+}

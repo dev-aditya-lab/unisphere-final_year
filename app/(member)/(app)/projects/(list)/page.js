@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { FolderKanban, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import { FolderKanban } from "@/components/icons/lucide-compat";
 import { EmptyState } from "@/components/empty-state";
 import { ProjectCard } from "@/components/projects/project-card";
 import { PageHeader } from "@/components/shell/page-header";

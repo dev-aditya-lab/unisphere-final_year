@@ -5,6 +5,7 @@ import { THEME_INIT_SCRIPT } from "@/components/theme-provider";
 import { publicEnv } from "@/lib/env-public";
 import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE } from "@/lib/constants";
 import "./globals.css";
+import "@/components/icons/icons.css";
 
 // One family for everything: Plus Jakarta Sans, open and modern, with excellent small-size legibility (variable font).
 const body = Plus_Jakarta_Sans({ variable: "--font-body", subsets: ["latin"], display: "swap" });

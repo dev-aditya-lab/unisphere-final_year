@@ -1,4 +1,4 @@
-import { MessageCircle } from "lucide-react";
+import { MessageCircle } from "@/components/icons/lucide-compat";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /**

@@ -3,7 +3,8 @@
 import { useTransition } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bug, LogOut, Monitor, Moon, Settings, ShieldCheck, Sparkles, Sun, User } from "lucide-react";
+import { Bug, LogOut, Monitor, Moon, Sun } from "lucide-react";
+import { Settings, ShieldCheck, Sparkles, User } from "@/components/icons/lucide-compat";
 import {
   DropdownMenu,
   DropdownMenuContent,

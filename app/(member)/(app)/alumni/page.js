@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Briefcase, GraduationCap, MessagesSquare } from "lucide-react";
+import { Briefcase, GraduationCap, MessagesSquare } from "@/components/icons/lucide-compat";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CancelMentorship, RequestMentorshipButton, RespondMentorship } from "@/components/alumni/mentorship-controls";

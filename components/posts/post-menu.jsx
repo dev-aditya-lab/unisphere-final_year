@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { EyeOff, Flag, Link2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { EyeOff, MoreHorizontal } from "lucide-react";
+import { Flag, Link2, Pencil, Trash2 } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";

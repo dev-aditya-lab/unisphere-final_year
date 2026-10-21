@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2 } from "@/components/icons/lucide-compat";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/theme-provider";
 import { clearAllDrafts } from "@/lib/client/drafts";

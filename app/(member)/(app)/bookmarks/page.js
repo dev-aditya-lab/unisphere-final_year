@@ -1,4 +1,4 @@
-import { Bookmark } from "lucide-react";
+import { Bookmark } from "@/components/icons/lucide-compat";
 import { EmptyState } from "@/components/empty-state";
 import { PostCard } from "@/components/posts/post-card";
 import { PageHeader } from "@/components/shell/page-header";

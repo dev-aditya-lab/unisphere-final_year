@@ -1,4 +1,4 @@
-import { Bookmark, Heart, MessageCircle, Search, Sparkles, UserPlus } from "lucide-react";
+import { Bookmark, Heart, MessageCircle, Search, Sparkles, UserPlus } from "@/components/icons/lucide-compat";
 import { cn } from "@/lib/utils";
 
 /**

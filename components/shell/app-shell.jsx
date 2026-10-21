@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { PenLine, Search } from "lucide-react";
+import { PenLine, Search } from "@/components/icons/lucide-compat";
 import { Logo } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ComposeLink } from "@/components/shell/compose-link";

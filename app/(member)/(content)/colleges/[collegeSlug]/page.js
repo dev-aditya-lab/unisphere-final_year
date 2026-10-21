@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ExternalLink, Info, Landmark, MapPin, Users } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { Info, Landmark, MapPin, Users } from "@/components/icons/lucide-compat";
 import { EmptyState } from "@/components/empty-state";
 import { PersonCard } from "@/components/people/person-card";
 import { CollegeMembershipButton, ReportCollegeDialog } from "@/components/colleges/college-actions";

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CircleAlert } from "lucide-react";
+import { CircleAlert } from "@/components/icons/lucide-compat";
 import { PageHeader } from "@/components/shell/page-header";
 import { Button } from "@/components/ui/button";
 import { AchievementTile, Section } from "@/components/orbits/cards";

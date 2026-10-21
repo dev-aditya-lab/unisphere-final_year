@@ -2,7 +2,10 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { Flag, Heart, MoreHorizontal, Pencil, Reply, Trash2 } from "lucide-react";
+import { MoreHorizontal, Reply } from "lucide-react";
+import { Flag, Pencil, Trash2 } from "@/components/icons/lucide-compat";
+import { AppIcon } from "@/components/icons/app-icon";
+import { AnimatedIcon } from "@/components/icons/animated-icon";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { SuggestTextarea } from "@/components/posts/suggest-textarea";
@@ -193,13 +196,13 @@ function CommentItem({ comment, replies, viewer, postId, depth, onAdded, onChang
             <div className="mt-1.5 flex items-center gap-1">
               {viewer ? (
                 <Button variant="ghost" size="sm" className={cn("text-muted-foreground h-7 gap-1 px-2 text-xs", liked && "text-primary")} onClick={toggleLike} aria-pressed={liked} aria-label={liked ? "Unlike comment" : "Like comment"}>
-                  <Heart className={cn("size-3.5", liked && "fill-current")} />
+                  <AnimatedIcon name="heart" size={16} active={liked} />
                   {likes > 0 && <span className="tabular-nums">{likes}</span>}
                 </Button>
               ) : (
                 likes > 0 && (
                   <span className="text-muted-foreground flex items-center gap-1 px-2 text-xs">
-                    <Heart className="size-3.5" aria-hidden="true" /> {likes}
+                    <AppIcon name="heart" size={16} /> {likes}
                   </span>
                 )
               )}

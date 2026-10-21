@@ -1,6 +1,7 @@
 "use client";
 
-import { Ban, CircleSlash, Flag, Gavel, Hand, NotebookPen, Sparkles, UserCheck, Trash2 } from "lucide-react";
+import { Ban, CircleSlash, Gavel, Hand } from "lucide-react";
+import { Flag, NotebookPen, Sparkles, UserCheck, Trash2 } from "@/components/icons/lucide-compat";
 import { ActionDialog, QuickAction } from "@/components/admin/action-dialog";
 import { addReportNoteAction, assignReportAction, resolveReportAction, suggestTriageAction } from "@/lib/actions/admin";
 

@@ -3,9 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bookmark, Check, Heart, MessageCircle, Pencil, Repeat2, Share2, SmilePlus } from "lucide-react";
+import { Check, Repeat2, Share2, SmilePlus } from "lucide-react";
+import { MessageCircle, Pencil } from "@/components/icons/lucide-compat";
+import { AppIcon } from "@/components/icons/app-icon";
+import { AnimatedIcon } from "@/components/icons/animated-icon";
 import { AnimatePresence, m } from "motion/react";
-import { PopIcon } from "@/components/motion/pop-icon";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -106,9 +108,7 @@ export function PostActions({ post, viewerId, className }) {
               aria-pressed={Boolean(reaction)}
               aria-label={reaction ? `You reacted: ${REACTION_LABEL[reaction]}. Click to remove` : "Like"}
             >
-              <PopIcon active={Boolean(reaction)}>
-                <Heart className={cn("size-[18px]", reaction && "fill-current")} aria-hidden="true" />
-              </PopIcon>
+              <AnimatedIcon name="heart" size={20} active={Boolean(reaction)} />
               {(count > 0 || reaction) && (
                 <span className="tabular-nums">
                   {count > 0 && compactNumber(count)}
@@ -135,7 +135,7 @@ export function PostActions({ post, viewerId, className }) {
       ) : (
         <Button asChild variant="ghost" size="sm" className={ACTION}>
           <Link href={loginHref} aria-label={count > 0 ? `Like (${count})` : "Like"}>
-            <Heart className="size-[18px]" aria-hidden="true" />
+            <AppIcon name="heart" size={20} state="idle" />
             {count > 0 && <span className="tabular-nums">{compactNumber(count)}</span>}
           </Link>
         </Button>
@@ -185,9 +185,7 @@ export function PostActions({ post, viewerId, className }) {
             aria-pressed={bookmarked}
             aria-label={bookmarked ? "Remove bookmark" : "Bookmark"}
           >
-            <PopIcon active={bookmarked}>
-              <Bookmark className={cn("size-[18px]", bookmarked && "fill-current")} />
-            </PopIcon>
+            <AnimatedIcon name="bookmark" size={20} active={bookmarked} />
           </Button>
         )}
         <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-foreground rounded-full max-sm:size-10" onClick={copy} aria-label="Copy link to post">

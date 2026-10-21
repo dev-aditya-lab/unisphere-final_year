@@ -1,4 +1,4 @@
-import { CheckCircle2, CircleAlert } from "lucide-react";
+import { CheckCircle2, CircleAlert } from "@/components/icons/lucide-compat";
 import { PageHeader } from "@/components/shell/page-header";
 import { DataTable, EmptyRow, FilterTabs, Panel, StatCard, StatusBadge, fmtDateTime, fmtNumber } from "@/components/admin/ui";
 import { BreakdownBars } from "@/components/admin/charts";

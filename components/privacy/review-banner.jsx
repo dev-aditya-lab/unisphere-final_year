@@ -2,7 +2,8 @@
 
 import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { ShieldCheck, X } from "lucide-react";
+import { X } from "lucide-react";
+import { ShieldCheck } from "@/components/icons/lucide-compat";
 
 /**
  * A slim, dismissible line shown above the page content, only when there is something to ask or tell:

@@ -1,4 +1,4 @@
-import { Lightbulb, Users } from "lucide-react";
+import { Lightbulb, Users } from "@/components/icons/lucide-compat";
 import { OrbitRings } from "@/components/marketing/illustrations";
 import { AiNote, MockPost, MockSearch, MockWindow, TypeChip } from "@/components/marketing/mock-parts";
 

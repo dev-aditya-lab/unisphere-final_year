@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  BookOpen, CalendarDays, ChartColumn, FileText, Flag, IndianRupee, Inbox, KeyRound, Landmark, LayoutDashboard,
-  Megaphone, MessageSquareHeart, Orbit, Rocket, Scale, ScrollText, ShieldCheck, SlidersHorizontal, Sparkles, Tags, UserX, Users, UsersRound,
-} from "lucide-react";
+import { BookOpen, ChartColumn, IndianRupee, Inbox, KeyRound, LayoutDashboard, Megaphone, Orbit, Rocket, Scale, ScrollText, SlidersHorizontal, Tags, UserX } from "@/components/icons/lucide-compat";
+import { CalendarDays, FileText, Flag, Landmark, MessageSquareHeart, ShieldCheck, Sparkles, Users, UsersRound } from "@/components/icons/lucide-compat";
 import { ADMIN_GROUPS } from "@/lib/admin/nav";
 import { cn } from "@/lib/utils";
 

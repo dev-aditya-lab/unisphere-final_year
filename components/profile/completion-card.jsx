@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { CheckCircle2, Circle } from "lucide-react";
+import { Circle } from "lucide-react";
+import { CheckCircle2 } from "@/components/icons/lucide-compat";
 import { Progress } from "@/components/ui/progress";
 import { profileCompletion } from "@/lib/profile-completion";
 

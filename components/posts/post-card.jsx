@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Compass, Globe, GraduationCap, Lock, Repeat2, ShieldAlert, Users } from "lucide-react";
+import { Repeat2 } from "lucide-react";
+import { Compass, Globe, GraduationCap, Lock, ShieldAlert, Users } from "@/components/icons/lucide-compat";
 import { AuthorLine } from "@/components/posts/author-line";
 import { CategoryBadge } from "@/components/posts/category-badge";
 import { PostActions } from "@/components/posts/post-actions";

@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowLeft, Bell, BellOff, Loader2, MessageCircle, MoreHorizontal, WifiOff } from "lucide-react";
+import { ArrowDown, ArrowLeft, BellOff, Loader2, MoreHorizontal, WifiOff } from "lucide-react";
+import { Bell, MessageCircle } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";

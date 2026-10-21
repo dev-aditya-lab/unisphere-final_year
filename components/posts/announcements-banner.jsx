@@ -1,4 +1,5 @@
-import { Megaphone, Pin } from "lucide-react";
+import { Megaphone } from "@/components/icons/lucide-compat";
+import { Pin } from "@/components/icons/lucide-compat";
 import { Badge } from "@/components/ui/badge";
 import { timeAgo } from "@/lib/format";
 

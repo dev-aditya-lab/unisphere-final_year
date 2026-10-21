@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, Info, Lightbulb, Sparkles } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { Info, Lightbulb, Sparkles } from "@/components/icons/lucide-compat";
 import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/user-avatar";
 import { CategoryBadge } from "@/components/posts/category-badge";

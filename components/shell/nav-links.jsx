@@ -59,7 +59,7 @@ export function NavLinks({ items, counts = {}, onNavigate }) {
                       ) : (
                         <span aria-hidden="true" className="bg-accent absolute inset-0 rounded-lg opacity-0 transition-opacity duration-150 group-hover:opacity-100" />
                       )}
-                      {href === "/orbits" ? <span className="relative"><OrbitNavMark size={28} /></span> : <NavIcon name={icon} className="relative size-[18px] shrink-0" aria-hidden="true" />}
+                      {href === "/orbits" ? <span className="relative"><OrbitNavMark size={28} /></span> : <NavIcon name={icon} active={active} size={22} className="relative" />}
                       <span className="relative flex-1 truncate">{label}</span>
                       <CountBadge value={count ?? 0} label="unread" className="relative" />
                       <NavPending className="relative" />

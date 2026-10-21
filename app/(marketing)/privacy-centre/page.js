@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { Download, FileText, Pencil, Scale, ShieldCheck, ShieldOff, Trash2, UserRoundCheck, Mail, Cookie, Users } from "lucide-react";
+import { Download, Cookie } from "lucide-react";
+import { Scale } from "@/components/icons/lucide-compat";
+import { FileText, Pencil, ShieldCheck, ShieldOff, Trash2, UserRoundCheck, Mail, Users } from "@/components/icons/lucide-compat";
 import { getAuthUser } from "@/lib/auth/session";
 import { privacyContact } from "@/lib/privacy/config";
 import { CURRENT_NOTICE } from "@/lib/privacy/registry";

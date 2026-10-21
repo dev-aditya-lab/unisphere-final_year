@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CalendarPlus, ExternalLink, MapPin, Users, Video } from "lucide-react";
+import { ExternalLink, Video } from "lucide-react";
+import { CalendarPlus, MapPin, Users } from "@/components/icons/lucide-compat";
 import { EventManagePanel, RsvpPanel } from "@/components/campus/event-parts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

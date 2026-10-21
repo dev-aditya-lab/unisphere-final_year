@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ExternalLink, MapPin } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { MapPin } from "@/components/icons/lucide-compat";
 import { OpportunityOwnerActions } from "@/components/campus/opportunity-parts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

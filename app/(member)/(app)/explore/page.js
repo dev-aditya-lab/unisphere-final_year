@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { Hash, Handshake, Sparkles } from "lucide-react";
+import { Hash } from "lucide-react";
+import { Handshake } from "@/components/icons/lucide-compat";
+import { Sparkles } from "@/components/icons/lucide-compat";
 import { EmptyState } from "@/components/empty-state";
 import { PersonCard } from "@/components/people/person-card";
 import { QuickConnect } from "@/components/people/quick-connect";

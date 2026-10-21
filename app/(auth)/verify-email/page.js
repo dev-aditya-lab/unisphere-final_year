@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MailCheck } from "lucide-react";
+import { MailCheck } from "@/components/icons/lucide-compat";
 import { ResendVerification } from "@/components/auth/resend-verification";
 import { z } from "zod";
 

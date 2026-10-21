@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Bug, Lightbulb, MessageSquareHeart } from "lucide-react";
+import { Bug } from "lucide-react";
+import { Lightbulb, MessageSquareHeart } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";

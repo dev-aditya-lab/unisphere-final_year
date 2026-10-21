@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, Compass, Globe, GraduationCap, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Compass, Globe, GraduationCap, Users } from "@/components/icons/lucide-compat";
 import { CategoryIcon } from "@/components/posts/category-icons";
 import { FEED_SCOPES, POST_CATEGORIES } from "@/lib/content/post-meta";
 import { cn } from "@/lib/utils";

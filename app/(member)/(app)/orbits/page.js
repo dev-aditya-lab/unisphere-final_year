@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { CircleAlert, RotateCw } from "lucide-react";
+import { RotateCw } from "lucide-react";
+import { CircleAlert } from "@/components/icons/lucide-compat";
 import { PageHeader } from "@/components/shell/page-header";
 import { Button } from "@/components/ui/button";
 import { ActivityList, AchievementTile, BalanceCard, Section, SeeAll, StreakCard } from "@/components/orbits/cards";

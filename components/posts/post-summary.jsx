@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2, RotateCw, Sparkles, X } from "lucide-react";
+import { Loader2, RotateCw, X } from "lucide-react";
+import { Sparkles } from "@/components/icons/lucide-compat";
 import { Button } from "@/components/ui/button";
 import { summarizePostAction } from "@/lib/actions/ai";
 

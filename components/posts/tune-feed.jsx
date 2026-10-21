@@ -3,7 +3,8 @@
 import { useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, SlidersHorizontal, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
+import { SlidersHorizontal } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import { flushSync } from "react-dom";
 import { Controller, useFieldArray, useWatch } from "react-hook-form";
-import { GraduationCap, Loader2, Plus, Star, Trash2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
+import { GraduationCap, Star, Trash2 } from "@/components/icons/lucide-compat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

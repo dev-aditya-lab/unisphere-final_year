@@ -1,7 +1,8 @@
 "use client";
 
 import { memo } from "react";
-import { AlertCircle, Check, CheckCheck, Clock, FileText, Flag, MoreHorizontal, RotateCw, Trash2 } from "lucide-react";
+import { Check, CheckCheck, MoreHorizontal, RotateCw } from "lucide-react";
+import { AlertCircle, Clock, FileText, Flag, Trash2 } from "@/components/icons/lucide-compat";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { RichText } from "@/components/posts/rich-text";

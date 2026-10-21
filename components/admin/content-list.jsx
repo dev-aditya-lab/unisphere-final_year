@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Search } from "@/components/icons/lucide-compat";
 import { PageHeader } from "@/components/shell/page-header";
 import { Button } from "@/components/ui/button";
 import { DataTable, EmptyRow, Pager, StatusBadge, fmtDate } from "@/components/admin/ui";

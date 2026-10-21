@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { Download, Pencil, ShieldOff, Trash2, UserRoundCheck, Scale } from "lucide-react";
+import { Download } from "lucide-react";
+import { Scale } from "@/components/icons/lucide-compat";
+import { Pencil, ShieldOff, Trash2, UserRoundCheck } from "@/components/icons/lucide-compat";
 import { PageHeader } from "@/components/shell/page-header";
 import { SettingsNav } from "@/components/settings/settings-nav";
 import { CorrectionForm, NominationForm, OtherRequestForm } from "@/components/privacy/request-forms";

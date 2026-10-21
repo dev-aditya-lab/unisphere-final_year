@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, m, useReducedMotion } from "motion/react";
-import { Check, CircleHelp, Globe, Hand, PenLine, Trophy, X } from "lucide-react";
+import { Check, Hand, X } from "lucide-react";
+import { CircleHelp, Globe, PenLine, Trophy } from "@/components/icons/lucide-compat";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { useClientValue } from "@/hooks/use-client-value";

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CalendarDays, MapPin, Plus, Video } from "lucide-react";
+import { Plus, Video } from "lucide-react";
+import { CalendarDays, MapPin } from "@/components/icons/lucide-compat";
 import { EventStatusChip } from "@/components/campus/event-parts";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/shell/page-header";

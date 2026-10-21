@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AtSign, Globe, GraduationCap, Hash, ImagePlus, Loader2, Lock, RotateCw, Users, X } from "lucide-react";
+import { AtSign, Hash, Loader2, RotateCw, X } from "lucide-react";
+import { Globe, GraduationCap, ImagePlus, Lock, Users } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

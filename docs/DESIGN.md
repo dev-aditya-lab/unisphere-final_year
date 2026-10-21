@@ -73,7 +73,7 @@ Shared pieces: `PageHeader`, `EmptyState`, `SystemPage` (404, errors, maintenanc
 (`FeedSkeleton`, `PageSkeleton`, used by `loading.js` in each route group), `CoverArt` (deterministic profile
 cover), `CategoryBadge`.
 
-Icons are Lucide only. There are no emoji icons.
+Icons are the UniSphere icon family (`components/icons`, see [ICONS.md](ICONS.md)): plain single-colour glyphs that follow the text colour, each with one purposeful motion; Lucide strokes for control chrome (close, check, chevrons, arrows); the 3D reward art only for Orbits rewards. There are no emoji icons.
 
 ## Motion
 

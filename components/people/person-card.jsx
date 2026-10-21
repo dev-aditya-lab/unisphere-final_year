@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { GraduationCap, Handshake } from "lucide-react";
+import { Handshake } from "@/components/icons/lucide-compat";
+import { GraduationCap } from "@/components/icons/lucide-compat";
 import { Badge } from "@/components/ui/badge";
 import { BlueTick } from "@/components/ui/blue-tick";
 import { UserAvatar } from "@/components/user-avatar";

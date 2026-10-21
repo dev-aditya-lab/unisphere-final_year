@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, CalendarDays, GraduationCap, Lightbulb, Lock, MessageSquareQuote, ShieldCheck, Sparkles, Users, UserX } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { UserX } from "@/components/icons/lucide-compat";
+import { BadgeCheck, CalendarDays, GraduationCap, Lightbulb, Lock, MessageSquareQuote, ShieldCheck, Sparkles, Users } from "@/components/icons/lucide-compat";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Reveal } from "@/components/marketing/reveal";

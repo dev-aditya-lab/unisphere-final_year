@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Compass, FolderKanban, Lightbulb, Newspaper } from "lucide-react";
+import { Newspaper } from "@/components/icons/lucide-compat";
+import { Compass, FolderKanban, Lightbulb } from "@/components/icons/lucide-compat";
 import { AiNote, Avatar, MockPost, MockSearch, MockWindow, RoleRow, TypeChip } from "@/components/marketing/mock-parts";
 import { cn } from "@/lib/utils";
 

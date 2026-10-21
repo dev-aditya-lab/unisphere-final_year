@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Users } from "lucide-react";
+import { Users } from "@/components/icons/lucide-compat";
 import { Badge } from "@/components/ui/badge";
 import { PROJECT_STATUSES } from "@/lib/validators/project";
 import { excerpt } from "@/lib/text";

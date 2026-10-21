@@ -2,7 +2,8 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { CircleAlert, Clock, IdCard, Lock, Paperclip, ShieldCheck } from "lucide-react";
+import { IdCard, Paperclip } from "lucide-react";
+import { CircleAlert, Clock, Lock, ShieldCheck } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { BlueTick } from "@/components/ui/blue-tick";

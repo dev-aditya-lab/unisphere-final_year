@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useId, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
-import { Hash, Loader2, TriangleAlert } from "lucide-react";
+import { Hash, Loader2 } from "lucide-react";
+import { TriangleAlert } from "@/components/icons/lucide-compat";
 import { Textarea } from "@/components/ui/textarea";
 import { UserAvatar } from "@/components/user-avatar";
 import { BlueTick } from "@/components/ui/blue-tick";

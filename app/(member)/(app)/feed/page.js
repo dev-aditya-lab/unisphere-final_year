@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Newspaper } from "lucide-react";
+import { Newspaper } from "@/components/icons/lucide-compat";
 import { OrbitsFeedStrip, OrbitsFeedWidget } from "@/components/orbits/glance-server";
 import { OrbitsWidgetSkeleton } from "@/components/orbits/feed-widgets";
 import { Composer } from "@/components/posts/composer";

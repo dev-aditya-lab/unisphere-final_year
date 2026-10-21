@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useClientValue } from "@/hooks/use-client-value";
-import { BellRing, Download, Smartphone } from "lucide-react";
+import { Download, Smartphone } from "lucide-react";
+import { BellRing } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useInstall } from "@/components/pwa/use-install";

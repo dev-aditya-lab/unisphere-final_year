@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle2, Info, TriangleAlert } from "lucide-react";
+import { AlertCircle, CheckCircle2, Info, TriangleAlert } from "@/components/icons/lucide-compat";
 import { cn } from "@/lib/utils";
 
 const STYLES = {

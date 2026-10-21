@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Briefcase, MapPin, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import { Briefcase, MapPin } from "@/components/icons/lucide-compat";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/shell/page-header";
 import { Badge } from "@/components/ui/badge";

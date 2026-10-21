@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { FileText, Loader2, Paperclip, Pencil, RotateCw, Send, X } from "lucide-react";
+import { Loader2, Paperclip, RotateCw, X } from "lucide-react";
+import { FileText, Pencil } from "@/components/icons/lucide-compat";
+import { AnimatedIcon } from "@/components/icons/animated-icon";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useImageEditor } from "@/components/images/use-image-editor";
@@ -25,6 +27,7 @@ export function Composer({ conversationId, firstName }) {
   const [text, setText] = useState(() => engine.getDraft(conversationId));
   const [items, setItems] = useState([]);
   const [original, setOriginal] = useState(false);
+  const [sent, setSent] = useState(0); // counts messages sent from here, so the send icon animates only on a real send
   const area = useRef(null);
   const fileInput = useRef(null);
   const itemsRef = useRef(items);
@@ -138,6 +141,7 @@ export function Composer({ conversationId, firstName }) {
       return;
     }
     // On screen and queued already. The saved draft goes only once the message is safe on this device too.
+    setSent((n) => n + 1);
     setText("");
     items.forEach((i) => i.previewUrl && URL.revokeObjectURL(i.previewUrl));
     setItems([]);
@@ -224,8 +228,9 @@ export function Composer({ conversationId, firstName }) {
           onKeyDown={onKeyDown}
           className="bg-background placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/40 max-h-[10.5rem] min-h-10 min-w-0 flex-1 resize-none rounded-xl border px-3.5 py-2 text-base outline-none focus-visible:ring-[3px] md:text-sm"
         />
-        <Button type="submit" size="icon" disabled={!canSend} aria-label="Send message" className="shrink-0">
-          {busy ? <Loader2 className="animate-spin" /> : <Send />}
+        <Button type="submit" variant="soft" size="icon" disabled={!canSend} aria-label="Send message" className="shrink-0">
+          {/* The paper plane flies off once for each message that is actually sent. */}
+          {busy ? <Loader2 className="animate-spin" /> : <AnimatedIcon name="send" size={24} pulse={sent} />}
         </Button>
       </div>
       {text.length > LIMITS.maxBody - 500 && (

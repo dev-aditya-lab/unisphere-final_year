@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ImagePlus, Loader2, Plus, RotateCcw, Sparkles } from "lucide-react";
+import { Loader2, Plus, RotateCcw } from "lucide-react";
+import { ImagePlus, Sparkles } from "@/components/icons/lucide-compat";
 import { RewardIcon } from "@/components/orbits/reward-icon";
 import { uploadFileWithProgress } from "@/lib/storage/client";
 import { Button } from "@/components/ui/button";
