@@ -1,13 +1,20 @@
+// The one host next/image may fetch from: this site's own media domain (NEXT_PUBLIC_MEDIA_URL), exactly, not a wildcard
+// over every R2 account. Anything else would let the image optimiser be pointed at other people's buckets.
+const mediaHost = (() => {
+  try {
+    const u = new URL(process.env.NEXT_PUBLIC_MEDIA_URL || "");
+    return { protocol: u.protocol.replace(":", ""), hostname: u.hostname, ...(u.port ? { port: u.port } : {}) };
+  } catch {
+    return null;
+  }
+})();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   productionBrowserSourceMaps: false,
   poweredByHeader: false,
   images: {
-    remotePatterns: [
-      { protocol: "http", hostname: "localhost" },
-      { protocol: "https", hostname: "**.r2.dev" },
-      { protocol: "https", hostname: "**.r2.cloudflarestorage.com" },
-    ],
+    remotePatterns: [{ protocol: "http", hostname: "localhost" }, ...(mediaHost ? [mediaHost] : [])],
   },
   // Common names for pages that already exist. Permanent, and resolved before the auth proxy runs.
   async redirects() {
