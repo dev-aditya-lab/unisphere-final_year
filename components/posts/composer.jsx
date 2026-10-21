@@ -98,7 +98,7 @@ function UploadTile({ item, onRemove, onRetry }) {
  * What the member has written lives here, not in the dialog, so closing the editor never loses it, and it is also kept
  * on the device as a draft. Nothing is cleared until the server has accepted the post.
  */
-export function Composer({ profile, defaultCategory = "general", defaultVisibility = "college", lockCategory = false, ai = null, onCreated, autoFocus = false, community = null }) {
+export function Composer({ profile, defaultCategory = "general", defaultVisibility = "public", lockCategory = false, ai = null, onCreated, autoFocus = false, community = null }) {
   const router = useRouter();
   const fileInput = useRef(null);
   const bodyRef = useRef(null);
@@ -109,7 +109,7 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const hasCollege = Boolean(profile.college_id);
-  const [visibility, setVisibility] = useState(community ? "community" : defaultVisibility === "college" && !hasCollege ? "public" : defaultVisibility);
+  const [visibility, setVisibility] = useState(community ? "community" : defaultVisibility);
   const [uploads, setUploads] = useState([]); // { key, name, file, preview, status, progress, id, error }
   const uploadsRef = useRef(uploads);
   const aborts = useRef(new Map());
