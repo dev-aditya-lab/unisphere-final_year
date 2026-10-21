@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BadgeCheck, Check, Loader2, Plus, Search, Sparkles, Trash2, UserMinus, X } from "lucide-react";
+import { Check, Loader2, Plus, Search, Sparkles, Trash2, UserMinus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,7 +43,6 @@ function Person({ person, sub }) {
         {person.username ? (
           <Link href={`/u/${person.username}`} className="flex items-center gap-1 truncate text-sm font-semibold hover:underline">
             {person.full_name}
-            {person.verified && <BadgeCheck className="text-teal-text size-3.5" aria-label="Verified" />}
           </Link>
         ) : (
           <span className="text-sm font-semibold">{person.full_name}</span>
@@ -204,7 +203,7 @@ export function SuggestionsPanel({ projectId, project }) {
           {data.items.map((c) => (
             <li key={c.id} className="space-y-1.5 p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <Person person={{ ...c, verified: c.verified }} sub={c.headline} />
+                <Person person={c} sub={c.headline} />
                 <div className="flex items-center gap-2">
                   <Badge variant="mono" title="3×skills + 2×roles + 1×interests">score {c.score}</Badge>
                   <Button size="sm" variant="outline" disabled={pendingInvite} onClick={() => run(() => inviteToProjectAction({ projectId, inviteeId: c.id }), `Invitation sent to ${c.full_name}`)}>Invite</Button>
@@ -251,7 +250,7 @@ export function RolesPanel({ projectId, roles }) {
       <div className="space-y-2 rounded-md border p-3">
         <label htmlFor="new-role" className="text-[13px] font-semibold">Add an open role</label>
         <Input id="new-role" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Backend developer" maxLength={60} />
-        <TagInput label="Skills for the role" value={skills} onChange={setSkills} max={10} placeholder="Skills (optional)" />
+        <TagInput label="Skills for the role" value={skills} onChange={setSkills} max={10} catalog="skill" placeholder="Skills (optional)" />
         <Button size="sm" disabled={pending || title.trim().length < 2} onClick={() => run(async () => { const r = await addRoleAction({ projectId, role: { title, skills } }); if (r.ok) { setTitle(""); setSkills([]); } return r; }, "Role added")}>
           <Plus /> Add role
         </Button>

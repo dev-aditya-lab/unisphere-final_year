@@ -145,7 +145,7 @@ export function ProjectForm({ project = null, ai = null, hasCollege = true }) {
           <Controller control={control} name="techStack" render={({ field }) => <TagInput id="techStack" label="Tech stack" value={field.value} onChange={field.onChange} max={15} placeholder="e.g. Next.js, PostgreSQL" />} />
         </Field>
         <Field id="requiredSkills" label="Skills the team needs" optional error={errors.requiredSkills?.message} hint="Used to suggest teammates who list these skills.">
-          <Controller control={control} name="requiredSkills" render={({ field }) => <TagInput id="requiredSkills" label="Required skills" value={field.value} onChange={field.onChange} max={15} placeholder="e.g. UI design, Python" />} />
+          <Controller control={control} name="requiredSkills" render={({ field }) => <TagInput id="requiredSkills" label="Required skills" value={field.value} onChange={field.onChange} max={15} catalog="skill" placeholder="e.g. UI design, Python" />} />
         </Field>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Field id="teamSize" label="Team size" error={errors.teamSize?.message}>
@@ -219,7 +219,7 @@ export function ProjectForm({ project = null, ai = null, hasCollege = true }) {
                 </Button>
               </div>
               <Field id={`role-skills-${i}`} label="Skills for this role" optional>
-                <Controller control={control} name={`openRoles.${i}.skills`} render={({ field }) => <TagInput id={`role-skills-${i}`} label="Role skills" value={field.value} onChange={field.onChange} max={10} />} />
+                <Controller control={control} name={`openRoles.${i}.skills`} render={({ field }) => <TagInput id={`role-skills-${i}`} label="Role skills" value={field.value} onChange={field.onChange} max={10} catalog="skill" />} />
               </Field>
             </div>
           ))}

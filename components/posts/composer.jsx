@@ -20,6 +20,7 @@ import { POST_CATEGORIES, POST_VISIBILITY, COMMUNITY_POST_VISIBILITY, CATEGORY_B
 import { uploadFileWithProgress } from "@/lib/storage/client";
 import { useImageEditor } from "@/components/images/use-image-editor";
 import { createOpTracker } from "@/lib/client/op-id";
+import { COMPOSE_EVENT, takePendingCompose } from "@/lib/client/compose";
 import { emitPostCreated } from "@/lib/client/feed-events";
 import { clearDraft, readDraft, writeDraft } from "@/lib/client/drafts";
 import { cn } from "@/lib/utils";
@@ -156,16 +157,25 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
     return () => clearTimeout(t);
   }, [body, title, category, draftKey]);
 
-  // The "write a post" buttons link to /feed#compose: open the editor when that hash is present.
+  // The "write a post" buttons ask for the editor (lib/client/compose.js) or link to /feed#compose: open it for either.
+  // Only the general composer answers, not one for a community or a fixed post type, which are for their own page.
   useEffect(() => {
-    if (community) return;
+    if (community || lockCategory) return;
     const openIfRequested = () => {
-      if (window.location.hash === "#compose") setOpen(true);
+      if (window.location.hash === "#compose" || takePendingCompose()) setOpen(true);
+    };
+    const onRequest = (e) => {
+      e.preventDefault(); // tells the button it was handled
+      setOpen(true);
     };
     openIfRequested();
     window.addEventListener("hashchange", openIfRequested);
-    return () => window.removeEventListener("hashchange", openIfRequested);
-  }, [community]);
+    window.addEventListener(COMPOSE_EVENT, onRequest);
+    return () => {
+      window.removeEventListener("hashchange", openIfRequested);
+      window.removeEventListener(COMPOSE_EVENT, onRequest);
+    };
+  }, [community, lockCategory]);
 
   useEffect(() => {
     uploadsRef.current = uploads;

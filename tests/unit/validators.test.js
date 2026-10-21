@@ -64,14 +64,13 @@ describe("profileSchema URL handling", () => {
   const base = {
     fullName: "Asha K",
     username: "asha-k",
-    accountType: "student",
+    education: [],
     skills: [],
     interests: [],
     openToCollaboration: false,
     preferredRoles: [],
     openToMentoring: false,
     mentoringTopics: [],
-    graduationYear: "",
     currentYear: "",
     currentSemester: "",
   };
@@ -91,23 +90,51 @@ describe("privacySchema", () => {
   });
 });
 
-describe("optional role and college on a profile", () => {
+describe("schools and colleges on a profile", () => {
   const base = {
-    fullName: "Asha Kumar", username: "asha-k", headline: "", bio: "", graduationYear: "", currentYear: "", currentSemester: "",
+    fullName: "Asha Kumar", username: "asha-k", headline: "", bio: "", currentYear: "", currentSemester: "",
     skills: [], interests: [], githubUrl: "", portfolioUrl: "", linkedinUrl: "", twitterUrl: "",
     openToCollaboration: false, preferredRoles: [], availability: "", openToMentoring: false, mentoringTopics: [],
     industry: "", company: "", jobTitle: "",
   };
-  it("accepts no role and no college", () => {
-    const parsed = profileSchema.parse({ ...base, accountType: null, collegeId: null });
-    expect(parsed.accountType).toBeNull();
-    expect(parsed.collegeId).toBeNull();
+  const GF = "00000000-0000-4000-8000-000000000001";
+  const RV = "00000000-0000-4000-8000-000000000002";
+  it("accepts no college at all", () => {
+    expect(profileSchema.parse({ ...base, education: [] }).education).toEqual([]);
   });
-  it("treats an empty role as not stated, and still rejects an unknown one", () => {
-    expect(profileSchema.parse({ ...base, accountType: "" }).accountType).toBeNull();
-    expect(profileSchema.safeParse({ ...base, accountType: "administrator" }).success).toBe(false);
+  it("no longer takes a role or a college outside the list", () => {
+    const parsed = profileSchema.parse({ ...base, education: [], accountType: "student", collegeId: GF });
+    expect(parsed).not.toHaveProperty("accountType");
+    expect(parsed).not.toHaveProperty("collegeId");
   });
-  it("only accepts a real college id", () => {
-    expect(profileSchema.safeParse({ ...base, collegeId: "not-a-uuid" }).success).toBe(false);
+  it("takes several colleges, each with a role, and turns blank years into null", () => {
+    const out = profileSchema.parse({
+      ...base,
+      education: [
+        { collegeId: GF, role: "student", startYear: "2023", endYear: "2027", isPrimary: true },
+        { collegeId: RV, role: "alumni", startYear: "", endYear: "" },
+      ],
+    });
+    expect(out.education).toHaveLength(2);
+    expect(out.education[0]).toMatchObject({ startYear: 2023, endYear: 2027, isPrimary: true });
+    expect(out.education[1]).toMatchObject({ startYear: null, endYear: null, isPrimary: false });
+  });
+  it("needs a real college and one of the four roles for every entry", () => {
+    expect(profileSchema.safeParse({ ...base, education: [{ collegeId: "not-a-uuid", role: "student" }] }).success).toBe(false);
+    expect(profileSchema.safeParse({ ...base, education: [{ collegeId: GF, role: "administrator" }] }).success).toBe(false);
+    expect(profileSchema.safeParse({ ...base, education: [{ collegeId: GF }] }).success).toBe(false);
+  });
+  it("allows the same college with another role, but not the same role twice", () => {
+    const entry = (role) => ({ collegeId: GF, role, startYear: "", endYear: "" });
+    expect(profileSchema.safeParse({ ...base, education: [entry("student"), entry("alumni")] }).success).toBe(true);
+    expect(profileSchema.safeParse({ ...base, education: [entry("student"), entry("student")] }).success).toBe(false);
+  });
+  it("rejects years that are out of range or backwards, and more than eight entries", () => {
+    const one = (extra) => profileSchema.safeParse({ ...base, education: [{ collegeId: GF, role: "student", ...extra }] }).success;
+    expect(one({ startYear: "1800" })).toBe(false);
+    expect(one({ startYear: "2025", endYear: "2020" })).toBe(false);
+    expect(one({ startYear: "2020", endYear: "2025" })).toBe(true);
+    const nine = Array.from({ length: 9 }, (_, i) => ({ collegeId: GF, role: "student", startYear: String(2000 + i) }));
+    expect(profileSchema.safeParse({ ...base, education: nine }).success).toBe(false);
   });
 });

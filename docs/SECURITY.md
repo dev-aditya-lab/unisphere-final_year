@@ -17,13 +17,13 @@ vulnerability. Please include steps to reproduce; do not access data that is not
 | **Private network, open registration** | Logged-out visitors can read only public settings and feature flags (the college directory is members-only too); every member-content table and view is ungranted to the anonymous role. Suspended and deactivated accounts are refused by the visibility functions themselves (`can_use_network`), so a direct API call gets nothing either | migrations 0017, 0018 |
 | **College directory abuse controls** | Creating a college is a database function (never a table insert): name validation (no links or markup), normalised duplicate detection under an advisory lock plus a unique index, a per-member daily ceiling, a per-member hourly rate limit in the app, and a moderated report queue. Members cannot edit listings or mark them verified | migration 0018 |
 | **Functions closed by default** | `EXECUTE` is no longer granted to `PUBLIC`; each function is granted explicitly, and anonymous visitors get a five-function allow-list (username check, permission/flag helpers) | migration 0017 |
-| **Roles are never inferred** | No role is granted from an email domain, a student ID or a request: only another administrator grants roles, and the grant is audited | `grant_role` |
+| **Roles are never inferred** | No role is granted from an email domain or a request: only another administrator grants roles, and the grant is audited | `grant_role` |
 | **Audit log** | Append-only (trigger blocks update, delete and truncate for everyone). Secrets and message text are scrubbed before storage | `audit_logs`, `write_audit_log` |
 | **Content Security Policy** | Per-request nonce, `strict-dynamic`, no `unsafe-eval` in production, no third-party origins, `frame-ancestors 'none'` | `proxy.js`, `lib/security/csp.js` |
 | **Other headers** | HSTS (production), `nosniff`, `X-Frame-Options: DENY`, strict referrer policy, restrictive Permissions-Policy, COOP same-origin | `next.config.mjs` |
 | **Input validation** | Every Server Action and route validates with Zod; text is rendered as React text nodes (no HTML); Markdown from admins is rendered without raw HTML | `lib/validators/*` |
 | **Uploads** | Server-relay: size limit, magic-byte type sniffing (the browser's MIME is never trusted), private bucket by default, short-lived signed URLs | `lib/storage/*` |
-| **Rate limiting** | Redis fixed windows per user and per IP for auth, writes, search, uploads, AI, student-ID attempts, feedback; runtime-tunable | `lib/rate-limit.js` |
+| **Rate limiting** | Redis fixed windows per user and per IP for auth, writes, search, uploads, AI, feedback; runtime-tunable | `lib/rate-limit.js` |
 | **Session** | Supabase Auth (JWT in HTTP-only cookies), refreshed in the proxy; claims are verified, not decoded blindly | `lib/supabase/proxy.js` |
 | **CSRF** | Server Actions are same-origin by construction; JSON endpoints that use cookies check `Origin` and require JSON bodies | `app/api/push/subscribe` |
 | **Secrets** | Only `NEXT_PUBLIC_*` reach the browser. The service-role client is `server-only` and used after an explicit permission check | `lib/supabase/admin.js` |
@@ -31,9 +31,6 @@ vulnerability. Please include steps to reproduce; do not access data that is not
 
 ## Privacy decisions worth knowing
 
-- **Student IDs** are never stored. They are normalised in memory, keyed-hashed (HMAC-SHA256 with `APP_SECRET`) and
-  compared; the database keeps only the hash and the last three characters. Even administrators cannot read an ID back.
-  Entries can be claimed once; wrong attempts are limited (5 per 24 hours per account, plus per-hour rate limits).
 - **AI**: prompts and replies are not stored (only task name, timing, token counts, outcome). Private, connections-only
   and community posts are never sent to a provider; college-visible text only if an administrator allows it. Each member
   can switch AI assistance off. See [AI.md](AI.md).
@@ -50,8 +47,6 @@ vulnerability. Please include steps to reproduce; do not access data that is not
   use style attributes. Scripts are strict, which is the part that blocks XSS.
 - Redis-backed rate limits are per-IP and per-account; a distributed attacker with many IPs is only slowed. Put Cloudflare
   or another edge in front for volumetric protection.
-- Student IDs are a shared-secret check, not an identity proof: someone who learns another student's ID can claim it
-  first. Staff can **Release** a wrongly held ID and the real owner can claim it; the audit log shows who held it.
 - Email addresses are visible to administrators with `users.view` (needed for support). Restrict that role.
 - Account recovery depends on email access. There is no SMS or authenticator-app second factor yet.
 - The service worker never caches signed-in pages, so nothing private is left on a shared computer; that also means no

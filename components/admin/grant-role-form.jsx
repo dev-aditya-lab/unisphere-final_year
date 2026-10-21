@@ -9,7 +9,6 @@ import { grantRoleAction } from "@/lib/actions/admin";
 
 const ROLES = [
   { value: "moderator", label: "Moderator" },
-  { value: "verification_staff", label: "Verification staff" },
   { value: "support_agent", label: "Support agent" },
   { value: "college_admin", label: "College admin", adminOnly: true },
   { value: "global_admin", label: "Global admin", adminOnly: true },

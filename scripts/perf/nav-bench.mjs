@@ -26,6 +26,7 @@ const OUT = process.env.BENCH_OUT ?? path.join("scripts", "perf", "results");
 // start: where the member is; tap: a CSS selector for the link they press; expect: the path they should land on.
 const SCENARIOS = [
   { name: "feed -> Explore (nav)", start: "/feed", tap: 'nav a[href="/explore"]', expect: /^\/explore/ },
+  { name: "feed -> Messages (nav)", start: "/feed", tap: 'nav a[href="/messages"]', expect: /^\/messages$/ },
   { name: "feed -> Projects (nav)", start: "/feed", tap: 'nav a[href="/projects"]', expect: /^\/projects$/ },
   { name: "feed -> Events (nav)", start: "/feed", tap: 'nav a[href="/events"]', expect: /^\/events$/ },
   { name: "feed -> Communities (nav)", start: "/feed", tap: 'nav a[href="/communities"]', expect: /^\/communities$/ },
@@ -93,7 +94,7 @@ try {
   await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 80, downloadThroughput: (12 * 1024 * 1024) / 8, uploadThroughput: (6 * 1024 * 1024) / 8 });
   await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
 
-  for (const s of SCENARIOS) {
+  for (const s of SCENARIOS.filter((x) => !process.env.BENCH_ONLY || x.name.includes(process.env.BENCH_ONLY))) {
     const feedback = [];
     const ready = [];
     const errors = [];

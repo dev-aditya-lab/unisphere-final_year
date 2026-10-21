@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { m } from "motion/react";
 import { Ellipsis, Plus } from "lucide-react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ComposeLink } from "@/components/shell/compose-link";
 import { NavIcon } from "@/components/shell/nav-icons";
 import { CountBadge } from "@/components/motion/count-badge";
 import { MoreDot, OrbitMoreCard, OrbitNavMark } from "@/components/orbits/nav-bits";
@@ -131,13 +132,12 @@ export function BottomNav({ items, counts = {} }) {
             </li>
           ))}
           <li className="grid place-items-center">
-            <Link
-              href="/feed#compose"
+            <ComposeLink
               aria-label="Write a post"
               className="bg-primary text-primary-foreground focus-visible:ring-ring/40 grid h-9 w-12 place-items-center rounded-xl shadow-xs transition-transform duration-150 outline-none focus-visible:ring-[3px] active:scale-95"
             >
               <Plus className="size-5" strokeWidth={2.5} aria-hidden="true" />
-            </Link>
+            </ComposeLink>
           </li>
           {right.map((item) => (
             <li key={item.href}>

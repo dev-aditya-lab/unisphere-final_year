@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BadgeCheck, ExternalLink, Info, Lightbulb, Sparkles } from "lucide-react";
+import { ExternalLink, Info, Lightbulb, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { UserAvatar } from "@/components/user-avatar";
 import { CategoryBadge } from "@/components/posts/category-badge";
@@ -87,7 +87,6 @@ export function RelatedResults({ result, onImprove, improving }) {
                 <div className="min-w-0 text-sm">
                   <Link prefetch={false} href={`/u/${p.username}`} target="_blank" rel="noopener" className="flex items-center gap-1 font-semibold hover:underline">
                     {p.full_name}
-                    {p.verified && <BadgeCheck className="text-teal-text size-3.5" aria-label="Verified" />}
                   </Link>
                   <p className="text-muted-foreground text-xs">{p.reason}</p>
                   {p.open_to_collaboration && <p className="text-success-text mt-0.5 text-xs font-medium">Open to collaborate</p>}

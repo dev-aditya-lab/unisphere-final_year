@@ -175,9 +175,16 @@ describe("choosing a college is not verification", () => {
     expect((await admin.from("profiles").select("college_id, verification_status, verified_at").eq("id", member.id).single()).data).toMatchObject({
       college_id: a.college.id, verification_status: "unverified", verified_at: null,
     });
+    // a second college becomes the main one and the first stays on the list; clearing the main one hands over to another listed college
+    const main = async () => (await admin.from("profiles").select("college_id").eq("id", member.id).single()).data.college_id;
     expect((await member.client.rpc("set_my_college", { p_college: b.college.id })).error).toBeNull();
+    expect(await main()).toBe(b.college.id);
     expect((await member.client.rpc("set_my_college", { p_college: null })).error).toBeNull();
-    expect((await admin.from("profiles").select("college_id").eq("id", member.id).single()).data.college_id).toBeNull();
+    expect(await main()).not.toBe(b.college.id);
+    // removing a college takes it off the list; removing every one leaves the member with none
+    const listed = (await admin.from("profile_education").select("college_id").eq("user_id", member.id)).data.map((r) => r.college_id);
+    for (const id of listed) expect((await member.client.rpc("remove_my_college", { p_college: id })).error).toBeNull();
+    expect(await main()).toBeNull();
     // a college that does not exist, or is hidden, cannot be chosen
     expect((await member.client.rpc("set_my_college", { p_college: "00000000-0000-4000-8000-00000000dead" })).error?.message).toContain("college_not_found");
   });

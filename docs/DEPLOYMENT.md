@@ -63,7 +63,7 @@ No domain yet? You can only send to your own address until you have one, so get 
 ### 0.5 Generate secrets
 ```bash
 openssl rand -hex 32     # use as CRON_SECRET
-openssl rand -hex 32     # use as APP_SECRET   (keep it forever: it keys the student-ID hashes)
+openssl rand -hex 32     # use as APP_SECRET
 npx web-push generate-vapid-keys      # NEXT_PUBLIC_VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY (optional, for push)
 ```
 No `openssl`? Use any password manager's "generate 64 hex characters".
@@ -93,7 +93,7 @@ npm run create-admin -- you@example.com "Your Name"
 ```
 This creates a confirmed global administrator and writes the password into `.env.local` as a comment. Copy it to a
 password manager and delete the comment. Then sign in and open `/admin`: appoint a second administrator, set the
-support email in Settings, and import the student-ID list (Admin → Student IDs).
+and support email in Settings.
 
 ---
 
@@ -193,7 +193,6 @@ Notes:
 - [ ] `https://<your-domain>/api/health?deep=1` returns `{"status":"ok", ...}`
 - [ ] A signed-out visitor sees only the home/about/legal pages; `/feed` and `/u/anyone` send them to the login page
 - [ ] Sign-up email arrives (check spam); the link signs you in; a password-reset email works
-- [ ] Optional: a student ID from the imported list verifies; the same ID cannot be claimed by a second account
 - [ ] A new account with no college can sign up, finish onboarding and post
 - [ ] Upload an avatar and a post image; they display after a refresh
 - [ ] The UptimeRobot jobs monitor returns `{"ok":true,...}`; send a test push (Settings → Notifications) and check Admin → AI status for job counts

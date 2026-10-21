@@ -44,7 +44,7 @@ const GROUPS = [
   {
     title: "Trust and safety",
     items: [
-      ["Optional verification", "Where a college has shared its own list of student IDs, you can use yours to earn a Verified badge. Nothing requires it, and choosing a college never verifies anyone."],
+      ["Your colleges, your way", "Add every school and college you belong to, past or present, and say whether you were a student, alumnus, teacher or staff member at each. If your department or course is not listed, add it yourself."],
       ["Community-grown college directory", "Search for your college or add it by name. Listings added by members are labelled community-added, can be corrected by anyone, and duplicates are merged by moderators."],
       ["Moderation & appeals", "Reports, severity levels, moderator notes, restrictions and an appeals workflow. Humans make every enforcement decision."],
       ["Role-based administration", "Global admins, college admins, moderators, verification staff and support agents, each with scoped permissions and an audit log."],

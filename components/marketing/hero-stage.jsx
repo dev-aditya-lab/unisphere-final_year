@@ -20,7 +20,7 @@ export function HeroStage({ className }) {
                 <span aria-hidden="true" className="bg-accent size-7 rounded-full" />
                 <span className="text-muted-foreground text-sm">Share an update, a project or a question…</span>
               </div>
-              <MockPost initials="AK" name="Asha K." meta="Example · 3rd year, CSE" verified category="Project" tone="tone-blue" stats={[24, 6]}>
+              <MockPost initials="AK" name="Asha K." meta="Example · 3rd year, CSE" category="Project" tone="tone-blue" stats={[24, 6]}>
                 Shipped the first version of a hostel laundry-slot tracker. Looking for someone comfortable with React Native for notifications.
               </MockPost>
               <MockPost initials="PD" name="Priya D." meta="Example · 2nd year, ECE" category="Question" tone="tone-plum" stats={[8, 14]}>

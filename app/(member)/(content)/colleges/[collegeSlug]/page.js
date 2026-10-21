@@ -7,7 +7,7 @@ import { CollegeMembershipButton, ReportCollegeDialog } from "@/components/colle
 import { ListingBadge, collegeLocation } from "@/components/colleges/listing";
 import { Button } from "@/components/ui/button";
 import { getAuthUser, getCurrentProfile } from "@/lib/auth/session";
-import { getCollegeBySlug, listCollegeMembers } from "@/lib/services/colleges";
+import { getCollegeBySlug, listCollegeMembers, getEducation } from "@/lib/services/colleges";
 
 export async function generateMetadata({ params }) {
   const { collegeSlug } = await params;
@@ -25,7 +25,7 @@ export default async function CollegePage({ params }) {
   const user = await getAuthUser();
   const profile = user ? await getCurrentProfile() : null;
   const members = await listCollegeMembers(college.id, 12);
-  const isMine = profile?.college_id === college.id;
+  const isMine = profile ? (await getEducation(profile.id)).some((e) => e.collegeId === college.id) : false;
   const count = Number(college.member_count);
 
   return (

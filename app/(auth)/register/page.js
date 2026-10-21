@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Create your account",
-  description: "Join UniSphere for free. No college, student ID or college email needed.",
+  description: "Join UniSphere for free. No college needed.",
   alternates: { canonical: "/register" },
 };
 

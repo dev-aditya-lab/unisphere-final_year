@@ -1,0 +1,17 @@
+{
+  "label": "messages-after",
+  "base": "http://localhost:3100",
+  "runs": 7,
+  "throttle": "cpu x4, 80 ms RTT, 12/6 Mbit",
+  "results": [
+    {
+      "scenario": "feed -> Messages (nav)",
+      "runs": 7,
+      "feedback_p50": 16,
+      "feedback_max": 28,
+      "ready_p50": 561,
+      "ready_max": 616,
+      "prefetch_requests_p50": 46
+    }
+  ]
+}

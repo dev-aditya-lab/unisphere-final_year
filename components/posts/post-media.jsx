@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Dialog as DialogPrimitive } from "radix-ui";
+import { frameRatio } from "@/lib/images/frame";
 import { privateFileUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
-// Attachments carry no pixel size, so every layout reserves a fixed aspect ratio: nothing shifts while images load,
-// no image can make the card tall, and the full picture is one tap away in the lightbox.
-const LAYOUT = {
-  1: "aspect-[4/3] grid-cols-1 sm:aspect-[16/10]",
+// A single picture is drawn in the frame that fits it (lib/images/frame.js); several pictures share a fixed grid. The frame is
+// known before the image loads (the upload records its size), so nothing shifts while it loads, and no picture can make the
+// card taller than 75% of the screen. The full picture is one tap away in the lightbox.
+const GRID = {
   2: "aspect-[16/9] grid-cols-2",
   3: "aspect-[16/10] grid-cols-2 grid-rows-2",
   4: "aspect-[16/10] grid-cols-2 grid-rows-2",
@@ -63,14 +64,29 @@ function Lightbox({ items, index, onIndexChange, onClose }) {
   );
 }
 
-/** Up to four attached images in a fixed-ratio grid; selecting one opens it full size. */
+/** Up to four attached images; selecting one opens it full size. */
 export function PostMedia({ items, className }) {
   const [open, setOpen] = useState(null);
+  // Sizes measured in the browser, for images stored before their size was recorded.
+  const [measured, setMeasured] = useState({});
   const shown = items?.slice(0, 4) ?? [];
   if (shown.length === 0) return null;
+  // Read the size now: React clears the event's currentTarget before a state updater would run.
+  const measure = (id, img) => {
+    const width = img.naturalWidth;
+    const height = img.naturalHeight;
+    if (width > 0 && height > 0) setMeasured((m) => (m[id] ? m : { ...m, [id]: { width, height } }));
+  };
+  const single = shown.length === 1;
+  const only = shown[0];
+  const size = single ? (only.width && only.height ? { width: only.width, height: only.height } : measured[only.id]) : null;
+
   return (
     <>
-      <ul className={cn("bg-muted ring-border grid gap-0.5 overflow-hidden rounded-xl ring-1 ring-inset", LAYOUT[shown.length], className)}>
+      <ul
+        style={single ? { aspectRatio: frameRatio(size?.width, size?.height) } : undefined}
+        className={cn("bg-muted ring-border grid gap-0.5 overflow-hidden rounded-xl ring-1 ring-inset", single ? "max-h-[75dvh] grid-cols-1" : GRID[shown.length], className)}
+      >
         {shown.map((a, i) => (
           <li key={a.id} className={cn("relative min-h-0 min-w-0 overflow-hidden", shown.length === 3 && i === 0 && "row-span-2")}>
             <button
@@ -86,6 +102,7 @@ export function PostMedia({ items, className }) {
                 loading="lazy"
                 decoding="async"
                 draggable={false}
+                onLoad={single && !(a.width && a.height) ? (e) => measure(a.id, e.currentTarget) : undefined}
                 className="size-full object-cover"
               />
             </button>

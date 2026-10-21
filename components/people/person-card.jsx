@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck, GraduationCap, Handshake } from "lucide-react";
+import { GraduationCap, Handshake } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { BlueTick } from "@/components/ui/blue-tick";
 import { UserAvatar } from "@/components/user-avatar";
@@ -23,7 +23,6 @@ export function PersonCard({ person, reason, actions, className, showSkills = tr
           <Link href={`/u/${person.username}`} className="font-heading flex items-center gap-1 font-bold hover:underline">
             {person.full_name}
             {person.blue_tick && <BlueTick className="size-4" />}
-            {person.verified && <BadgeCheck className="text-teal-text size-4" aria-label="Verified member" />}
           </Link>
           <span className="text-muted-foreground text-xs">@{person.username}</span>
         </div>

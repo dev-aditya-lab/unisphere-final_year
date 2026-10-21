@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/shell/page-header";
 import { Panel } from "@/components/admin/ui";
-import { CollegeForm } from "@/components/admin/college-form";
 import { CollegeDirectoryRow, CollegeReportRow } from "@/components/admin/college-directory";
 import { Button } from "@/components/ui/button";
 import { getMyPermissions } from "@/lib/auth/session";
-import { PAGE_SIZE, listColleges, listCollegeDirectory, listCollegeReports } from "@/lib/services/admin";
+import { PAGE_SIZE, listCollegeDirectory, listCollegeReports } from "@/lib/services/admin";
 
 export const metadata = { title: "Colleges" };
 
@@ -27,14 +26,10 @@ export default async function CollegesPage({ searchParams }) {
   const perms = await getMyPermissions();
   const canMerge = perms.some((p) => p.permission === "colleges.manage");
   const canVerify = canMerge;
-  const managed = perms.filter((p) => p.permission === "college.manage");
-  const global = managed.some((p) => p.college_id === null) || canMerge;
-  const editableCollege = (id) => global || managed.some((p) => p.college_id === id);
 
-  const [directory, reports, verifiable] = await Promise.all([
+  const [directory, reports] = await Promise.all([
     listCollegeDirectory({ status, q: q || null, onlyReported, page }),
     listCollegeReports({ status: "open" }),
-    listColleges(),
   ]);
   const total = Number(directory?.[0]?.total_count ?? 0);
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -44,8 +39,6 @@ export default async function CollegesPage({ searchParams }) {
     if (!next.page || next.page === 1) delete next.page;
     return `/admin/colleges?${new URLSearchParams(Object.fromEntries(Object.entries(next).map(([k, val]) => [k, String(val)]))).toString()}`;
   };
-  // Colleges that run a student-ID list (a verified listing): the verification settings only matter there.
-  const withVerification = verifiable.filter((c) => c.listing_status === "verified" && editableCollege(c.id));
 
   return (
     <>
@@ -112,21 +105,6 @@ export default async function CollegesPage({ searchParams }) {
             </nav>
           )}
         </Panel>
-
-        {withVerification.length > 0 && (
-          <Panel title="Student-ID verification" description="For colleges that have given UniSphere an official list of IDs. Verification is optional for members and never grants a staff role.">
-            <div className="space-y-4">
-              {withVerification.map((c) => (
-                <details key={c.id} className="bg-card rounded-xl border">
-                  <summary className="cursor-pointer p-3.5 font-bold">{c.name}</summary>
-                  <div className="border-t p-4">
-                    <CollegeForm college={c} canEdit={editableCollege(c.id)} />
-                  </div>
-                </details>
-              ))}
-            </div>
-          </Panel>
-        )}
       </div>
     </>
   );

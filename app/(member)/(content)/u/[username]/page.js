@@ -1,7 +1,7 @@
 import { CoverArt } from "@/components/profile/cover-art";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { BadgeCheck, Building2, ExternalLink, GraduationCap, Handshake, Link2, Trophy, Briefcase, Users } from "lucide-react";
+import { Building2, ExternalLink, GraduationCap, Handshake, Link2, Trophy, Briefcase, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConnectControls } from "@/components/people/connect-button";
@@ -59,7 +59,7 @@ export default async function ProfilePage({ params, searchParams }) {
     notFound();
   }
 
-  const { profile, college, department, program, classInfo, achievements, experiences } = data;
+  const { profile, education, classInfo, achievements, experiences } = data;
   const user = await getAuthUser();
   const viewerId = user?.id ?? null;
   const isSelf = viewerId === profile.id;
@@ -126,7 +126,6 @@ export default async function ProfilePage({ params, searchParams }) {
             <h1 id="profile-name" className="flex items-center gap-2 text-2xl font-extrabold">
               {profile.full_name}
               {profile.blue_tick && <BlueTick className="size-5" />}
-              {profile.verification_status === "verified" && <BadgeCheck className="text-teal-text size-5" aria-label="Verified member" />}
             </h1>
             <p className="text-muted-foreground text-sm">
               @{profile.username}{profile.account_type ? <> · <span title="Self-described, not verified">{TYPE_LABEL[profile.account_type]}</span></> : null}
@@ -134,26 +133,35 @@ export default async function ProfilePage({ params, searchParams }) {
             {profile.headline && <p className="mt-2 text-[15px]">{profile.headline}</p>}
           </div>
 
+          {education.length > 0 && (
+            <ul className="mt-3 space-y-2" aria-label="Schools and colleges">
+              {education.map((e) => (
+                <li key={e.id} className="text-muted-foreground flex items-start gap-1.5 text-sm">
+                  <Building2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                  <span className="min-w-0">
+                    <Link href={`/colleges/${e.college.slug}`} className="text-foreground font-medium underline-offset-2 hover:underline">
+                      {e.college.name}
+                    </Link>
+                    <span title="Self-described, not verified"> · {TYPE_LABEL[e.role]}</span>
+                    {(e.programName || e.departmentName) && (
+                      <span className="block">
+                        <GraduationCap className="mr-1 inline size-3.5 align-text-bottom" aria-hidden="true" />
+                        {[e.programName, e.departmentName].filter(Boolean).join(" · ")}
+                      </span>
+                    )}
+                    {(e.startYear || e.endYear) && (
+                      <span className="block text-xs">
+                        {e.startYear ?? ""}
+                        {e.startYear && e.endYear ? " to " : ""}
+                        {e.endYear ?? (e.startYear ? " to now" : "")}
+                      </span>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
           <ul className="text-muted-foreground mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm">
-            {college && (
-              <li className="flex items-center gap-1.5">
-                <Building2 className="size-4" aria-hidden="true" />
-                {college.slug ? (
-                  <Link href={`/colleges/${college.slug}`} className="hover:text-foreground underline-offset-2 hover:underline">
-                    {college.name}
-                  </Link>
-                ) : (
-                  college.name
-                )}
-              </li>
-            )}
-            {(program || department) && (
-              <li className="flex items-center gap-1.5">
-                <GraduationCap className="size-4" aria-hidden="true" />
-                {program?.name ?? department?.name}
-                {profile.graduation_year ? ` · Class of ${profile.graduation_year}` : ""}
-              </li>
-            )}
             {classInfo && (classInfo.current_year || classInfo.current_semester) && (
               <li>
                 {classInfo.current_year ? `Year ${classInfo.current_year}` : ""}

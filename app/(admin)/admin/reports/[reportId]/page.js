@@ -127,7 +127,6 @@ export default async function ReportDetailPage({ params }) {
                 <p className="text-muted-foreground">@{owner.username}</p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   <StatusBadge value={owner.status} />
-                  <StatusBadge value={owner.verification_status} />
                   {owner.protected && <StatusBadge value="protected" className="uppercase" />}
                 </div>
                 <p className="text-muted-foreground mt-2 text-xs">Joined {fmtDateTime(owner.created_at)}</p>

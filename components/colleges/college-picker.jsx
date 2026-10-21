@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 const DEBOUNCE_MS = 250;
 const MIN_CHARS = 2;
 
-function SelectedCollege({ college, onClear, disabled, note = true }) {
+function SelectedCollege({ college, onClear, disabled, note = true, clearLabel }) {
   return (
     <div className="bg-card flex items-start gap-3 rounded-xl border p-3.5" data-testid="selected-college">
       <span className="tone-chip tone-teal flex size-10 shrink-0 items-center justify-center rounded-lg">
@@ -34,7 +34,7 @@ function SelectedCollege({ college, onClear, disabled, note = true }) {
           </p>
         )}
       </div>
-      <Button type="button" variant="ghost" size="sm" onClick={onClear} disabled={disabled} aria-label={`Remove ${college.name} from your profile`}>
+      <Button type="button" variant="ghost" size="sm" onClick={onClear} disabled={disabled} aria-label={clearLabel ?? `Remove ${college.name} from your profile`}>
         <X /> <span className="hidden sm:inline">Change</span>
       </Button>
     </div>
@@ -180,7 +180,7 @@ export function AddCollegeForm({ initialName = "", onCancel, onPicked }) {
  *
  * `value` is a college summary or null; `onChange(college | null)`.
  */
-export function CollegePicker({ value, onChange, id = "college", label = "College", optional = true, disabled = false, error, autoFocus = false, allowAdd = true, excludeId = null, note = true, placeholder = "Start typing the name of your college" }) {
+export function CollegePicker({ value, onChange, id = "college", label = "College", optional = true, disabled = false, error, autoFocus = false, allowAdd = true, excludeId = null, note = true, clearLabel, placeholder = "Start typing the name of your college" }) {
   const listId = useId();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
@@ -284,7 +284,7 @@ export function CollegePicker({ value, onChange, id = "college", label = "Colleg
     return (
       <div>
         <Label htmlFor={`${id}-selected`} className="sr-only">{label}</Label>
-        <SelectedCollege college={value} onClear={() => onChange(null)} disabled={disabled} note={note} />
+        <SelectedCollege college={value} onClear={() => onChange(null)} disabled={disabled} note={note} clearLabel={clearLabel} />
       </div>
     );
   }

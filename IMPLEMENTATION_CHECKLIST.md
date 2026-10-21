@@ -45,7 +45,7 @@ Legend: ✅ done and verified · 🟡 partly done · ⬜ not started
 
 ## RGEC specifics ✅
 - ✅ Ramgarh Engineering College was the first college in the directory. **Superseded:** public branding is now college-neutral ("One space for every college community") and carries no creator credits; RGEC remains only as seeded data and the first student-ID roster
-- ✅ Student-ID verification: private per-college list imported by staff, IDs stored only as keyed hashes, one account per ID, lockout after repeated misses, release/revoke/restore, audit-logged
+- ➖ (Removed in migration 0040.) Student-ID verification: private per-college list imported by staff, IDs stored only as keyed hashes, one account per ID, lockout after repeated misses, release/revoke/restore, audit-logged
 - ✅ Publishing requires a verified student ID in production (the dev seed switches it off); manual review remains the fallback
 
 ## Closed network and deployment targets ✅
@@ -105,8 +105,7 @@ Legend: ✅ done and verified · 🟡 partly done · ⬜ not started
 ## External setup still required
 - **Deploy**: choose a host and domain, then follow `docs/DEPLOYMENT.md`. Nothing is deployed yet.
 - **Supabase (hosted)**: create the project, `supabase db push`, set Site URL and redirect URLs, custom SMTP (Resend) and the templates in `supabase/templates/`.
-- **`APP_SECRET`** and **`CRON_SECRET`**: generate and store safely. `APP_SECRET` keys the student-ID hashes: never rotate it casually.
-- **Student-ID list**: RGEC must supply the valid IDs; a verification staff member imports them (Admin → Student IDs).
+- **`APP_SECRET`** and **`CRON_SECRET`**: generate and store safely. `APP_SECRET` signs short-lived codes: do not rotate it casually.
 - **Resend**: verify the sender domain (SPF, DKIM, DMARC). Locally mail goes to Mailpit. (Only sign-up, password reset and notification email remain; there is no college-email step.)
 - **Cloudflare R2**: private bucket in use; optionally create a public bucket and set `CLOUDFLARE_R2_PUBLIC_BUCKET_NAME`, `CLOUDFLARE_R2_PUBLIC_URL`, `NEXT_PUBLIC_MEDIA_URL`.
 - **VAPID keys** for push in production (generate once and keep), and run the worker.

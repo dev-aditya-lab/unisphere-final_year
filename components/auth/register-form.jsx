@@ -60,7 +60,7 @@ export function RegisterForm() {
   return (
     <div>
       <h1 className="text-3xl font-extrabold">Create your account</h1>
-      <p className="text-muted-foreground mt-2 text-sm">UniSphere is free and open to everyone. You do not need a college, a student ID or a college email address.</p>
+      <p className="text-muted-foreground mt-2 text-sm">UniSphere is free and open to everyone. You do not need a college.</p>
 
       {serverError && <FormAlert className="mt-6">{serverError}</FormAlert>}
 

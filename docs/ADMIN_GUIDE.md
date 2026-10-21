@@ -1,23 +1,23 @@
 # Administrator guide (for college staff and platform administrators)
 
-This guide is for the people who run UniSphere day to day: administrators, moderators, verification staff and support
-agents. You do not need to be technical. Everything is in the **Admin console**, reached from your profile menu (top right)
+This guide is for the people who run UniSphere day to day: administrators, moderators and support agents. You do not need to be technical. Everything is in the **Admin console**, reached from your profile menu (top right)
 or at `/admin`.
 
 ## Open to join, private to view
 
 UniSphere is not a public website. Logged-out visitors see only the home, about and legal pages. **Anyone can sign up**
-with an email address (no college, role, ID or college email is required) and then use everything; search engines are
+with an email address (no college or role is required) and then use everything; search engines are
 told to stay away. Your job as staff is to keep it healthy: handle reports, keep the college directory tidy, and remove
 members who break the guidelines.
 
 ### The college directory
 
-Members choose a college (optional) by searching, or add one by name when it is missing. Nothing waits for approval.
-Choosing a college is only an association: it never verifies anyone and never gives a badge.
+Members list the schools and colleges they belong to (optional, up to eight: where they study now, studied before, or teach or work) by
+searching, or add one by name when it is missing, and say whether they are a student, alumnus, teacher or staff member at each. Nothing
+waits for approval. This is only an association: it never verifies anyone and never gives a badge.
 
 - **Community-added** listings are labelled as such everywhere. **Verified listing** means staff reviewed the record
-  (for example a college that supplied its own student-ID list). Only a global/college administrator can mark a
+  (staff checked the details). Only a global/college administrator can mark a
   listing verified.
 - Admin → **Colleges** shows open reports first: corrections (accept to apply), duplicates, inaccurate information and
   abuse. Moderators can correct and hide listings; **merging** two records needs a college administrator.
@@ -30,48 +30,35 @@ Choosing a college is only an association: it never verifies anyone and never gi
 | Role | Can | Cannot |
 | --- | --- | --- |
 | **Global admin** | Everything, for every college: settings, feature flags, roles, releases, AI status | Act on another global admin (remove the role first) |
-| **College admin** | Run one college: members, moderation, announcements, events/communities, analytics, student IDs, audit log, appoint moderators | Change platform settings; appoint administrators |
+| **College admin** | Run one college: members, moderation, announcements, events/communities, analytics, audit log, appoint moderators | Change platform settings; appoint administrators |
 | **Moderator** | Review reports and appeals, remove or restore content, warn, restrict | See member emails, suspend, change roles |
-| **Verification staff** | Review verification requests and manage the student-ID list | Anything about content or members |
 | **Support agent** | Answer the contact inbox and triage product feedback | See member data |
 
 Rules that always apply: you cannot act on yourself; only a global admin can act on an administrator; you cannot decide an
 appeal against your own decision (a global admin can); every action is written to the audit log, which nobody can edit.
 
-## Student IDs: the optional Verified badge
+## Departments and courses
 
-Verification is optional and only offered where a college has shared its own list. Members of a college that has shared its list can earn a **Verified badge** by entering their **student ID**. IDs are not public, so a stranger cannot guess one. The
-college supplies its list of valid IDs, you import it, and each ID can be linked to **one** account.
+Members also add the department or course their college is missing, the same way they add colleges: type the name and it is
+there for everyone from then on. Admin → **Departments & courses** lists them all (the ones the college set up and the ones
+members added) with who added each and how many members use it.
 
-### Importing the list
+- **Rename** fixes a typo; everyone who chose the item sees the new name.
+- **Offered** switched off hides it from the pickers. Profiles that already use it keep it.
+- **Remove** deletes it. Profiles that used it keep their college and role and just lose that line.
+- A member can add at most 20 departments and courses a day.
 
-1. Admin → **Student IDs**.
-2. Paste IDs into the box, one per line, optionally followed by a comma and the batch year (`21CSE045, 2021`), or load a CSV
-   file. A header line such as `student_id,year` is ignored. Up to 5,000 per import; importing again is safe, duplicates are
-   skipped.
-3. UniSphere shows how many were added, how many were already there and how many lines were skipped as invalid.
-4. Delete the source file afterwards. UniSphere never keeps the IDs themselves: only a keyed hash and the last three
-   characters (so you can find an entry).
+## Skills and interests
 
-Spaces, dashes and capital letters do not matter: `21-cse/045` and `21CSE045` are the same ID.
+The pickers on profiles, onboarding, projects and opportunities suggest names from a list you manage in Admin →
+**Skills & interests**. The list is broad on purpose: technology, design, writing, business, science and engineering, health,
+arts and music, languages, leadership, sports and hands-on trades. Members can always type their own.
 
-### Day-to-day
-
-| Situation | What to do |
-| --- | --- |
-| A student says "it will not accept my ID" | Search the list by the last three characters. Missing → add it (import) or ask them to use **Manual review** with a photo of their ID card |
-| "Already linked to another account" | Find the entry (Claimed tab, search the name), check who holds it. If the holder is wrong → **Release** (they lose the badge and are told why), then the rightful owner can claim it |
-| A student left the college | **Revoke** the ID: it can no longer verify anyone and a linked member loses the badge |
-| Revoked by mistake | **Restore** |
-| Faculty and staff | They do not have student IDs: they use **Manual review** (Admin → Verification) |
-
-Five wrong attempts lock further tries for 24 hours for that account, so guessing does not work.
-
-### Manual review
-
-Admin → **Verification** shows requests that need a person: faculty, staff, or students not on the list. Open the document
-(it opens in a new tab and is private), then **Approve**, **Ask for more info** or **Reject** (always give a reason, the
-member sees it). Approving never makes someone an administrator.
+- **Typed by members, not listed yet** shows what members use most that is not in the list; choose a category and add each
+  with one click.
+- **Add**, **Edit** (name, category, skill or interest), the **Suggested** switch (hide without losing it) and **Remove**.
+  Removing never changes anyone's profile.
+- The members column shows how many profiles use each item.
 
 ## Moderation
 

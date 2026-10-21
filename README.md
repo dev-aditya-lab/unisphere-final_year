@@ -7,9 +7,9 @@ Share projects and ideas, find related work and teammates, join clubs and events
 | --- | --- |
 | Stack | Next.js 16 (App Router, JavaScript), Tailwind CSS v4 + shadcn/ui, Supabase (Postgres, Auth, Realtime, RLS), Redis, Cloudflare R2, Resend, LangChain + Groq, Web Push |
 | Installable | Progressive Web App (offline screen, install prompt, push notifications) |
-| Access | **Open to join, private to view**: anyone can register with an email address (no college, role, ID or college email needed); nothing is visible to logged-out visitors. A college is optional and never counts as verification. Verified badges exist only where a college has shared its own ID list (checked privately, stored only as keyed hashes) |
+| Access | **Open to join, private to view**: anyone can register with an email address (no college or role needed); nothing is visible to logged-out visitors. Colleges are optional, a member can list several with a role at each, and none of it counts as verification |
 | Deploys to | Vercel, Render (free plan) or any VPS: see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) |
-| Admin | Full console: moderation, appeals, college directory (merge, correct, reports), student-ID list, roles, analytics, audit log, settings, feedback, releases |
+| Admin | Full console: moderation, appeals, college directory (merge, correct, reports), skills list, roles, analytics, audit log, settings, feedback, releases |
 
 ## Quick start (local development)
 
@@ -53,7 +53,7 @@ The full walk-through, including every environment variable, is in [docs/SETUP.m
 | [docs/SETUP.md](docs/SETUP.md) | Developers: local setup and every environment variable |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Whoever deploys: production checklist, Vercel/Render/VPS, UptimeRobot jobs, Supabase, DNS, first admin |
 | [docs/OPERATIONS.md](docs/OPERATIONS.md) | Running it: worker, backups, secrets rotation, monitoring, incident playbooks |
-| [docs/ADMIN_GUIDE.md](docs/ADMIN_GUIDE.md) | College staff: student-ID list, moderation, appeals, roles, announcements |
+| [docs/ADMIN_GUIDE.md](docs/ADMIN_GUIDE.md) | College staff: moderation, appeals, roles, announcements |
 | [docs/SECURITY.md](docs/SECURITY.md) | How data and access are protected, and what to review before launch |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the pieces fit together |
 | [docs/EMAIL.md](docs/EMAIL.md) | Resend, sender domain, templates, troubleshooting |

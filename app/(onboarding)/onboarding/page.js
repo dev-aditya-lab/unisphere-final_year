@@ -4,7 +4,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { OnboardingForm } from "@/components/onboarding/onboarding-form";
 import { MotionFeatures } from "@/components/motion/motion-features";
 import { requireProfile } from "@/lib/auth/session";
-import { getCollegeStructure, getCollegeSummary } from "@/lib/services/colleges";
+import { getEducation, getEducationStructures } from "@/lib/services/colleges";
 import { listCommunities } from "@/lib/services/campus";
 import { HOME_PATH } from "@/lib/constants";
 
@@ -17,9 +17,9 @@ export const metadata = {
 export default async function OnboardingPage() {
   const { profile } = await requireProfile({ allowIncomplete: true });
   if (profile.onboarded_at) redirect(HOME_PATH);
-  const [college, structure, communities] = await Promise.all([
-    getCollegeSummary(profile.college_id),
-    getCollegeStructure(profile.college_id),
+  const education = await getEducation(profile.id);
+  const [structures, communities] = await Promise.all([
+    getEducationStructures(education),
     listCommunities({}).then((list) => list.filter((c) => c.my_status !== "banned").slice(0, 6)),
   ]);
 
@@ -33,7 +33,7 @@ export default async function OnboardingPage() {
         <p className="eyebrow">Welcome, {profile.full_name.split(" ")[0]}</p>
         <h1 className="display-sm mt-2 mb-7">Let&rsquo;s set up your profile</h1>
         <MotionFeatures>
-          <OnboardingForm profile={profile} college={college} structure={structure} communities={communities} />
+          <OnboardingForm profile={profile} education={education} structures={structures} communities={communities} />
         </MotionFeatures>
       </main>
     </div>

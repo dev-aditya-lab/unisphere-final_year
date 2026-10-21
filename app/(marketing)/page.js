@@ -55,7 +55,7 @@ const TILES = [
   { icon: Lock, title: "Privacy you control", text: "Choose who sees your profile, posts and class details, and who can message you. Block and report tools are one tap away.", tone: "tone-plum", span: "md:col-span-3" },
   { icon: Lightbulb, title: "Ideas, not just updates", text: "Dedicated spaces for ideas, questions and projects, so good thinking does not scroll away in a general feed.", tone: "tone-leaf", span: "md:col-span-2" },
   { icon: MessageSquareQuote, title: "Moderation with appeals", text: "Reports, severity levels, moderator notes and an appeals process. Humans make every enforcement decision.", tone: "tone-coral", span: "md:col-span-2" },
-  { icon: BadgeCheck, title: "Optional verification", text: "Where a college has shared its own list of student IDs, you can earn a Verified badge. Nothing requires it.", tone: "tone-teal", span: "md:col-span-2" },
+  { icon: GraduationCap, title: "Every college you belong to", text: "Add the schools and colleges you attended or work at, with your role at each. Nothing requires it.", tone: "tone-teal", span: "md:col-span-2" },
 ];
 
 export default function HomePage() {
@@ -130,7 +130,7 @@ export default function HomePage() {
                 </Button>
               </div>
               <p className="text-muted-foreground mt-5 max-w-md text-sm leading-relaxed">
-                Free and open to everyone. No college, student ID or college email needed.
+                Free and open to everyone. No college needed.
               </p>
             </Reveal>
           </div>

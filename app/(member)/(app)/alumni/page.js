@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Briefcase, GraduationCap, MessagesSquare } from "lucide-react";
-import { BadgeCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CancelMentorship, RequestMentorshipButton, RespondMentorship } from "@/components/alumni/mentorship-controls";
@@ -97,7 +96,7 @@ export default async function AlumniPage({ searchParams }) {
                     <Link href={`/u/${p.username}`} aria-label={`${p.full_name}'s profile`}><UserAvatar name={p.full_name} avatarKey={p.avatar_key} size="lg" /></Link>
                     <div className="min-w-0">
                       <Link href={`/u/${p.username}`} className="font-heading flex items-center gap-1 font-bold hover:underline">
-                        {p.full_name}{p.verified && <BadgeCheck className="text-teal-text size-4" aria-label="Verified" />}
+                        {p.full_name}
                       </Link>
                       <p className="text-muted-foreground text-sm">
                         {[p.job_title, p.company].filter(Boolean).join(" at ") || p.headline || (p.account_type === "alumni" ? "Alumnus" : "Member")}

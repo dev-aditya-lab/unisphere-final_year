@@ -49,7 +49,7 @@ NEVER MISS WHAT MATTERS
 Events with RSVP, waitlists and reminders. Clubs and communities. Official announcements from the college. Opportunities such as internships and competitions. Real-time notifications, with push on your phone if you want them.
 
 OPEN, PRIVATE AND SAFE
-Anyone can join with an email address. Nothing is public: you only see UniSphere when you are signed in. Connecting a college is optional and never counts as proof; where a college has shared its own student-ID list, a Verified badge is available as an optional extra. Report anything, block anyone, and appeal any moderation decision: a different moderator reviews it.
+Anyone can join with an email address. Nothing is public: you only see UniSphere when you are signed in. Connecting colleges is optional and never counts as proof. Report anything, block anyone, and appeal any moderation decision: a different moderator reviews it.
 
 YOUR PRIVACY, YOUR CHOICE
 You choose who sees your profile, your class details and who may message you. Download your data or delete your account whenever you like.
@@ -82,7 +82,7 @@ Screenshots show a fictional demo community (see `npm run seed:demo`); no real s
 
 ## Review notes (App Store Connect → App Review Information)
 
-> UniSphere is a campus social network for college communities. Sign in with the demo account below (already verified).
+> UniSphere is a campus social network for college communities. Sign in with the demo account below.
 > Reporting, blocking, a moderation queue, appeals and in-app account deletion (Settings → Security) are implemented.
 > Contact: `<support email>`.
 > Demo: `demo.ananya@demo.unisphere.test` / `<password you set>`.

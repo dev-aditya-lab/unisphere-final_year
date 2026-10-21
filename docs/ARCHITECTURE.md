@@ -77,7 +77,7 @@ Migrations in `supabase/migrations` are the single source of truth (forward-only
 | 0010 | Notifications and preferences, email queue, direct messaging, realtime publication |
 | 0011 | Communities, events (time zones, waitlist), announcements, opportunities |
 | 0012 | Moderation actions, appeals, admin read models, deletion processing, analytics |
-| 0013 | Ramgarh Engineering College, student-ID list, claiming and management |
+| 0013 | Ramgarh Engineering College (the student-ID list from this migration was removed again in 0040) |
 | 0014 | Web Push subscriptions and claiming |
 | 0015 | Feedback, voting, roadmap, releases |
 | 0016 | Real release history seed |
@@ -88,6 +88,12 @@ Migrations in `supabase/migrations` are the single source of truth (forward-only
 | 0021 | Analytics cope with members who have not stated a role |
 | 0022 | Colleges that run a student-ID process are verified listings |
 | 0023 | `auth_email_state`: lets the server send account emails itself (confirm / reset) instead of Supabase |
+| 0036 | Daily Challenge automation: AI draft at 16:00 IST, publish at 02:00 IST |
+| 0037 | Post pictures carry their pixel size (`post_feed.attachments`) |
+| 0038 | Skills and interests catalogue, managed in Admin → Skills |
+| 0039 | `profile_education`: several colleges per member with a role at each; member-added departments and courses |
+| 0040 | College ID verification removed (functions and permissions; tables kept) |
+| 0041 | Admin tools for departments and courses |
 
 Design rules: RLS on everything; column-level `UPDATE` grants protect trust fields; counters and notifications are
 trigger-maintained; recursion in policies is avoided with definer helper functions; soft deletes keep audit history.
@@ -95,7 +101,7 @@ trigger-maintained; recursion in policies is avoided with definer helper functio
 ## Permissions model
 
 `user_roles(user_id, role, college_id)`: `college_id` null means platform-wide. `role_permissions` maps role to
-permission strings (`reports.resolve`, `users.suspend`, `roster.manage`, …). `has_permission(p, college)` is true when
+permission strings (`reports.resolve`, `users.suspend`, `skills.manage`, …). `has_permission(p, college)` is true when
 the caller holds a role with `p` that is platform-wide or scoped to that same college. A college admin therefore can
 never act outside their college, and the same function backs RLS policies, RPCs and the UI's menu.
 
@@ -127,9 +133,9 @@ losing work.
 
 | Level | What it proves | Count (at last run) |
 | --- | --- | --- |
-| Unit (`tests/unit`) | Validators, time-zone maths, AI runner with fake providers, push batching, student-ID normalisation | ~100 |
+| Unit (`tests/unit`) | Validators, time-zone maths, AI runner with fake providers, push batching, image frames | ~100 |
 | Integration (`tests/integration`) | RLS and the permission model against a real database with real JWTs: who can read/write what, scoped to college | ~170 |
-| End to end (`tests/e2e`) | Whole flows in a browser: auth, posting, projects, messaging, admin, student-ID, PWA, security headers, SEO, accessibility | ~55 |
+| End to end (`tests/e2e`) | Whole flows in a browser: auth, posting, projects, messaging, admin, PWA, security headers, SEO, accessibility | ~55 |
 
 ## Extending safely
 

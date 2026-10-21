@@ -37,16 +37,14 @@ database and auth dashboards.
 
 | Data | Where | How to protect |
 | --- | --- | --- |
-| Everything relational (members, posts, audit log, student-ID hashes) | Supabase Postgres | Enable daily backups and point-in-time recovery. Take a manual dump before every release that includes a migration |
+| Everything relational (members, posts, audit log) | Supabase Postgres | Enable daily backups and point-in-time recovery. Take a manual dump before every release that includes a migration |
 | Uploaded files | R2 | Enable R2 object versioning, or replicate the private bucket to a second bucket |
 | Secrets | Your password manager | `APP_SECRET`, `SUPABASE_SECRET_KEY`, `CRON_SECRET`, VAPID private key, R2 keys, Resend key |
 | Redis | Not backed up | It only holds rate-limit counters and caches |
 
 Practise a restore into a scratch Supabase project once, and write down how long it took.
 
-**`APP_SECRET` matters most.** Student IDs are stored as HMACs keyed with it. If it is lost or changed, existing
-verified members stay verified, but nobody new can claim an ID until the list is re-imported with the new secret, and
-the re-imported entries would also let an already-claimed ID be claimed a second time. Treat it as irreplaceable.
+**`APP_SECRET`** signs short-lived codes (such as email confirmation). Keep it stable: changing it invalidates codes that are in flight.
 
 ## Rotating secrets
 
@@ -57,7 +55,7 @@ the re-imported entries would also let an already-claimed ID be claimed a second
 | `RESEND_API_KEY` | Create a new key, update app **and** Supabase SMTP settings | Auth mail fails until both are updated |
 | R2 keys | Create a new token, deploy, revoke the old | None |
 | VAPID keys | **Avoid.** Rotating drops every push subscription; members must turn push on again | Push stops until re-enabled |
-| `APP_SECRET` | **Do not rotate** unless you accept re-importing the student-ID list | See above |
+| `APP_SECRET` | Rotate only when needed; codes in flight stop working | See above |
 
 ## Runbooks
 
@@ -65,9 +63,6 @@ the re-imported entries would also let an already-claimed ID be claimed a second
 `email: configured`, then Resend's dashboard (domain verified? key valid? sandbox sender?). Failed rows keep their error
 text in `notifications.email_error`. Auth mail (sign-up, reset) is sent by Supabase, so check its SMTP settings too.
 
-**Someone cannot verify with their student ID.** Admin → Student IDs: search the last three characters. Not on the list
-→ import/correct it, or ask them to use *Manual review*. "Already linked to another account" → someone claimed it:
-use **Release**, then let the rightful owner claim it. Five wrong attempts lock the account's student-ID entry for 24 hours.
 
 **A member is harassing others.** Reports → open the report → decide (warn / remove content / restrict / suspend). All of
 it is audit-logged, the member is notified with the reason, and they can appeal once; a different moderator decides.
@@ -95,6 +90,6 @@ Redis is capped at 128 MB with an LRU policy.
 | --- | --- |
 | Daily | Glance at the admin counters; clear reports and appeals |
 | Weekly | Check `/admin/ai` errors, review feedback triage, confirm backups ran |
-| Each semester | Import the new batch's student IDs; revoke IDs of students who left; review staff roles |
+| Each semester | Review staff roles; tidy new departments, courses, skills and colleges members have added |
 | Each release | `npm test` and `npm run test:e2e` green, back up, apply migrations, deploy, publish release notes |
 | Yearly | Rotate non-critical secrets, renew the domain and Apple/Google developer memberships |

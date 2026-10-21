@@ -44,7 +44,7 @@ function FeedPanel() {
           <span key={l} className={cn("rounded-md border px-2.5 py-1 text-xs font-semibold", i === 0 ? "border-primary bg-primary text-primary-foreground" : cn("tone-chip", t))}>{l}</span>
         ))}
       </div>
-      <MockPost initials="RM" name="Rohan M." meta="Example · Alumnus" verified category="Experience" tone="tone-rose" stats={[41, 9]}>
+      <MockPost initials="RM" name="Rohan M." meta="Example · Alumnus" category="Experience" tone="tone-rose" stats={[41, 9]}>
         Three things that actually mattered in my first internship interview, and one that did not.
       </MockPost>
       <MockPost initials="AK" name="Asha K." meta="Example · 3rd year" category="Idea" tone="tone-sun" stats={[17, 5]}>

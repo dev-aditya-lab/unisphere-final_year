@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bug, LogOut, Monitor, Moon, Settings, ShieldCheck, Sparkles, Sun, User, BadgeCheck } from "lucide-react";
+import { Bug, LogOut, Monitor, Moon, Settings, ShieldCheck, Sparkles, Sun, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,7 +35,6 @@ export function UserMenu({ profile, isStaff }) {
         <DropdownMenuLabel className="font-normal">
           <p className="flex items-center gap-1 truncate text-sm font-semibold">
             {profile.full_name}
-            {profile.verification_status === "verified" && <BadgeCheck className="text-teal-text size-4 shrink-0" aria-label="Verified" />}
           </p>
           <p className="text-muted-foreground truncate text-xs">@{profile.username}</p>
         </DropdownMenuLabel>

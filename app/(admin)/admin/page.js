@@ -16,7 +16,6 @@ export const metadata = { title: "Overview" };
 const QUEUES = [
   { perm: "reports.view", label: "Open reports", href: "/admin/reports", rpc: ["list_reports", { p_status: "open", p_limit: 1 }], count: (d) => Number(d?.[0]?.total_count ?? 0) },
   { perm: "appeals.review", label: "Appeals to review", href: "/admin/appeals", rpc: ["list_appeals", { p_status: "pending", p_limit: 1 }], count: (d) => Number(d?.[0]?.total_count ?? 0) },
-  { perm: "verification.review", label: "Verification requests", href: "/admin/verification", rpc: ["list_verification_requests", { p_status: "pending", p_limit: 200 }], count: (d) => d?.length ?? 0 },
   { perm: "users.delete", label: "Deletion requests", href: "/admin/deletions", rpc: ["admin_list_deletions", { p_status: "pending" }], count: (d) => d?.length ?? 0 },
 ];
 
@@ -67,7 +66,6 @@ export default async function AdminOverviewPage({ searchParams }) {
           <section aria-label="Key numbers" className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <StatCard label="Members" value={fmtNumber(overview.members)} hint={`+${fmtNumber(overview.new_members)} joined in period. Counts onboarded accounts that are not suspended.`} />
             <StatCard label="Active contributors" value={fmtNumber(overview.active_members)} hint="Posted, commented or messaged" />
-            <StatCard label="Verified" value={fmtNumber(overview.verified_members)} hint={overview.members ? `${Math.round((overview.verified_members / overview.members) * 100)}% of members` : "—"} />
             <StatCard label="Posts" value={fmtNumber(overview.posts_period)} hint={`${fmtNumber(overview.posts_total)} all-time`} />
             <StatCard label="Comments" value={fmtNumber(overview.comments_period)} />
             <StatCard label="Messages sent" value={fmtNumber(overview.messages_period)} hint="Counts only; content is never read" />

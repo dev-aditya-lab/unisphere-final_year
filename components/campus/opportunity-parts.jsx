@@ -60,7 +60,7 @@ export function OpportunityForm({ hasCollege = true }) {
         <Field id="deadline" label="Apply by" optional error={errors.deadline?.message}><Input id="deadline" type="date" aria-describedby="deadline-desc" {...register("deadline")} /></Field>
       </div>
       <Field id="applyUrl" label="Application link" optional error={errors.applyUrl?.message} hint="Where people apply. We never collect applications ourselves."><Input id="applyUrl" type="url" placeholder="https://" aria-describedby="applyUrl-desc" {...register("applyUrl")} /></Field>
-      <Field id="skills" label="Skills" optional error={errors.skills?.message}><Controller control={control} name="skills" render={({ field }) => <TagInput id="skills" label="Skills" value={field.value} onChange={field.onChange} max={15} placeholder="e.g. Python, SQL" />} /></Field>
+      <Field id="skills" label="Skills" optional error={errors.skills?.message}><Controller control={control} name="skills" render={({ field }) => <TagInput id="skills" label="Skills" value={field.value} onChange={field.onChange} max={15} catalog="skill" placeholder="e.g. Python, Content writing" />} /></Field>
       <Field id="description" label="Details" optional error={errors.description?.message}><Textarea id="description" rows={6} maxLength={5000} aria-describedby="description-desc" {...register("description")} /></Field>
       <div className="flex justify-end gap-2">
         <Button type="button" variant="ghost" onClick={() => router.back()}>Cancel</Button>

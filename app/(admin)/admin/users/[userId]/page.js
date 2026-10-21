@@ -41,7 +41,7 @@ export default async function MemberPage({ params }) {
         eyebrow={d.college_name ?? "No college"}
         title={p.full_name}
         description={`@${p.username} · ${d.email}`}
-        actions={<><StatusBadge value={p.status} /><StatusBadge value={p.verification_status} /></>}
+        actions={<StatusBadge value={p.status} />}
       />
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-5">

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PROJECT_STATUSES } from "@/lib/validators/project";
 import { excerpt } from "@/lib/text";
@@ -25,7 +25,6 @@ export function ProjectCard({ project, className }) {
       </div>
       <p className="text-muted-foreground mt-0.5 flex items-center gap-1 text-xs">
         by {project.owner_name}
-        {project.owner_verified && <BadgeCheck className="text-teal-text size-3.5" aria-label="Verified" />}
       </p>
       {(project.tagline || project.problem) && <p className="mt-2 text-sm">{project.tagline || excerpt(project.problem, 160)}</p>}
       {skills.length > 0 && (

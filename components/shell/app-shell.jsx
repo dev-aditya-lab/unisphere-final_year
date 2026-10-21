@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PenLine, Search } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { ComposeLink } from "@/components/shell/compose-link";
 import { NavLinks } from "@/components/shell/nav-links";
 import { BottomNav } from "@/components/shell/mobile-nav";
 import { UserMenu } from "@/components/shell/user-menu";
@@ -29,7 +30,6 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
   const items = visibleNav(flags);
   const isStaff =
     (await hasPermission("reports.view")) ||
-    (await hasPermission("verification.review")) ||
     (await hasPermission("users.view")) ||
     (await hasPermission("settings.view")) ||
     (await hasPermission("contact.manage"));
@@ -43,9 +43,9 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
         </div>
         <div className="shrink-0 px-3 pb-2">
           <Button asChild className="w-full">
-            <Link href="/feed#compose">
+            <ComposeLink>
               <PenLine /> Share something
-            </Link>
+            </ComposeLink>
           </Button>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3">

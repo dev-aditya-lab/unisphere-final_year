@@ -14,7 +14,7 @@ included) and is written inside the same transaction as the change it describes.
 | Global admin | everything, platform-wide; the only role with `users.export` and `roles.manage` |
 | College admin | their college: members, moderation, profile correction, sign-out, analytics, audit |
 | Moderator | reports, appeals, remove/restore content, warn, restrict, internal notes |
-| Verification staff / Support agent | one queue each; no member data |
+| Support agent | the support inbox and feedback; no member data |
 
 ## Inventory of the audit
 
@@ -39,7 +39,7 @@ Two **security defects were found and fixed** (migration 31):
    with any other member, skipping requests, blocks and "who can message me". Now internal only.
 
 Also fixed: admin tables made the whole page scroll sideways on a phone (hidden text in the last column escaped the
-scroll container), plus two overflowing forms (`/admin/roster`, `/admin/releases`).
+scroll container), plus an overflowing form (`/admin/releases`).
 
 ## What was added
 

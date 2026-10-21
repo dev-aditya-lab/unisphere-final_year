@@ -81,7 +81,6 @@ export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed,
           name={post.author_name}
           username={post.author_username}
           avatarKey={post.author_avatar_key}
-          verified={post.author_verified}
           blueTick={post.author_blue_tick}
           accountType={post.author_account_type}
           createdAt={post.created_at}

@@ -84,7 +84,7 @@ export default async function UsersPage({ searchParams }) {
       <p className="text-muted-foreground mb-2 text-xs" aria-live="polite">{total.toLocaleString()} member{total === 1 ? "" : "s"} match.</p>
       <DataTable
         caption="Members"
-        columns={["Member", "College", "Status", "Verification", "Staff", "Joined", "Last sign-in", ""]}
+        columns={["Member", "College", "Status", "Staff", "Joined", "Last sign-in", ""]}
         empty={rows.length === 0 && <EmptyRow>No members match.</EmptyRow>}
       >
         {rows.map((u) => (
@@ -103,7 +103,6 @@ export default async function UsersPage({ searchParams }) {
               <StatusBadge value={u.status} />
               {u.restricted_until && <p className="text-muted-foreground mt-0.5 text-xs">until {fmtDate(u.restricted_until)}</p>}
             </td>
-            <td className="px-4 py-3"><StatusBadge value={u.verification_status} /></td>
             <td className="text-muted-foreground px-4 py-3 text-xs">{u.roles.length ? u.roles.map((r) => ROLE_LABEL[r] ?? r).join(", ") : "—"}</td>
             <td className="text-muted-foreground px-4 py-3 whitespace-nowrap">{fmtDate(u.created_at)}</td>
             <td className="text-muted-foreground px-4 py-3 whitespace-nowrap">{u.last_sign_in_at ? fmtDate(u.last_sign_in_at) : "Never"}</td>

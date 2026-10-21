@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AddCollegeForm, CollegePicker } from "@/components/colleges/college-picker";
-import { reportCollegeAction, setMyCollegeAction } from "@/lib/actions/colleges";
+import { removeMyCollegeAction, reportCollegeAction, setMyCollegeAction } from "@/lib/actions/colleges";
 
 /** Connect this college to my profile, or remove the connection. Never verifies anything. */
 export function CollegeMembershipButton({ collegeId, collegeName, isMine, signedIn }) {
@@ -21,9 +21,9 @@ export function CollegeMembershipButton({ collegeId, collegeName, isMine, signed
 
   function change(next) {
     startTransition(async () => {
-      const res = await setMyCollegeAction({ collegeId: next });
+      const res = await (next ? setMyCollegeAction({ collegeId: next }) : removeMyCollegeAction({ collegeId }));
       if (res.ok) {
-        toast.success(next ? `${collegeName} is now on your profile` : "College removed from your profile");
+        toast.success(next ? `${collegeName} is now your main college` : "College removed from your profile");
         router.refresh();
       } else toast.error(res.error);
     });
@@ -35,7 +35,7 @@ export function CollegeMembershipButton({ collegeId, collegeName, isMine, signed
     </Button>
   ) : (
     <Button type="button" variant="hot" onClick={() => change(collegeId)} disabled={pending}>
-      {pending ? <Loader2 className="animate-spin" /> : <Check />} This is my college
+      {pending ? <Loader2 className="animate-spin" /> : <Check />} Add to my profile
     </Button>
   );
 }

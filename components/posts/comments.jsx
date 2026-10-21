@@ -138,7 +138,6 @@ function CommentItem({ comment, replies, viewer, postId, depth, onAdded, onChang
                 name={comment.author_name}
                 username={comment.author_username}
                 avatarKey={comment.author_avatar_key}
-                verified={comment.author_verified}
                 blueTick={comment.author_blue_tick}
                 accountType={comment.author_account_type}
                 createdAt={comment.created_at}

@@ -1,4 +1,4 @@
-import { BadgeCheck, Bookmark, Heart, MessageCircle, Search, Sparkles, UserPlus } from "lucide-react";
+import { Bookmark, Heart, MessageCircle, Search, Sparkles, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -35,7 +35,7 @@ export function TypeChip({ children, tone }) {
   return <span className={cn("tone-chip rounded-md px-2 py-0.5 text-xs font-semibold", tone)}>{children}</span>;
 }
 
-export function MockPost({ initials, name, meta, verified, category, tone, children, stats, className }) {
+export function MockPost({ initials, name, meta, category, tone, children, stats, className }) {
   return (
     <article className={cn("surface tone-stripe p-4", tone, className)}>
       <div className="flex items-start justify-between gap-2">
@@ -44,7 +44,6 @@ export function MockPost({ initials, name, meta, verified, category, tone, child
           <div className="leading-tight">
             <p className="flex items-center gap-1 text-sm font-bold">
               {name}
-              {verified && <BadgeCheck className="text-teal-text size-3.5" aria-label="Verified" />}
             </p>
             <p className="text-muted-foreground text-xs">{meta}</p>
           </div>

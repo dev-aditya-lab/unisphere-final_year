@@ -12,72 +12,20 @@ async function login(page, email, expectUrl = /\/feed/) {
   await expect(page).toHaveURL(expectUrl, { timeout: 30_000 });
 }
 
-test.describe.serial("RGEC student ID, feedback, roadmap and changelog", () => {
+test.describe.serial("Feedback, roadmap and changelog", () => {
   test.setTimeout(180_000);
-  let tag, staff, s1, s2, product, voter;
+  let tag, s1, product, voter;
   test.beforeAll(async () => {
     tag = Math.random().toString(36).slice(2, 7);
-    staff = await createUser("p8-staff", { collegeId: RGEC });
     s1 = await createUser("p8-student1", { collegeId: RGEC });
-    s2 = await createUser("p8-student2", { collegeId: RGEC });
     voter = await createUser("p8-voter", { collegeId: RGEC });
     product = await createUser("p8-product", { collegeId: RGEC });
-    await grantRoleDirect(staff.id, "verification_staff", RGEC);
     await grantRoleDirect(product.id, "global_admin");
   });
   test.afterAll(async () => {
     await admin.from("feedback_items").delete().like("title", `%${tag}%`);
     await admin.from("releases").delete().like("version", "9.%");
     await cleanupUsers();
-  });
-
-  test("staff import the college's student IDs; members verify privately, one account per ID", async ({ browser }) => {
-    const idA = `E2E${tag.toUpperCase()}001`;
-    const idB = `E2E${tag.toUpperCase()}002`;
-
-    const staffPage = await (await browser.newContext()).newPage();
-    await login(staffPage, staff.email);
-    await staffPage.goto("/admin/roster");
-    await expect(staffPage.getByRole("heading", { name: "Student IDs", level: 1 })).toBeVisible();
-    await staffPage.waitForLoadState("networkidle");
-    await staffPage.getByLabel("Student IDs", { exact: true }).fill(`student_id,year\n${idA},2024\n${idB},2024\n${idA}\nab`);
-    await staffPage.getByRole("button", { name: "Import", exact: true }).click();
-    await expect(staffPage.getByRole("status")).toContainText("2 added", { timeout: 20_000 });
-    await expect(staffPage.getByRole("status")).toContainText("1 line(s) skipped");
-
-    // a raw ID is never stored
-    const { data: rows } = await admin.from("student_id_roster").select("id_hash, id_hint").eq("college_id", RGEC).in("id_hint", [`••${idA.slice(-3)}`, `••${idB.slice(-3)}`]);
-    expect(JSON.stringify(rows)).not.toContain(idA);
-
-    // student 1: a wrong ID fails, the right one verifies
-    const p1 = await (await browser.newContext()).newPage();
-    await login(p1, s1.email);
-    await p1.goto("/settings/verification");
-    await p1.waitForLoadState("networkidle");
-    await expect(p1.getByRole("tab", { name: "Student ID" })).toBeVisible();
-    await p1.getByRole("textbox", { name: "Student ID" }).fill("WRONG-ID-123");
-    await p1.getByRole("button", { name: "Verify with student ID" }).click();
-    await expect(p1.getByText(/could not match that student ID/i)).toBeVisible({ timeout: 20_000 });
-    await p1.getByRole("textbox", { name: "Student ID" }).fill(idA.toLowerCase().replace(/(\d{3})$/, "-$1"));
-    await p1.getByRole("button", { name: "Verify with student ID" }).click();
-    await expect(p1.getByText(/Verified member of Ramgarh Engineering College/)).toBeVisible({ timeout: 20_000 });
-
-    // student 2 cannot claim student 1's ID
-    const p2 = await (await browser.newContext()).newPage();
-    await login(p2, s2.email);
-    await p2.goto("/settings/verification");
-    await p2.waitForLoadState("networkidle");
-    await p2.getByRole("textbox", { name: "Student ID" }).fill(idA);
-    await p2.getByRole("button", { name: "Verify with student ID" }).click();
-    await expect(p2.getByText(/already linked to another account/i)).toBeVisible({ timeout: 20_000 });
-
-    // staff release it from student 1; student 1 loses the badge and the ID can be claimed again
-    await staffPage.goto("/admin/roster?status=claimed");
-    const row = staffPage.getByRole("row").filter({ hasText: `@${s1.username}` });
-    await row.getByRole("button", { name: "Release" }).click();
-    await staffPage.getByRole("dialog").getByRole("textbox").fill("Claimed by mistake during testing");
-    await staffPage.getByRole("dialog").getByRole("button", { name: "Release", exact: true }).click();
-    await expect.poll(async () => (await admin.from("profiles").select("verification_status").eq("id", s1.id).single()).data.verification_status).toBe("unverified");
   });
 
   test("members report bugs with context, suggest ideas and vote", async ({ browser }) => {

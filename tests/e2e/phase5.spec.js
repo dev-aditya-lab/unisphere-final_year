@@ -135,7 +135,7 @@ test.describe.serial("administration", () => {
     await page.goto("/admin/roles");
     await page.waitForLoadState("networkidle");
     await page.getByLabel("Username").fill(reporter.username);
-    await page.getByLabel("Role").selectOption("verification_staff");
+    await page.getByLabel("Role").selectOption("moderator");
     await page.getByLabel("College").selectOption({ index: 0 });
     await page.getByRole("button", { name: "Grant role" }).click();
     await expect(page.getByText(`@${reporter.username}`).first()).toBeVisible({ timeout: 20_000 });

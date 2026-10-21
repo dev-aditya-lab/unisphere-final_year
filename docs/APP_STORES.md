@@ -11,9 +11,8 @@ developer accounts, signing keys and store review, which only the team (not the 
 ## A private app: say so plainly
 
 UniSphere is a **private community app** (open to join, members-only to view), not a public social network. State this in both
-store listings and in the review notes: it needs a login, every account is verified against the college's own student-ID
-list, and the content is never public. Reviewers will need a **demo account that is already verified** (see "Review
-notes" in `store/listing.md`), because they cannot hold a real student ID. Google Play's *App access* form asks for
+store listings and in the review notes: it needs a login, anyone can create an account, and the content is never public. Reviewers
+will need a **demo account** (see "Review notes" in `store/listing.md`). Google Play's *App access* form asks for
 exactly this: choose "all or some functionality is restricted" and supply the demo credentials.
 
 ## What you need before you start
@@ -71,7 +70,6 @@ information. It has reporting, blocking and moderation. No gambling, no real-mon
 | Data | Collected | Why | Shared | Optional |
 | --- | --- | --- | --- | --- |
 | Name, email address | Yes | Account and sign-in | No | No |
-| Student ID | Processed, **not stored** (only an irreversible keyed hash is kept to prevent reuse) | Verify college membership (optional) | No | Yes (manual review is the alternative) |
 | Profile details, photos, posts, messages | Yes (user-provided) | The product itself | Only with people the member allows | Yes |
 | Push subscription (device endpoint) | Yes, if the member turns push on | Notifications | No | Yes |
 | App activity (reports, votes, feedback) | Yes | Safety and product improvement | No | Yes |
@@ -110,7 +108,6 @@ Recommended path:
 
 Provide App Review with a demo account: create one with `npm run seed:demo` on a staging database and give the reviewer
 `demo.ananya@demo.unisphere.test`. Put the password in the *App Review Information* notes, not in this repo's docs.
-Because verification needs a student ID, add a line to the review notes: *"This demo account is already verified."*
 
 ## After launch
 

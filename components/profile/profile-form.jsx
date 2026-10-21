@@ -14,10 +14,10 @@ import { FormAlert } from "@/components/forms/form-alert";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { TagInput } from "@/components/forms/tag-input";
 import { UsernameField } from "@/components/forms/username-field";
-import { CollegeFields } from "@/components/profile/college-fields";
+import { EducationEditor } from "@/components/profile/education-editor";
 import { profileSchema } from "@/lib/validators/profile";
 import { updateProfileAction } from "@/lib/actions/profile";
-import { ACCOUNT_TYPES, AVAILABILITY, COLLABORATION_ROLES } from "@/lib/constants";
+import { AVAILABILITY, COLLABORATION_ROLES } from "@/lib/constants";
 
 function Section({ id, title, description, children }) {
   return (
@@ -43,7 +43,7 @@ function SwitchRow({ id, label, description, control, name }) {
   );
 }
 
-export function ProfileForm({ profile, classInfo, college = null, structure = null }) {
+export function ProfileForm({ profile, classInfo, education = [], structures = {} }) {
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState(null);
 
@@ -61,12 +61,15 @@ export function ProfileForm({ profile, classInfo, college = null, structure = nu
       username: profile.username,
       headline: profile.headline ?? "",
       bio: profile.bio ?? "",
-      accountType: profile.account_type ?? null,
-      collegeId: profile.college_id ?? null,
-      campusId: profile.campus_id ?? null,
-      departmentId: profile.department_id ?? null,
-      programId: profile.program_id ?? null,
-      graduationYear: profile.graduation_year ?? "",
+      education: education.map((e) => ({
+        collegeId: e.collegeId,
+        role: e.role,
+        departmentId: e.departmentId,
+        programId: e.programId,
+        startYear: e.startYear ?? "",
+        endYear: e.endYear ?? "",
+        isPrimary: e.isPrimary,
+      })),
       currentYear: classInfo?.current_year ?? "",
       currentSemester: classInfo?.current_semester ?? "",
       skills: profile.skills ?? [],
@@ -86,7 +89,8 @@ export function ProfileForm({ profile, classInfo, college = null, structure = nu
     },
   });
 
-  const accountType = useWatch({ control, name: "accountType" });
+  const listed = useWatch({ control, name: "education" }) ?? [];
+  const hasStaffRole = listed.some((e) => e.role === "alumni" || e.role === "faculty" || e.role === "staff");
   const openToCollab = useWatch({ control, name: "openToCollaboration" });
   const openToMentoring = useWatch({ control, name: "openToMentoring" });
   const usernameValue = useWatch({ control, name: "username" });
@@ -119,39 +123,25 @@ export function ProfileForm({ profile, classInfo, college = null, structure = nu
         <Field id="bio" label="Bio" optional error={errors.bio?.message} hint="Up to 600 characters. Shown on your profile.">
           <Textarea id="bio" rows={4} maxLength={600} aria-describedby="bio-desc" {...register("bio")} />
         </Field>
-        <Field id="accountType" label="How you describe yourself" optional hint="Shown on your profile as something you said about yourself. It is not verified and never required.">
-          <Controller
-            control={control}
-            name="accountType"
-            render={({ field }) => (
-              <Select value={field.value ?? "__none__"} onValueChange={(v) => field.onChange(v === "__none__" ? null : v)}>
-                <SelectTrigger id="accountType" className="w-full sm:w-64">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">Prefer not to say</SelectItem>
-                  {ACCOUNT_TYPES.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>
-                      {t.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </Field>
       </Section>
 
-      <Section id="college" title="College" description="Optional. Connecting a college helps you find people and communities nearby. It does not verify that you study or work there.">
-        <CollegeFields control={control} register={register} setValue={setValue} errors={errors} accountType={accountType} initialCollege={college} initialStructure={structure} />
+      <Section id="college" title="Schools & colleges" description="Optional. List where you study now, where you studied before, or where you teach or work, with your role at each. It helps you find people and communities, and it does not verify anything.">
+        <EducationEditor
+          control={control}
+          register={register}
+          setValue={setValue}
+          errors={errors}
+          initialColleges={Object.fromEntries(education.map((e) => [e.collegeId, e.college]))}
+          initialStructures={structures}
+        />
       </Section>
 
       <Section id="skills" title="Skills & interests" description="Teammate suggestions are based only on what you list here.">
         <Field id="skills" label="Skills" error={errors.skills?.message}>
-          <Controller control={control} name="skills" render={({ field }) => <TagInput id="skills" label="Skills" value={field.value} onChange={field.onChange} placeholder="Add a skill and press Enter" />} />
+          <Controller control={control} name="skills" render={({ field }) => <TagInput id="skills" label="Skills" value={field.value} onChange={field.onChange} catalog="skill" placeholder="Add a skill and press Enter" />} />
         </Field>
         <Field id="interests" label="Interests" error={errors.interests?.message}>
-          <Controller control={control} name="interests" render={({ field }) => <TagInput id="interests" label="Interests" value={field.value} onChange={field.onChange} placeholder="Add an interest" />} />
+          <Controller control={control} name="interests" render={({ field }) => <TagInput id="interests" label="Interests" value={field.value} onChange={field.onChange} catalog="interest" placeholder="Add an interest" />} />
         </Field>
       </Section>
 
@@ -187,7 +177,7 @@ export function ProfileForm({ profile, classInfo, college = null, structure = nu
         )}
       </Section>
 
-      {(accountType === "alumni" || accountType === "faculty" || accountType === "staff" || openToMentoring) && (
+      {(hasStaffRole || openToMentoring) && (
         <Section id="mentoring" title="Experience & mentoring" description="Mentoring is optional. Your contact details are never shared automatically.">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Field id="jobTitle" label="Role" optional error={errors.jobTitle?.message}>

@@ -203,63 +203,10 @@ describe("audit log", () => {
   });
 });
 
-describe("college verification", () => {
-  it("only lets a user create a pending request for their own college and account type", async () => {
-    const bad = await alice.client.from("college_verifications").insert({ user_id: alice.id, college_id: RIVERSIDE, account_type: "student", method: "manual" });
-    expect(bad.error).not.toBeNull();
-    const selfApprove = await alice.client.from("college_verifications").insert({ user_id: alice.id, college_id: GREENFIELD, account_type: "student", method: "manual", status: "approved" });
-    expect(selfApprove.error).not.toBeNull();
-    const injected = await alice.client.from("college_verifications").insert({ user_id: alice.id, college_id: GREENFIELD, account_type: "student", method: "manual", reviewed_by: globalAdmin.id });
-    expect(injected.error).not.toBeNull();
-  });
-
-  it("scopes review to the staff member's college and blocks self-review", async () => {
-    const { data: req, error } = await alice.client
-      .from("college_verifications")
-      .insert({ user_id: alice.id, college_id: GREENFIELD, account_type: "student", method: "manual", supporting_info: "Roll number 1234, CSE department, prof. Rao knows me." })
-      .select("id")
-      .single();
-    expect(error).toBeNull();
-    expect((await admin.from("profiles").select("verification_status").eq("id", alice.id).single()).data.verification_status).toBe("pending");
-
-    // Wrong college / ordinary user / the applicant herself are all refused.
-    expect((await riversideStaff.client.rpc("review_college_verification", { p_id: req.id, p_decision: "approved" })).error?.message).toContain("forbidden");
-    expect((await bob.client.rpc("review_college_verification", { p_id: req.id, p_decision: "approved" })).error).not.toBeNull();
-    expect((await alice.client.rpc("review_college_verification", { p_id: req.id, p_decision: "approved" })).error).not.toBeNull();
-
-    // Rejection requires a reason; verification staff of the right college can review.
-    expect((await verifier.client.rpc("review_college_verification", { p_id: req.id, p_decision: "rejected" })).error?.message).toContain("reason_required");
-    expect((await verifier.client.rpc("review_college_verification", { p_id: req.id, p_decision: "approved", p_notes: "checked with department" })).error).toBeNull();
-    expect((await admin.from("profiles").select("verification_status").eq("id", alice.id).single()).data.verification_status).toBe("verified");
-
-    // Decision is final and audited; the applicant cannot read internal reviewer notes.
-    expect((await verifier.client.rpc("review_college_verification", { p_id: req.id, p_decision: "rejected", p_reason: "x" })).error?.message).toContain("already_decided");
-    const notes = await alice.client.from("college_verifications").select("reviewer_notes").eq("id", req.id);
-    expect(notes.error).not.toBeNull();
-    const { data: audit } = await admin.from("audit_logs").select("action").eq("target_id", alice.id).eq("action", "verification.approved");
-    expect(audit).toHaveLength(1);
-  });
-
+describe("staff without account access", () => {
   it("verification staff cannot read user accounts they were not given access to", async () => {
     expect((await verifier.client.from("profiles").select("id").eq("id", dave.id)).data).toHaveLength(0);
     expect((await verifier.client.rpc("has_permission", { p_permission: "users.view", p_college_id: GREENFIELD })).data).toBe(false);
-  });
-
-  it("invite codes verify matching members once and honour usage limits", async () => {
-    const make = await collegeAdmin.client.rpc("create_college_invite", { p_college: GREENFIELD, p_audience: "student", p_max_uses: 1, p_valid_days: 7 });
-    expect(make.error).toBeNull();
-    const code = make.data;
-    // Another college's student cannot use it; a non-manager cannot mint codes.
-    expect((await carol.client.rpc("redeem_college_invite", { p_code: code })).error?.message).toContain("invalid_invite");
-    expect((await bob.client.rpc("create_college_invite", { p_college: GREENFIELD })).error).not.toBeNull();
-
-    const inviteeUser = await createUser("invitee");
-    expect((await inviteeUser.client.rpc("redeem_college_invite", { p_code: code })).error).toBeNull();
-    expect((await admin.from("profiles").select("verification_status").eq("id", inviteeUser.id).single()).data.verification_status).toBe("verified");
-    const second = await createUser("invitee2");
-    expect((await second.client.rpc("redeem_college_invite", { p_code: code })).error?.message).toContain("invalid_invite");
-    // Hashes are never exposed to the API.
-    expect((await collegeAdmin.client.from("college_invites").select("code_hash")).error).not.toBeNull();
   });
 });
 

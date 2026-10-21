@@ -16,24 +16,25 @@ import { FormAlert } from "@/components/forms/form-alert";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { TagInput } from "@/components/forms/tag-input";
 import { UsernameField } from "@/components/forms/username-field";
-import { CollegeFields } from "@/components/profile/college-fields";
+import { EducationEditor } from "@/components/profile/education-editor";
 import { queueCelebration } from "@/components/motion/celebrate";
 import { onboardingSchema } from "@/lib/validators/profile";
 import { saveOnboardingAction } from "@/lib/actions/profile";
 import { joinCommunityAction } from "@/lib/actions/campus";
-import { ACCOUNT_TYPES, HOME_PATH } from "@/lib/constants";
+import { HOME_PATH } from "@/lib/constants";
 import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
   { id: "about", title: "About you", fields: ["fullName", "username", "headline"] },
-  { id: "college", title: "Your college", fields: ["collegeId", "departmentId", "programId", "graduationYear", "currentYear", "currentSemester"] },
+  { id: "college", title: "Your colleges", fields: ["education", "currentYear", "currentSemester"] },
   { id: "interests", title: "Interests", fields: ["skills", "interests"] },
   { id: "communities", title: "Communities", fields: [] },
 ];
 
-const SKILL_SUGGESTIONS = ["Python", "JavaScript", "React", "Machine Learning", "Data Analysis", "UI/UX Design", "Embedded Systems", "Java", "SQL", "Node.js"];
-const INTEREST_SUGGESTIONS = ["Sustainability", "Healthcare", "Education", "Finance", "Robotics", "Open Source", "Startups", "Climate", "Gaming"];
+// Shown only until the managed list (Admin -> Skills) has loaded, or if it cannot: the pickers use the list itself otherwise.
+const SKILL_SUGGESTIONS = ["Python", "Graphic Design", "Public Speaking", "Content Writing", "Photography", "Marketing", "Data Analysis", "Video Editing", "Leadership", "Singing"];
+const INTEREST_SUGGESTIONS = ["Sustainability", "Healthcare", "Education", "Music", "Robotics", "Startups", "Travel", "Fitness", "Gaming"];
 
 function CommunityChoice({ community }) {
   const [state, setState] = useState(community.my_status === "active" ? "joined" : community.my_status === "pending" ? "requested" : "idle");
@@ -74,12 +75,11 @@ function CommunityChoice({ community }) {
   );
 }
 
-export function OnboardingForm({ profile, college = null, structure = null, communities = [] }) {
+export function OnboardingForm({ profile, education = [], structures = {}, communities = [] }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState(null);
-  const [pickedCollege, setPickedCollege] = useState(college);
 
   const form = useForm({
     resolver: zodResolver(onboardingSchema),
@@ -87,13 +87,16 @@ export function OnboardingForm({ profile, college = null, structure = null, comm
     defaultValues: {
       fullName: profile.full_name ?? "",
       username: profile.username ?? "",
-      accountType: profile.account_type ?? null,
       headline: profile.headline ?? "",
-      collegeId: profile.college_id ?? null,
-      campusId: null,
-      departmentId: profile.department_id ?? null,
-      programId: profile.program_id ?? null,
-      graduationYear: profile.graduation_year ?? "",
+      education: education.map((e) => ({
+        collegeId: e.collegeId,
+        role: e.role,
+        departmentId: e.departmentId,
+        programId: e.programId,
+        startYear: e.startYear ?? "",
+        endYear: e.endYear ?? "",
+        isPrimary: e.isPrimary,
+      })),
       currentYear: "",
       currentSemester: "",
       skills: profile.skills ?? [],
@@ -102,7 +105,8 @@ export function OnboardingForm({ profile, college = null, structure = null, comm
     },
   });
   const { register, control, handleSubmit, setValue, setError, trigger, formState: { errors } } = form;
-  const accountType = useWatch({ control, name: "accountType" });
+  const listed = useWatch({ control, name: "education" }) ?? [];
+  const hasCollege = listed.some((e) => e.collegeId);
   const usernameValue = useWatch({ control, name: "username" });
 
   async function next() {
@@ -111,10 +115,7 @@ export function OnboardingForm({ profile, college = null, structure = null, comm
   }
 
   function skipCollege() {
-    setValue("collegeId", null);
-    setValue("departmentId", null);
-    setValue("programId", null);
-    setPickedCollege(null);
+    setValue("education", [], { shouldDirty: true });
     setStep((s) => s + 1);
   }
 
@@ -174,8 +175,6 @@ export function OnboardingForm({ profile, college = null, structure = null, comm
       {serverError && <FormAlert className="mb-5">{serverError}</FormAlert>}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <input type="hidden" {...register("accountType")} />
-
         <div className={cn("page-enter space-y-4", step !== 0 && "hidden")}>
           <h2 className="text-xl font-bold">Tell us about yourself</h2>
           <Field id="fullName" label="Full name" required error={errors.fullName?.message}>
@@ -185,54 +184,22 @@ export function OnboardingForm({ profile, college = null, structure = null, comm
           <Field id="headline" label="Headline" optional error={errors.headline?.message} hint="One line, e.g. “3rd year CSE · building with ML”, or whatever describes you.">
             <Input id="headline" maxLength={120} aria-describedby="headline-desc" {...register("headline")} />
           </Field>
-          <fieldset className="space-y-2">
-            <legend className="text-[13px] font-semibold">
-              How would you describe yourself? <span className="text-muted-foreground font-normal">(optional)</span>
-            </legend>
-            <Controller
-              control={control}
-              name="accountType"
-              render={({ field }) => (
-                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="How you describe yourself">
-                  {[{ value: null, label: "Prefer not to say" }, ...ACCOUNT_TYPES].map((t) => {
-                    const selected = (field.value ?? null) === t.value;
-                    return (
-                      <button
-                        key={t.value ?? "none"}
-                        type="button"
-                        role="radio"
-                        aria-checked={selected}
-                        onClick={() => field.onChange(t.value)}
-                        className={cn(
-                          "press min-h-10 rounded-lg border px-3.5 text-sm font-semibold transition-colors",
-                          selected ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:border-foreground/50",
-                        )}
-                      >
-                        {t.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            />
-            <p className="text-muted-foreground text-xs">Shown on your profile as something you said about yourself, never as a verified fact.</p>
-          </fieldset>
         </div>
 
         <div className={cn("page-enter space-y-4", step !== 1 && "hidden")}>
           <div>
-            <h2 className="text-xl font-bold">Connect a college</h2>
-            <p className="text-muted-foreground mt-1 text-sm">Optional. It helps you find people and communities near you. You can skip this and add it any time.</p>
+            <h2 className="text-xl font-bold">Your schools and colleges</h2>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Optional. Add where you study now, where you studied before, or where you teach or work, and say what you were or are there. You can skip this and add it any time.
+            </p>
           </div>
-          <CollegeFields
+          <EducationEditor
             control={control}
             register={register}
             setValue={setValue}
             errors={errors}
-            accountType={accountType}
-            initialCollege={college}
-            initialStructure={structure}
-            onCollegeChange={setPickedCollege}
+            initialColleges={Object.fromEntries(education.map((e) => [e.collegeId, e.college]))}
+            initialStructures={structures}
           />
         </div>
 
@@ -242,14 +209,14 @@ export function OnboardingForm({ profile, college = null, structure = null, comm
             <Controller
               control={control}
               name="skills"
-              render={({ field }) => <TagInput id="skills" label="Skills" value={field.value} onChange={field.onChange} suggestions={SKILL_SUGGESTIONS} placeholder="e.g. Python, Figma" />}
+              render={({ field }) => <TagInput id="skills" label="Skills" value={field.value} onChange={field.onChange} catalog="skill" suggestions={SKILL_SUGGESTIONS} placeholder="e.g. Python, Photography, Public speaking" />}
             />
           </Field>
           <Field id="interests" label="Interests" optional error={errors.interests?.message}>
             <Controller
               control={control}
               name="interests"
-              render={({ field }) => <TagInput id="interests" label="Interests" value={field.value} onChange={field.onChange} suggestions={INTEREST_SUGGESTIONS} placeholder="e.g. Sustainability" />}
+              render={({ field }) => <TagInput id="interests" label="Interests" value={field.value} onChange={field.onChange} catalog="interest" suggestions={INTEREST_SUGGESTIONS} placeholder="e.g. Sustainability, Music" />}
             />
           </Field>
           <div className="bg-sunken flex items-start justify-between gap-4 rounded-xl p-3.5">
@@ -290,7 +257,7 @@ export function OnboardingForm({ profile, college = null, structure = null, comm
             <ArrowLeft /> Back
           </Button>
           <div className="flex flex-wrap items-center gap-2">
-            {step === 1 && !pickedCollege && (
+            {step === 1 && !hasCollege && (
               <Button type="button" variant="ghost" onClick={skipCollege}>
                 Skip for now
               </Button>
@@ -301,7 +268,7 @@ export function OnboardingForm({ profile, college = null, structure = null, comm
               </SubmitButton>
             ) : (
               <Button type="button" variant="hot" onClick={next}>
-                {step === 1 && !pickedCollege ? "Continue without a college" : "Continue"} <ArrowRight />
+                {step === 1 && !hasCollege ? "Continue without a college" : "Continue"} <ArrowRight />
               </Button>
             )}
           </div>

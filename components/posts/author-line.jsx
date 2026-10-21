@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { BadgeCheck } from "lucide-react";
 import { BlueTick } from "@/components/ui/blue-tick";
 import { UserAvatar } from "@/components/user-avatar";
 import { timeAgo } from "@/lib/format";
@@ -8,10 +7,10 @@ const TYPE_LABEL = { student: "Student", alumni: "Alumni", faculty: "Faculty", s
 
 /**
  * Avatar + name + @username + time. Used on posts, comments and quoted originals.
- * Badges only appear when the account data says so: the blue tick, a verified student ID, or a non-student role.
+ * Badges only appear when the account data says so: the blue tick or a non-student role.
  * `children` renders after the timestamp (for example the audience icon on a post).
  */
-export function AuthorLine({ name, username, avatarKey, verified, blueTick, accountType, createdAt, edited, size = "md", showType = true, children }) {
+export function AuthorLine({ name, username, avatarKey, blueTick, accountType, createdAt, edited, size = "md", showType = true, children }) {
   return (
     <div className="flex min-w-0 items-center gap-3">
       <Link href={`/u/${username}`} aria-label={`${name}'s profile`} className="shrink-0 rounded-full">
@@ -23,7 +22,6 @@ export function AuthorLine({ name, username, avatarKey, verified, blueTick, acco
             {name}
           </Link>
           {blueTick && <BlueTick className="size-3.5" />}
-          {verified && <BadgeCheck className="text-teal-text size-3.5 shrink-0" aria-label="Verified member" />}
           {showType && accountType && accountType !== "student" && (
             <span className="text-muted-foreground bg-muted shrink-0 rounded px-1.5 py-px text-[10px] font-semibold tracking-wide uppercase">{TYPE_LABEL[accountType]}</span>
           )}
