@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { queueCelebration } from "@/components/motion/celebrate";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UserAvatar } from "@/components/user-avatar";
 import { FormAlert } from "@/components/forms/form-alert";
@@ -98,7 +99,7 @@ function UploadTile({ item, onRemove, onRetry }) {
  * What the member has written lives here, not in the dialog, so closing the editor never loses it, and it is also kept
  * on the device as a draft. Nothing is cleared until the server has accepted the post.
  */
-export function Composer({ profile, defaultCategory = "general", defaultVisibility = "public", lockCategory = false, ai = null, onCreated, autoFocus = false, community = null }) {
+export function Composer({ profile, defaultCategory = "general", defaultVisibility = "public", lockCategory = false, ai = null, onCreated, autoFocus = false, community = null, firstPost = false }) {
   const router = useRouter();
   const fileInput = useRef(null);
   const bodyRef = useRef(null);
@@ -135,6 +136,12 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
   const failedUploads = uploads.filter((u) => u.status === "error").length;
   const hasContent = body.trim().length > 0 || title.trim().length > 0 || uploads.length > 0;
   const hasDraft = body.length > 0 || title.length > 0;
+  // The compose-request listener below is set up once, so it reads whether anything is typed through a ref.
+  const hasTextRef = useRef(false);
+  const celebrated = useRef(false);
+  useEffect(() => {
+    hasTextRef.current = hasDraft;
+  }, [hasDraft]);
 
   // Restore an unsent draft once, after hydration (so the server and first client render still match).
   useEffect(() => {
@@ -166,6 +173,13 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
     };
     const onRequest = (e) => {
       e.preventDefault(); // tells the button it was handled
+      // A starter ("Introduce myself"...) fills an empty editor only; typed text is never overwritten.
+      const starter = e.detail;
+      if (starter && !hasTextRef.current) {
+        if (CATEGORY_BY_VALUE[starter.category]) setCategory(starter.category);
+        setTitle(starter.title ?? "");
+        setBody(starter.body ?? "");
+      }
       setOpen(true);
     };
     openIfRequested();
@@ -300,6 +314,10 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
       }
       if (res.ok) {
         toast.success("Posted");
+        if (firstPost && !celebrated.current) {
+          celebrated.current = true;
+          queueCelebration("first-post");
+        }
         window.dispatchEvent(new Event(ORBITS_CHANGED)); // a post can earn Orbits: let the header ask the server again
         const created = {
           id: res.id,

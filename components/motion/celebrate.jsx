@@ -8,6 +8,7 @@ const KEY = "unisphere:celebrate";
 
 const MESSAGES = {
   onboarded: { title: "You are in. Welcome to UniSphere.", description: "Say hello with your first post, or look around." },
+  "first-post": { title: "Your first post is live", description: "Everyone on UniSphere can see it now. Replies will show up in your notifications." },
   "project-published": { title: "Your project is live", description: "Share the link and invite teammates for your open roles." },
 };
 

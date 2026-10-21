@@ -154,7 +154,13 @@ export function SuggestTextarea({ ref, value, onChange, onSuggestOpenChange, men
   }
 
   useImperativeHandle(ref, () => ({
-    focus: () => taRef.current?.focus(),
+    focus: () => {
+      const el = taRef.current;
+      if (!el) return;
+      el.focus();
+      // Pre-filled or restored text: carry on from the end, not from the start.
+      el.setSelectionRange(el.value.length, el.value.length);
+    },
     insertTrigger(char) {
       const el = taRef.current;
       if (!el) return;

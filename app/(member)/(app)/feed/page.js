@@ -3,13 +3,14 @@ import { Newspaper } from "lucide-react";
 import { OrbitsFeedStrip, OrbitsFeedWidget } from "@/components/orbits/glance-server";
 import { OrbitsWidgetSkeleton } from "@/components/orbits/feed-widgets";
 import { Composer } from "@/components/posts/composer";
+import { FirstPostPrompt } from "@/components/posts/first-post-nudge";
 import { FeedFilters } from "@/components/posts/feed-filters";
 import { FeedList } from "@/components/posts/feed-list";
 import { EmptyState } from "@/components/empty-state";
 import { RightRail } from "@/components/shell/right-rail";
 import { TwoColumn } from "@/components/shell/two-column";
 import { requireProfile } from "@/lib/auth/session";
-import { getFeedPage, getTrendingHashtags } from "@/lib/services/posts";
+import { getFeedPage, getMyPostCount, getTrendingHashtags } from "@/lib/services/posts";
 import { getForYouPage } from "@/lib/services/feed";
 import { TuneFeed } from "@/components/posts/tune-feed";
 import { getAiUiState } from "@/lib/ai/ui-state";
@@ -30,12 +31,14 @@ export default async function FeedPage({ searchParams }) {
   const scope = SCOPES.has(sp.scope) && !(sp.scope === "college" && !profile.college_id) ? sp.scope : DEFAULT_SCOPE;
   const category = CATEGORY_BY_VALUE[sp.category] ? sp.category : null;
 
-  const [page, ai, announcements, topics] = await Promise.all([
+  const [page, ai, announcements, topics, postCount] = await Promise.all([
     scope === "for_you" ? getForYouPage({ profile, category }) : getFeedPage({ scope, category }),
     getAiUiState(profile),
     getAnnouncements(3),
     scope === "for_you" ? getTrendingHashtags(10) : [],
+    getMyPostCount(user.id),
   ]);
+  const noPostsYet = postCount === 0;
 
   return (
     <TwoColumn
@@ -55,7 +58,8 @@ export default async function FeedPage({ searchParams }) {
         <Suspense fallback={<div aria-hidden="true" className="skeleton h-[4.25rem] xl:hidden" />}>
           <OrbitsFeedStrip />
         </Suspense>
-        <Composer profile={profile} ai={ai} />
+        {noPostsYet && <FirstPostPrompt name={profile.full_name} />}
+        <Composer profile={profile} ai={ai} firstPost={noPostsYet} />
         <FeedFilters
           scope={scope}
           category={category}
