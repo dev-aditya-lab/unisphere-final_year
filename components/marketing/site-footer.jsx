@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
-import { PrivacyChoicesLink } from "@/components/ads/privacy-choices";
 import { contactHref } from "@/lib/content/contact-topics";
 import { CONTACT_EMAIL } from "@/lib/constants";
 
@@ -86,7 +85,6 @@ export function SiteFooter() {
       <div className="border-t">
         <div className="text-muted-foreground mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-5 text-xs sm:px-6">
           <p>&copy; {new Date().getFullYear()} UniSphere. All rights reserved.</p>
-          <PrivacyChoicesLink className="hover:text-foreground underline underline-offset-2" />
         </div>
       </div>
     </footer>

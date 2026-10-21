@@ -20,10 +20,9 @@ const DOCS = {
   refund: getRefundSections(),
   delivery: getDeliverySections(),
   guidelines: GUIDELINES,
-  privacy: getPrivacySections({ adsEnabled: false }),
-  privacyWithAds: getPrivacySections({ adsEnabled: true }),
-  terms: getTermsSections({ adsEnabled: false }),
-  cookies: getCookieSections({ adsEnabled: false }),
+  privacy: getPrivacySections(),
+  terms: getTermsSections(),
+  cookies: getCookieSections(),
   content: getContentPolicySections(),
   copyright: getCopyrightSections(),
   brand: getBrandSections(),
@@ -66,9 +65,9 @@ describe("policy pages", () => {
     expect(all).not.toMatch(/Ramgarh|RGEC|Pvt\.? Ltd|Private Limited|registered office|LinkedIn/i);
   });
 
-  it("describe advertising truthfully for each configuration", () => {
+  it("say truthfully that no advertising is shown", () => {
     expect(JSON.stringify(DOCS.privacy)).toMatch(/does not currently show advertising/);
-    expect(JSON.stringify(DOCS.privacyWithAds)).toMatch(/Google AdSense/);
-    expect(JSON.stringify(DOCS.privacy)).not.toMatch(/AdSense/);
+    expect(JSON.stringify(DOCS.privacy)).not.toMatch(/AdSense|Monetag/);
+    expect(JSON.stringify(DOCS.cookies)).not.toMatch(/AdSense|Monetag/);
   });
 });

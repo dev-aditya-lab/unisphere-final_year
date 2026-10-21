@@ -1,7 +1,5 @@
 import { LegalPage } from "@/components/marketing/legal-page";
 import { getTermsSections } from "@/lib/content/legal";
-import { ads } from "@/lib/ads";
-import { monetag } from "@/lib/monetag";
 import { getSetting } from "@/lib/settings";
 
 export const metadata = {
@@ -16,7 +14,7 @@ export default async function TermsPage() {
     <LegalPage
       eyebrow="Legal"
       title="Terms of service"
-      sections={getTermsSections({ adsEnabled: ads.enabled || monetag.enabled })}
+      sections={getTermsSections()}
       markdown={typeof md === "string" && md.trim() ? md : null}
     />
   );

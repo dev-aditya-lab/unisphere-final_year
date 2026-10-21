@@ -2,8 +2,6 @@ import Link from "next/link";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { JsonLd } from "@/components/json-ld";
-import { ads } from "@/lib/ads";
-import { monetag } from "@/lib/monetag";
 import { getFaq } from "@/lib/content/faq";
 import { publicEnv } from "@/lib/env-public";
 
@@ -14,7 +12,7 @@ export const metadata = {
 };
 
 export default function FaqPage() {
-  const faq = getFaq({ adsEnabled: ads.enabled || monetag.enabled });
+  const faq = getFaq();
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
       <JsonLd

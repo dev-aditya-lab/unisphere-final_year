@@ -13,7 +13,7 @@ const urlBase64ToUint8Array = (base64) => {
   return Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
 };
 
-/** True when this subscription was created with UniSphere's key (not, for example, an advertising network's). */
+/** True when this subscription was created with UniSphere's key (not, for example, one left by a third-party script). */
 function isOurs(sub, key) {
   const k = sub?.options?.applicationServerKey;
   if (!k) return false;
@@ -49,8 +49,8 @@ export function AppSettings({ pushConfigured, vapidPublicKey }) {
       const reg = await getRegistration();
       const key = urlBase64ToUint8Array(vapidPublicKey);
       let sub = await reg.pushManager.getSubscription();
-      // A browser holds one push subscription per site. If another sender made it (an advertising network's tag on a
-      // public page), it cannot carry member notifications: replace it with one made with UniSphere's key.
+      // A browser holds one push subscription per site. If another sender made it (for example, one left behind by a
+      // third-party script), it cannot carry member notifications: replace it with one made with UniSphere's key.
       if (sub && !isOurs(sub, key)) {
         await sub.unsubscribe();
         sub = null;

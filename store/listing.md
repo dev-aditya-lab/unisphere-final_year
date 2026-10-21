@@ -18,7 +18,7 @@ stores' current limits; the counts below are for the English text.
 | Terms of service URL | `https://<your-domain>/terms` |
 | Account deletion URL | `https://<your-domain>/settings/security` |
 | Languages | English (India) |
-| Price | Free, no in-app purchases. Ads: none unless you switch them on (docs/ADSENSE.md); declare them in the store forms if you do |
+| Price | Free, no in-app purchases. Ads: none |
 
 ## Short description (Play, 80 max)
 

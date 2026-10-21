@@ -48,9 +48,8 @@ across the site, the Razorpay form and your documents.
 
 - Contact details on the site that do not match the application, or no phone/address at all.
 - Policy pages that are generic or promise terms for products that are not on sale.
-- Pop-ups, push-notification prompts or heavy third-party ads on the pages the reviewer sees. This site loads an ad
-  network tag on `/`, `/about`, `/features` and `/faq` (`docs/MONETAG.md`); consider turning it off with
-  `NEXT_PUBLIC_MONETAG_ENABLED=false` while the application is being reviewed.
+- Pop-ups, push-notification prompts or heavy third-party ads on the pages the reviewer sees. This site loads no
+  third-party advertising.
 - A site that is "coming soon", behind a login, or that has no visible product and price.
 
 ## When payments are added

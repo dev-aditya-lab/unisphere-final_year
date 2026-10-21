@@ -208,8 +208,6 @@ the existing messaging end-to-end tests.
 
 ## 6. Known remaining issues
 
-- `tests/e2e/phase6.spec.js` "CSP has no third-party origins" fails on the current main with the Monetag origin
-  (`quge5.com`) in the CSP, which `lib/security/csp.js` allows since commit `1835c5e`. Not touched by this change.
 - `tests/e2e/pwa.spec.js` "offline, a page that cannot load" assumes the dev server (no auto-registered worker)
   and fails against a production build, also with the previous service worker file.
 - A conversation's older history beyond the 200 cached messages is always fetched from the network.

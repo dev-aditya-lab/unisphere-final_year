@@ -172,7 +172,7 @@ self.addEventListener("sync", (event) => {
 
 // ── Web Push ────────────────────────────────────────────────────────────────
 // A browser keeps one push subscription per site, so a push can reach this worker that UniSphere did not send (for
-// example one made by an advertising network's tag on a public page). UniSphere's server marks every payload it sends
+// example one left behind by a third-party script). UniSphere's server marks every payload it sends
 // with `from: "unisphere"`, and this worker shows only those, so a third party's message is never presented with
 // UniSphere's name, icon and link.
 self.addEventListener("push", (event) => {

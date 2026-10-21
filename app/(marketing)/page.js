@@ -6,10 +6,7 @@ import { Reveal } from "@/components/marketing/reveal";
 import { HeroStage } from "@/components/marketing/hero-stage";
 import { ProductShowcase } from "@/components/marketing/product-showcase";
 import { CampusGraph, OrbitRings, StepBuild, StepJoin, StepShare } from "@/components/marketing/illustrations";
-import { AdSlot } from "@/components/ads/ad-slot";
 import { JsonLd } from "@/components/json-ld";
-import { ads } from "@/lib/ads";
-import { monetag } from "@/lib/monetag";
 import { HOME_FAQ_IDS, getFaq } from "@/lib/content/faq";
 import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE, CONTACT_EMAIL } from "@/lib/constants";
 import { publicEnv } from "@/lib/env-public";
@@ -59,7 +56,7 @@ const TILES = [
 ];
 
 export default function HomePage() {
-  const FAQ = getFaq({ adsEnabled: ads.enabled || monetag.enabled }).filter((f) => HOME_FAQ_IDS.includes(f.id));
+  const FAQ = getFaq().filter((f) => HOME_FAQ_IDS.includes(f.id));
   const jsonLd = [
     {
       "@context": "https://schema.org",
@@ -188,10 +185,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <AdSlot />
-      </div>
 
       {/* 5 · Communities */}
       <section id="communities" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 sm:px-6 lg:py-28">

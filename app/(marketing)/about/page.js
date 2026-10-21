@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { JsonLd } from "@/components/json-ld";
-import { AdSlot } from "@/components/ads/ad-slot";
 import { publicEnv } from "@/lib/env-public";
 
 export const metadata = {
@@ -52,7 +51,6 @@ export default function AboutPage() {
           Anyone can report a post, comment, profile, message or college listing, and every decision about content or an account is made by a person and can be appealed. Read the <Link href="/guidelines">community guidelines</Link> and the <Link href="/content-policy">content policy</Link>, or <Link href="/contact">get in touch</Link>.
         </p>
       </div>
-      <AdSlot className="mt-12" />
       <div className="mt-10 flex flex-wrap gap-3">
         <Button asChild size="lg">
           <Link href="/register">Join UniSphere</Link>

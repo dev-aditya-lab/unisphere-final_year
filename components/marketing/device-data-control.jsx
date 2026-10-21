@@ -3,15 +3,12 @@
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PrivacyChoicesLink } from "@/components/ads/privacy-choices";
 import { useTheme } from "@/components/theme-provider";
 import { clearAllDrafts } from "@/lib/client/drafts";
-import { ads } from "@/lib/ads";
 
 /**
- * The privacy controls that really exist for a visitor or member on this device:
- *  - remove what UniSphere keeps in this browser (appearance, drafts, small interface memories, offline files);
- *  - when advertising is switched on, reopen Google's consent message.
+ * The privacy control that really exists for a visitor or member on this device: remove what UniSphere keeps in this
+ * browser (appearance, drafts, small interface memories, offline files).
  * It does not sign anyone out (the sign-in cookie is untouched: use Log out for that) and it changes nothing on the
  * server. There is no analytics or tracking to opt out of, so there is no switch for it.
  */
@@ -61,7 +58,6 @@ export function DeviceDataControl() {
         <Button type="button" variant="outline" onClick={clear} disabled={busy}>
           <Trash2 /> Clear data stored on this device
         </Button>
-        {ads.enabled && <PrivacyChoicesLink className="text-blue-text text-sm font-semibold underline underline-offset-2" />}
       </div>
       {result && (
         <p role="status" className="mt-3 text-sm">
