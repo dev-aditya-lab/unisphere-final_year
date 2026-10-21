@@ -327,7 +327,8 @@ describe("settings, audit and deletion", () => {
 
   it("reviews deletion requests and keeps administrators out of the erasure queue", async () => {
     const leaving = await createUser("p5-leaving");
-    await leaving.client.from("account_deletion_requests").insert({ user_id: leaving.id, reason: "Graduating" });
+    // Members no longer write this table themselves: the server files the request after re-checking their password.
+    await admin.rpc("request_account_deletion_for", { p_user: leaving.id, p_reason: "Graduating", p_erase_messages: false });
     expect((await rpc(support, "admin_list_deletions", {})).data).toEqual([]);
     const list = await rpc(cadmin, "admin_list_deletions", { p_status: "pending" });
     const req = list.data.find((r) => r.user_id === leaving.id);

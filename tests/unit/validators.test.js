@@ -8,6 +8,8 @@ const validRegistration = {
   email: "ASHA@Example.com",
   password: "Passw0rd!",
   acceptTerms: true,
+  acceptPrivacy: true,
+  confirmAdult: true,
 };
 
 describe("registerSchema", () => {
@@ -18,6 +20,18 @@ describe("registerSchema", () => {
   });
   it("requires accepting the terms", () => {
     expect(registerSchema.safeParse({ ...validRegistration, acceptTerms: false }).success).toBe(false);
+  });
+  it("needs the privacy statement and the adult declaration as separate, explicit ticks", () => {
+    // Accepting the Terms is not privacy consent, and neither stands in for the age declaration.
+    expect(registerSchema.safeParse({ ...validRegistration, acceptPrivacy: false }).success).toBe(false);
+    expect(registerSchema.safeParse({ ...validRegistration, confirmAdult: false }).success).toBe(false);
+    const { acceptPrivacy, ...withoutPrivacy } = validRegistration;
+    expect(acceptPrivacy).toBe(true);
+    expect(registerSchema.safeParse(withoutPrivacy).success).toBe(false);
+  });
+  it("accepts no optional consent at signup: AI and the like are chosen later, in Settings", () => {
+    const parsed = registerSchema.parse({ ...validRegistration, aiAssist: true, ai_discovery_index: true, marketing: true });
+    expect(Object.keys(parsed).sort()).toEqual(["acceptPrivacy", "acceptTerms", "confirmAdult", "email", "fullName", "password", "username"]);
   });
   it("asks for no role, college or ID: only name, username, email and password", () => {
     expect(registerSchema.safeParse(validRegistration).success).toBe(true);

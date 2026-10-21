@@ -12,6 +12,7 @@ const ROLES = [
   { value: "support_agent", label: "Support agent" },
   { value: "college_admin", label: "College admin", adminOnly: true },
   { value: "global_admin", label: "Global admin", adminOnly: true },
+  { value: "privacy_officer", label: "Privacy officer (platform-wide; handles privacy requests and breaches)", adminOnly: true },
 ];
 
 export function GrantRoleForm({ colleges, canGrantAdmin }) {
@@ -22,7 +23,7 @@ export function GrantRoleForm({ colleges, canGrantAdmin }) {
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   const roles = ROLES.filter((r) => canGrantAdmin || !r.adminOnly);
-  const scoped = role !== "global_admin";
+  const scoped = role !== "global_admin" && role !== "privacy_officer";
 
   function submit(e) {
     e.preventDefault();

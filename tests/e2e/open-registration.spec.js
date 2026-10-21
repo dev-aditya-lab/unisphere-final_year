@@ -58,10 +58,13 @@ test.describe.serial("open registration", () => {
     await expect(page.getByLabel(/college/i)).toHaveCount(0);
 
     await page.getByLabel("Full name").fill(newcomer.name);
-    await page.getByLabel("Username").fill(newcomer.username);
+    await page.getByRole("textbox", { name: "Username" }).fill(newcomer.username);
     await page.getByLabel("Email").fill(newcomer.email);
     await page.getByLabel("Password", { exact: true }).fill(newcomer.password);
-    await page.getByLabel(/I agree to the/).click();
+    // Three separate statements, none ticked for you.
+    await page.getByLabel(/I am 18 years old or older/).click();
+    await page.getByLabel(/I agree to UniSphere using the account details/).click();
+    await page.getByLabel(/I accept the Terms of Service/).click();
     await page.getByRole("button", { name: "Create account" }).click();
     await expect(page).toHaveURL(/\/verify-email/);
 

@@ -10,6 +10,9 @@ import { FormAlert } from "@/components/forms/form-alert";
 import { useImageEditor } from "@/components/images/use-image-editor";
 import { confirmBlueTickPaymentAction, startBlueTickPurchaseAction, submitBlueTickDocumentAction } from "@/lib/actions/blue-tick";
 import { uploadFileWithProgress } from "@/lib/storage/client";
+import { setConsentAction } from "@/lib/actions/privacy";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { formatInr } from "@/lib/blue-tick";
 
 const CHECKOUT_SRC = "https://checkout.razorpay.com/v1/checkout.js";
@@ -124,14 +127,29 @@ function BuyStep({ config }) {
   );
 }
 
-function DocumentStep({ application }) {
+function DocumentStep({ application, consented }) {
   const router = useRouter();
   const fileRef = useRef(null);
   const { editImages, imageEditor } = useImageEditor();
   const [doc, setDoc] = useState(null);
+  const [agreed, setAgreed] = useState(Boolean(consented));
+  const [savingConsent, setSavingConsent] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
   const [pending, startTransition] = useTransition();
+
+  // Agreeing (and un-agreeing) is saved on the server straight away; un-agreeing also deletes any document already sent.
+  async function changeConsent(next) {
+    setError(null);
+    setSavingConsent(true);
+    const res = await setConsentAction({ purpose: "identity_verification", granted: next, source: "application" });
+    setSavingConsent(false);
+    if (res.ok) {
+      setAgreed(next);
+      if (!next) setDoc(null);
+      router.refresh();
+    } else setError(res.error);
+  }
 
   async function onPick(e) {
     const picked = e.target.files?.[0];
@@ -177,14 +195,20 @@ function DocumentStep({ application }) {
         </ul>
       </div>
       {error && <FormAlert>{error}</FormAlert>}
+      <div className="flex items-start gap-2.5 rounded-md border p-3">
+        <Checkbox id="idConsent" checked={agreed} disabled={savingConsent} onCheckedChange={(v) => changeConsent(v === true)} className="mt-0.5" />
+        <Label htmlFor="idConsent" className="text-[13px] leading-snug font-normal">
+          I agree that UniSphere reviewers may open the identity document I upload, only to compare my name and photo with my profile for the blue tick. It is deleted when they decide. I can untick this at any time, which deletes the document.
+        </Label>
+      </div>
       <div className="flex flex-wrap items-center gap-3">
         <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="sr-only" onChange={onPick} aria-label="Choose your ID document" />
-        <Button type="button" variant="outline" disabled={uploading || pending} onClick={() => fileRef.current?.click()}>
+        <Button type="button" variant="outline" disabled={!agreed || uploading || pending} onClick={() => fileRef.current?.click()}>
           <Paperclip aria-hidden="true" /> {uploading ? "Uploading…" : doc ? "Replace document" : "Choose document"}
         </Button>
         {doc && <span className="text-muted-foreground truncate text-xs">{doc.name}</span>}
       </div>
-      <Button onClick={submit} disabled={!doc || uploading || pending}>
+      <Button onClick={submit} disabled={!agreed || !doc || uploading || pending}>
         <IdCard aria-hidden="true" /> {pending ? "Sending…" : "Send for review"}
       </Button>
       {imageEditor}
@@ -192,7 +216,7 @@ function DocumentStep({ application }) {
   );
 }
 
-export function BlueTickPanel({ hasTick, application, order, config }) {
+export function BlueTickPanel({ hasTick, application, order, config, documentConsent = false }) {
   if (hasTick) {
     return (
       <div className="flex items-start gap-3">
@@ -204,7 +228,7 @@ export function BlueTickPanel({ hasTick, application, order, config }) {
       </div>
     );
   }
-  if (application?.status === "awaiting_document") return <DocumentStep application={application} />;
+  if (application?.status === "awaiting_document") return <DocumentStep application={application} consented={documentConsent} />;
   if (application?.status === "pending_review") {
     return (
       <div className="space-y-4">

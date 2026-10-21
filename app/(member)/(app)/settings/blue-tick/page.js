@@ -22,6 +22,7 @@ export default async function BlueTickPage() {
         application={state.application}
         order={state.order}
         config={{ open: config.open, pricePaise: config.pricePaise }}
+        documentConsent={profile.consents?.identity_verification?.status === "granted"}
       />
     </section>
   );

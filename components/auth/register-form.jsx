@@ -17,6 +17,37 @@ import { registerSchema } from "@/lib/validators/auth";
 import { registerAction } from "@/lib/actions/auth";
 import { cn } from "@/lib/utils";
 
+function ConsentCheck({ name, control, label, error }) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-start gap-2.5">
+        <Controller
+          control={control}
+          name={name}
+          render={({ field }) => (
+            <Checkbox
+              id={name}
+              checked={field.value}
+              onCheckedChange={(v) => field.onChange(v === true)}
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? `${name}-desc` : undefined}
+              className="mt-0.5"
+            />
+          )}
+        />
+        <Label htmlFor={name} className="text-muted-foreground block text-[13px] leading-snug font-normal">
+          {label}
+        </Label>
+      </div>
+      {error && (
+        <p id={`${name}-desc`} role="alert" className="text-destructive-text text-xs font-medium">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function RegisterForm() {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -30,7 +61,7 @@ export function RegisterForm() {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(registerSchema),
-    defaultValues: { fullName: "", username: "", email: "", password: "", acceptTerms: false },
+    defaultValues: { fullName: "", username: "", email: "", password: "", acceptTerms: false, acceptPrivacy: false, confirmAdult: false },
   });
 
   const username = useWatch({ control, name: "username" });
@@ -88,35 +119,45 @@ export function RegisterForm() {
           </ul>
         </Field>
 
-        <div className="space-y-1.5">
-          <div className="flex items-start gap-2.5">
-            <Controller
-              control={control}
-              name="acceptTerms"
-              render={({ field }) => (
-                <Checkbox
-                  id="acceptTerms"
-                  checked={field.value}
-                  onCheckedChange={(v) => field.onChange(v === true)}
-                  aria-invalid={Boolean(errors.acceptTerms)}
-                  aria-describedby="acceptTerms-desc"
-                  className="mt-0.5"
-                />
-              )}
-            />
-            <Label htmlFor="acceptTerms" className="text-muted-foreground block text-[13px] leading-snug font-normal">
-              I agree to the{" "}
-              <Link href="/terms" target="_blank" className="text-blue-text font-medium hover:underline">Terms</Link>,{" "}
-              <Link href="/privacy" target="_blank" className="text-blue-text font-medium hover:underline">Privacy Policy</Link> and{" "}
-              <Link href="/guidelines" target="_blank" className="text-blue-text font-medium hover:underline">Community Guidelines</Link>.
-            </Label>
-          </div>
-          {errors.acceptTerms && (
-            <p id="acceptTerms-desc" role="alert" className="text-destructive-text text-xs font-medium">
-              {errors.acceptTerms.message}
-            </p>
-          )}
-        </div>
+        <fieldset className="space-y-3">
+          <legend className="text-[13px] font-semibold">Before you create your account</legend>
+          <p className="text-muted-foreground text-xs leading-relaxed">
+            Three separate statements, none ticked for you. Optional things, like AI features, are never part of signing up: you can choose them later in Settings.
+          </p>
+          <ConsentCheck
+            name="confirmAdult"
+            control={control}
+            error={errors.confirmAdult?.message}
+            label={<>I am 18 years old or older. UniSphere is for adults and does not ask for a date of birth or an ID to check this.</>}
+          />
+          <ConsentCheck
+            name="acceptPrivacy"
+            control={control}
+            error={errors.acceptPrivacy?.message}
+            label={
+              <>
+                I agree to UniSphere using the account details and content I give it to run my account and the features I use, as explained in the{" "}
+                <Link href="/privacy-notice" target="_blank" className="text-blue-text font-medium hover:underline">privacy notice</Link>. I can withdraw this by deleting my account.
+              </>
+            }
+          />
+          <ConsentCheck
+            name="acceptTerms"
+            control={control}
+            error={errors.acceptTerms?.message}
+            label={
+              <>
+                I accept the <Link href="/terms" target="_blank" className="text-blue-text font-medium hover:underline">Terms of Service</Link> and the{" "}
+                <Link href="/guidelines" target="_blank" className="text-blue-text font-medium hover:underline">Community Guidelines</Link>. This is separate from the privacy choice above.
+              </>
+            }
+          />
+          <p className="text-muted-foreground text-xs">
+            Read the full{" "}
+            <Link href="/privacy" target="_blank" className="text-blue-text font-medium hover:underline">Privacy Policy</Link> and your{" "}
+            <Link href="/privacy-centre" target="_blank" className="text-blue-text font-medium hover:underline">privacy rights</Link>.
+          </p>
+        </fieldset>
 
         <SubmitButton pending={pending} pendingText="Creating account…" className="w-full" size="lg">
           Create account

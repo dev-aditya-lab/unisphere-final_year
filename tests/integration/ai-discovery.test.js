@@ -79,6 +79,11 @@ beforeAll(async () => {
   alice = await createUser("ai-alice");
   bob = await createUser("ai-bob");
   carol = await createUser("ai-carol");
+  // Content is embedded only for members who allowed AI indexing (purpose ai_discovery_index). carol stays without it.
+  await admin.rpc("publish_privacy_notice", { p_version: "2099-01-01.2", p_effective_at: "2026-10-21T00:00:00+05:30", p_hash: "ai-test", p_purposes: [], p_document: {}, p_reconsent: [], p_summary: "test" }).then(() => {}, () => {});
+  // bob also allowed AI features, so his search text may go to the (fake) embedding provider.
+  await admin.rpc("record_consent_for", { p_user: bob.id, p_purpose: "ai_assist", p_status: "granted", p_notice_version: "2099-01-01.2", p_source: "settings" });
+  for (const u of [alice, bob]) await admin.rpc("record_consent_for", { p_user: u.id, p_purpose: "ai_discovery_index", p_status: "granted", p_notice_version: "2099-01-01.2", p_source: "settings" });
   await admin.from("profiles").update({ skills: ["Time-series forecasting", "Python"], interests: ["Sustainability"], open_to_collaboration: true }).eq("id", alice.id);
   await admin.from("profiles").update({ skills: ["Cooking"], visibility: "private" }).eq("id", carol.id);
 });

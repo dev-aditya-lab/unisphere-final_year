@@ -8,7 +8,7 @@ import { listColleges, listRoleAssignments } from "@/lib/services/admin";
 
 export const metadata = { title: "Staff & roles" };
 
-const ROLE_LABEL = { global_admin: "Global admin", college_admin: "College admin", moderator: "Moderator", verification_staff: "Verification staff", support_agent: "Support agent" };
+const ROLE_LABEL = { global_admin: "Global admin", college_admin: "College admin", moderator: "Moderator", verification_staff: "Verification staff", support_agent: "Support agent", privacy_officer: "Privacy officer" };
 const ROLE_HELP = [
   ["Global admin", "Everything, across every college. Keep this list short."],
   ["College admin", "Runs one college: members, moderation, announcements, events, analytics."],

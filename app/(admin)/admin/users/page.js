@@ -10,7 +10,7 @@ export const metadata = { title: "Members" };
 
 const STATUSES = ["active", "restricted", "suspended", "deactivated"];
 const ROLES = ["global_admin", "college_admin", "moderator", "verification_staff", "support_agent"];
-const ROLE_LABEL = { global_admin: "Global admin", college_admin: "College admin", moderator: "Moderator", verification_staff: "Verification", support_agent: "Support" };
+const ROLE_LABEL = { global_admin: "Global admin", college_admin: "College admin", moderator: "Moderator", verification_staff: "Verification", support_agent: "Support", privacy_officer: "Privacy officer" };
 const SORTS = [
   ["created", "Newest or oldest joined"],
   ["last_seen", "Last sign-in"],

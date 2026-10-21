@@ -90,7 +90,7 @@ I had no dashboard access and changed nothing there.
    every 4 hours). Edge TTL *1 month* is fine.
 4. **Deleted pictures stay cached** at the edge for up to the Edge TTL after the object is removed from R2 (replaced avatar, deleted
    account). If you need one gone sooner, purge it by URL (Caching, Configuration, Purge).
-5. **Optional resizing.** Turn on Images, Transformations for the zone, then set `NEXT_PUBLIC_MEDIA_RESIZE=cloudflare`. Check
+5. **Optional resizing.** Turn on Images, Transformations for the zone, **test** `https://unimedia.unispheres.in/cdn-cgi/image/width=96/<an avatar key>` in a browser (it must show a small image, not a 404), and only then set `NEXT_PUBLIC_MEDIA_RESIZE=cloudflare`. Checked 2026-10-21: it was not enabled (that URL answered 404). Avatars and covers fall back to the stored original if a resized copy fails, but each failed request is still a wasted round trip. Extend the Cache Rule to `/cdn-cgi/image/` paths too. Check
    Cloudflare's current free allowance and pricing for unique transformations first; the width steps are limited to six so one
    picture is at most six variants.
 6. **Environment (production).** Set `CLOUDFLARE_R2_PUBLIC_BUCKET_NAME`, `CLOUDFLARE_R2_PUBLIC_URL` and `NEXT_PUBLIC_MEDIA_URL`

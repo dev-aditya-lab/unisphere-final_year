@@ -24,7 +24,7 @@ export function PrivacyForm({ profile }) {
     formState: { isDirty },
   } = useForm({
     resolver: zodResolver(privacySchema),
-    defaultValues: { visibility: profile.visibility, allowMessagesFrom: profile.allow_messages_from, showClass: profile.show_class, aiAssistEnabled: profile.ai_assist_enabled, personalizeFeed: profile.personalize_feed !== false },
+    defaultValues: { visibility: profile.visibility, allowMessagesFrom: profile.allow_messages_from, showClass: profile.show_class, personalizeFeed: profile.personalize_feed !== false },
   });
 
   function onSubmit(values) {
@@ -119,22 +119,6 @@ export function PrivacyForm({ profile }) {
             <p className="text-muted-foreground text-xs">Turn off to see the newest and most substantial posts with a mix of topics, ignoring your interests and activity.</p>
           </div>
           <Controller control={control} name="personalizeFeed" render={({ field }) => <Switch id="personalizeFeed" checked={field.value} onCheckedChange={field.onChange} />} />
-        </div>
-      </section>
-
-      <section className="surface p-5 sm:p-6">
-        <h2 className="text-lg font-bold">AI assist</h2>
-        <p className="text-muted-foreground mt-0.5 text-sm">
-          AI features (writing help, related-work search, explanations) send the text you ask about to an AI provider. Posts and messages are never sent unless you press an AI button.
-        </p>
-        <div className="mt-4 flex items-start justify-between gap-4 rounded-md border p-3">
-          <div>
-            <Label htmlFor="aiAssistEnabled" className="text-sm font-semibold">
-              Allow AI assist
-            </Label>
-            <p className="text-muted-foreground text-xs">Turn off to hide every AI button and make sure none of your text is ever sent to an AI provider.</p>
-          </div>
-          <Controller control={control} name="aiAssistEnabled" render={({ field }) => <Switch id="aiAssistEnabled" checked={field.value} onCheckedChange={field.onChange} />} />
         </div>
       </section>
 

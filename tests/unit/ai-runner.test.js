@@ -18,8 +18,9 @@ vi.mock("@/lib/redis", () => ({
   cacheSetJson: async (k, v) => void state.cache.set(k, v),
 }));
 vi.mock("@/lib/env", () => ({ getEnv: () => ({ AI_REQUEST_TIMEOUT_MS: 5000 }) }));
-vi.mock("@/lib/supabase/admin", () => ({
-  createAdminClient: () => ({ from: () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { ai_assist_enabled: !state.optedOut } }) }) }) }) }),
+// AI runs only with the member's recorded consent (purpose ai_assist); "optedOut" here means that consent is absent.
+vi.mock("@/lib/privacy/consent", () => ({
+  hasConsent: async (userId, purpose) => purpose === "ai_assist" && !state.optedOut,
 }));
 
 const { runAiTask, parseModelJson, clearAiMemoryCache } = await import("@/lib/ai");
@@ -176,11 +177,11 @@ describe("runAiTask: switches, limits and caching", () => {
     expect(p.calls).toHaveLength(0);
   });
 
-  it("respects a member's AI opt-out", async () => {
+  it("sends nothing without the member's consent", async () => {
     const p = provider("fake", [GOOD_TAGS]);
     state.chain = [link(p)];
     state.optedOut = true;
-    expect((await runAiTask("suggest_tags", { body: "x" }, { userId: "u1" })).code).toBe("opted_out");
+    expect((await runAiTask("suggest_tags", { body: "x" }, { userId: "u1" })).code).toBe("consent_required");
     expect(p.calls).toHaveLength(0);
   });
 

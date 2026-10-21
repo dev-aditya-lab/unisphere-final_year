@@ -7,6 +7,7 @@ import { publicEnv } from "@/lib/env-public";
 const PAGES = [
   ["/", 1, "monthly"], ["/about", 0.7, "monthly"], ["/features", 0.7, "monthly"], ["/guidelines", 0.5, "yearly"],
   ["/contact", 0.5, "yearly"], ["/privacy", 0.3, "yearly"], ["/terms", 0.3, "yearly"], ["/cookies", 0.3, "yearly"],
+  ["/privacy-centre", 0.4, "yearly"], ["/privacy-notice", 0.4, "yearly"], ["/grievance", 0.4, "yearly"],
   ["/faq", 0.6, "monthly"], ["/content-policy", 0.4, "yearly"], ["/copyright-policy", 0.3, "yearly"], ["/brand-policy", 0.3, "yearly"], ["/accessibility", 0.4, "yearly"],
   ["/pricing", 0.5, "monthly"], ["/refund-policy", 0.3, "yearly"], ["/shipping-policy", 0.3, "yearly"],
 ];

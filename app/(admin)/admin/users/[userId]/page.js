@@ -14,7 +14,7 @@ import { getUserDetail, getUserPosts } from "@/lib/services/admin";
 export const metadata = { title: "Member" };
 
 const ACTION_LABEL = { warn: "Warned", remove_content: "Content removed", restore_content: "Content restored", restrict: "Restricted", suspend: "Suspended", reinstate: "Reinstated", dismiss: "Report dismissed", note: "Internal note" };
-const ROLE_LABEL = { global_admin: "Global admin", college_admin: "College admin", moderator: "Moderator", verification_staff: "Verification staff", support_agent: "Support agent" };
+const ROLE_LABEL = { global_admin: "Global admin", college_admin: "College admin", moderator: "Moderator", verification_staff: "Verification staff", support_agent: "Support agent", privacy_officer: "Privacy officer" };
 
 export default async function MemberPage({ params }) {
   const { userId } = await params;

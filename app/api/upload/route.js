@@ -3,6 +3,7 @@ import { getAuthUser, hasPermission } from "@/lib/auth/session";
 import { isSameOrigin } from "@/lib/security/origin";
 import { uploadFile } from "@/lib/storage/uploads";
 import { UPLOAD_PURPOSES } from "@/lib/storage/policy";
+import { hasConsent } from "@/lib/privacy/consent";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -30,6 +31,11 @@ export async function POST(request) {
   // Some purposes (badge pictures) are for staff only; the database refuses the row as well, this gives a clear answer first.
   const needs = UPLOAD_PURPOSES[purpose].permission;
   if (needs && !(await hasPermission(needs))) return NextResponse.json({ ok: false, error: "You do not have permission to upload this." }, { status: 403 });
+
+  // An identity document is only accepted after the member agreed to reviewers opening it (purpose identity_verification).
+  if (purpose === "verification_document" && !(await hasConsent(user.id, "identity_verification"))) {
+    return NextResponse.json({ ok: false, error: "Please agree to the document review first." }, { status: 403 });
+  }
 
   const result = await uploadFile({ user, purpose, file });
   const status = result.ok ? 200 : result.code === "rate_limited" ? 429 : result.code === "storage_unconfigured" ? 503 : 400;

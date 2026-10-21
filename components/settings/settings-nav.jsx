@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 const LINKS = [
   { href: "/settings/profile", label: "Profile" },
   { href: "/settings/privacy", label: "Privacy" },
+  { href: "/privacy-requests", label: "Data & requests" },
   { href: "/settings/notifications", label: "Notifications" },
   { href: "/settings/security", label: "Security" },
   { href: "/settings/blue-tick", label: "Blue tick" },
@@ -19,7 +20,7 @@ export function SettingsNav({ extra = [] }) {
     <nav aria-label="Settings" className="-mx-1 mb-6 overflow-x-auto border-b">
       <ul className="flex min-w-max gap-1 px-1">
         {links.map((l) => {
-          const active = pathname === l.href;
+          const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
           return (
             <li key={l.href}>
               <Link

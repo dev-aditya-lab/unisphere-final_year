@@ -2,6 +2,9 @@ import { AppShell } from "@/components/shell/app-shell";
 import { getMyPermissions, requireProfile } from "@/lib/auth/session";
 import { getUnreadCounts } from "@/lib/services/notifications";
 import { getFlags } from "@/lib/settings";
+import { ReviewBanner } from "@/components/privacy/review-banner";
+import { gateFor } from "@/lib/privacy/gate-server";
+import { NOTICE_VERSION } from "@/lib/privacy/registry";
 
 // Everything under (member) requires a signed-in, onboarded member in good standing: the app pages in (app) and the
 // content pages in (content) (posts, profiles, projects, events...). They share this one layout on purpose. A layout
@@ -12,8 +15,11 @@ export default async function MemberLayout({ children }) {
   // Everything the frame needs is independent of everything else, so it is fetched together (one round trip's wait
   // instead of four in a row). Each helper is memoised per request, so AppShell reuses the results.
   const [{ profile }, unread] = await Promise.all([requireProfile(), getUnreadCounts(), getFlags(), getMyPermissions()]);
+  const gate = await gateFor(profile);
   return (
     <AppShell profile={profile} counts={{ "/messages": unread.messages, "/notifications": unread.notifications }} bellCount={unread.notifications}>
+      {gate.state === "review_soft" && <ReviewBanner kind="soft" version={NOTICE_VERSION} />}
+      {gate.state === "notice_updated" && <ReviewBanner kind="updated" version={NOTICE_VERSION} />}
       {children}
     </AppShell>
   );

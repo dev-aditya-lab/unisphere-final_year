@@ -8,7 +8,7 @@ export const metadata = { title: { default: "Admin console", template: "%s · Ad
 
 const ROLE_LABELS = {
   global_admin: "Global admin", college_admin: "College admin", moderator: "Moderator",
-  verification_staff: "Verification", support_agent: "Support",
+  verification_staff: "Verification", support_agent: "Support", privacy_officer: "Privacy officer",
 };
 
 /** Waiting-item counts for the sidebar. Each query runs through the member's own session, so scope is enforced by the database. */
@@ -21,6 +21,7 @@ async function queueCounts(names) {
   if (names.has("contact.manage")) jobs.push(supabase.from("contact_messages").select("id", { count: "exact", head: true }).eq("status", "new").then(({ count }) => { counts.support = count ?? 0; }));
   if (names.has("users.delete")) jobs.push(supabase.rpc("admin_list_deletions", { p_status: "pending" }).then(({ data }) => { counts.deletions = data?.length ?? 0; }));
   if (names.has("feedback.manage")) jobs.push(supabase.rpc("admin_list_feedback", { p_status: "new", p_limit: 1 }).then(({ data }) => { counts.feedback = Number(data?.[0]?.total_count ?? 0); }));
+  if (names.has("privacy.requests")) jobs.push(supabase.rpc("privacy_request_counts").then(({ data }) => { counts.privacyRequests = Number(data?.open ?? 0); }));
   await Promise.all(jobs);
   return counts;
 }

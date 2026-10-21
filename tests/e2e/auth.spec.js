@@ -27,10 +27,13 @@ test.describe.serial("registration → verification → onboarding", () => {
   test("registers and lands on the check-your-email page", async ({ page }) => {
     await page.goto("/register");
     await page.getByLabel("Full name").fill(user.name);
-    await page.getByLabel("Username").fill(user.username);
+    await page.getByRole("textbox", { name: "Username" }).fill(user.username);
     await page.getByLabel("Email").fill(user.email);
     await page.getByLabel("Password", { exact: true }).fill(user.password);
-    await page.getByLabel(/I agree to the/).click();
+    // Three separate statements, none ticked for you.
+    await page.getByLabel(/I am 18 years old or older/).click();
+    await page.getByLabel(/I agree to UniSphere using the account details/).click();
+    await page.getByLabel(/I accept the Terms of Service/).click();
     await page.getByRole("button", { name: "Create account" }).click();
     await expect(page).toHaveURL(/\/verify-email/);
     await expect(page.getByText(user.email)).toBeVisible();

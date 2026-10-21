@@ -1,5 +1,6 @@
 "use client";
 
+import { AiConsentPrompt } from "@/components/privacy/ai-consent-prompt";
 import { useState, useTransition } from "react";
 import { Check, Loader2, Search, ShieldCheck, Sparkles, Wand2, X } from "lucide-react";
 import { toast } from "sonner";
@@ -50,9 +51,8 @@ export function AssistPanel({ ai, category, title, body, setTitle, setBody, setC
   const [improvements, setImprovements] = useState(null);
   const [message, setMessage] = useState(null);
 
-  if (!ai || (!ai.assist && !ai.discovery)) {
-    return ai?.optedOut ? <p className="text-muted-foreground text-xs">AI assist is turned off in your privacy settings.</p> : null;
-  }
+  if (ai?.needsConsent) return <AiConsentPrompt />;
+  if (!ai || (!ai.assist && !ai.discovery)) return null;
 
   const enough = body.trim().length >= 20;
   const canDiscover = ai.discovery && DISCOVERY_CATEGORIES.has(category);

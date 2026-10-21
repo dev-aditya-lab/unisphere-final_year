@@ -29,8 +29,12 @@ const COLUMNS = [
   {
     title: "Legal and privacy",
     links: [
+      { href: "/privacy-centre", label: "Privacy centre" },
+      { href: "/privacy-notice", label: "Privacy notice" },
       { href: "/privacy", label: "Privacy policy" },
       { href: "/cookies", label: "Cookies and privacy preferences" },
+      { href: "/grievance", label: "Privacy grievances" },
+      { href: "/privacy-contact", label: "Contact the privacy team" },
       { href: "/terms", label: "Terms of service" },
       { href: "/refund-policy", label: "Refund and cancellation" },
       { href: "/shipping-policy", label: "Shipping and delivery" },

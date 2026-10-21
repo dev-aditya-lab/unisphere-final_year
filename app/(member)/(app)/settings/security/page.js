@@ -1,6 +1,6 @@
-import { ChangePasswordCard, DeleteAccountCard, SessionsCard } from "@/components/settings/security-panels";
+import Link from "next/link";
+import { ChangePasswordCard, SessionsCard } from "@/components/settings/security-panels";
 import { requireProfile } from "@/lib/auth/session";
-import { createClient } from "@/lib/supabase/server";
 import { AccountStanding } from "@/components/settings/account-standing";
 import { getMyModerationState } from "@/lib/services/admin";
 
@@ -8,14 +8,6 @@ export const metadata = { title: "Security settings" };
 
 export default async function SecuritySettingsPage() {
   const { user, profile } = await requireProfile();
-  const supabase = await createClient();
-  const { data: pendingRequest } = await supabase
-    .from("account_deletion_requests")
-    .select("id, scheduled_for")
-    .eq("user_id", profile.id)
-    .eq("status", "pending")
-    .maybeSingle();
-
   const standing = await getMyModerationState(profile.id);
 
   return (
@@ -36,10 +28,15 @@ export default async function SecuritySettingsPage() {
         <h2 className="text-lg font-bold">Your data</h2>
         <p className="text-muted-foreground mt-1 text-sm">Download a copy of what you have posted and set on UniSphere as a JSON file. You can do this up to three times an hour.</p>
         <a href="/api/account/export" download className="text-blue-text mt-3 inline-block text-sm font-semibold hover:underline">Download my data</a>
+        <span className="text-muted-foreground text-xs"> · more in <Link href="/privacy-requests" className="text-blue-text underline">Data &amp; requests</Link></span>
       </section>
       <ChangePasswordCard />
       <SessionsCard />
-      <DeleteAccountCard pendingRequest={pendingRequest} />
+      <section className="border-destructive/30 rounded-lg border p-5 sm:p-6">
+        <h2 className="text-destructive-text text-lg font-bold">Delete account</h2>
+        <p className="text-muted-foreground mt-1 text-sm">Erase your account and the data you own. You confirm with your password and have 14 days to change your mind.</p>
+        <Link href="/delete-account" className="text-destructive-text mt-3 inline-block text-sm font-semibold underline">Go to account deletion</Link>
+      </section>
     </div>
   );
 }

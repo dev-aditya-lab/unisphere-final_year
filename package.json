@@ -17,6 +17,9 @@
     "setup:storage": "node scripts/setup-storage.mjs",
     "worker": "node scripts/worker.mjs",
     "create-admin": "node scripts/create-admin.mjs",
+    "privacy:grant-officer": "node scripts/grant-privacy-officer.mjs",
+    "privacy:export-ledger": "node scripts/privacy-export-erasure-ledger.mjs",
+    "privacy:replay-erasures": "node scripts/privacy-replay-erasures.mjs",
     "seed:demo": "node scripts/seed-demo.mjs",
     "icons": "node scripts/generate-icons.mjs",
     "screenshots": "node scripts/capture-store-screenshots.mjs"

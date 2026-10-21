@@ -18,6 +18,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isFlagEnabled } from "@/lib/settings";
 import { formatDate } from "@/lib/format";
 import { mediaUrl } from "@/lib/media";
+import { MediaImage } from "@/components/media-image";
 import { publicEnv } from "@/lib/env-public";
 import { excerpt } from "@/lib/text";
 import { USERNAME_REGEX } from "@/lib/constants";
@@ -72,7 +73,7 @@ export default async function ProfilePage({ params, searchParams }) {
     canMessage = Boolean(data);
   }
 
-  const cover = mediaUrl(profile.cover_key, { width: 1280 });
+  const cover = mediaUrl(profile.cover_key);
   const links = [
     profile.github_url && { label: "GitHub", href: profile.github_url },
     profile.portfolio_url && { label: "Portfolio", href: profile.portfolio_url },
@@ -103,8 +104,7 @@ export default async function ProfilePage({ params, searchParams }) {
       <section className="surface overflow-hidden" aria-labelledby="profile-name">
         <div className="bg-muted relative aspect-[4/1] w-full">
           {cover ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={cover} alt="" decoding="async" fetchPriority="high" className="size-full object-cover" />
+            <MediaImage mediaKey={profile.cover_key} width={1280} decoding="async" fetchPriority="high" className="size-full object-cover" />
           ) : (
             <CoverArt seed={profile.username} className="size-full" />
           )}

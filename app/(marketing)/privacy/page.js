@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { LegalPage } from "@/components/marketing/legal-page";
 import { getPrivacySections } from "@/lib/content/legal";
-import { getSetting } from "@/lib/settings";
+import { CURRENT_NOTICE } from "@/lib/privacy/registry";
 
 export const metadata = {
   title: "Privacy policy",
@@ -8,15 +9,22 @@ export const metadata = {
   alternates: { canonical: "/privacy" },
 };
 
-export default async function PrivacyPage() {
-  const md = await getSetting("privacy_md");
+// The policy cannot be replaced from the admin console: it must describe what the code really does, and every
+// version is archived (lib/privacy/). Changing its text means a new notice version.
+export default function PrivacyPage() {
   return (
     <LegalPage
       eyebrow="Legal"
       title="Privacy policy"
-      intro="Plain-language details about your information on UniSphere."
+      intro={`Plain-language details about your information on UniSphere. Version ${CURRENT_NOTICE.version}.`}
       sections={getPrivacySections()}
-      markdown={typeof md === "string" && md.trim() ? md : null}
-    />
+      markdown={null}
+    >
+      <p className="mt-10 text-sm">
+        <Link href="/privacy-notice" className="text-blue-text underline">Privacy notice</Link> ·{" "}
+        <Link href="/privacy-centre" className="text-blue-text underline">Privacy centre</Link> ·{" "}
+        <Link href="/grievance" className="text-blue-text underline">Grievances</Link>
+      </p>
+    </LegalPage>
   );
 }
