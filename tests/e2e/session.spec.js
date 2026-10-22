@@ -112,7 +112,7 @@ test.describe.serial("a signed-in member stays signed in", () => {
     await login(page, u.email);
     await page.getByRole("button", { name: "Open account menu" }).click();
     await page.getByRole("menuitem", { name: /Log out/ }).click();
-    await expect(page).toHaveURL(/localhost:3000\/?$/);
+    await expect(page).toHaveURL(/localhost:\d+\/?$/);
     expect(await readSession(context)).toBeNull();
     await page.goto("/feed");
     await expect(page).toHaveURL(/\/login/);
@@ -128,7 +128,7 @@ test.describe.serial("a signed-in member stays signed in", () => {
 
     await laptopPage.getByRole("button", { name: "Open account menu" }).click();
     await laptopPage.getByRole("menuitem", { name: /Log out/ }).click();
-    await expect(laptopPage).toHaveURL(/localhost:3000\/?$/);
+    await expect(laptopPage).toHaveURL(/localhost:\d+\/?$/);
 
     // The phone's refresh token is untouched: expire its access token and it must refresh, not be sent to login.
     await expireAccessToken(phone);

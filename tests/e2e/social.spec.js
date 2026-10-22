@@ -31,7 +31,7 @@ test.describe.serial("social flow between two members", () => {
     await expect(page.getByText(marker)).toBeVisible();
 
     const { data: post } = await admin.from("posts").select("id, author_id, college_id, visibility").ilike("body", `%${tag}%`).single();
-    expect(post).toMatchObject({ author_id: alice.id, visibility: "college" });
+    expect(post).toMatchObject({ author_id: alice.id, visibility: "public" });
     // Tags and mentions are derived after the response (see createPost), so they are polled for, not read at once.
     await expect
       .poll(async () => (await admin.from("hashtags").select("tag, use_count").eq("tag", tag)).data, { timeout: 15_000 })

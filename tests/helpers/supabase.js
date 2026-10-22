@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { NOTICE_VERSION } from "../../lib/privacy/registry.js";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const PUBLISHABLE = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -36,6 +37,12 @@ export async function createUser(label, { accountType = "student", collegeId = G
   if (visibility) patch.visibility = visibility;
   const { error: updError } = await admin.from("profiles").update(patch).eq("id", id);
   if (updError) throw updError;
+
+  // A member who signed up through the form has recorded the two consents the account rests on; without them the privacy gate
+  // sends every page to /privacy-review. (Skipped quietly if the notice archive has no row for this build yet.)
+  for (const purpose of ["core_service", "age_confirmation"]) {
+    await admin.rpc("record_consent_for", { p_user: id, p_purpose: purpose, p_status: "granted", p_notice_version: NOTICE_VERSION, p_source: "system" });
+  }
 
   const client = createClient(URL, PUBLISHABLE, noSession);
   const { error: signInError } = await client.auth.signInWithPassword({ email, password: PASSWORD });
