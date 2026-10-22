@@ -11,7 +11,7 @@ async function login(page, email) {
 }
 
 const fakeSubscription = (id) => ({
-  endpoint: `https://push.invalid/${id}`,
+  endpoint: `https://fcm.googleapis.com/fcm/send/${id}`,
   keys: { p256dh: "BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QTpQtUbVlUls0VJXg7A8u-Ts1XbjhazAkj7I99e8QcYP7DkM", auth: "tBHItJI5svbpez7KI4CCXg" },
 });
 
@@ -122,6 +122,10 @@ test.describe.serial("signed-in app and push", () => {
     await login(page, user.email);
     const post = (data, headers = {}) => page.request.post("/api/push/subscribe", { data, headers });
     expect((await post({ subscription: { endpoint: "http://insecure.test/x", keys: { p256dh: "a", auth: "b" } } })).status()).toBe(400);
+    // The server later POSTs to the stored address, so anything that is not a real browser push service is refused (SSRF).
+    for (const endpoint of ["https://169.254.169.254/latest/meta-data/", "https://localhost:3000/api/health", "https://fcm.googleapis.com.evil.example/x"]) {
+      expect((await post({ subscription: { endpoint, keys: { p256dh: "a", auth: "b" } } })).status()).toBe(400);
+    }
     expect((await post({ subscription: fakeSubscription("evil") }, { Origin: "https://evil.example" })).status()).toBe(403);
 
     const ok = await post({ subscription: fakeSubscription("device-1") }, { Origin: baseURL });

@@ -23,6 +23,7 @@ import { mediaUrl } from "@/lib/media";
 import { MediaImage } from "@/components/media-image";
 import { publicEnv } from "@/lib/env-public";
 import { excerpt } from "@/lib/text";
+import { safeCursor } from "@/lib/cursor";
 import { USERNAME_REGEX } from "@/lib/constants";
 
 const TYPE_LABEL = { student: "Student", alumni: "Alumni", faculty: "Faculty", staff: "Staff" };
@@ -67,7 +68,7 @@ export default async function ProfilePage({ params, searchParams }) {
   const viewerId = user?.id ?? null;
   const isSelf = viewerId === profile.id;
 
-  const cursor = sp.ts && sp.id ? { ts: String(sp.ts), id: String(sp.id) } : null;
+  const cursor = safeCursor({ ts: sp.ts, id: sp.id });
   const [relationship, postsPage] = await Promise.all([getRelationship(viewerId, profile.id), getPostsByAuthor(profile.id, { cursor })]);
   let canMessage = false;
   if (viewerId && !isSelf && (await isFlagEnabled("messaging"))) {

@@ -22,12 +22,27 @@ vulnerability. Please include steps to reproduce; do not access data that is not
 | **Content Security Policy** | Per-request nonce, `strict-dynamic`, no `unsafe-eval` in production, no third-party origins, `frame-ancestors 'none'` | `proxy.js`, `lib/security/csp.js` |
 | **Other headers** | HSTS (production), `nosniff`, `X-Frame-Options: DENY`, strict referrer policy, restrictive Permissions-Policy, COOP same-origin | `next.config.mjs` |
 | **Input validation** | Every Server Action and route validates with Zod; text is rendered as React text nodes (no HTML); Markdown from admins is rendered without raw HTML | `lib/validators/*` |
-| **Uploads** | Server-relay: size limit, magic-byte type sniffing (the browser's MIME is never trusted), private bucket by default, short-lived signed URLs | `lib/storage/*` |
-| **Rate limiting** | Redis fixed windows per user and per IP for auth, writes, search, uploads, AI, feedback; runtime-tunable | `lib/rate-limit.js` |
-| **Session** | Supabase Auth (JWT in HTTP-only cookies), refreshed in the proxy; claims are verified, not decoded blindly | `lib/supabase/proxy.js` |
+| **Uploads** | Server-relay: body size refused from headers, size limit, magic-byte type sniffing, then the image is actually decoded (truncated/polyglot files and decompression bombs are refused, EXIF/GPS is stripped); PDFs go to an optional scanning service; private bucket by default, short-lived signed URLs; names are generated server-side | `lib/storage/*`, `app/api/upload` |
+| **Rate limiting** | Redis fixed windows per user and per IP for auth, writes, search, uploads, AI, feedback; runtime-tunable. The IP is the address the trusted proxy appended (`TRUSTED_PROXY_HOPS`), never the client-supplied left-most `X-Forwarded-For` entry | `lib/rate-limit.js` |
+| **Session** | Supabase Auth, refreshed in the proxy; claims are verified, not decoded blindly. The cookie is `SameSite=Lax`, `Secure` on https and **not HttpOnly** (the browser client reads the session for Realtime); the strict script CSP is what protects it | `lib/supabase/proxy.js`, `lib/supabase/cookie-options.js` |
 | **CSRF** | Server Actions are same-origin by construction; JSON endpoints that use cookies check `Origin` and require JSON bodies | `app/api/push/subscribe` |
+| **Push endpoints** | Only real browser push services are accepted (and called): an arbitrary https address would let a member make the server request internal URLs | `lib/push-endpoint.js` |
+| **Link columns** | Database CHECK constraints: http(s) only, so a `javascript:` value cannot be stored even through a direct API call | migration 0049 |
 | **Secrets** | Only `NEXT_PUBLIC_*` reach the browser. The service-role client is `server-only` and used after an explicit permission check | `lib/supabase/admin.js` |
 | **Job endpoint** | `/api/cron/tick` refuses everything without `CRON_SECRET` (constant-time compare), accepted as a Bearer header or, for monitors that cannot send headers, `?secret=` | `app/api/cron/tick/route.js` |
+
+## Rate limiting
+
+Per-IP limits trust only the address a proxy **you run or rent** appended to `X-Forwarded-For`, counted from the right.
+Set `TRUSTED_PROXY_HOPS` to the number of such proxies: `1` (default) for Vercel, Render or Caddy/Nginx, `2` with
+Cloudflare in front of one of those. Too low lumps visitors behind one address together; too high lets a client choose its
+own identity. Verify after deploying: log `getClientIp()` once for a request from your own phone and check it is your address.
+Limits live in `system_settings.rate_limits` (auth, write, search, upload, AI) and in the call sites (`grep enforceRateLimit`).
+Without `REDIS_URL` limits are per server process, which is not a global limit on a multi-instance deployment.
+
+## Reporting what was audited
+
+The 2026-10-21 audit, its findings, what was fixed and what could not be verified are in [security-audit.md](security-audit.md).
 
 ## Privacy decisions worth knowing
 
@@ -49,6 +64,7 @@ vulnerability. Please include steps to reproduce; do not access data that is not
   or another edge in front for volumetric protection.
 - Email addresses are visible to administrators with `users.view` (needed for support). Restrict that role.
 - Account recovery depends on email access. There is no SMS or authenticator-app second factor yet.
+- Uploaded PDFs are validated (magic bytes) but only scanned when `UPLOAD_SCAN_URL` points at a scanning service; none ships with the app. PDFs open inline from the storage domain (a different origin from the app).
 - The service worker never caches signed-in pages, so nothing private is left on a shared computer; that also means no
   offline reading.
 
@@ -62,7 +78,8 @@ vulnerability. Please include steps to reproduce; do not access data that is not
 - [ ] HTTPS only; HSTS reviewed before adding `preload`
 - [ ] Resend domain verified (SPF, DKIM, DMARC at least `p=none`)
 - [ ] Backups restored once successfully
-- [ ] `npm audit --omit=dev` reviewed; dependencies updated
+- [ ] `npm audit --omit=dev` reviewed; dependencies updated (the framework's security releases are announced on nextjs.org/blog; `npm audit` can lag them)
+- [ ] `TRUSTED_PROXY_HOPS` matches the real proxy chain (see Rate limiting)
 - [ ] Privacy policy and terms reviewed by the college; contact/support address monitored
 
 ## Dependency and release hygiene

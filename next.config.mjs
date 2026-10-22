@@ -11,8 +11,12 @@ const mediaHost = (() => {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Lets a verification build (CI, a local production check) run beside a development server without sharing `.next`.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   productionBrowserSourceMaps: false,
   poweredByHeader: false,
+  // Next.js buffers a request body for the proxy; keep that ceiling equal to MAX_UPLOAD_BODY_BYTES (lib/storage/policy.js).
+  experimental: { proxyClientMaxBodySize: "12mb" },
   images: {
     remotePatterns: [{ protocol: "http", hostname: "localhost" }, ...(mediaHost ? [mediaHost] : [])],
   },

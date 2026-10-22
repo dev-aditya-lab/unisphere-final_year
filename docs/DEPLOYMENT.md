@@ -79,6 +79,8 @@ No `openssl`? Use any password manager's "generate 64 hex characters".
 | `CRON_SECRET` | yes | Authenticates the background job caller |
 | `RESEND_API_KEY`, `EMAIL_FROM` | yes in practice | e.g. `UniSphere <no-reply@your-domain>` |
 | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_R2_ACCESS_KEY_ID`, `CLOUDFLARE_R2_SECRET_ACCESS_KEY`, `CLOUDFLARE_R2_BUCKET_NAME` | for uploads | |
+| `TRUSTED_PROXY_HOPS` | recommended | How many reverse proxies append to `X-Forwarded-For` (default `1`: Vercel, Render, Caddy/Nginx; `2` with Cloudflare in front). Per-IP rate limits depend on it: see [SECURITY.md](SECURITY.md#rate-limiting) |
+| `UPLOAD_SCAN_URL`, `UPLOAD_SCAN_TOKEN` | optional | A malware-scanning service for PDF uploads. Without it PDFs are validated but not scanned |
 | `REDIS_URL` | optional | Upstash `rediss://default:<password>@<host>:6379` |
 | `GROQ_API_KEY` (+ `AI_ENABLED=true`) | optional | AI features |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | optional | Push. Public key is **build-time** |

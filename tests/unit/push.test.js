@@ -30,7 +30,7 @@ vi.mock("@/lib/supabase/admin", () => ({
 
 const { processPushNotifications, parseSubscription } = await import("@/lib/services/push");
 
-const sub = (id, userId) => ({ id, endpoint: `https://push.example.test/${id}`, p256dh: "k", auth: "a", failure_count: 0, userId });
+const sub = (id, userId) => ({ id, endpoint: `https://fcm.googleapis.com/fcm/send/${id}`, p256dh: "k", auth: "a", failure_count: 0, userId });
 const note = (over) => ({ id: crypto.randomUUID(), user_id: "u1", type: "reaction", category: "social", entity_id: crypto.randomUUID(), data: { title: "My post", slug: "my-post" }, actor_name: "Asha", ...over });
 
 beforeEach(() => {
@@ -83,6 +83,15 @@ describe("processPushNotifications", () => {
     await processPushNotifications();
     expect(state.deleted).toEqual([]);
     expect(state.updates.filter((u) => u.patch.failure_count === 1)).toHaveLength(2);
+  });
+
+  it("never calls an address that is not a browser push service, and drops the stored row (SSRF)", async () => {
+    state.subs = { u1: [{ ...sub("bad"), endpoint: "https://169.254.169.254/latest/meta-data/" }, sub("good")] };
+    state.claimed = [note({})];
+    const res = await processPushNotifications();
+    expect(res.pushed).toBe(1);
+    expect(state.sent.map((s) => s.endpoint ?? s.subscription?.endpoint)).not.toContain("https://169.254.169.254/latest/meta-data/");
+    expect(state.deleted).toContain("bad");
   });
 
   it("does nothing when nothing is waiting", async () => {

@@ -2,12 +2,9 @@ import { NextResponse } from "next/server";
 import { getEventBySlug } from "@/lib/services/campus";
 import { isValidSlug } from "@/lib/slug";
 import { publicEnv } from "@/lib/env-public";
+import { escapeIcs as esc, foldIcsLine as fold, icsStamp as stamp } from "@/lib/ics";
 
 export const dynamic = "force-dynamic";
-
-const esc = (s) => String(s ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
-const stamp = (iso) => new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-const fold = (line) => line.match(/.{1,73}/g)?.join("\r\n ") ?? line;
 
 /** iCalendar export for events the caller is allowed to see (visibility enforced by RLS). */
 export async function GET(_request, { params }) {

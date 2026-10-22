@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthUser, hasPermission } from "@/lib/auth/session";
 import { isSameOrigin } from "@/lib/security/origin";
 import { uploadFile } from "@/lib/storage/uploads";
-import { UPLOAD_PURPOSES } from "@/lib/storage/policy";
+import { MAX_UPLOAD_BODY_BYTES, UPLOAD_PURPOSES } from "@/lib/storage/policy";
 import { hasConsent } from "@/lib/privacy/consent";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +15,13 @@ export async function POST(request) {
   }
   const user = await getAuthUser();
   if (!user) return NextResponse.json({ ok: false, error: "Please log in." }, { status: 401 });
+
+  // Refuse an oversized body from its headers, before reading any of it. A body with no declared length (chunked) is
+  // still bounded by the framework's own buffer limit (experimental.proxyClientMaxBodySize, next.config.mjs).
+  const declared = Number(request.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > MAX_UPLOAD_BODY_BYTES) {
+    return NextResponse.json({ ok: false, error: "That file is too large.", code: "too_large" }, { status: 413 });
+  }
 
   let form;
   try {
