@@ -48,7 +48,12 @@ test.describe.serial("production readiness: security, SEO and accessibility", ()
     expect(csp).not.toMatch(/script-src[^;]*'unsafe-inline'/);
     // Only our own Supabase project and our own R2 storage (signed file URLs) may be named: no third-party origin at all.
     const origins = [...csp.matchAll(/(?:https?|wss?):\/\/[^\s;]+/g)].map((m) => m[0]);
-    for (const o of origins) expect(o, o).toMatch(/^(?:wss?|https?):\/\/(?:127\.0\.0\.1|localhost|\*?\.?[a-z0-9]+\.r2\.cloudflarestorage\.com)/);
+    // (plus the media host when a public bucket is configured: NEXT_PUBLIC_MEDIA_URL / CLOUDFLARE_R2_PUBLIC_URL)
+    const media = [process.env.NEXT_PUBLIC_MEDIA_URL, process.env.CLOUDFLARE_R2_PUBLIC_URL].filter(Boolean).map((u) => new URL(u).origin);
+    for (const o of origins) {
+      if (media.some((m) => o === m)) continue;
+      expect(o, o).toMatch(/^(?:wss?|https?):\/\/(?:127\.0\.0\.1|localhost|\*?\.?[a-z0-9]+\.r2\.cloudflarestorage\.com)/);
+    }
     // a different nonce on every request
     const again = (await request.get("/")).headers()["content-security-policy"];
     expect(again.match(/nonce-([^']+)/)[1]).not.toBe(csp.match(/nonce-([^']+)/)[1]);

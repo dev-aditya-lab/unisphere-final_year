@@ -60,11 +60,8 @@ test.describe.serial("registration → verification → onboarding", () => {
     await page.getByLabel("Headline").fill("Building things");
     await page.getByRole("button", { name: /Continue/ }).click();
 
-    // Step 2 – college (optional): search and pick an existing one
-    await page.getByRole("combobox", { name: /College/ }).fill("Greenfield");
-    await page.getByRole("option", { name: /Greenfield Institute/ }).click();
-    await expect(page.getByTestId("selected-college")).toContainText("Greenfield Institute");
-    await page.getByRole("button", { name: /^Continue$/ }).click();
+    // Step 2 – schools and colleges (optional, added through the education editor): skipped here
+    await page.getByRole("button", { name: /Continue without a college/ }).click();
 
     // Step 3 – skills
     await page.getByRole("textbox", { name: "Skills" }).fill("Python");
@@ -96,7 +93,7 @@ test.describe.serial("registration → verification → onboarding", () => {
     await page.goto("/settings/security");
     await page.getByRole("button", { name: "Open account menu" }).click();
     await page.getByRole("menuitem", { name: /Log out/ }).click();
-    await expect(page).toHaveURL(/localhost:3000\/?$/);
+    await expect(page).toHaveURL(/localhost:\d+\/?$/);
     await page.goto("/settings/profile");
     await expect(page).toHaveURL(/\/login/);
   });
