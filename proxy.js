@@ -3,6 +3,7 @@ import { updateSession } from "@/lib/supabase/proxy";
 import { isGuestOnlyPath, isProtectedPath } from "@/lib/routes";
 import { BLUE_TICK_PATH } from "@/lib/blue-tick";
 import { buildCsp, newNonce } from "@/lib/security/csp";
+import { REF_COOKIE, REF_COOKIE_MAX_DAYS, REF_PARAM, makeRefCookieValue, normalizeRefCode } from "@/lib/referrals/core";
 
 /**
  * Edge of the app: keeps the Supabase session fresh, redirects anonymous visitors away
@@ -92,7 +93,23 @@ export async function proxy(request) {
     }
   }
 
-  return secure(session.next());
+  const response = secure(session.next());
+  // An invite link (?ref=CODE) opened by someone who is not signed in is remembered for the sign-up. Only a well-formed code is
+  // stored, with the time, in a first-party cookie the page script cannot read. It proves nothing: the server re-checks the
+  // code, its age and the whole relationship when an account is created, and again before any reward.
+  if (!signedIn && request.method === "GET" && !pathname.startsWith("/api/")) {
+    const ref = normalizeRefCode(request.nextUrl.searchParams.get(REF_PARAM));
+    if (ref) {
+      response.cookies.set(REF_COOKIE, makeRefCookieValue(ref), {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: REF_COOKIE_MAX_DAYS * 86_400,
+      });
+    }
+  }
+  return response;
 }
 
 export const config = {

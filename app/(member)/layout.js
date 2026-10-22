@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { AppShell } from "@/components/shell/app-shell";
 import { getMyPermissions, requireProfile } from "@/lib/auth/session";
 import { getUnreadCounts } from "@/lib/services/notifications";
@@ -5,6 +6,7 @@ import { getFlags } from "@/lib/settings";
 import { ReviewBanner } from "@/components/privacy/review-banner";
 import { gateFor } from "@/lib/privacy/gate-server";
 import { NOTICE_VERSION } from "@/lib/privacy/registry";
+import { ReferralPromptGate } from "@/components/referrals/referral-prompt-gate";
 
 // Everything under (member) requires a signed-in, onboarded member in good standing: the app pages in (app) and the
 // content pages in (content) (posts, profiles, projects, events...). They share this one layout on purpose. A layout
@@ -21,6 +23,10 @@ export default async function MemberLayout({ children }) {
       {gate.state === "review_soft" && <ReviewBanner kind="soft" version={NOTICE_VERSION} />}
       {gate.state === "notice_updated" && <ReviewBanner kind="updated" version={NOTICE_VERSION} />}
       {children}
+      {/* The Refer & Earn reminder: mounted only when the server says one is due, and never in the way of the page. */}
+      <Suspense fallback={null}>
+        <ReferralPromptGate />
+      </Suspense>
     </AppShell>
   );
 }

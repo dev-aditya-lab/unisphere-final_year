@@ -11,6 +11,7 @@ import { ComposeLink } from "@/components/shell/compose-link";
 import { NavIcon } from "@/components/shell/nav-icons";
 import { CountBadge } from "@/components/motion/count-badge";
 import { MoreDot, OrbitMoreCard, OrbitNavMark } from "@/components/orbits/nav-bits";
+import { ReferNavChip, ReferNavMark } from "@/components/referrals/nav-mark";
 import { MOBILE_BOTTOM_HREFS, NAV_GROUPS, shouldPrefetch } from "@/lib/nav";
 import { NavPending } from "@/components/shell/nav-pending";
 import { EASE } from "@/lib/motion";
@@ -74,13 +75,15 @@ function MoreSheet({ open, onOpenChange, items, counts, liveMessages }) {
                         className={cn(
                           "relative flex min-h-[4.5rem] flex-col items-center justify-center gap-1.5 rounded-xl border px-1 py-2 text-center text-xs font-semibold transition-colors",
                           active ? "border-primary/40 bg-primary-soft text-primary-text" : "bg-card text-foreground hover:bg-accent",
+                          href === "/referrals" && !active && "border-[var(--orbit-line)] bg-gradient-to-b from-primary-soft/70 to-card",
                         )}
                       >
                         <span className="relative">
-                          {href === "/orbits" ? <OrbitNavMark size={30} /> : <NavIcon name={icon} active={active} size={26} />}
+                          {href === "/orbits" ? <OrbitNavMark size={30} /> : href === "/referrals" ? <ReferNavMark size={26} active={active} /> : <NavIcon name={icon} active={active} size={26} />}
                           <CountBadge value={count ?? 0} label="unread" className="absolute -top-2 -right-3 h-4 min-w-4 px-1 text-[10px]" />
                         </span>
                         <span className="w-full truncate">{label}</span>
+                        {href === "/referrals" && <ReferNavChip className="absolute top-1.5 right-1.5" />}
                       </Link>
                     </li>
                   );

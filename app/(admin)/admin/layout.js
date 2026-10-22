@@ -21,6 +21,7 @@ async function queueCounts(names) {
   if (names.has("contact.manage")) jobs.push(supabase.from("contact_messages").select("id", { count: "exact", head: true }).eq("status", "new").then(({ count }) => { counts.support = count ?? 0; }));
   if (names.has("users.delete")) jobs.push(supabase.rpc("admin_list_deletions", { p_status: "pending" }).then(({ data }) => { counts.deletions = data?.length ?? 0; }));
   if (names.has("feedback.manage")) jobs.push(supabase.rpc("admin_list_feedback", { p_status: "new", p_limit: 1 }).then(({ data }) => { counts.feedback = Number(data?.[0]?.total_count ?? 0); }));
+  if (names.has("referrals.view")) jobs.push(supabase.rpc("referral_admin_list", { p_status: "flagged", p_limit: 1 }).then(({ data }) => { counts.referrals = Number(data?.[0]?.total_count ?? 0); }));
   if (names.has("privacy.requests")) jobs.push(supabase.rpc("privacy_request_counts").then(({ data }) => { counts.privacyRequests = Number(data?.open ?? 0); }));
   await Promise.all(jobs);
   return counts;

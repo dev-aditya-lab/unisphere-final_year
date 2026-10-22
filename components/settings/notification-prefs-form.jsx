@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { useUnsavedGuard } from "@/hooks/use-unsaved-guard";
 import { savePreferencesAction } from "@/lib/actions/notifications";
+import { IN_APP_ONLY_CATEGORIES } from "@/lib/notification-text";
 
 export function NotificationPrefsForm({ initial }) {
   const [prefs, setPrefs] = useState(initial);
@@ -48,10 +49,17 @@ export function NotificationPrefsForm({ initial }) {
               <Label htmlFor={`${p.value}-app`} className="text-muted-foreground text-[11px] sm:sr-only">In app</Label>
               <Switch id={`${p.value}-app`} checked={p.in_app} disabled={p.value === "moderation"} onCheckedChange={(v) => set(p.value, "in_app", v)} aria-label={p.value === "moderation" ? `${p.label}: in app, always on` : `${p.label}: in app`} />
             </div>
-            <div className="flex flex-col items-center gap-1">
-              <Label htmlFor={`${p.value}-email`} className="text-muted-foreground text-[11px] sm:sr-only">Email</Label>
-              <Switch id={`${p.value}-email`} checked={p.email} onCheckedChange={(v) => set(p.value, "email", v)} aria-label={`${p.label}: email`} />
-            </div>
+            {IN_APP_ONLY_CATEGORIES.has(p.value) ? (
+              <div className="text-muted-foreground flex flex-col items-center gap-1 text-center text-[11px]">
+                <span aria-hidden="true">None</span>
+                <span className="sr-only">{p.label}: never sent by email</span>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-1">
+                <Label htmlFor={`${p.value}-email`} className="text-muted-foreground text-[11px] sm:sr-only">Email</Label>
+                <Switch id={`${p.value}-email`} checked={p.email} onCheckedChange={(v) => set(p.value, "email", v)} aria-label={`${p.label}: email`} />
+              </div>
+            )}
           </div>
         ))}
       </div>

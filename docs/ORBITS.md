@@ -20,6 +20,7 @@ trigger, cannot be negative, and cannot be written through the API. The browser 
 | Helpful answer | 5 (`helpful_answer`) | `helpful_daily_cap` per day | trigger on `comment_reactions`: the author of a *Question* post liked the answer; own answers and bystander likes pay nothing |
 | Streak milestone | `streak_bonus` JSON (3, 7, 14, 30, 60, 100, 365 days) | once per length per member | the streak counter |
 | Badge | per badge `bonus` | once per badge | trigger-driven check of trusted records |
+| Referral (Refer & Earn) | 100 (fixed in `_referral_credit`) | once per invited person | the qualification rule in [REFERRALS.md](REFERRALS.md): email confirmed, onboarded, active on 2 days |
 
 Not rewarded: likes given, follows, screen time, reposts, private posts, a second post the same day (it is still allowed, it just
 earns nothing), a removed post (its reward is reversed by a compensating entry and the day's reward is not offered again).
@@ -38,6 +39,12 @@ There are no freezes or recovery credits.
 ## Balance and earned
 
 The **Orbit Balance** is the sum of every ledger entry, corrections included. **Earned** is what the member did: it is the sum of `orbit_ledger.earned_amount`, which is fixed when an entry is written (migration `20260126000034_orbits_earned.sql`). A staff correction counts 0, taking back a correction counts 0, and reversing a reward counts its negative amount. "Earned today", the week bars, leaderboards (weekly, monthly and all time), season results, suspicious-earning checks and the "Orbits earned" badges all use earned, so a +1,000 correction can no longer show as "+1,025 today" beside "20 this week" or push someone toward a badge. The migration also withdraws, with a compensating entry, any "Orbits earned" badge that had only been reached through a correction.
+
+**Badge isolation (migration 0051).** Orbits from a source that is not an activity-based milestone still move the balance and the
+leaderboards, but not badge progress. `orbit_reward_sources.counts_for_badges` lists every ledger kind explicitly (`referral` and
+`manual_adjustment` are `false`); each entry gets `badge_amount` from it when written, `orbit_balances.badge_earned_total` sums it, and
+the "Orbits earned" badges, the "next badge" progress and the Orbit Elite season results read that column instead of `earned_total` /
+`earned_amount`. A new ledger kind must be added to the table, or it counts for nothing.
 
 ## Daily Challenge
 

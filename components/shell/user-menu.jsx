@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bug, LogOut, Monitor, Moon, Sun } from "lucide-react";
-import { Settings, ShieldCheck, Sparkles, User } from "@/components/icons/lucide-compat";
+import { Gift, Settings, ShieldCheck, Sparkles, User } from "@/components/icons/lucide-compat";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,6 +43,11 @@ export function UserMenu({ profile, isStaff }) {
         <DropdownMenuItem asChild>
           <Link href={`/u/${profile.username}`}>
             <User /> View profile
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/referrals">
+            <Gift /> Refer &amp; Earn
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

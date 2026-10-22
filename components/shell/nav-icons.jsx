@@ -18,6 +18,7 @@ const NAV_GLYPH = {
   Bookmark: "bookmark",
   MessageSquareHeart: "feedback",
   Settings: "gear",
+  Gift: "gift",
 };
 
 /** The navigation icon for a `NAV_ITEMS` entry. `active` marks the current destination (full colour, lifted); the rest are softly idle. */

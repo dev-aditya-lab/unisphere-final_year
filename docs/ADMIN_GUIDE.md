@@ -112,6 +112,21 @@ Changes apply within about 30 seconds and are audit-logged.
 - **Feature flags**: switch whole features (messaging, events, AI assistants…) off without a deployment.
 - **Legal text**: guidelines, privacy and terms (Markdown). Empty uses the built-in text.
 
+## Refer & Earn (global admins)
+
+**Admin → Refer & Earn** shows how invitations are going and lets you act on the few that need a human.
+
+* **Held for review**: a member whose friends qualify faster than the daily limit (10 in 24 hours by default) has the extra ones held. Open
+  one, read the evidence (each qualification condition is checked for you), then **Approve** (pays the 100 Orbits, once) or **Reject**.
+  A reason is required and goes in the audit log. Holding is not a penalty: it only asks a person to look.
+* **Abuse signals**: for example several referrals from one network. Shared hostel Wi-Fi is normal, so a signal never withholds a reward
+  by itself. It is a prompt to look.
+* **Reverse reward**: for confirmed abuse. It adds a compensating Orbits entry (never below zero, never other Orbits) and removes the
+  referral from the leaderboard. If the member already has fewer Orbits than the reward, the shortfall is recorded.
+* **Program settings**: switch the program, the reminder popup and the launch announcement on or off, and change how often the reminder
+  may appear. The 100 Orbit reward is fixed. **Export CSV** has ids, statuses and dates only: no names or emails.
+* Staff see usernames and dates, not emails or network data. Only global admins have these permissions.
+
 ## Analytics and audit
 
 **Analytics** shows counts only (members, posts, comments, messages, reports) for a date range and college, with CSV

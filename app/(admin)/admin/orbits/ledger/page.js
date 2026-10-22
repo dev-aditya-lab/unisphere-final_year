@@ -59,7 +59,8 @@ export default async function AdminLedgerPage({ searchParams }) {
             <td className={`px-4 py-3 font-semibold tabular-nums ${r.amount > 0 ? "text-success-text" : "text-destructive-text"}`}>{r.amount > 0 ? "+" : ""}{r.amount}</td>
             <td className="text-muted-foreground max-w-xs truncate px-4 py-3 text-xs">{r.reason ?? ([r.source_type, r.source_id].filter(Boolean).join(" ") || "—")}</td>
             <td className="px-4 py-3 text-right">
-              {r.amount > 0 && r.kind !== "reversal" && !r.reversed && (
+              {r.kind === "referral" && !r.reversed && <Link href="/admin/referrals" className="text-blue-text text-xs font-medium hover:underline">Reverse in Refer &amp; Earn</Link>}
+              {r.amount > 0 && r.kind !== "reversal" && r.kind !== "referral" && !r.reversed && (
                 <ActionDialog label="Reverse" destructive title="Reverse this reward?" description="A reversing entry takes the Orbits back (never below zero). The original stays in the ledger. Use it for confirmed abuse." action={reverseOrbitsAction} args={{ id: r.id }} reasonLabel="Reason (kept in the ledger and audit log)" confirmLabel="Reverse" />
               )}
             </td>

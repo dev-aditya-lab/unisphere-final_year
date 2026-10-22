@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/shell/page-header";
 import { Button } from "@/components/ui/button";
 import { ActivityList, AchievementTile, BalanceCard, Section, SeeAll, StreakCard } from "@/components/orbits/cards";
 import { ChallengeCard, DailyBonusCard, LeaderboardPreview } from "@/components/orbits/interactive";
+import { ReferralOrbitsEntry } from "@/components/referrals/orbits-entry";
 import { requireProfile } from "@/lib/auth/session";
 import { getAchievements, getDailyQuestion, getLeaderboard, getMyRank, getOverview } from "@/lib/services/orbits";
 
@@ -47,6 +48,7 @@ export default async function OrbitsPage() {
         <ChallengeCard question={question.data} />
         <StreakCard overview={o} />
         <BalanceCard overview={o} />
+        <ReferralOrbitsEntry />
         <LeaderboardPreview key={`${me.data?.score ?? 0}-${board.data?.[0]?.user_id ?? "none"}`} initial={{ rows: board.data ?? [], me: me.data }} meId={user.id} />
         <Section title="Orbit Badges" eyebrow="Achievements" action={<SeeAll href="/orbits/achievements">All badges</SeeAll>}>
           {recentBadges.length ? (

@@ -48,7 +48,7 @@ function ConsentCheck({ name, control, label, error }) {
   );
 }
 
-export function RegisterForm() {
+export function RegisterForm({ referralCode = null, inviterName = null }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState(null);
@@ -61,7 +61,7 @@ export function RegisterForm() {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(registerSchema),
-    defaultValues: { fullName: "", username: "", email: "", password: "", acceptTerms: false, acceptPrivacy: false, confirmAdult: false },
+    defaultValues: { fullName: "", username: "", email: "", password: "", acceptTerms: false, acceptPrivacy: false, confirmAdult: false, referralCode: referralCode ?? "" },
   });
 
   const username = useWatch({ control, name: "username" });
@@ -92,6 +92,11 @@ export function RegisterForm() {
     <div>
       <h1 className="text-3xl font-extrabold">Create your account</h1>
       <p className="text-muted-foreground mt-2 text-sm">UniSphere is free and open to everyone. You do not need a college.</p>
+      {inviterName && (
+        <FormAlert variant="info" className="mt-4">
+          <span data-testid="invite-banner">{inviterName} invited you to UniSphere.</span> There is nothing extra to do: create your account as usual.
+        </FormAlert>
+      )}
 
       {serverError && <FormAlert className="mt-6">{serverError}</FormAlert>}
 

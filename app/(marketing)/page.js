@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { UserX } from "@/components/icons/lucide-compat";
-import { BadgeCheck, CalendarDays, GraduationCap, Lightbulb, Lock, MessageSquareQuote, ShieldCheck, Sparkles, Users } from "@/components/icons/lucide-compat";
+import { BadgeCheck, CalendarDays, Gift, GraduationCap, Lightbulb, Lock, MessageSquareQuote, ShieldCheck, Sparkles, Trophy, Users } from "@/components/icons/lucide-compat";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Reveal } from "@/components/marketing/reveal";
 import { HeroStage } from "@/components/marketing/hero-stage";
 import { ProductShowcase } from "@/components/marketing/product-showcase";
 import { CampusGraph, OrbitRings, StepBuild, StepJoin, StepShare } from "@/components/marketing/illustrations";
+import { ReferralIllustration } from "@/components/referrals/referral-illustration";
 import { JsonLd } from "@/components/json-ld";
 import { HOME_FAQ_IDS, getFaq } from "@/lib/content/faq";
 import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE, CONTACT_EMAIL } from "@/lib/constants";
@@ -47,6 +48,12 @@ const AI_POINTS = [
   [Sparkles, "It shows its reasons", "Every suggestion links to a real post or project and says why it was suggested. Suggestions are labelled as AI, apart from facts."],
   [UserX, "It never publishes for you", "Writing help and improvements are proposals. Nothing is posted, sent or changed until you approve it."],
   [ShieldCheck, "It respects privacy", "Private posts, messages and verification documents are never sent to AI providers, and the rest of UniSphere works without AI."],
+];
+
+const REFER_POINTS = [
+  [Gift, "Your own invite link", "Share it anywhere: a message, a group chat, a poster. Opening a link earns nothing, so there is nothing to game."],
+  [Users, "Rewarded when a friend is really in", "You earn 100 Orbits, once, when a friend confirms their email, sets up their profile and uses UniSphere on two different days."],
+  [Trophy, "A leaderboard of its own", "See who brought the most friends this week and of all time. You see a status for each friend, never their name."],
 ];
 
 const TILES = [
@@ -274,10 +281,49 @@ export default function HomePage() {
         </p>
       </section>
 
-      {/* 8 · FAQ */}
+      {/* 8 · Refer & Earn */}
+      <section id="refer-and-earn" className="bg-sunken scroll-mt-16 border-y">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:items-center lg:py-28">
+          <Reveal>
+            <SectionLabel number="06">Refer &amp; Earn</SectionLabel>
+            <h2 className="display-sm">Invite friends. Earn 100 Orbits.</h2>
+            <p className="lede mt-5">
+              Bring the people you build with. Every friend who joins through your link and becomes an active member earns you 100 Orbits. Orbits are recognition for taking part, not money.
+            </p>
+            <ul className="mt-8 space-y-5">
+              {REFER_POINTS.map(([Icon, title, text]) => (
+                <li key={title} className="flex gap-4">
+                  <span className="tone-chip tone-plum flex size-10 shrink-0 items-center justify-center rounded-lg">
+                    <Icon className="size-5" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <h3 className="font-heading font-bold">{title}</h3>
+                    <p className="text-muted-foreground mt-0.5 text-[15px] leading-relaxed">{text}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Button asChild size="lg" variant="hot">
+                <Link href="/register">
+                  Join and get your link <ArrowRight />
+                </Link>
+              </Button>
+              <Link href="/faq" className="text-blue-text font-semibold underline underline-offset-4">How it works</Link>
+            </div>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <div className="surface group overflow-hidden transition-transform duration-300 hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+              <ReferralIllustration />
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* 9 · FAQ */}
       <section id="faq" className="mx-auto max-w-3xl scroll-mt-16 px-4 pb-20 sm:px-6 lg:pb-28">
         <Reveal>
-          <SectionLabel number="06">Questions</SectionLabel>
+          <SectionLabel number="07">Questions</SectionLabel>
           <h2 className="display-sm">Frequently asked questions</h2>
         </Reveal>
         <Accordion type="single" collapsible className="mt-10">
@@ -295,7 +341,7 @@ export default function HomePage() {
         </p>
       </section>
 
-      {/* 9 · Final call to action */}
+      {/* 10 · Final call to action */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
           <div className="bg-accent-hot text-accent-hot-foreground border-foreground relative overflow-hidden rounded-3xl border px-6 py-16 text-center shadow-[5px_5px_0_0_var(--hard)] sm:px-12">

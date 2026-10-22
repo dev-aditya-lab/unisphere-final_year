@@ -41,6 +41,14 @@ const GROUPS = [
     ],
   },
   {
+    title: "Recognition and rewards",
+    items: [
+      ["Orbits", "A daily bonus, a Daily Challenge, an Orbit Streak, badges and leaderboards that recognise taking part. Orbits cannot be bought, sold or exchanged."],
+      ["Refer & Earn", "Share your invite link and earn 100 Orbits for each friend who joins and becomes an active member, once per friend, with a referral leaderboard of its own."],
+      ["Privacy for rewards", "Choose whether you appear on leaderboards or show your balance. You never see the names of the friends you invited."],
+    ],
+  },
+  {
     title: "Trust and safety",
     items: [
       ["Your colleges, your way", "Add every school and college you belong to, past or present, and say whether you were a student, alumnus, teacher or staff member at each. If your department or course is not listed, add it yourself."],

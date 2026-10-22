@@ -633,3 +633,31 @@
 .orbit-pop { animation: pop var(--dur-slow) var(--ease-out) both; }
 @keyframes today-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 35%, transparent); } 50% { box-shadow: 0 0 0 5px transparent; } }
 .orbit-today { animation: today-pulse 2.6s ease-in-out infinite; }
+
+/* Refer & Earn artwork: two light loops (a gentle bob, twinkling stars). Transform and opacity only,
+   and none of them run for people who prefer reduced motion. */
+@keyframes ref-twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+@keyframes ref-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.ref-twinkle { animation: ref-twinkle 3.4s ease-in-out infinite; }
+.ref-bob { animation: ref-bob 6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .ref-twinkle, .ref-bob { animation: none; }
+}
+
+/* Refer & Earn navigation entry: a gift that hops every few seconds, a ring that breathes, a chip that shines.
+   Transform and opacity only; all of it stops for reduced motion. */
+@keyframes ref-nav-hop {
+  0%, 68%, 100% { transform: translateY(0) rotate(0); }
+  76% { transform: translateY(-3px) rotate(-9deg); }
+  84% { transform: translateY(0) rotate(7deg); }
+  92% { transform: translateY(-1px) rotate(-3deg); }
+}
+@keyframes ref-nav-glow { 0%, 100% { opacity: 0.25; transform: scale(0.92); } 50% { opacity: 0.85; transform: scale(1.18); } }
+@keyframes ref-nav-chip { 0%, 60%, 100% { transform: scale(1); } 70% { transform: scale(1.14); } 80% { transform: scale(1); } }
+.ref-nav-hop { animation: ref-nav-hop 5s ease-in-out infinite; transform-origin: 50% 80%; }
+.ref-nav-glow { animation: ref-nav-glow 3.2s ease-in-out infinite; }
+.ref-nav-chip { animation: ref-nav-chip 5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .ref-nav-hop, .ref-nav-glow, .ref-nav-chip { animation: none; }
+  .ref-nav-glow { opacity: 0.4; }
+}

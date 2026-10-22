@@ -10,6 +10,7 @@ import { EASE } from "@/lib/motion";
 import { NavIcon } from "@/components/shell/nav-icons";
 import { CountBadge } from "@/components/motion/count-badge";
 import { OrbitNavMark } from "@/components/orbits/nav-bits";
+import { ReferNavChip, ReferNavMark } from "@/components/referrals/nav-mark";
 import { useLiveMessageCount } from "@/lib/chat/unread-store";
 import { cn } from "@/lib/utils";
 
@@ -49,6 +50,7 @@ export function NavLinks({ items, counts = {}, onNavigate }) {
                       className={cn(
                         "group relative flex h-9 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors duration-150",
                         active ? "text-primary-text font-semibold" : "text-muted-foreground hover:text-foreground",
+                        href === "/referrals" && !active && "text-primary-text font-semibold shadow-[inset_0_0_0_1px_var(--orbit-line)] bg-gradient-to-r from-primary-soft/80 to-transparent",
                         href === "/orbits" && !active && "text-primary-text/90 hover:shadow-[inset_0_0_0_1px_var(--orbit-line),0_4px_14px_-8px_color-mix(in_srgb,var(--primary)_55%,transparent)]",
                       )}
                     >
@@ -59,8 +61,9 @@ export function NavLinks({ items, counts = {}, onNavigate }) {
                       ) : (
                         <span aria-hidden="true" className="bg-accent absolute inset-0 rounded-lg opacity-0 transition-opacity duration-150 group-hover:opacity-100" />
                       )}
-                      {href === "/orbits" ? <span className="relative"><OrbitNavMark size={28} /></span> : <NavIcon name={icon} active={active} size={22} className="relative" />}
+                      {href === "/orbits" ? <span className="relative"><OrbitNavMark size={28} /></span> : href === "/referrals" ? <ReferNavMark size={22} active={active} className="relative" /> : <NavIcon name={icon} active={active} size={22} className="relative" />}
                       <span className="relative flex-1 truncate">{label}</span>
+                      {href === "/referrals" && <ReferNavChip className="relative" />}
                       <CountBadge value={count ?? 0} label="unread" className="relative" />
                       <NavPending className="relative" />
                     </Link>
