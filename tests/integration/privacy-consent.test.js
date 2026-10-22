@@ -9,8 +9,8 @@ const record = (userId, purpose, status, source = "settings", version = V) =>
   admin.rpc("record_consent_for", { p_user: userId, p_purpose: purpose, p_status: status, p_notice_version: version, p_source: source });
 
 beforeAll(async () => {
-  alice = await createUser("consent-alice");
-  bob = await createUser("consent-bob");
+  alice = await createUser("consent-alice", { consent: false });
+  bob = await createUser("consent-bob", { consent: false });
   // The archive row consent records point at (the app publishes it on first use).
   await admin.rpc("publish_privacy_notice", {
     p_version: V, p_effective_at: "2026-10-21T00:00:00+05:30", p_hash: "test-hash-" + V, p_purposes: [], p_document: { policy: [] }, p_reconsent: [], p_summary: "test",
@@ -48,7 +48,7 @@ describe("who can write consent", () => {
 
 describe("recording and withdrawing", () => {
   it("keeps the current choice and an auditable history with the notice version and source", async () => {
-    const carol = await createUser("consent-carol");
+    const carol = await createUser("consent-carol", { consent: false });
     await record(carol.id, "ai_assist", "granted", "feature_prompt");
     await record(carol.id, "ai_assist", "withdrawn", "settings");
     await record(carol.id, "ai_assist", "granted", "settings");
@@ -61,7 +61,7 @@ describe("recording and withdrawing", () => {
   });
 
   it("records nothing for a repeat of the same choice under the same notice", async () => {
-    const dave = await createUser("consent-dave");
+    const dave = await createUser("consent-dave", { consent: false });
     expect((await record(dave.id, "ai_assist", "granted")).data.changed).toBe(true);
     expect((await record(dave.id, "ai_assist", "granted")).data.changed).toBe(false);
     const { count } = await admin.from("consent_events").select("id", { count: "exact", head: true }).eq("user_id", dave.id);
@@ -69,7 +69,7 @@ describe("recording and withdrawing", () => {
   });
 
   it("keeps purposes independent: withdrawing one leaves the others alone", async () => {
-    const erin = await createUser("consent-erin");
+    const erin = await createUser("consent-erin", { consent: false });
     await record(erin.id, "ai_assist", "granted");
     await record(erin.id, "ai_discovery_index", "granted");
     await record(erin.id, "ai_assist", "withdrawn");
@@ -93,7 +93,7 @@ describe("recording and withdrawing", () => {
   });
 
   it("does not corrupt the state when two tabs change the same choice at once", async () => {
-    const fay = await createUser("consent-fay");
+    const fay = await createUser("consent-fay", { consent: false });
     await Promise.all([record(fay.id, "ai_assist", "granted"), record(fay.id, "ai_assist", "withdrawn"), record(fay.id, "ai_assist", "granted"), record(fay.id, "ai_assist", "withdrawn")]);
     const { data: now } = await admin.from("consent_current").select("status").eq("user_id", fay.id).eq("purpose", "ai_assist");
     expect(now).toHaveLength(1);
@@ -105,7 +105,7 @@ describe("recording and withdrawing", () => {
 
 describe("what a choice switches", () => {
   it("keeps profiles.ai_assist_enabled in step with the ai_assist consent", async () => {
-    const gus = await createUser("consent-gus");
+    const gus = await createUser("consent-gus", { consent: false });
     expect((await admin.from("profiles").select("ai_assist_enabled").eq("id", gus.id).single()).data.ai_assist_enabled).toBe(false);
     await record(gus.id, "ai_assist", "granted");
     expect((await admin.from("profiles").select("ai_assist_enabled").eq("id", gus.id).single()).data.ai_assist_enabled).toBe(true);
@@ -114,13 +114,13 @@ describe("what a choice switches", () => {
   });
 
   it("new accounts start with AI off (nothing is on by default)", async () => {
-    const hal = await createUser("consent-hal");
+    const hal = await createUser("consent-hal", { consent: false });
     expect((await admin.from("profiles").select("ai_assist_enabled").eq("id", hal.id).single()).data.ai_assist_enabled).toBe(false);
     expect((await admin.rpc("has_consent", { p_user: hal.id, p_purpose: "ai_assist" })).data).toBe(false);
   });
 
   it("deletes the AI index of a member's content when they withdraw AI indexing", async () => {
-    const ira = await createUser("consent-ira");
+    const ira = await createUser("consent-ira", { consent: false });
     const vec = `[${Array(768).fill(0.01).join(",")}]`;
     await admin.from("embeddings").upsert({ entity_type: "profile", entity_id: ira.id, embedding: vec, content_hash: "h", model: "m" }, { onConflict: "entity_type,entity_id" });
     await record(ira.id, "ai_discovery_index", "granted");
@@ -132,7 +132,7 @@ describe("what a choice switches", () => {
 
 describe("history is append-only and survives erasure without identifying anyone", () => {
   it("cannot be edited or deleted", async () => {
-    const jo = await createUser("consent-jo");
+    const jo = await createUser("consent-jo", { consent: false });
     await record(jo.id, "ai_assist", "granted");
     const upd = await admin.from("consent_events").update({ status: "withdrawn" }).eq("user_id", jo.id);
     expect(upd.error?.message).toMatch(/append-only/);
@@ -141,7 +141,7 @@ describe("history is append-only and survives erasure without identifying anyone
   });
 
   it("loses its link to the member when the account is erased, and keeps nothing else about them", async () => {
-    const kay = await createUser("consent-kay");
+    const kay = await createUser("consent-kay", { consent: false });
     await record(kay.id, "ai_assist", "granted");
     const { data: before } = await admin.from("consent_events").select("id").eq("user_id", kay.id);
     expect(before).toHaveLength(1);

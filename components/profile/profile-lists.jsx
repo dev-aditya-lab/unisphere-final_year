@@ -11,8 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Field } from "@/components/forms/field";
+import { SettingsSection } from "@/components/settings/section";
 import { SubmitButton } from "@/components/forms/submit-button";
-import { achievementSchema, experienceSchema } from "@/lib/validators/profile";
+import { MAX_ACHIEVEMENTS, MAX_EXPERIENCES, achievementSchema, experienceSchema } from "@/lib/validators/profile";
 import { addAchievementAction, addExperienceAction, deleteAchievementAction, deleteExperienceAction } from "@/lib/actions/profile";
 
 function fmt(date) {
@@ -86,13 +87,10 @@ function AddDialog({ title, description, trigger, schema, defaults, action, chil
 
 export function AchievementsCard({ items }) {
   return (
-    <section id="achievements" className="surface scroll-mt-24 p-5 sm:p-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-bold">Achievements</h2>
-          <p className="text-muted-foreground mt-0.5 text-sm">Awards, hackathons, certifications, publications.</p>
-        </div>
-        <AddDialog
+    <SettingsSection id="achievements" title="Achievements" description="Awards, hackathons, certifications, publications." meta={items.length ? `${items.length} added` : null}>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-muted-foreground text-xs">{items.length} of {MAX_ACHIEVEMENTS}</p>
+        {items.length >= MAX_ACHIEVEMENTS ? <p className="text-muted-foreground text-xs">Limit reached. Remove one to add another.</p> : <AddDialog
           title="Add an achievement"
           description="Highlight something you are proud of."
           schema={achievementSchema}
@@ -122,12 +120,12 @@ export function AchievementsCard({ items }) {
               </div>
             </>
           )}
-        </AddDialog>
+        </AddDialog>}
       </div>
       {items.length === 0 ? (
-        <p className="text-muted-foreground mt-4 text-sm">Nothing here yet.</p>
+        <p className="text-muted-foreground text-sm">Nothing here yet.</p>
       ) : (
-        <ul className="mt-4 divide-y">
+        <ul className="divide-y">
           {items.map((a) => (
             <li key={a.id} className="flex items-start justify-between gap-3 py-3">
               <div className="min-w-0">
@@ -140,19 +138,16 @@ export function AchievementsCard({ items }) {
           ))}
         </ul>
       )}
-    </section>
+    </SettingsSection>
   );
 }
 
 export function ExperiencesCard({ items }) {
   return (
-    <section id="experience" className="surface scroll-mt-24 p-5 sm:p-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-bold">Career experience</h2>
-          <p className="text-muted-foreground mt-0.5 text-sm">Internships, jobs and research. Helps juniors find relevant mentors.</p>
-        </div>
-        <AddDialog
+    <SettingsSection id="experience" title="Career experience" description="Internships, jobs and research. Helps juniors find relevant mentors." meta={items.length ? `${items.length} added` : null}>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-muted-foreground text-xs">{items.length} of {MAX_EXPERIENCES}</p>
+        {items.length >= MAX_EXPERIENCES ? <p className="text-muted-foreground text-xs">Limit reached. Remove one to add another.</p> : <AddDialog
           title="Add experience"
           description="Where have you worked, interned or researched?"
           schema={experienceSchema}
@@ -186,12 +181,12 @@ export function ExperiencesCard({ items }) {
               </Field>
             </>
           )}
-        </AddDialog>
+        </AddDialog>}
       </div>
       {items.length === 0 ? (
-        <p className="text-muted-foreground mt-4 text-sm">Nothing here yet.</p>
+        <p className="text-muted-foreground text-sm">Nothing here yet.</p>
       ) : (
-        <ul className="mt-4 divide-y">
+        <ul className="divide-y">
           {items.map((x) => (
             <li key={x.id} className="flex items-start justify-between gap-3 py-3">
               <div className="min-w-0">
@@ -210,6 +205,6 @@ export function ExperiencesCard({ items }) {
           ))}
         </ul>
       )}
-    </section>
+    </SettingsSection>
   );
 }

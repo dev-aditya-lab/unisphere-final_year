@@ -98,6 +98,7 @@ test.describe.serial("Colleges, roles, skills and posts", () => {
     await page.goto("/settings/profile");
     await page.waitForLoadState("networkidle");
     await expect(page.getByRole("heading", { name: "Schools & colleges" })).toBeVisible();
+    await page.locator("details#college > summary").click(); // the card is folded until opened
     await expect(page.getByText("How you describe yourself")).toHaveCount(0);
     await page.getByRole("button", { name: "Remove Riverside University (demo)", exact: true }).click();
     await page.getByRole("button", { name: "Save profile" }).click();

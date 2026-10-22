@@ -1,5 +1,7 @@
-import { redirect } from "next/navigation";
+import { SettingsHub } from "@/components/settings/settings-nav";
+
+export const metadata = { title: "Settings" };
 
 export default function SettingsIndex() {
-  redirect("/settings/profile");
+  return <SettingsHub />;
 }

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { ProfileImageUpload } from "@/components/profile/image-upload";
 import { AchievementsCard, ExperiencesCard } from "@/components/profile/profile-lists";
+import { SettingsSection } from "@/components/settings/section";
 import { CompletionCard } from "@/components/profile/completion-card";
 import { requireProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -24,23 +25,26 @@ export default async function ProfileSettingsPage() {
   ]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-muted-foreground text-sm">Your profile page is at <span className="text-foreground font-mono">/u/{profile.username}</span>, visible to the members you allow.</p>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <p className="text-muted-foreground min-w-0 text-sm">
+          Your page: <span className="text-foreground font-mono break-all">/u/{profile.username}</span>
+        </p>
         <Button asChild variant="outline" size="sm">
           <Link href={`/u/${profile.username}`}>
-            <Eye /> Preview your profile
+            <Eye /> Preview
           </Link>
         </Button>
       </div>
 
       <CompletionCard profile={profile} />
 
-      <section id="photo" className="surface scroll-mt-24 space-y-6 p-5 sm:p-6">
-        <h2 className="text-lg font-bold">Photos</h2>
-        <ProfileImageUpload kind="avatar" currentKey={profile.avatar_key} name={profile.full_name} />
-        <ProfileImageUpload kind="cover" currentKey={profile.cover_key} name={profile.full_name} />
-      </section>
+      <SettingsSection id="photo" title="Photos" description="Your profile picture and cover.">
+        <div className="space-y-6">
+          <ProfileImageUpload kind="avatar" currentKey={profile.avatar_key} name={profile.full_name} />
+          <ProfileImageUpload kind="cover" currentKey={profile.cover_key} name={profile.full_name} />
+        </div>
+      </SettingsSection>
 
       <ProfileForm profile={profile} classInfo={classInfo.data} education={education} structures={structures} />
       <AchievementsCard items={achievements.data ?? []} />

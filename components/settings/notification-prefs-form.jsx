@@ -5,19 +5,26 @@ import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { SubmitButton } from "@/components/forms/submit-button";
+import { useUnsavedGuard } from "@/hooks/use-unsaved-guard";
 import { savePreferencesAction } from "@/lib/actions/notifications";
 
 export function NotificationPrefsForm({ initial }) {
   const [prefs, setPrefs] = useState(initial);
+  const [saved, setSaved] = useState(initial);
   const [pending, startTransition] = useTransition();
   const set = (category, key, value) => setPrefs((p) => p.map((x) => (x.value === category ? { ...x, [key]: value } : x)));
+
+  const dirty = JSON.stringify(prefs.map((p) => [p.in_app, p.email])) !== JSON.stringify(saved.map((p) => [p.in_app, p.email]));
+  useUnsavedGuard(dirty && !pending);
 
   function save(e) {
     e.preventDefault();
     startTransition(async () => {
       const res = await savePreferencesAction({ prefs: prefs.map((p) => ({ category: p.value, in_app: p.in_app, email: p.email })) });
-      if (res.ok) toast.success(res.message);
-      else toast.error(res.error);
+      if (res.ok) {
+        toast.success(res.message);
+        setSaved(prefs);
+      } else toast.error(res.error);
     });
   }
 
@@ -35,10 +42,11 @@ export function NotificationPrefsForm({ initial }) {
             <div>
               <p className="text-sm font-semibold">{p.label}</p>
               <p className="text-muted-foreground text-xs">{p.hint}</p>
+              {p.value === "moderation" && <p className="text-muted-foreground mt-0.5 text-xs">In-app notices stay on so you never miss a decision or the time to appeal.</p>}
             </div>
             <div className="flex flex-col items-center gap-1">
               <Label htmlFor={`${p.value}-app`} className="text-muted-foreground text-[11px] sm:sr-only">In app</Label>
-              <Switch id={`${p.value}-app`} checked={p.in_app} onCheckedChange={(v) => set(p.value, "in_app", v)} aria-label={`${p.label}: in app`} />
+              <Switch id={`${p.value}-app`} checked={p.in_app} disabled={p.value === "moderation"} onCheckedChange={(v) => set(p.value, "in_app", v)} aria-label={p.value === "moderation" ? `${p.label}: in app, always on` : `${p.label}: in app`} />
             </div>
             <div className="flex flex-col items-center gap-1">
               <Label htmlFor={`${p.value}-email`} className="text-muted-foreground text-[11px] sm:sr-only">Email</Label>
@@ -48,7 +56,7 @@ export function NotificationPrefsForm({ initial }) {
         ))}
       </div>
       <div className="flex justify-end">
-        <SubmitButton pending={pending} pendingText="Saving…">Save preferences</SubmitButton>
+        <SubmitButton pending={pending} pendingText="Saving…" disabled={!dirty}>Save preferences</SubmitButton>
       </div>
     </form>
   );

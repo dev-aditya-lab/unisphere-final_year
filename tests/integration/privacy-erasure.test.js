@@ -39,8 +39,8 @@ afterAll(cleanupUsers);
 
 /** A member with a bit of everything the erasure has to deal with. */
 async function populate(label) {
-  const u = await createUser(label);
-  const friend = await createUser(`${label}-friend`);
+  const u = await createUser(label, { consent: false });
+  const friend = await createUser(`${label}-friend`, { consent: false });
   await admin.from("profiles").update({ allow_messages_from: "everyone" }).in("id", [u.id, friend.id]);
   await admin.rpc("record_consent_for", { p_user: u.id, p_purpose: "ai_discovery_index", p_status: "granted", p_notice_version: V, p_source: "settings" });
   const post = (await u.client.from("posts").insert({ author_id: u.id, slug: slug(), body: "My idea for a campus app", visibility: "public" }).select("id").single()).data;

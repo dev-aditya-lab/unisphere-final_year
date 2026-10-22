@@ -20,7 +20,7 @@ export const anon = () => createClient(URL, PUBLISHABLE, noSession);
 const created = [];
 
 /** Creates a confirmed auth user (and, via trigger, its profile) and returns a client signed in as them. */
-export async function createUser(label, { accountType = "student", collegeId = GREENFIELD, visibility } = {}) {
+export async function createUser(label, { accountType = "student", collegeId = GREENFIELD, visibility, consent = true } = {}) {
   // accountType: null / collegeId: null model someone who joined without saying either.
   const email = `${label}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}@example.test`;
   const { data, error } = await admin.auth.admin.createUser({
@@ -40,7 +40,7 @@ export async function createUser(label, { accountType = "student", collegeId = G
 
   // A member who signed up through the form has recorded the two consents the account rests on; without them the privacy gate
   // sends every page to /privacy-review. (Skipped quietly if the notice archive has no row for this build yet.)
-  for (const purpose of ["core_service", "age_confirmation"]) {
+  for (const purpose of consent ? ["core_service", "age_confirmation"] : []) {
     await admin.rpc("record_consent_for", { p_user: id, p_purpose: purpose, p_status: "granted", p_notice_version: NOTICE_VERSION, p_source: "system" });
   }
 

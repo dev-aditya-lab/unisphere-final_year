@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { JumpLink } from "@/components/settings/jump-link";
 import { Circle } from "lucide-react";
 import { CheckCircle2 } from "@/components/icons/lucide-compat";
 import { Progress } from "@/components/ui/progress";
@@ -27,9 +27,9 @@ export function CompletionCard({ profile }) {
             {i.complete ? (
               <span className="text-muted-foreground line-through decoration-1">{i.label}</span>
             ) : (
-              <Link href={i.href} className="hover:text-primary font-medium underline-offset-2 hover:underline">
+              <JumpLink href={i.href} className="hover:text-primary font-medium underline-offset-2 hover:underline">
                 {i.label}
-              </Link>
+              </JumpLink>
             )}
           </li>
         ))}

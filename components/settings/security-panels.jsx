@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/forms/field";
 import { PasswordInput } from "@/components/forms/password-input";
 import { SubmitButton } from "@/components/forms/submit-button";
+import { SettingsSection } from "@/components/settings/section";
 import { FormAlert } from "@/components/forms/form-alert";
 import { changePasswordSchema } from "@/lib/validators/auth";
 import { changePasswordAction, signOutOtherSessionsAction } from "@/lib/actions/auth";
@@ -38,11 +39,9 @@ export function ChangePasswordCard() {
   }
 
   return (
-    <section className="surface p-5 sm:p-6">
-      <h2 className="text-lg font-bold">Change password</h2>
-      <p className="text-muted-foreground mt-0.5 text-sm">You will stay signed in here; other devices are signed out.</p>
-      {serverError && <FormAlert className="mt-4">{serverError}</FormAlert>}
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-4 max-w-sm space-y-4">
+    <SettingsSection id="password" title="Change password" description="You stay signed in here; other devices are signed out.">
+      {serverError && <FormAlert>{serverError}</FormAlert>}
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="max-w-sm space-y-4">
         <Field id="currentPassword" label="Current password" error={errors.currentPassword?.message}>
           <PasswordInput id="currentPassword" autoComplete="current-password" aria-describedby="currentPassword-desc" {...register("currentPassword")} />
         </Field>
@@ -56,18 +55,15 @@ export function ChangePasswordCard() {
           Update password
         </SubmitButton>
       </form>
-    </section>
+    </SettingsSection>
   );
 }
 
 export function SessionsCard() {
   const [pending, startTransition] = useTransition();
   return (
-    <section className="surface p-5 sm:p-6">
-      <h2 className="text-lg font-bold">Sessions</h2>
-      <p className="text-muted-foreground mt-0.5 text-sm">Lost a device or used a shared computer? Sign out everywhere else.</p>
+    <SettingsSection id="sessions" title="Signed-in devices" description="Lost a device or used a shared computer? Sign out everywhere else.">
       <Button
-        className="mt-4"
         variant="outline"
         disabled={pending}
         onClick={() =>
@@ -80,6 +76,6 @@ export function SessionsCard() {
       >
         {pending ? "Signing out…" : "Sign out of other devices"}
       </Button>
-    </section>
+    </SettingsSection>
   );
 }

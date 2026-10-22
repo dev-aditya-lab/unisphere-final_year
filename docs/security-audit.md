@@ -16,8 +16,7 @@ Status words: **PASS** (checked, evidence below), **FIXED** (a defect existed, n
    through Server Actions, which this app uses everywhere; two critical remote-code-execution issues in features this app
    does not use, `use cache` and SVG image optimisation). `npm audit` did **not** report them. Now on `next@16.4.2`,
    `react@19.3.1`. Anything running the old build must be redeployed. (FIXED in the repo; **deployment is yours**.)
-2. **Apply migrations 0036 to 0049 to the remote Supabase** (0049 is new here). Until then the remote database lacks the
-   link constraints and relationship-helper guard below.
+2. ~~Apply migrations 0036 to 0049~~ Verified on 2026-10-22: all of 0001 to 0049 are already applied on the remote. **Migration 0050 (settings guardrails, below) is new and local only.**
 3. **Set `TRUSTED_PROXY_HOPS` to match your hosting** and check it (see SECURITY.md, Rate limiting). Until you do, the default
    `1` is used.
 4. **Check R2 and Cloudflare in the dashboard** (section 9): private bucket has no public access or custom domain, public
@@ -203,3 +202,19 @@ after these changes, the CI workflow, behaviour behind a real proxy chain.
 - A revoked session stays valid for up to an hour for reads (documented in `getAuthUser`); sensitive actions use the strict check.
 - Fixed-window limiter allows bursts at window edges.
 - Email addresses are visible to staff with `users.view`.
+
+## 8. Follow-up 2026-10-22: settings area
+
+Reorganised for phones and hardened (`docs` of the change are in the commit):
+- `/settings` is now a menu (one row per area, grouped), each area is its own page with a back link, and desktop gets a sticky
+  sidebar. The horizontally scrolling tab strip, which cut off "Notifications", is gone.
+- Long pages (profile, privacy, security) are folded cards; a card opens by itself when a checklist link points at it or when
+  a field inside has an error (and focus moves to that field). Unsaved edits trigger a browser warning on close/reload.
+- Things a member could break, now prevented in the app and in the database (migration 0050, local only until applied):
+  more than 30 achievements or 20 experiences; tag items over 40 characters or blank; social links other than LinkedIn/X or
+  non-http(s); choosing profile visibility "My college" without a college (and removing the last college afterwards, which
+  now falls back to "Connections only"); switching off the in-app "Moderation & account" notices. Privacy and profile-list
+  saves are rate limited. "Only me" now explains what it does, and the delete-account card says nothing is deleted by opening it.
+- Tests: `tests/integration/settings-guardrails.test.js` (9), `tests/e2e/settings.spec.js` (7, at 360 px). Test users now get
+  the two signup consents by default (`createUser(..., { consent: false })` for the privacy-gate tests).
+- Not changed: the blue-tick page and the notification list layout (already single-column).

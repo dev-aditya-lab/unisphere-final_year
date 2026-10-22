@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { FormAlert } from "@/components/forms/form-alert";
+import { SettingsSection } from "@/components/settings/section";
+import { useUnsavedGuard } from "@/hooks/use-unsaved-guard";
 import { updateOrbitPrivacyAction } from "@/lib/actions/orbits";
 
 const CHOICES = [
@@ -27,6 +29,8 @@ export function OrbitsPrivacyForm({ profile }) {
   const [error, setError] = useState(null);
   const [pending, startTransition] = useTransition();
 
+  useUnsavedGuard(dirty && !pending);
+
   function save(e) {
     e.preventDefault();
     setError(null);
@@ -40,12 +44,9 @@ export function OrbitsPrivacyForm({ profile }) {
   }
 
   return (
-    <form onSubmit={save} className="surface mt-6 space-y-4 p-5 sm:p-6" aria-labelledby="orbits-privacy-title">
-      <div>
-        <h2 id="orbits-privacy-title" className="text-lg font-bold">Orbits</h2>
-        <p className="text-muted-foreground mt-0.5 text-sm">Choose what others can see about your Orbits.</p>
-      </div>
-      {error && <FormAlert>{error}</FormAlert>}
+    <SettingsSection id="orbits" title="Orbits" description="What others can see about your Orbits.">
+      <form onSubmit={save} className="space-y-4">
+        {error && <FormAlert>{error}</FormAlert>}
       {CHOICES.map((c) => (
         <div key={c.key} className="flex items-start justify-between gap-4 rounded-md border p-3">
           <div>
@@ -58,6 +59,7 @@ export function OrbitsPrivacyForm({ profile }) {
       <div className="flex justify-end">
         <SubmitButton pending={pending} pendingText="Saving…" disabled={!dirty}>Save Orbits privacy</SubmitButton>
       </div>
-    </form>
+      </form>
+    </SettingsSection>
   );
 }

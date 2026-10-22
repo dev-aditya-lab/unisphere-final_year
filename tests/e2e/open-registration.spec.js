@@ -123,6 +123,7 @@ test.describe.serial("open registration", () => {
     await login(page, newcomer.email, newcomer.password);
     await page.goto("/settings/profile");
     await page.waitForLoadState("networkidle");
+    await page.locator("details#college > summary").click(); // folded until opened
     const box = page.getByRole("combobox", { name: /College/ });
     await box.fill(collegeName);
     await expect(page.getByRole("option", { name: new RegExp(`Add .${word}`) })).toBeVisible();
@@ -223,6 +224,7 @@ test.describe.serial("open registration", () => {
     await login(page, u.email);
     await page.goto("/settings/profile");
     await page.waitForLoadState("networkidle");
+    await page.locator("details#college > summary").click(); // folded until opened
     await page.getByRole("combobox", { name: /College/ }).fill(word);
     const option = page.getByRole("option", { name: new RegExp(collegeName) });
     await expect(option).toBeVisible();

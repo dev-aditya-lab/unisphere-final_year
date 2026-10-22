@@ -2,8 +2,7 @@ import Link from "next/link";
 import { Download } from "lucide-react";
 import { Scale } from "@/components/icons/lucide-compat";
 import { Pencil, ShieldOff, Trash2, UserRoundCheck } from "@/components/icons/lucide-compat";
-import { PageHeader } from "@/components/shell/page-header";
-import { SettingsNav } from "@/components/settings/settings-nav";
+import { SettingsShell } from "@/components/settings/settings-nav";
 import { CorrectionForm, NominationForm, OtherRequestForm } from "@/components/privacy/request-forms";
 import { RequestStatusBadge, fmtDate } from "@/components/privacy/request-status";
 import { requireProfile } from "@/lib/auth/session";
@@ -29,9 +28,7 @@ export default async function PrivacyRequestsPage() {
   const [requests, nomination] = await Promise.all([listMyRequests(), getMyNomination()]);
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <PageHeader eyebrow="Account" title="Settings" />
-      <SettingsNav />
+    <SettingsShell>
       <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
         Use your rights over your personal data here: get a copy, correct it, delete it, change your consents, name someone to act for you, or complain. Everything you ask for is recorded with a reference number, and you can follow it below. Questions: {privacyContact.name},{" "}
         <a className="text-blue-text underline" href={`mailto:${privacyContact.email}`}>{privacyContact.email}</a>.
@@ -111,6 +108,6 @@ export default async function PrivacyRequestsPage() {
           )}
         </section>
       </div>
-    </div>
+    </SettingsShell>
   );
 }

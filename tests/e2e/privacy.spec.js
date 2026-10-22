@@ -95,7 +95,7 @@ test.describe("visitors", () => {
 
 test.describe("members", () => {
   test("an account with no recorded consent must review before using the app; saying under 18 restricts it and offers deletion", async ({ page }) => {
-    const u = await createUser(`e2e-new-${run}`);
+    const u = await createUser(`e2e-new-${run}`, { consent: false });
     await login(page, u.email);
     await page.goto("/feed");
     await expect(page).toHaveURL(/\/privacy-review/);
@@ -111,7 +111,7 @@ test.describe("members", () => {
   });
 
   test("an existing member sees a soft banner, reviews in a minute, and nothing optional is switched on", async ({ page }) => {
-    const u = await createUser(`e2e-legacy-${run}`);
+    const u = await createUser(`e2e-legacy-${run}`, { consent: false });
     await admin.from("profiles").update({ created_at: "2026-01-01T00:00:00Z" }).eq("id", u.id);
     await login(page, u.email);
     await page.goto("/feed");

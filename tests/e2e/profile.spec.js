@@ -14,6 +14,12 @@ async function login(page, email) {
   await expect(page).not.toHaveURL(/\/login/);
 }
 
+/** Settings cards are folded; open one before using a field inside it. */
+async function unfold(page, id) {
+  const card = page.locator(`details#${id}`);
+  if ((await card.getAttribute("open")) === null) await card.locator("> summary").click();
+}
+
 test.describe.serial("profile settings", () => {
   let u;
   test.beforeAll(async () => {
@@ -25,8 +31,10 @@ test.describe.serial("profile settings", () => {
     await page.goto("/settings/profile");
     await page.getByLabel("Headline").fill("Embedded systems tinkerer");
     await page.getByLabel("Bio").fill("I build small things with microcontrollers.");
+    await unfold(page, "skills");
     await page.getByRole("textbox", { name: "Skills" }).fill("C++");
     await page.keyboard.press("Enter");
+    await unfold(page, "links");
     await page.getByLabel("GitHub").fill("https://github.com/example");
     await page.getByRole("button", { name: "Save profile" }).click();
     await expect(page.getByText("Profile saved.")).toBeVisible();
@@ -45,6 +53,7 @@ test.describe.serial("profile settings", () => {
   test("rejects an invalid URL before saving", async ({ page }) => {
     await login(page, u.email);
     await page.goto("/settings/profile");
+    await unfold(page, "links");
     // Wait for hydration to restore the saved value before replacing it.
     await expect(page.getByLabel("GitHub")).toHaveValue("https://github.com/example");
     await page.getByLabel("GitHub").fill("javascript:alert(1)");

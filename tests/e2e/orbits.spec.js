@@ -190,6 +190,7 @@ test.describe.serial("Orbits", () => {
     // the owner hides everything: the other member's view loses the balance and the badges
     const own = await as(browser, "viewer");
     await go(own.page, "/settings/privacy");
+    await own.page.locator("details#orbits > summary").click(); // the Orbits card is folded until opened
     await own.page.getByLabel("Show my Orbit Balance on my profile").click();
     await own.page.getByLabel("Show my badges and streak").click();
     await own.page.getByLabel("Appear on Orbit leaderboards").click();

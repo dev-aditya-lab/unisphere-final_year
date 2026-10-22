@@ -17,17 +17,19 @@ import { UsernameField } from "@/components/forms/username-field";
 import { EducationEditor } from "@/components/profile/education-editor";
 import { profileSchema } from "@/lib/validators/profile";
 import { updateProfileAction } from "@/lib/actions/profile";
+import { SettingsSection } from "@/components/settings/section";
+import { useUnsavedGuard } from "@/hooks/use-unsaved-guard";
 import { AVAILABILITY, COLLABORATION_ROLES } from "@/lib/constants";
 
-function Section({ id, title, description, children }) {
-  return (
-    <section id={id} className="surface scroll-mt-24 p-5 sm:p-6">
-      <h2 className="text-lg font-bold">{title}</h2>
-      {description && <p className="text-muted-foreground mt-0.5 text-sm">{description}</p>}
-      <div className="mt-5 space-y-4">{children}</div>
-    </section>
-  );
-}
+// Which fields live in which folded section, so a section with an error always opens.
+const SECTION_FIELDS = {
+  basics: ["fullName", "username", "headline", "bio"],
+  college: ["education", "currentYear", "currentSemester"],
+  skills: ["skills", "interests"],
+  collaboration: ["preferredRoles", "availability"],
+  mentoring: ["jobTitle", "company", "industry", "mentoringTopics"],
+  links: ["githubUrl", "portfolioUrl", "linkedinUrl", "twitterUrl"],
+};
 
 function SwitchRow({ id, label, description, control, name }) {
   return (
@@ -94,6 +96,11 @@ export function ProfileForm({ profile, classInfo, education = [], structures = {
   const openToCollab = useWatch({ control, name: "openToCollaboration" });
   const openToMentoring = useWatch({ control, name: "openToMentoring" });
   const usernameValue = useWatch({ control, name: "username" });
+  useUnsavedGuard(isDirty && !pending);
+  const sec = (id) => ({ id, forceOpen: SECTION_FIELDS[id].some((f) => errors[f]) });
+
+  // A field with an error may sit in a folded section: once the sections have opened, move to the first one.
+  const focusFirstError = () => setTimeout(() => document.querySelector('form [aria-invalid="true"]')?.focus(), 60);
 
   function onSubmit(values) {
     setServerError(null);
@@ -109,10 +116,10 @@ export function ProfileForm({ profile, classInfo, education = [], structures = {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit, focusFirstError)} noValidate className="space-y-4">
       {serverError && <FormAlert>{serverError}</FormAlert>}
 
-      <Section id="basics" title="Basics" description="This is how you appear across UniSphere.">
+      <SettingsSection {...sec("basics")} title="Basics" description="This is how you appear across UniSphere." defaultOpen>
         <Field id="fullName" label="Full name" required error={errors.fullName?.message}>
           <Input id="fullName" autoComplete="name" aria-describedby="fullName-desc" {...register("fullName")} />
         </Field>
@@ -123,9 +130,10 @@ export function ProfileForm({ profile, classInfo, education = [], structures = {
         <Field id="bio" label="Bio" optional error={errors.bio?.message} hint="Up to 600 characters. Shown on your profile.">
           <Textarea id="bio" rows={4} maxLength={600} aria-describedby="bio-desc" {...register("bio")} />
         </Field>
-      </Section>
+      </SettingsSection>
 
-      <Section id="college" title="Schools & colleges" description="Optional. List where you study now, where you studied before, or where you teach or work, with your role at each. It helps you find people and communities, and it does not verify anything.">
+      <SettingsSection {...sec("college")} title="Schools & colleges" description="Optional. Where you study or work, and your role there.">
+        <p className="text-muted-foreground text-sm">List where you study now, where you studied before, or where you teach or work. It helps you find people and communities, and it does not verify anything.</p>
         <EducationEditor
           control={control}
           register={register}
@@ -134,18 +142,18 @@ export function ProfileForm({ profile, classInfo, education = [], structures = {
           initialColleges={Object.fromEntries(education.map((e) => [e.collegeId, e.college]))}
           initialStructures={structures}
         />
-      </Section>
+      </SettingsSection>
 
-      <Section id="skills" title="Skills & interests" description="Teammate suggestions are based only on what you list here.">
+      <SettingsSection {...sec("skills")} title="Skills & interests" description="Teammate suggestions are based only on what you list here.">
         <Field id="skills" label="Skills" error={errors.skills?.message}>
           <Controller control={control} name="skills" render={({ field }) => <TagInput id="skills" label="Skills" value={field.value} onChange={field.onChange} catalog="skill" placeholder="Add a skill and press Enter" />} />
         </Field>
         <Field id="interests" label="Interests" error={errors.interests?.message}>
           <Controller control={control} name="interests" render={({ field }) => <TagInput id="interests" label="Interests" value={field.value} onChange={field.onChange} catalog="interest" placeholder="Add an interest" />} />
         </Field>
-      </Section>
+      </SettingsSection>
 
-      <Section id="collaboration" title="Collaboration" description="Let project owners know when and how you can contribute.">
+      <SettingsSection {...sec("collaboration")} title="Collaboration" description="Let project owners know when and how you can contribute.">
         <SwitchRow id="openToCollaboration" name="openToCollaboration" control={control} label="Open to collaboration" description="Appear in teammate searches and recommendations." />
         {openToCollab && (
           <>
@@ -175,10 +183,10 @@ export function ProfileForm({ profile, classInfo, education = [], structures = {
             </Field>
           </>
         )}
-      </Section>
+      </SettingsSection>
 
       {(hasStaffRole || openToMentoring) && (
-        <Section id="mentoring" title="Experience & mentoring" description="Mentoring is optional. Your contact details are never shared automatically.">
+        <SettingsSection {...sec("mentoring")} title="Experience & mentoring" description="Mentoring is optional. Your contact details are never shared automatically.">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Field id="jobTitle" label="Role" optional error={errors.jobTitle?.message}>
               <Input id="jobTitle" aria-describedby="jobTitle-desc" {...register("jobTitle")} />
@@ -196,10 +204,10 @@ export function ProfileForm({ profile, classInfo, education = [], structures = {
               <Controller control={control} name="mentoringTopics" render={({ field }) => <TagInput id="mentoringTopics" label="Mentoring topics" value={field.value} onChange={field.onChange} max={10} placeholder="e.g. Interview prep, Higher studies" />} />
             </Field>
           )}
-        </Section>
+        </SettingsSection>
       )}
 
-      <Section id="links" title="Links" description="GitHub and portfolio links appear on your profile.">
+      <SettingsSection {...sec("links")} title="Links" description="GitHub and portfolio links appear on your profile.">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field id="githubUrl" label="GitHub" optional error={errors.githubUrl?.message}>
             <Input id="githubUrl" type="url" inputMode="url" placeholder="https://github.com/you" aria-describedby="githubUrl-desc" {...register("githubUrl")} />
@@ -214,7 +222,7 @@ export function ProfileForm({ profile, classInfo, education = [], structures = {
             <Input id="twitterUrl" type="url" inputMode="url" aria-describedby="twitterUrl-desc" {...register("twitterUrl")} />
           </Field>
         </div>
-      </Section>
+      </SettingsSection>
 
       <div className="bg-background/90 sticky bottom-16 z-10 flex items-center justify-end gap-3 rounded-lg border p-3 backdrop-blur lg:bottom-4">
         <p className="text-muted-foreground mr-auto text-xs" aria-live="polite">

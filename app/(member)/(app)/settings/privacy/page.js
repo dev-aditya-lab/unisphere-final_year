@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { readConsentHistory } from "@/lib/privacy/consent";
 import { gateFor } from "@/lib/privacy/gate-server";
 import { NOTICE_VERSION, OPTIONAL_PURPOSES, PURPOSE_BY_KEY } from "@/lib/privacy/registry";
+import { SettingsSection } from "@/components/settings/section";
 import { fmtDate } from "@/components/privacy/request-status";
 
 export const metadata = { title: "Privacy settings" };
@@ -21,7 +22,7 @@ export default async function PrivacySettingsPage() {
   const essentials = ["core_service", "age_confirmation"].map((k) => ({ p: PURPOSE_BY_KEY[k], c: profile.consents?.[k] }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {(gate.state === "review_soft" || gate.state === "review_required" || gate.state === "minor") && (
         <section className="surface border-warning/50 p-5 sm:p-6" aria-labelledby="review">
           <h2 id="review" className="text-lg font-bold">Please review your privacy choices</h2>
@@ -30,15 +31,16 @@ export default async function PrivacySettingsPage() {
         </section>
       )}
 
-      <section id="consents" aria-labelledby="consents-h" className="surface scroll-mt-24 p-5 sm:p-6">
-        <h2 id="consents-h" className="text-lg font-bold">Optional uses of your information</h2>
-        <p className="text-muted-foreground mt-0.5 mb-4 text-sm">All off until you turn them on. Turning one off takes effect straight away and does not affect the others or your account.</p>
-        <ConsentManager purposes={OPTIONAL_PURPOSES} consents={profile.consents ?? {}} />
-      </section>
+      <PrivacyForm profile={profile} />
 
-      <section className="surface p-5 sm:p-6" aria-labelledby="essential-h">
-        <h2 id="essential-h" className="text-lg font-bold">What your account rests on</h2>
-        <ul className="mt-3 space-y-2 text-sm">
+      <SettingsSection id="consents" title="Optional uses of your information" description="All off until you turn them on. Each switch saves straight away." defaultOpen>
+        <ConsentManager purposes={OPTIONAL_PURPOSES} consents={profile.consents ?? {}} />
+      </SettingsSection>
+
+      <OrbitsPrivacyForm profile={profile} />
+
+      <SettingsSection id="essential" title="What your account rests on" description="Agreed when you joined; these cannot be switched off.">
+        <ul className="space-y-2 text-sm">
           {essentials.map(({ p, c }) => (
             <li key={p.key} className="flex flex-wrap items-baseline justify-between gap-2">
               <span>{p.label}</span>
@@ -46,22 +48,18 @@ export default async function PrivacySettingsPage() {
             </li>
           ))}
         </ul>
-        <p className="text-muted-foreground mt-3 text-xs">
-          These cannot be switched off without leaving UniSphere. To withdraw them, <Link href="/delete-account" className="text-blue-text underline">delete your account</Link>. Current notice: {NOTICE_VERSION}.
+        <p className="text-muted-foreground text-xs">
+          They cannot be switched off without leaving UniSphere. To withdraw them, <Link href="/delete-account" className="text-blue-text underline">delete your account</Link>. Current notice: {NOTICE_VERSION}.
         </p>
-      </section>
+      </SettingsSection>
 
-      <PrivacyForm profile={profile} />
-      <OrbitsPrivacyForm profile={profile} />
-
-      <section className="surface p-5 sm:p-6" aria-labelledby="history-h">
-        <h2 id="history-h" className="text-lg font-bold">Your consent history</h2>
+      <SettingsSection id="history" title="Your consent history" description="Every choice you have made, newest first.">
         {history.length === 0 ? (
-          <p className="text-muted-foreground mt-2 text-sm">Nothing has been recorded yet.</p>
+          <p className="text-muted-foreground text-sm">Nothing has been recorded yet.</p>
         ) : (
-          <ol className="mt-3 space-y-1.5 text-sm">
+          <ol className="space-y-2 text-sm">
             {history.map((h) => (
-              <li key={h.id} className="flex flex-wrap items-baseline justify-between gap-x-3">
+              <li key={h.id} className="flex flex-col gap-0.5 sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-x-3">
                 <span>
                   <strong className="font-semibold">{STATUS_LABEL[h.status] ?? h.status}:</strong> {PURPOSE_BY_KEY[h.purpose]?.label ?? h.purpose}
                 </span>
@@ -72,10 +70,10 @@ export default async function PrivacySettingsPage() {
             ))}
           </ol>
         )}
-        <p className="text-muted-foreground mt-3 text-xs">
+        <p className="text-muted-foreground text-xs">
           More about your data: <Link href="/privacy-requests" className="text-blue-text underline">download a copy, correct it, or delete it</Link>.
         </p>
-      </section>
+      </SettingsSection>
     </div>
   );
 }
