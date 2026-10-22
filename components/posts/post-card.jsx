@@ -7,8 +7,8 @@ import { PostActions } from "@/components/posts/post-actions";
 import { PostMedia } from "@/components/posts/post-media";
 import { PostSummary } from "@/components/posts/post-summary";
 import { PostMenu } from "@/components/posts/post-menu";
-import { RichText } from "@/components/posts/rich-text";
-import { excerpt } from "@/lib/text";
+import { MarkdownText } from "@/components/posts/markdown-text";
+import { markdownExcerpt, markdownToPlain } from "@/lib/markdown";
 import { cn } from "@/lib/utils";
 
 const VISIBILITY_ICON = { public: Globe, college: GraduationCap, connections: Users, private: Lock, community: Users };
@@ -28,7 +28,7 @@ function OriginalEmbed({ post }) {
       <AuthorLine name={post.original_author_name} username={post.original_author_username} avatarKey={post.original_author_avatar_key} createdAt={post.original_created_at} size="xs" showType={false} />
       <Link href={href} className="mt-2 block">
         {post.original_title && <p className="font-heading font-semibold hover:underline">{post.original_title}</p>}
-        <p className="text-muted-foreground mt-0.5 text-sm [overflow-wrap:anywhere]">{excerpt(post.original_body, 220)}</p>
+        <p className="text-muted-foreground mt-0.5 text-sm [overflow-wrap:anywhere]">{markdownToPlain(post.original_body, 220)}</p>
       </Link>
     </div>
   );
@@ -115,7 +115,7 @@ export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed,
               )}
             </Heading>
           )}
-          <RichText text={long ? excerpt(post.body, 500) : post.body} className={cn("text-[15px] leading-[1.65] sm:text-base sm:leading-[1.7]", post.title && "mt-1.5")} />
+          <MarkdownText text={long ? markdownExcerpt(post.body, 500) : post.body} className={cn("text-[15px] leading-[1.65] sm:text-base sm:leading-[1.7]", post.title && "mt-1.5")} />
           {long && (
             <Link href={href} className="text-primary-text mt-1 inline-block text-sm font-semibold hover:underline">
               Read more

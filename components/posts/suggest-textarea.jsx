@@ -8,6 +8,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { BlueTick } from "@/components/ui/blue-tick";
 import { suggestHashtagsAction, suggestMentionsAction } from "@/lib/actions/discovery";
 import { findTrigger } from "@/lib/text-triggers";
+import { applyFormat } from "@/lib/markdown-edit";
 import { cn } from "@/lib/utils";
 
 const DEBOUNCE_MS = 150;
@@ -34,11 +35,19 @@ export function SuggestTextarea({ ref, value, onChange, onSuggestOpenChange, men
   const [active, setActive] = useState(0);
   const [dismissed, setDismissed] = useState(null); // the trigger position the member closed with Escape
   const pendingCaret = useRef(null);
+  const pendingSelection = useRef(null); // { start, end }: restored after a formatting command, so selected words stay selected
   const latest = useRef(0);
   const cache = useRef(new Map());
 
   // After an insertion the new text is rendered first; then the caret is placed right behind it.
   useLayoutEffect(() => {
+    if (pendingSelection.current && taRef.current) {
+      const { start, end } = pendingSelection.current;
+      pendingSelection.current = null;
+      taRef.current.focus({ preventScroll: true });
+      taRef.current.setSelectionRange(start, end);
+      return;
+    }
     if (pendingCaret.current === null || !taRef.current) return;
     const pos = pendingCaret.current;
     pendingCaret.current = null;
@@ -161,6 +170,20 @@ export function SuggestTextarea({ ref, value, onChange, onSuggestOpenChange, men
       el.focus();
       // Pre-filled or restored text: carry on from the end, not from the start.
       el.setSelectionRange(el.value.length, el.value.length);
+    },
+    /** Applies a Markdown command (bold, list, link...) to the current selection and keeps the selection afterwards. Returns false if it would not fit. */
+    format(kind) {
+      const el = taRef.current;
+      if (!el) return false;
+      const start = el.selectionStart ?? value.length;
+      const end = el.selectionEnd ?? start;
+      const edit = applyFormat(kind, value, start, end);
+      if (edit.value === value) return true;
+      if (props.maxLength && edit.value.length > props.maxLength) return false;
+      pendingSelection.current = { start: edit.start, end: edit.end };
+      setTrigger(null);
+      onChange(edit.value);
+      return true;
     },
     insertTrigger(char) {
       const el = taRef.current;

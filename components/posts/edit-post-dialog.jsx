@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { MarkdownEditor } from "@/components/posts/markdown-editor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Field } from "@/components/forms/field";
@@ -132,7 +132,7 @@ export function EditPostDialog({ open, onOpenChange, post }) {
             <Input id="edit-title" value={title} maxLength={140} onChange={(e) => setTitle(e.target.value)} aria-describedby="edit-title-desc" />
           </Field>
           <Field id="edit-body" label="Post" error={fieldErrors.body}>
-            <Textarea id="edit-body" rows={8} value={body} maxLength={10000} onChange={(e) => setBody(e.target.value)} aria-describedby="edit-body-desc" />
+            <MarkdownEditor id="edit-body" rows={8} value={body} maxLength={10000} onChange={setBody} aria-describedby="edit-body-desc" previewClassName="text-[15px] leading-[1.65]" />
           </Field>
         </div>
         <DialogFooter>

@@ -9,6 +9,7 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { CATEGORY_BY_VALUE } from "@/lib/content/post-meta";
 import { publicEnv } from "@/lib/env-public";
 import { excerpt } from "@/lib/text";
+import { markdownToPlain } from "@/lib/markdown";
 
 /** Shared body of /posts/[slug] and /ideas/[slug]. `aside` is reserved for contextual panels. */
 export async function PostPageContent({ post, viewerId, section = { href: "/feed", label: "Feed" }, children }) {
@@ -27,7 +28,7 @@ export async function PostPageContent({ post, viewerId, section = { href: "/feed
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{post.title || excerpt(post.body, 40) || "Post"}</BreadcrumbPage>
+            <BreadcrumbPage>{post.title || excerpt(markdownToPlain(post.body), 40) || "Post"}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -45,7 +46,7 @@ export async function PostPageContent({ post, viewerId, section = { href: "/feed
 export function postMetadata(post, path) {
   if (!post) return { title: "Post not found", robots: { index: false, follow: false } };
   const title = post.title || `${post.author_name} on UniSphere`;
-  const description = excerpt(post.body, 160) || `A post by ${post.author_name} on UniSphere.`;
+  const description = excerpt(markdownToPlain(post.body), 160) || `A post by ${post.author_name} on UniSphere.`;
   const isPublic = false; // closed network: member content is never indexed or given a public preview
   return {
     title,

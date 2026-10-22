@@ -11,7 +11,7 @@ const GROUPS = [
   {
     title: "Share and connect",
     items: [
-      ["Campus feed", "Posts, projects, ideas, questions, opportunities and achievements, with reactions, comments, reposts and bookmarks."],
+      ["Campus feed", "Posts, projects, ideas, questions, opportunities and achievements, with reactions, comments, reposts and bookmarks. Write with Markdown: bold, italic, lists, quotes, code and links, with a live preview."],
       ["Profiles", "Skills, interests, projects and achievements, with per-profile visibility. Profiles are visible only to signed-in members, and only to the people you allow."],
       ["Connections & messages", "Send connection requests, message people who allow it, and block or report anyone."],
     ],
@@ -21,7 +21,7 @@ const GROUPS = [
     items: [
       ["Idea discovery", "Find related posts, projects and discussions on your campus, with an explanation for each result."],
       ["Originality check", "See overlaps and differences before publishing a project idea. No accusations, only context."],
-      ["Writing assistant", "Improve clarity, suggest titles and tags, or structure a project description. You approve the final text."],
+      ["Writing assistant", "Write a caption from your own notes in a tone you choose, improve clarity, suggest titles and tags, or structure a project description. It only uses what you wrote, and you approve the final text."],
     ],
   },
   {

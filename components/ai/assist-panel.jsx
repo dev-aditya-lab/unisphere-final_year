@@ -2,11 +2,13 @@
 
 import { AiConsentPrompt } from "@/components/privacy/ai-consent-prompt";
 import { useState, useTransition } from "react";
-import { Check, Loader2, X } from "lucide-react";
+import { Check, Loader2, RotateCw, SlidersHorizontal, X } from "lucide-react";
 import { Search, ShieldCheck, Sparkles, Wand2 } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { RelatedResults } from "@/components/ai/related-results";
+import { MarkdownText } from "@/components/posts/markdown-text";
+import { TONES, TONE_BY_VALUE } from "@/lib/ai/tones";
 import { assistAction, discoverRelatedAction, ideaImprovementsAction, originalityCheckAction } from "@/lib/actions/ai";
 import { CATEGORY_BY_VALUE } from "@/lib/content/post-meta";
 
@@ -51,11 +53,17 @@ export function AssistPanel({ ai, category, title, body, setTitle, setBody, setC
   const [discovery, setDiscovery] = useState(null);
   const [improvements, setImprovements] = useState(null);
   const [message, setMessage] = useState(null);
+  // optional writing controls: collapsed by default so the composer stays quiet
+  const [tone, setTone] = useState("keep");
+  const [hashtags, setHashtags] = useState(false);
+  const [detailed, setDetailed] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
 
   if (ai?.needsConsent) return <AiConsentPrompt />;
   if (!ai || (!ai.assist && !ai.discovery)) return null;
 
   const enough = body.trim().length >= 20;
+  const enoughNotes = body.trim().length >= 10; // a caption can grow from a short note
   const canDiscover = ai.discovery && DISCOVERY_CATEGORIES.has(category);
   const ideaText = `${title ? title + ". " : ""}${body}`.trim();
 
@@ -73,7 +81,7 @@ export function AssistPanel({ ai, category, title, body, setTitle, setBody, setC
 
   function assist(task) {
     run(task, async () => {
-      const res = await assistAction({ task, category, title, body });
+      const res = await assistAction({ task, category, title, body, tone, hashtags: task === "write_caption" && hashtags, length: detailed ? "detailed" : "short" });
       if (res.ok) setSuggestion({ kind: task, data: res.data, meta: res.meta });
       else {
         setSuggestion(null);
@@ -113,6 +121,9 @@ export function AssistPanel({ ai, category, title, body, setTitle, setBody, setC
         </span>
         {ai.assist && (
           <>
+            <AssistButton busy={busy("write_caption")} disabled={Boolean(pendingTask) || !enoughNotes} onClick={() => assist("write_caption")}>
+              Write caption
+            </AssistButton>
             <AssistButton busy={busy("improve_clarity")} disabled={Boolean(pendingTask) || !enough} onClick={() => assist("improve_clarity")}>
               Improve writing
             </AssistButton>
@@ -148,7 +159,42 @@ export function AssistPanel({ ai, category, title, body, setTitle, setBody, setC
           </>
         )}
       </div>
-      {!enough && <p className="text-muted-foreground text-xs">Write a couple of sentences to unlock AI assist.</p>}
+      {ai.assist && (
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowOptions((v) => !v)}
+            aria-expanded={showOptions}
+            aria-controls="ai-writing-options"
+            className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/45 flex items-center gap-1.5 rounded-md text-xs font-medium outline-none focus-visible:ring-[3px]"
+          >
+            <SlidersHorizontal className="size-3.5" aria-hidden="true" />
+            Tone: {TONE_BY_VALUE[tone].label}
+            {(hashtags || detailed) && " · options"}
+          </button>
+          {showOptions && (
+            <div id="ai-writing-options" className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs" role="group" aria-label="Writing options">
+              <label className="flex items-center gap-2">
+                <span className="text-muted-foreground font-medium">Tone</span>
+                <select value={tone} onChange={(e) => setTone(e.target.value)} className="border-input bg-card h-8 rounded-md border px-2 text-xs">
+                  {TONES.map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex items-center gap-1.5">
+                <input type="checkbox" checked={hashtags} onChange={(e) => setHashtags(e.target.checked)} className="size-3.5" />
+                Suggest a few hashtags
+              </label>
+              <label className="flex items-center gap-1.5">
+                <input type="checkbox" checked={detailed} onChange={(e) => setDetailed(e.target.checked)} className="size-3.5" />
+                Longer
+              </label>
+            </div>
+          )}
+        </div>
+      )}
+      {!enoughNotes && <p className="text-muted-foreground text-xs">Write a few words to unlock AI assist.</p>}
       {message && (
         <p role="status" className="text-muted-foreground bg-muted/60 rounded-md px-3 py-2 text-sm">
           {message}
@@ -157,7 +203,7 @@ export function AssistPanel({ ai, category, title, body, setTitle, setBody, setC
 
       {suggestion?.kind === "improve_clarity" && (
         <SuggestionShell title="Clearer version" onDismiss={() => setSuggestion(null)}>
-          <p className="bg-card rounded-md border p-3 text-sm whitespace-pre-wrap">{suggestion.data.improved}</p>
+          <div className="bg-card rounded-md border p-3 text-sm"><MarkdownText text={suggestion.data.improved} /></div>
           {suggestion.data.changes.length > 0 && (
             <ul className="text-muted-foreground mt-2 list-disc pl-5 text-xs">
               {suggestion.data.changes.map((c) => (
@@ -168,6 +214,36 @@ export function AssistPanel({ ai, category, title, body, setTitle, setBody, setC
           <div className="mt-3 flex gap-2">
             <Button type="button" size="sm" onClick={() => { setBody(suggestion.data.improved); setSuggestion(null); toast.success("Draft updated. You can still edit it."); }}>
               <Check /> Use this
+            </Button>
+            <Button type="button" size="sm" variant="ghost" onClick={() => setSuggestion(null)}>
+              Keep mine
+            </Button>
+          </div>
+        </SuggestionShell>
+      )}
+
+      {suggestion?.kind === "write_caption" && (
+        <SuggestionShell title="Caption" onDismiss={() => setSuggestion(null)}>
+          <div className="bg-card rounded-md border p-3 text-sm" data-testid="caption-suggestion"><MarkdownText text={suggestion.data.caption} /></div>
+          {suggestion.data.tags.length > 0 && (
+            <p className="text-muted-foreground mt-2 text-xs">Suggested tags: {suggestion.data.tags.map((t) => `#${t}`).join(" ")}</p>
+          )}
+          <p className="text-muted-foreground mt-2 text-xs">Written only from what you wrote. Check it, and edit anything, before you post.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => {
+                const tags = suggestion.data.tags.map((t) => `#${t}`).join(" ");
+                setBody(tags ? `${suggestion.data.caption}\n\n${tags}` : suggestion.data.caption);
+                setSuggestion(null);
+                toast.success("Draft updated. You can still edit it.");
+              }}
+            >
+              <Check /> Use this
+            </Button>
+            <Button type="button" size="sm" variant="outline" disabled={Boolean(pendingTask)} onClick={() => assist("write_caption")}>
+              {busy("write_caption") ? <Loader2 className="animate-spin" /> : <RotateCw />} Try another
             </Button>
             <Button type="button" size="sm" variant="ghost" onClick={() => setSuggestion(null)}>
               Keep mine

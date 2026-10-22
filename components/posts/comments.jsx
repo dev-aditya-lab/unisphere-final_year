@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { SuggestTextarea } from "@/components/posts/suggest-textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AuthorLine } from "@/components/posts/author-line";
-import { RichText } from "@/components/posts/rich-text";
+import { MarkdownText } from "@/components/posts/markdown-text";
 import { ReportDialog } from "@/components/posts/report-dialog";
 import { UserAvatar } from "@/components/user-avatar";
 import { addCommentAction, deleteCommentAction, editCommentAction, setCommentLikeAction } from "@/lib/actions/posts";
@@ -190,7 +190,7 @@ function CommentItem({ comment, replies, viewer, postId, depth, onAdded, onChang
                 </div>
               </div>
             ) : (
-              <RichText text={comment.body} className="mt-2 text-[15px] leading-relaxed" />
+              <MarkdownText text={comment.body} className="mt-2 text-[15px] leading-relaxed" />
             )}
 
             <div className="mt-1.5 flex items-center gap-1">

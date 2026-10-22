@@ -15,7 +15,7 @@ import { FormAlert } from "@/components/forms/form-alert";
 import { AssistPanel } from "@/components/ai/assist-panel";
 import { CategoryBadge } from "@/components/posts/category-badge";
 import { CategoryIcon } from "@/components/posts/category-icons";
-import { SuggestTextarea } from "@/components/posts/suggest-textarea";
+import { MarkdownEditor } from "@/components/posts/markdown-editor";
 import { createPostAction } from "@/lib/actions/posts";
 import { ORBITS_CHANGED } from "@/lib/orbits/glance-store";
 import { POST_CATEGORIES, POST_VISIBILITY, COMMUNITY_POST_VISIBILITY, CATEGORY_BY_VALUE } from "@/lib/content/post-meta";
@@ -519,8 +519,9 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
                 <label htmlFor="composer-body" className="sr-only">
                   Post text
                 </label>
-                <SuggestTextarea
+                <MarkdownEditor
                   id="composer-body"
+                  previewClassName="text-[15px] leading-[1.65] sm:text-base sm:leading-[1.7]"
                   ref={bodyRef}
                   value={body}
                   onChange={setBody}
@@ -540,7 +541,7 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
                   </p>
                 ) : (
                   <p id="composer-hint" className="text-muted-foreground mt-1 text-xs">
-                    Use #hashtags to be found and @username to mention someone.
+                    Use #hashtags to be found and @username to mention someone. **bold**, *italic*, - lists and &gt; quotes work too.
                   </p>
                 )}
               </div>
