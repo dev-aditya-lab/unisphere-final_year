@@ -42,7 +42,7 @@ the code cannot make those files private. Re-checked later the same day: still `
 | Avatars | Original stored at 256, 512 or 1024 px (member's choice) shown at 24 to 96 px. | Smaller copies available, see 2.5. |
 | Abandoned objects | Unfinished uploads and unattached attachments were cleaned up. Avatars and covers that were uploaded but never attached were not. | Fixed, see 2.7. |
 | Image hosts | `next.config.mjs` allowed every `*.r2.dev` and `*.r2.cloudflarestorage.com` host for the image optimiser. Nothing uses the optimiser for remote images. | Narrowed to your own media domain, see 2.6. |
-| Used public purposes | The interface only uploads avatar, cover and orbit_badge. project_asset, community_image and event_banner are allowed by policy but have no upload screen yet. | Matches your three-path Cache Rule today. |
+| Used public purposes | The interface uploads avatar, cover, orbit_badge and (since 2.3.0) community_image (a community's icon and banner, Manage → Icon & banner). project_asset and event_banner have no upload screen yet. | **Your Cache Rule and WAF allow-list must include `/community_image/`** (section 3 item 2 and section 5). |
 
 ## 2. What changed
 

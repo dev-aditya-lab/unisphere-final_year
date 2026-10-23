@@ -87,3 +87,10 @@ The 2026-10-21 audit, its findings, what was fixed and what could not be verifie
 Run `npm audit --omit=dev` and update regularly. `package-lock.json` is committed; builds use `npm ci`. Review
 migrations like code: any new table needs RLS enabled and explicit grants, and any new definer function needs
 `set search_path = ''` and a permission check, with a test in `tests/integration`.
+
+## Community spaces (2.3.0)
+
+Authorisation lives in SQL (`community_can`, `can_view_channel`, `channel_post_state`) and every write is a `SECURITY DEFINER` function that checks `auth.uid()` itself; the
+tables are read-only for members. Findings fixed: unchecked community picture keys, banned and pending members listable by any member, direct-message attachments readable after
+deletion. Invitation codes are stored as hashes, shown once, and every failure answers identically. Reports are visible only to staff who outrank the reported person, and
+platform staff see escalated reports only. See docs/COMMUNITIES.md for the full list, the tests that prove it, and the remaining risks.

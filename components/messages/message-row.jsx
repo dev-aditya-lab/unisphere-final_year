@@ -1,12 +1,13 @@
 "use client";
 
 import { memo } from "react";
-import { Check, CheckCheck, MoreHorizontal, RotateCw } from "lucide-react";
-import { AlertCircle, Clock, FileText, Flag, Trash2 } from "@/components/icons/lucide-compat";
+import { Check, CheckCheck, Copy, MoreHorizontal, RotateCw } from "lucide-react";
+import { AlertCircle, Clock, Flag, Trash2 } from "@/components/icons/lucide-compat";
+import { toast } from "sonner";
+import { ActionMenu } from "@/components/community/action-menu";
+import { AttachmentView } from "@/components/community/attachment";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { RichText } from "@/components/posts/rich-text";
-import { privateFileUrl } from "@/lib/media";
+import { ChatMarkdown } from "@/components/posts/chat-markdown";
 import { cn } from "@/lib/utils";
 
 const timeFmt = new Intl.DateTimeFormat("en-IN", { hour: "numeric", minute: "2-digit" });
@@ -14,30 +15,21 @@ const dayFmt = new Intl.DateTimeFormat("en-IN", { weekday: "short", day: "numeri
 const time = (iso) => timeFmt.format(new Date(iso));
 export const dayLabel = (iso) => dayFmt.format(new Date(iso));
 
-function Attachment({ file }) {
-  const url = privateFileUrl(file.id);
-  if (file.mime_type?.startsWith("image/")) {
-    return (
-      <a href={url} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-lg">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={url} alt={file.original_name || "Image attachment"} loading="lazy" decoding="async" className="max-h-64 w-full max-w-72 rounded-lg object-cover" />
-      </a>
-    );
-  }
-  return (
-    <a href={url} target="_blank" rel="noopener noreferrer" className="bg-background/70 text-foreground flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-medium hover:underline">
-      <FileText className="size-4 shrink-0" aria-hidden="true" />
-      <span className="truncate">{file.original_name || "Document"}</span>
-    </a>
-  );
-}
-
 function Status({ send, read, mine }) {
   if (!mine) return null;
   if (send?.state === "failed") return <AlertCircle className="size-3.5" aria-label="Not sent" />;
   if (send) return <Clock className="size-3 opacity-80" aria-label="Sending" />;
   // "Seen" only when the other person's own read position says so. Never "delivered": it cannot be verified.
   return read ? <CheckCheck className="size-3.5" aria-label="Seen" /> : <Check className="size-3.5" aria-label="Sent" />;
+}
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast.success("Copied");
+  } catch {
+    toast.error("Your browser would not let us copy that.");
+  }
 }
 
 /**
@@ -71,11 +63,11 @@ export const MessageRow = memo(function MessageRow({ m, mine, grouped, newDay, r
             <p className="italic opacity-70">This message was deleted</p>
           ) : (
             <>
-              {m.body && <RichText text={m.body} className={cn(mine && "[&_a]:text-primary-foreground [&_a]:underline")} />}
+              {m.body && <ChatMarkdown text={m.body} className={cn(mine && "[&_a]:text-primary-foreground [&_a]:underline [&_blockquote]:text-primary-foreground/80")} />}
               {m.attachments?.length > 0 && (
                 <div className={cn("space-y-1.5", m.body && "mt-1.5")}>
                   {m.attachments.map((f) => (
-                    <Attachment key={f.id} file={f} />
+                    <AttachmentView key={f.id} file={f} />
                   ))}
                 </div>
               )}
@@ -103,29 +95,25 @@ export const MessageRow = memo(function MessageRow({ m, mine, grouped, newDay, r
         ) : (
           !deleted &&
           !send && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+            <ActionMenu
+              title="Message"
+              align={mine ? "end" : "start"}
+              items={[
+                { id: "copy", label: "Copy text", icon: Copy, hidden: !m.body, onSelect: () => copyText(m.body) },
+                { id: "delete", label: "Delete", icon: Trash2, destructive: true, hidden: !mine, onSelect: () => onDelete(m.id) },
+                { id: "report", label: "Report message", icon: Flag, hidden: mine, onSelect: () => onReport(m.id) },
+              ]}
+              trigger={
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  className="text-muted-foreground shrink-0 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 max-md:size-6 max-md:opacity-50"
+                  className="text-muted-foreground shrink-0 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 max-md:size-8 max-md:opacity-60"
                   aria-label="Message actions"
                 >
                   <MoreHorizontal />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align={mine ? "end" : "start"}>
-                {mine ? (
-                  <DropdownMenuItem variant="destructive" onSelect={() => onDelete(m.id)}>
-                    <Trash2 /> Delete
-                  </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem onSelect={() => onReport(m.id)}>
-                    <Flag /> Report message
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              }
+            />
           )
         )}
       </div>

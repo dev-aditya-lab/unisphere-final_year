@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { reportAction } from "@/lib/actions/posts";
 import { REPORT_CATEGORIES } from "@/lib/content/post-meta";
 
-const TARGET_LABEL = { post: "post", comment: "comment", user: "profile" };
+const TARGET_LABEL = { post: "post", comment: "comment", user: "profile", community: "community" };
 
 /** Report a post, comment or profile. Controlled: the parent decides when it opens. */
 export function ReportDialog({ open, onOpenChange, targetType, targetId }) {

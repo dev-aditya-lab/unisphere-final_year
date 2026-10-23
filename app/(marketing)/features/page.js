@@ -33,6 +33,17 @@ const GROUPS = [
     ],
   },
   {
+    title: "Communities",
+    items: [
+      ["Categories and channels", "Each community has announcements, discussion, questions and answers, resources, project rooms and private staff channels. Owners set who can read and who can post in each one, and can add slow mode."],
+      ["Messages that stay safe", "Markdown, replies, mentions, pinned messages and search. Raw HTML never runs. Photos and PDFs open only for people who can read the channel."],
+      ["Roles and invitations", "Owner, administrator, moderator and member, with the owner able to hand the community over. Invitation links expire, have a use limit and can be revoked. Nobody has to prove which college they attend."],
+      ["Moderation and appeals", "Members report messages; moderators warn, time out, remove or ban with a reason the member can appeal. Private notes, an audit log, and escalation to the UniSphere team."],
+      ["Notifications you control", "Mentions, replies and announcements, with mute for a channel or a whole community. Busy channels do not notify you for every message."],
+      ["Catch up with AI (optional)", "Ask for a summary of a public channel, written from its recent messages without names. It is a suggestion and runs only when you press the button."],
+    ],
+  },
+  {
     title: "Campus life",
     items: [
       ["Clubs & communities", "Join student chapters and interest groups, with official announcements clearly separated."],
@@ -66,7 +77,7 @@ export default function FeaturesPage() {
       <h1 className="max-w-2xl text-4xl font-extrabold sm:text-5xl">Everything your campus community needs to build together.</h1>
       <div className="mt-14 space-y-14">
         {GROUPS.map((g) => (
-          <section key={g.title} aria-labelledby={g.title.replace(/\s+/g, "-")}>
+          <section key={g.title} id={g.title === "Communities" ? "communities" : undefined} aria-labelledby={g.title.replace(/\s+/g, "-")} className="scroll-mt-20">
             <h2 id={g.title.replace(/\s+/g, "-")} className="border-b pb-3 text-2xl">{g.title}</h2>
             <dl className="mt-6 grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
               {g.items.map(([t, d]) => (

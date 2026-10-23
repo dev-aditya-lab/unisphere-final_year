@@ -17,6 +17,7 @@ async function queueCounts(names) {
   const counts = {};
   const jobs = [];
   if (names.has("reports.view")) jobs.push(supabase.rpc("list_reports", { p_status: "open", p_limit: 1 }).then(({ data }) => { counts.reports = Number(data?.[0]?.total_count ?? 0); }));
+  if (names.has("reports.view")) jobs.push(supabase.rpc("admin_escalated_community_reports", { p_status: "open" }).then(({ data }) => { counts.communityReports = data?.length ?? 0; }));
   if (names.has("appeals.review")) jobs.push(supabase.rpc("list_appeals", { p_status: "pending", p_limit: 1 }).then(({ data }) => { counts.appeals = Number(data?.[0]?.total_count ?? 0); }));
   if (names.has("contact.manage")) jobs.push(supabase.from("contact_messages").select("id", { count: "exact", head: true }).eq("status", "new").then(({ count }) => { counts.support = count ?? 0; }));
   if (names.has("users.delete")) jobs.push(supabase.rpc("admin_list_deletions", { p_status: "pending" }).then(({ data }) => { counts.deletions = data?.length ?? 0; }));

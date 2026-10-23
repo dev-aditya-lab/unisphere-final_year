@@ -1,10 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Loader2, Paperclip, RotateCw, X } from "lucide-react";
+import { Eye, Loader2, Paperclip, Pencil as PencilIcon, RotateCw, X } from "lucide-react";
 import { FileText, Pencil } from "@/components/icons/lucide-compat";
 import { AnimatedIcon } from "@/components/icons/animated-icon";
 import { toast } from "sonner";
+import { FormattingHelp } from "@/components/community/formatting-help";
+import { ChatMarkdown } from "@/components/posts/chat-markdown";
 import { Button } from "@/components/ui/button";
 import { useImageEditor } from "@/components/images/use-image-editor";
 import { useEngine } from "@/components/messages/messages-provider";
@@ -27,6 +29,7 @@ export function Composer({ conversationId, firstName }) {
   const [text, setText] = useState(() => engine.getDraft(conversationId));
   const [items, setItems] = useState([]);
   const [original, setOriginal] = useState(false);
+  const [preview, setPreview] = useState(false);
   const [sent, setSent] = useState(0); // counts messages sent from here, so the send icon animates only on a real send
   const area = useRef(null);
   const fileInput = useRef(null);
@@ -211,6 +214,11 @@ export function Composer({ conversationId, firstName }) {
         <label htmlFor="message-input" className="sr-only">
           Message
         </label>
+        {preview && (
+          <div className="bg-background min-h-10 min-w-0 flex-1 rounded-xl border px-3.5 py-2" aria-live="polite" data-testid="message-preview">
+            {text.trim() ? <ChatMarkdown text={text} /> : <p className="text-muted-foreground text-sm">Nothing to preview yet.</p>}
+          </div>
+        )}
         <textarea
           ref={area}
           id="message-input"
@@ -226,8 +234,15 @@ export function Composer({ conversationId, firstName }) {
             if (e.target.value) engine.announceTyping(conversationId);
           }}
           onKeyDown={onKeyDown}
+          hidden={preview}
           className="bg-background placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/40 max-h-[10.5rem] min-h-10 min-w-0 flex-1 resize-none rounded-xl border px-3.5 py-2 text-base outline-none focus-visible:ring-[3px] md:text-sm"
         />
+        {text.trim() && (
+          <Button type="button" variant="ghost" size="icon" onClick={() => setPreview((v) => !v)} aria-pressed={preview} aria-label={preview ? "Back to writing" : "Preview how it will look"} className="shrink-0">
+            {preview ? <PencilIcon /> : <Eye />}
+          </Button>
+        )}
+        <span className="hidden sm:block"><FormattingHelp /></span>
         <Button type="submit" variant="soft" size="icon" disabled={!canSend} aria-label="Send message" className="shrink-0">
           {/* The paper plane flies off once for each message that is actually sent. */}
           {busy ? <Loader2 className="animate-spin" /> : <AnimatedIcon name="send" size={24} pulse={sent} />}

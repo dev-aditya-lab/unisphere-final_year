@@ -15,13 +15,19 @@ import { useEffect, useRef } from "react";
  * The Supabase browser client (about 65 KB gzipped) is imported on demand, so pages that only need a live badge do
  * not pay for it in the first bundle. `idle: true` also waits for the browser to be idle before connecting, for
  * channels that are not needed to read the page (the notification bell); a conversation connects at once.
+ *
+ * `onStatus(status)` (optional) hears the connection's own states: SUBSCRIBED, CHANNEL_ERROR, TIMED_OUT, CLOSED. A screen that must
+ * not miss events uses it to ask the server what it missed after a SUBSCRIBED that follows a drop. It is read through a ref like
+ * `configure`, so passing a new function never re-subscribes.
  */
-export function useRealtimeChannel(name, configure, { idle = false } = {}) {
+export function useRealtimeChannel(name, configure, { idle = false, onStatus = null } = {}) {
   const channelRef = useRef(null);
   const configureRef = useRef(configure);
+  const statusRef = useRef(onStatus);
 
   useEffect(() => {
     configureRef.current = configure;
+    statusRef.current = onStatus;
   });
 
   useEffect(() => {
@@ -38,7 +44,7 @@ export function useRealtimeChannel(name, configure, { idle = false } = {}) {
       if (cancelled) return;
       channel = supabase.channel(name, { config: { broadcast: { self: false } } });
       configureRef.current(channel);
-      channel.subscribe();
+      channel.subscribe((status) => statusRef.current?.(status));
       channelRef.current = channel;
     };
     if (idle && typeof window.requestIdleCallback === "function") idleHandle = window.requestIdleCallback(start, { timeout: 3000 });

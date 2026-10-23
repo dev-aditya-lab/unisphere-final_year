@@ -15,14 +15,16 @@ const NO_CACHE = "private, no-store";
  * we then redirect to a short-lived signed URL. The object itself is never public, and nothing here may be kept by a
  * shared cache (`private`): the answer depends on who is asking.
  */
-export async function GET(_request, { params }) {
+export async function GET(request, { params }) {
   const { fileId } = await params;
   if (!z.uuid().safeParse(fileId).success) {
     return new NextResponse("Not found", { status: 404, headers: { "Cache-Control": NO_CACHE } });
   }
   let file;
   try {
-    file = await getReadableFile(fileId);
+    // ?download=1 asks storage to answer as an attachment (the browser saves it). It is the same authorisation: this route is
+    // where a private file is checked, so a link that looks public can never skip the check.
+    file = await getReadableFile(fileId, { download: new URL(request.url).searchParams.get("download") === "1" });
   } catch {
     return new NextResponse("Storage unavailable", { status: 503, headers: { "Cache-Control": NO_CACHE } });
   }

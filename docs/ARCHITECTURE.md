@@ -94,6 +94,10 @@ Migrations in `supabase/migrations` are the single source of truth (forward-only
 | 0039 | `profile_education`: several colleges per member with a role at each; member-added departments and courses |
 | 0040 | College ID verification removed (functions and permissions; tables kept) |
 | 0041 | Admin tools for departments and courses |
+| 0054 | Community workspace, part 1: categories, channels, channel messages, role/permission table, read positions and notification preferences, server-checked branding, channel attachments, and two fixes to direct-message attachments (see docs/COMMUNITIES.md) |
+| 0055 | Community workspace, part 2: invitations, membership/roles/ownership transfer, reports, moderation actions, appeals, announcements fan-out, platform admin views, erasure |
+| 0056 | Release note 2.3.0 (draft) |
+| 0057 | `report_community`: report a whole community to the platform team |
 
 Design rules: RLS on everything; column-level `UPDATE` grants protect trust fields; counters and notifications are
 trigger-maintained; recursion in policies is avoided with definer helper functions; soft deletes keep audit history.

@@ -224,8 +224,16 @@ describe("communities", () => {
   });
 
   it("owner can edit, other members cannot", async () => {
-    expect((await a.client.from("communities").update({ description: "We build robots" }).eq("id", community.id).select()).data).toHaveLength(1);
+    // Since migration 0054 a community is edited only through update_community_details (audited, permission-checked); the table is read-only.
+    const edit = (u, description) => u.client.rpc("update_community_details", {
+      p_community: community.id, p_name: `Robotics ${tag}`, p_kind: "community", p_description: description, p_visibility: "college", p_join_policy: "request",
+      p_rules: null, p_topics: [], p_require_rules_ack: false, p_invite_policy: "staff",
+    });
+    expect((await edit(a, "We build robots")).error).toBeNull();
+    expect((await admin.from("communities").select("description").eq("id", community.id).single()).data.description).toBe("We build robots");
+    expect((await edit(d, "hacked")).error?.message).toContain("forbidden");
     expect((await d.client.from("communities").update({ description: "hacked" }).eq("id", community.id).select()).data ?? []).toHaveLength(0);
+    expect((await a.client.from("communities").update({ description: "direct" }).eq("id", community.id).select()).data ?? []).toHaveLength(0);
     expect((await d.client.rpc("delete_community", { p_community: community.id })).error).not.toBeNull();
     expect((await a.client.rpc("delete_community", { p_community: community.id })).error).toBeNull();
     expect((await a.client.from("community_cards").select("id").eq("id", community.id)).data).toHaveLength(0);

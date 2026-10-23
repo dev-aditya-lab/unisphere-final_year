@@ -214,3 +214,11 @@ the existing messaging end-to-end tests.
 - Attachments need a connection to upload; only text can be written offline.
 - Group conversations do not exist in the product; the engine and schema key on conversation ids and would not
   need to change for them, but the header and read receipts assume one other person.
+
+## 7. Since 2.3.0: Markdown, attachments and channels
+
+- Direct messages render Markdown with the same safe renderer as posts (`components/posts/chat-markdown.jsx`) and have a preview and formatting help.
+- Direct-message attachments use the shared `AttachmentView` (View, Download, Copy link; bottom sheet on phones). `/api/files/<id>?download=1` serves a download.
+- **Fixed:** deleting a direct message now makes its attachment unreadable and removes the stored file (it used to stay readable by the conversation, and in storage).
+- Community channels are a separate table (`channel_messages`) and a separate, simpler client (`components/community/use-channel.js`), because their
+  authorisation is role-based rather than two-party. They reuse the upload pipeline, the idempotency idea (`clientOpId`) and the realtime hook. See docs/COMMUNITIES.md.

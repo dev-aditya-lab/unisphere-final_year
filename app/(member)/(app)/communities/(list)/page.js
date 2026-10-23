@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Users } from "@/components/icons/lucide-compat";
 import { OfficialBadge } from "@/components/campus/community-parts";
+import { MediaImage } from "@/components/media-image";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/shell/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { requireProfile } from "@/lib/auth/session";
 import { listCommunities } from "@/lib/services/campus";
 import { isFlagEnabled } from "@/lib/settings";
+import { COMMUNITY_TOPICS } from "@/lib/community/rules";
 import { COMMUNITY_KINDS } from "@/lib/validators/campus";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +25,8 @@ export default async function CommunitiesPage({ searchParams }) {
   const mine = sp.tab === "mine";
   const q = typeof sp.q === "string" ? sp.q.trim().slice(0, 80) : "";
   const kind = COMMUNITY_KINDS.some((k) => k.value === sp.kind) ? sp.kind : null;
-  const list = await listCommunities({ query: q || null, kind, mine, userId: user.id });
+  const topic = COMMUNITY_TOPICS.includes(sp.topic) ? sp.topic : null;
+  const list = await listCommunities({ query: q || null, kind, topic, mine, userId: user.id });
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -44,6 +47,14 @@ export default async function CommunitiesPage({ searchParams }) {
         <select name="kind" defaultValue={kind ?? ""} className={selectCls} aria-label="Type"><option value="">All types</option>{COMMUNITY_KINDS.map((k) => <option key={k.value} value={k.value}>{k.label}</option>)}</select>
         <Button type="submit">Filter</Button>
       </form>
+      {!mine && (
+        <nav aria-label="Topics" className="scrollbar-none -mt-2 mb-5 flex gap-1.5 overflow-x-auto pb-1">
+          <Link href="/communities" aria-current={!topic ? "page" : undefined} className={cn("shrink-0 rounded-full border px-3 py-1 text-xs font-medium", !topic ? "bg-primary text-primary-foreground border-transparent" : "hover:bg-accent")}>All topics</Link>
+          {COMMUNITY_TOPICS.map((t) => (
+            <Link key={t} href={`/communities?topic=${t}`} aria-current={topic === t ? "page" : undefined} className={cn("shrink-0 rounded-full border px-3 py-1 text-xs font-medium", topic === t ? "bg-primary text-primary-foreground border-transparent" : "hover:bg-accent")}>{t.replace(/-/g, " ")}</Link>
+          ))}
+        </nav>
+      )}
       {list.length === 0 ? (
         <EmptyState icon={Users} title={mine ? "You have not joined any community" : "No communities found"} action={<Button asChild><Link href="/communities/new">Start one</Link></Button>}>
           {mine ? "Browse Discover to find clubs and groups to join." : "Be the first to create a club or interest group for your campus."}
@@ -52,7 +63,16 @@ export default async function CommunitiesPage({ searchParams }) {
         <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {list.map((c) => (
             <li key={c.id}>
-              <article className="surface h-full p-4 sm:p-5">
+              <article className="surface h-full overflow-hidden">
+                <div className="bg-muted aspect-[3/1]">
+                  <MediaImage mediaKey={c.cover_key} width={640} loading="lazy" decoding="async" className="size-full object-cover" />
+                </div>
+                <div className="p-4 sm:p-5">
+                <div className="-mt-10 mb-2 flex">
+                  <span className="bg-card grid size-12 place-items-center overflow-hidden rounded-xl border-2 text-sm font-bold">
+                    {c.avatar_key ? <MediaImage mediaKey={c.avatar_key} width={96} loading="lazy" decoding="async" className="size-full object-cover" /> : c.name.slice(0, 2).toUpperCase()}
+                  </span>
+                </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="mono">{COMMUNITY_KINDS.find((k) => k.value === c.kind)?.label}</Badge>
                   {c.is_official && <OfficialBadge />}
@@ -61,7 +81,9 @@ export default async function CommunitiesPage({ searchParams }) {
                 </div>
                 <h2 className="font-heading mt-2 text-lg font-bold"><Link href={`/communities/${c.slug}`} className="hover:underline">{c.name}</Link></h2>
                 {c.description && <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">{c.description}</p>}
+                {c.topics?.length > 0 && <p className="text-muted-foreground mt-2 text-xs">{c.topics.slice(0, 4).map((t) => `#${t}`).join("  ")}</p>}
                 <p className="text-muted-foreground mt-3 flex items-center gap-1 text-xs"><Users className="size-3.5" aria-hidden="true" />{c.member_count} member{c.member_count === 1 ? "" : "s"}</p>
+                </div>
               </article>
             </li>
           ))}

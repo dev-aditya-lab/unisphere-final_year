@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { UserX } from "@/components/icons/lucide-compat";
-import { BadgeCheck, CalendarDays, Gift, GraduationCap, Lightbulb, Lock, MessageSquareQuote, ShieldCheck, Sparkles, Trophy, Users } from "@/components/icons/lucide-compat";
+import { BadgeCheck, CalendarDays, Gift, GraduationCap, Lightbulb, Lock, MessageSquareQuote, ShieldCheck, Sparkles, Trophy, UserPlus, Users } from "@/components/icons/lucide-compat";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Reveal } from "@/components/marketing/reveal";
 import { HeroStage } from "@/components/marketing/hero-stage";
 import { ProductShowcase } from "@/components/marketing/product-showcase";
+import { CommunityExplorer } from "@/components/marketing/community-explorer";
 import { CampusGraph, OrbitRings, StepBuild, StepJoin, StepShare } from "@/components/marketing/illustrations";
 import { ReferralIllustration } from "@/components/referrals/referral-illustration";
 import { JsonLd } from "@/components/json-ld";
@@ -42,6 +43,12 @@ const COMMUNITY_POINTS = [
   [GraduationCap, "Seniors and alumni, on your terms", "Find people by department, industry or skill. Mentoring is opt-in, and contact details are never revealed automatically."],
   [Users, "Clubs, chapters and interest groups", "Follow communities, read official announcements clearly marked apart from member posts, and join events with RSVPs."],
   [BadgeCheck, "A directory that does not pretend", "Colleges added by members are labelled community-added. Connecting a college is a choice, never a claim, and never proof."],
+];
+
+const SPACE_STEPS = [
+  [Users, "Find or start one", "Browse communities by topic, or start your own in a minute. Public ones are open to join; members-only ones use an invitation link; some ask the moderators to approve you."],
+  [Lock, "You decide who sees what", "Owners set up channels and say who may read and who may post. Staff-only channels do not even show up for members."],
+  [ShieldCheck, "Safe by design", "Report a message, appeal a decision, mute what you do not need. Moderators have limits, and every change they make is recorded."],
 ];
 
 const AI_POINTS = [
@@ -195,8 +202,59 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5 · Communities */}
-      <section id="communities" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 sm:px-6 lg:py-28">
+      {/* 5 · Community spaces: channels, messages, moderation, phone */}
+      <section id="community-spaces" aria-labelledby="community-spaces-title" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 sm:px-6 lg:py-28">
+        <Reveal>
+          <SectionLabel number="03">Community spaces</SectionLabel>
+          <h2 id="community-spaces-title" className="display-sm max-w-3xl">Clubs and study groups get a proper place to talk.</h2>
+          <p className="lede mt-5 max-w-2xl">
+            Every community has categories and channels, like the servers you may know from other apps, but built for students from different colleges: nobody has to prove which college they attend, and owners control who can read and write.
+          </p>
+        </Reveal>
+        <div className="mt-12">
+          <CommunityExplorer />
+        </div>
+        <ul className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
+          {SPACE_STEPS.map(([Icon, title, text], i) => (
+            <li key={title}>
+              <Reveal delay={i * 0.07} className="h-full">
+                <div className="surface tone-blue h-full p-6">
+                  <span className="tone-chip flex size-11 items-center justify-center rounded-xl">
+                    <Icon className="size-5" aria-hidden="true" />
+                  </span>
+                  <h3 className="font-heading mt-4 text-lg font-extrabold">{title}</h3>
+                  <p className="text-muted-foreground mt-2 text-[15px] leading-relaxed">{text}</p>
+                </div>
+              </Reveal>
+            </li>
+          ))}
+        </ul>
+        <Reveal>
+          <div className="bg-card mt-8 flex flex-wrap items-center gap-4 rounded-2xl border p-5 sm:p-6">
+            <span className="tone-chip tone-coral flex size-11 shrink-0 items-center justify-center rounded-xl">
+              <UserPlus className="size-5" aria-hidden="true" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-heading text-lg font-extrabold">A community is better with your classmates in it.</h3>
+              <p className="text-muted-foreground mt-1 text-[15px]">Create an invitation link with an expiry and a use limit, and revoke it whenever you like.</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild variant="hot">
+                <Link href="/register">
+                  Join UniSphere <ArrowRight />
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/features#communities">How communities work</Link>
+              </Button>
+            </div>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 6 · College communities */}
+      <section id="communities" className="bg-sunken scroll-mt-20 border-y">
+        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
           <Reveal className="order-2 lg:order-1">
             <div className="surface relative overflow-hidden p-4 sm:p-8">
@@ -205,7 +263,7 @@ export default function HomePage() {
             </div>
           </Reveal>
           <Reveal delay={0.1} className="order-1 lg:order-2">
-            <SectionLabel number="03">College communities</SectionLabel>
+            <SectionLabel number="04">College directory</SectionLabel>
             <h2 className="display-sm">Find your people, wherever your college is.</h2>
             <p className="lede mt-5">
               UniSphere is open to every campus. Search for your college or add it, then find the clubs, seniors and projects around it.
@@ -225,13 +283,14 @@ export default function HomePage() {
             </ul>
           </Reveal>
         </div>
+        </div>
       </section>
 
       {/* 6 · AI, and what it never does */}
       <section id="idea-discovery" className="bg-sunken scroll-mt-16 border-y">
         <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
           <Reveal>
-            <SectionLabel number="04">AI idea discovery</SectionLabel>
+            <SectionLabel number="05">AI idea discovery</SectionLabel>
             <h2 className="display-sm max-w-3xl">Before you build it, see who is already working on it.</h2>
             <p className="lede mt-5 max-w-2xl">
               Describe an idea or ask a question. UniSphere searches the posts, projects and discussions that actually exist on the platform and tells you why each one is related. An originality check shows overlaps and differences, never accusations.
@@ -258,7 +317,7 @@ export default function HomePage() {
       {/* 7 · More than a feed */}
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
         <Reveal>
-          <SectionLabel number="05">More than a feed</SectionLabel>
+          <SectionLabel number="06">More than a feed</SectionLabel>
           <h2 className="display-sm max-w-2xl">Everything a campus community needs, in one place.</h2>
         </Reveal>
         <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-6">
@@ -285,7 +344,7 @@ export default function HomePage() {
       <section id="refer-and-earn" className="bg-sunken scroll-mt-16 border-y">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:items-center lg:py-28">
           <Reveal>
-            <SectionLabel number="06">Refer &amp; Earn</SectionLabel>
+            <SectionLabel number="07">Refer &amp; Earn</SectionLabel>
             <h2 className="display-sm">Invite friends. Earn 100 Orbits.</h2>
             <p className="lede mt-5">
               Bring the people you build with. Every friend who joins through your link and becomes an active member earns you 100 Orbits. Orbits are recognition for taking part, not money.
@@ -323,7 +382,7 @@ export default function HomePage() {
       {/* 9 · FAQ */}
       <section id="faq" className="mx-auto max-w-3xl scroll-mt-16 px-4 pb-20 sm:px-6 lg:pb-28">
         <Reveal>
-          <SectionLabel number="07">Questions</SectionLabel>
+          <SectionLabel number="08">Questions</SectionLabel>
           <h2 className="display-sm">Frequently asked questions</h2>
         </Reveal>
         <Accordion type="single" collapsible className="mt-10">

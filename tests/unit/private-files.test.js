@@ -27,7 +27,7 @@ const { getReadableFile, getReadableFileUrl } = await import("@/lib/storage/uplo
 const { GET } = await import("@/app/api/files/[fileId]/route.js");
 
 const ID = "3f0c1c3e-0000-4000-8000-000000000000";
-const call = (id = ID) => GET(new Request(`https://app.example/api/files/${id}`), { params: Promise.resolve({ fileId: id }) });
+const call = (id = ID, query = "") => GET(new Request(`https://app.example/api/files/${id}${query}`), { params: Promise.resolve({ fileId: id }) });
 const file = (over = {}) => ({ id: ID, bucket: "private", storage_key: "post_attachment/u/f.webp", mime_type: "image/webp", original_name: "pic.webp", status: "ready", purpose: "post_attachment", ...over });
 
 beforeEach(() => {
@@ -106,5 +106,36 @@ describe("how a private file may be kept", () => {
     const res = await call();
     expect(res.status).toBe(503);
     expect(res.headers.get("cache-control")).toBe("private, no-store");
+  });
+});
+
+describe("download", () => {
+  it("is the same check as opening: a stranger gets nothing, and nothing is signed", async () => {
+    row = null;
+    const res = await call(ID, "?download=1");
+    expect(res.status).toBe(404);
+    expect(presign).not.toHaveBeenCalled();
+  });
+
+  it("asks storage to answer as an attachment, with a usable name, and keeps nothing", async () => {
+    const res = await call(ID, "?download=1");
+    expect(res.status).toBe(302);
+    expect(res.headers.get("cache-control")).toBe("private, no-store");
+    expect(presign.mock.calls[0][0]).toMatchObject({ disposition: "attachment", filename: "pic.webp", cacheControl: "private, no-store" });
+    expect(presign.mock.calls[0][0].signing).toBeUndefined(); // a fresh URL, never the shared five-minute one
+  });
+
+  it("names a file that has no stored name from its id and type, never from the client", async () => {
+    row = file({ original_name: null, mime_type: "application/pdf" });
+    await call(ID, "?download=1");
+    expect(presign.mock.calls[0][0].filename).toMatch(/^unisphere-3f0c1c3e\.pdf$/);
+  });
+
+  it("opens inline unless asked, and ignores any other value of the parameter", async () => {
+    await call(ID);
+    expect(presign.mock.calls[0][0].disposition).toBe("inline");
+    presign.mockClear();
+    await call(ID, "?download=yes");
+    expect(presign.mock.calls[0][0].disposition).toBe("inline");
   });
 });
