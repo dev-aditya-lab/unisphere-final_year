@@ -95,8 +95,8 @@ describe("Content-Security-Policy", () => {
     expect(d["connect-src"].sort()).toEqual(["'self'", "https://abc.supabase.co", "https://media.example", "wss://abc.supabase.co"].sort());
   });
 
-  it("admits no payment company, even on the checkout page (payment is taken on the gateway's own page)", () => {
-    const csp = buildCsp({ nonce: "x", env, checkout: true });
+  it("admits no payment company (payment is taken on the gateway's own page, reached through the one checkout route)", () => {
+    const csp = buildCsp({ nonce: "x", env });
     expect(directives(csp)["script-src"].join(" ")).not.toMatch(/https:\/\//);
     expect(directives(csp)["frame-src"]).toEqual(["'none'"]);
     expect(directives(csp)["form-action"]).toEqual(["'self'"]);

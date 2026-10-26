@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
 import { isGuestOnlyPath, isProtectedPath } from "@/lib/routes";
-import { BLUE_TICK_PATH } from "@/lib/blue-tick";
-import { buildCsp, newNonce } from "@/lib/security/csp";
+import { PAYMENT_CHECKOUT_PATH } from "@/lib/blue-tick";
+import { buildCheckoutPageCsp, buildCsp, newNonce } from "@/lib/security/csp";
 import { REF_COOKIE, REF_COOKIE_MAX_DAYS, REF_PARAM, makeRefCookieValue, normalizeRefCode } from "@/lib/referrals/core";
 
 /**
@@ -39,10 +39,9 @@ export async function proxy(request) {
   const { pathname, search } = request.nextUrl;
   // A fresh nonce per request. Next.js reads it from the request's CSP header and tags its own scripts with it.
   const nonce = newNonce();
-  // The page where a member pays may post one form to a payment gateway that needs it (PAYMENT_FORM_ACTION_ORIGINS), and
-  // nowhere else may.
-  const checkout = pathname === BLUE_TICK_PATH;
-  const csp = buildCsp({ nonce, isDev: process.env.NODE_ENV === "development", checkout });
+  // The one page that hands a member over to a payment gateway (and may post a form to it) has a policy of its own; no other
+  // page may post a form anywhere but here.
+  const csp = pathname === PAYMENT_CHECKOUT_PATH ? buildCheckoutPageCsp(nonce) : buildCsp({ nonce, isDev: process.env.NODE_ENV === "development" });
   const session = await updateSession(request, {
     "x-pathname": pathname + search,
     "x-nonce": nonce,

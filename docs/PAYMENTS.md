@@ -26,6 +26,12 @@ member            UniSphere server                         payment gateway
   UniSphere's own orders. Whether it was paid is whatever the gateway answers when asked.
 - Card, UPI and bank details never reach UniSphere. The checkout is the gateway's page, so UniSphere loads no payment
   script and its Content-Security-Policy admits no payment company.
+- The member reaches the gateway through `/api/payments/checkout?t=...`: a plain navigation to a tiny UniSphere page that
+  either redirects, or posts the gateway's form (it submits itself). The link is sealed (AES-256-GCM, key from `APP_SECRET`),
+  bound to the signed-in member and valid for 15 minutes, so it cannot be read, altered or used by anyone else. That page has a
+  Content-Security-Policy of its own (one script, nothing else, a form that may only go to https); no other page may post a
+  form anywhere but UniSphere. The form is never submitted from the blue tick page itself, because a page's policy is fixed
+  by the document the browser loaded, which after in-app navigation is often not the one for that page.
 - The webhook is the safety net for a member who closes the window before coming back. It also records refunds made in the
   gateway's dashboard. Both paths end in the same idempotent database functions, so a repeated event changes nothing.
 
@@ -42,7 +48,6 @@ member            UniSphere server                         payment gateway
    | `PAYMENT_KEY_SECRET` | its secret key / salt |
    | `PAYMENT_WEBHOOK_SECRET` | the value that signs its webhooks. Without it `/api/payments/webhook` refuses everything. |
    | `PAYMENT_API_BASE_URL` | optional: its API address, to switch between sandbox and live |
-   | `PAYMENT_FORM_ACTION_ORIGINS` | optional: only if the checkout is a form post (see below) |
 
    An adapter that needs more than this can read its own variables from `process.env`.
 3. In the gateway's dashboard add the webhook `https://<your-domain>/api/payments/webhook` with the same secret, and tick
@@ -65,7 +70,6 @@ The adapter is `lib/payments/gateways/payu.js`, written against PayU's Hosted Ch
 | `PAYMENT_KEY_ID` | your **Merchant Key** (PayU dashboard, Payment Gateway, Key Salt Details) |
 | `PAYMENT_KEY_SECRET` | your **Salt**, from the same page. It is never sent to PayU: it only goes into hashes. |
 | `PAYMENT_API_BASE_URL` | `https://test.payu.in` while testing; empty for live |
-| `PAYMENT_FORM_ACTION_ORIGINS` | `https://test.payu.in` while testing, `https://secure.payu.in` for live |
 | `PAYMENT_WEBHOOK_SECRET` | not used: PayU signs its webhooks with the salt |
 
 PayU has separate **test and live** keys and salts: change all of the values above together when going live, and restart the
@@ -107,8 +111,7 @@ PayU lists the addresses it calls from; allow-listing them at your firewall is o
 With test credentials: open Settings, Blue tick, pay with one of PayU's test cards or the test UPI/netbanking flow described in
 its test-mode documentation, and confirm: success sends you back with "Payment received"; a failed payment says so; closing
 the PayU page after paying still records the payment once the webhook arrives; a refund from `/admin/payments` shows as refunded
-in the PayU dashboard. If the browser console reports a "form-action" violation after you press Pay, the address it names must
-be added to `PAYMENT_FORM_ACTION_ORIGINS`.
+in the PayU dashboard. Pressing Pay should take you through a brief "Opening the secure payment page" screen to PayU's page.
 
 ## Writing an adapter
 
@@ -129,9 +132,8 @@ paise, and a checkout must be an `https:` address.
 
 - `{ type: "redirect", url }`: the gateway's hosted payment page. This is what nearly every gateway offers (a payment link,
   a hosted checkout session, a payment page). Nothing else is needed.
-- `{ type: "form", action, method: "POST", fields }`: for gateways whose hosted checkout is reached by posting a form. The
-  browser may only post to origins listed in `PAYMENT_FORM_ACTION_ORIGINS` (https, comma-separated), and only from the
-  blue tick page.
+- `{ type: "form", action, method: "POST", fields }`: for gateways whose hosted checkout is reached by posting a form (PayU
+  is one). `/api/payments/checkout` submits it for the member; only `https:` addresses are accepted.
 
 Pass the gateway `returnUrl` as the address to send the member back to. It already carries `?o=<order id>`, so use a
 gateway field that keeps the query string. If the gateway limits the length of that address, or drops its query string, send

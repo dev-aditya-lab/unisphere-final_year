@@ -55,7 +55,7 @@ into a chat or a ticket should be treated as exposed: regenerate them, and keep 
 | Webhook spoofing | The adapter verifies the signature over the raw body with the webhook secret (constant time); no secret configured means the route refuses everything, and repeated bad signatures from one address are rate limited. A "paid" event is also checked against the gateway before it counts. |
 | Staff misuse | Three separate permissions (`payments.view`, `bluetick.review`, `bluetick.manage`), global administrators only, re-checked in the database. Every decision is written to the audit log. A reviewer cannot review their own application. |
 | Price through a side door | `set_system_setting` refuses `blue_tick_*` keys. |
-| Card data | Never reaches UniSphere: the member pays on the gateway's own page. UniSphere loads no payment script and its CSP admits no payment company (only a gateway that needs a form post is allowed, on `/settings/blue-tick` alone, via `PAYMENT_FORM_ACTION_ORIGINS`). |
+| Card data | Never reaches UniSphere: the member pays on the gateway's own page. UniSphere loads no payment script and its CSP admits no payment company. The hand-over to the gateway is one small page (`/api/payments/checkout`) with a policy of its own, reached by a sealed, short-lived link tied to the signed-in member. |
 | A malicious or buggy adapter result | Ids, amounts and the checkout address are re-validated before use; only an `https:` address ever reaches the browser. |
 
 ## The Aadhaar document

@@ -14,35 +14,7 @@ import { uploadFileWithProgress } from "@/lib/storage/client";
 import { setConsentAction } from "@/lib/actions/privacy";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { BLUE_TICK_PATH, PAYMENT_RETURN_PATH, formatInr } from "@/lib/blue-tick";
-
-/**
- * Send the member to the payment gateway's own page: open an address, or post the small form the gateway asked for. The server
- * has already checked that it is an https address. Nothing from the gateway is loaded into this page.
- */
-function goToCheckout(checkout) {
-  if (checkout?.type === "redirect" && /^https?:\/\//.test(checkout.url)) {
-    window.location.assign(checkout.url);
-    return true;
-  }
-  if (checkout?.type === "form" && /^https?:\/\//.test(checkout.action)) {
-    const form = document.createElement("form");
-    form.method = checkout.method === "GET" ? "GET" : "POST";
-    form.action = checkout.action;
-    form.hidden = true;
-    for (const [name, value] of Object.entries(checkout.fields ?? {})) {
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = name;
-      input.value = value;
-      form.appendChild(input);
-    }
-    document.body.appendChild(form);
-    form.submit();
-    return true;
-  }
-  return false;
-}
+import { BLUE_TICK_PATH, PAYMENT_CHECKOUT_PATH, PAYMENT_RETURN_PATH, formatInr } from "@/lib/blue-tick";
 
 const NOTICES = {
   done: { tone: "ok", text: "Payment received. Now send your ID." },
@@ -123,11 +95,14 @@ function BuyStep({ config }) {
       setBusy(false);
       return;
     }
-    // The page is replaced by the payment gateway's, so on success the button simply stays busy until that happens.
-    if (!goToCheckout(started.checkout)) {
+    // A plain navigation to our own checkout page, which hands the member to the payment gateway. The page is replaced, so on
+    // success the button simply stays busy until that happens.
+    if (typeof started.checkoutUrl !== "string" || !started.checkoutUrl.startsWith(`${PAYMENT_CHECKOUT_PATH}?t=`)) {
       setError("The payment page could not be opened. Please try again.");
       setBusy(false);
+      return;
     }
+    window.location.assign(started.checkoutUrl);
   }
 
   return (

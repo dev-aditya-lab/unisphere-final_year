@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { signHmac, verifyHmac } from "@/lib/payments/signature";
 import { formatInr, paiseToRupeesInput, rupeesToPaise } from "@/lib/blue-tick";
-import { buildCsp } from "@/lib/security/csp";
+import { buildCheckoutPageCsp, buildCsp } from "@/lib/security/csp";
 
 const SECRET = "test_secret_value";
 
@@ -58,26 +58,28 @@ describe("price handling", () => {
   });
 });
 
-describe("Content-Security-Policy on the page where a member pays", () => {
+describe("Content-Security-Policy and payment", () => {
   const env = { NEXT_PUBLIC_APP_URL: "https://unispheres.in", NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co" };
   const directive = (csp, name) => csp.split("; ").find((d) => d.startsWith(`${name} `));
 
-  it("admits no payment company at all: the member pays on the gateway's own page", () => {
-    for (const checkout of [false, true]) {
-      const csp = buildCsp({ nonce: "n", env, checkout });
-      expect(directive(csp, "script-src")).not.toMatch(/https:\/\/(?!x\.supabase)/);
-      expect(directive(csp, "frame-src")).toBe("frame-src 'none'");
-      expect(directive(csp, "connect-src")).not.toMatch(/pay|checkout/i);
-    }
+  it("admits no payment company on any app page, and lets no app page post a form anywhere else", () => {
+    const csp = buildCsp({ nonce: "n", env });
+    expect(directive(csp, "script-src")).not.toMatch(/https:\/\/(?!x\.supabase)/);
+    expect(directive(csp, "frame-src")).toBe("frame-src 'none'");
+    expect(directive(csp, "connect-src")).not.toMatch(/pay|checkout/i);
+    expect(directive(csp, "form-action")).toBe("form-action 'self'");
   });
-  it("lets only the payment page post a form, and only to the https origins listed for it", () => {
-    const withForm = { ...env, PAYMENT_FORM_ACTION_ORIGINS: "https://secure.gateway.example/pay, http://insecure.example, not a url, https://secure.gateway.example" };
-    expect(directive(buildCsp({ nonce: "n", env: withForm }), "form-action")).toBe("form-action 'self'");
-    expect(directive(buildCsp({ nonce: "n", env: withForm, checkout: true }), "form-action")).toBe("form-action 'self' https://secure.gateway.example");
-    expect(directive(buildCsp({ nonce: "n", env, checkout: true }), "form-action")).toBe("form-action 'self'");
+  it("gives the hand-over page a policy of its own: one nonce-tagged script, nothing else, a form that may go to https", () => {
+    const csp = buildCheckoutPageCsp("n0nce");
+    expect(directive(csp, "default-src")).toBe("default-src 'none'");
+    expect(directive(csp, "script-src")).toBe("script-src 'nonce-n0nce'");
+    expect(directive(csp, "style-src")).toBe("style-src 'nonce-n0nce'");
+    expect(directive(csp, "form-action")).toBe("form-action https:");
+    expect(directive(csp, "frame-ancestors")).toBe("frame-ancestors 'none'");
+    expect(csp).not.toMatch(/unsafe-inline|unsafe-eval|http:/);
   });
-  it("keeps the rest of the policy strict", () => {
-    const csp = buildCsp({ nonce: "n", env, checkout: true });
+  it("keeps the rest of the app policy strict", () => {
+    const csp = buildCsp({ nonce: "n", env });
     expect(csp).toContain("object-src 'none'");
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).not.toMatch(/script-src[^;]*'unsafe-inline'/);
