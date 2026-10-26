@@ -39,8 +39,8 @@ function OriginalEmbed({ post }) {
  * and inside the client-side infinite feed alike. `full` shows the entire body (post page).
  *
  * Social layout: a large avatar with the name and time, the type as a small coloured pill beside the menu (only for a
- * specific type; "General" says nothing), big readable text, rounded media, and a bar of pill-shaped actions. On a phone a
- * post is a full-width row separated by hairlines so the text gets the whole screen; from sm up it is a rounded card.
+ * specific type; "General" says nothing), big readable text, rounded media, and a bar of pill-shaped actions. Every post
+ * is its own rounded card with a gap around it, on a phone too, so a feed reads as separate posts and not one long article.
  * Off-screen cards skip rendering (`feed-card`), which keeps long feeds light.
  */
 export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed, canSummarize = false, className, headingLevel = "h2" }) {
@@ -51,7 +51,7 @@ export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed,
   const long = !full && post.body.length > 500;
   const VisIcon = VISIBILITY_ICON[post.visibility] ?? Globe;
   const narrowAudience = post.visibility && post.visibility !== "public";
-  const shell = "feed-card bg-card border-y max-sm:border-x-0 p-4 sm:rounded-3xl sm:border sm:p-5 sm:shadow-card sm:transition-shadow sm:duration-200 sm:hover:shadow-[var(--lift-shadow)]";
+  const shell = "feed-card bg-card border-border-strong/60 shadow-card rounded-2xl border p-4 transition-shadow duration-200 sm:rounded-3xl sm:p-5 sm:hover:shadow-[var(--lift-shadow)]";
 
   if (post.status === "removed") {
     return (

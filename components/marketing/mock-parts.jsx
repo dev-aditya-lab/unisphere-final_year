@@ -55,7 +55,7 @@ export function MockPost({ initials, name, meta, category, tone, children, stats
       {stats && (
         <div className="text-muted-foreground mt-3 flex items-center gap-3 border-t pt-2.5 text-xs">
           {/* The real card's reactions: a filled heart that springs in once, and the small icons of the other kinds it received. */}
-          <span className="tone-rose flex items-center gap-1.5 font-semibold text-(--tone-text)">
+          <span className="tone-rose bg-(--tone)/15 flex items-center gap-1.5 rounded-full px-3 py-1.5 font-semibold text-(--tone-text)">
             <span className="react-pop"><AppIcon name="heart" size={18} fill="solid" animate={false} /></span>
             {stats[0]}
           </span>
