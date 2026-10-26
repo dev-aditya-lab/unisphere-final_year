@@ -56,27 +56,27 @@ const COLUMNS = [
 
 export function SiteFooter() {
   return (
-    <footer className="bg-sunken pb-safe mt-24 border-t">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-[1.5fr_repeat(4,1fr)]">
+    <footer className="site-footer band pb-safe border-band-line mt-24 border-t">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-16 sm:grid-cols-2 sm:px-6 lg:grid-cols-[1.5fr_repeat(4,1fr)]">
         <div className="max-w-xs sm:col-span-2 lg:col-span-1">
-          <Logo />
-          <p className="font-heading mt-4 text-base font-extrabold tracking-tight">One space for every college community.</p>
-          <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+          <Logo wordmarkClassName="font-display text-[1.5rem] font-bold tracking-[-0.04em]" tile />
+          <p className="font-display mt-5 text-2xl leading-tight font-semibold tracking-[-0.03em]">One space for every college community.</p>
+          <p className="text-band-muted mt-3 text-sm leading-relaxed">
             An independent, free platform where students, alumni, teachers and clubs from any college share projects, find teammates and learn from each other.
           </p>
         </div>
         {COLUMNS.map((col) => (
           <nav key={col.title} aria-label={col.title}>
-            <h2 className="eyebrow mb-3 font-sans">{col.title}</h2>
+            <h2 className="text-band-muted mb-4 font-sans text-xs font-semibold tracking-[0.14em] uppercase">{col.title}</h2>
             <ul className="space-y-2">
               {col.links.map((l) => (
                 <li key={l.href}>
                   {l.href.startsWith("mailto:") ? (
-                    <a href={l.href} className="text-muted-foreground hover:text-foreground text-sm font-medium break-all transition-colors">
+                    <a href={l.href} className="text-band-foreground/80 hover:text-band-foreground text-sm break-all transition-colors">
                       {l.label}
                     </a>
                   ) : (
-                    <Link href={l.href} className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors">
+                    <Link href={l.href} className="text-band-foreground/80 hover:text-band-foreground text-sm transition-colors">
                       {l.label}
                     </Link>
                   )}
@@ -86,8 +86,9 @@ export function SiteFooter() {
           </nav>
         ))}
       </div>
-      <div className="border-t">
-        <div className="text-muted-foreground mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-5 text-xs sm:px-6">
+      <div aria-hidden="true" data-giant className="giant-word px-4" data-word="UniSphere" />
+      <div className="border-band-line border-t">
+        <div className="text-band-muted mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-6 text-xs sm:px-6">
           <p>&copy; {new Date().getFullYear()} UniSphere. All rights reserved.</p>
         </div>
       </div>

@@ -122,7 +122,7 @@ function ChannelsPanel() {
   const c = CHANNELS.find((x) => x.id === active);
   return (
     <div>
-      <div className="from-primary/25 via-accent to-sun/40 relative h-20 bg-gradient-to-r" aria-hidden="true" />
+      <div className="bg-primary-soft relative h-20 border-b" aria-hidden="true" />
       <div className="-mt-6 flex items-end gap-3 px-4">
         <span aria-hidden="true" className="bg-card tone-chip grid size-12 place-items-center rounded-xl border-2 text-sm font-bold">EC</span>
         <div className="pb-0.5 leading-tight">
@@ -153,7 +153,7 @@ function MessagesPanel() {
             <ChatMarkdown text={"Here is the **layout** for the lost-and-found board. What do you think of the claim flow?"} />
             <div className="mt-2 flex items-end gap-2">
               <div className="relative">
-                <div aria-hidden="true" className="from-primary/30 to-sun/50 h-24 w-40 rounded-lg bg-gradient-to-br" />
+                <div aria-hidden="true" className="bg-primary-soft h-24 w-40 rounded-lg border" />
                 <span className="bg-card absolute top-1.5 right-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold shadow-sm">⋯</span>
               </div>
               <ul className="text-muted-foreground bg-card rounded-lg border p-1 text-[11px] font-medium" aria-label="Actions on a file">

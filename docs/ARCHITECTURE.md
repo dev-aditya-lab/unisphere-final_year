@@ -99,6 +99,7 @@ Migrations in `supabase/migrations` are the single source of truth (forward-only
 | 0056 | Release note 2.3.0 (draft) |
 | 0057 | `report_community`: report a whole community to the platform team |
 | 0058 | Release note 2.4.0 (draft) |
+| 0059 | Release note 2.5.0 (draft) |
 
 Design rules: RLS on everything; column-level `UPDATE` grants protect trust fields; counters and notifications are
 trigger-maintained; recursion in policies is avoided with definer helper functions; soft deletes keep audit history.

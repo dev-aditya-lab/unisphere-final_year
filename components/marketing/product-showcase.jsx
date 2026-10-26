@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, m } from "motion/react";
 import { Newspaper } from "@/components/icons/lucide-compat";
 import { Compass, FolderKanban, Lightbulb } from "@/components/icons/lucide-compat";
 import { AiNote, Avatar, MockPost, MockSearch, MockWindow, RoleRow, TypeChip } from "@/components/marketing/mock-parts";
@@ -126,9 +127,12 @@ function CollegePanel() {
 
 const PANELS = { feed: FeedPanel, projects: ProjectPanel, discover: DiscoverPanel, colleges: CollegePanel };
 
+const EASE = [0.22, 1, 0.36, 1];
+
 /**
- * A tabbed look at four parts of the product. Plain buttons with the WAI-ARIA tabs pattern (arrow keys move between
- * tabs). Only the open panel is rendered. All four panels are static, labelled examples.
+ * A tabbed look at four parts of the product. The WAI-ARIA tabs pattern (arrow keys move between tabs, Home and End jump), as a
+ * vertical index: a signal bar slides to the open tab (Motion's shared-layout animation) and the open panel cross-fades with
+ * the one it replaces (AnimatePresence). Only the open panel is rendered, and all four are static, labelled examples.
  */
 export function ProductShowcase() {
   const [active, setActive] = useState("feed");
@@ -138,8 +142,8 @@ export function ProductShowcase() {
   function onKeyDown(e) {
     const i = TABS.findIndex((t) => t.id === active);
     let next = null;
-    if (e.key === "ArrowRight") next = TABS[(i + 1) % TABS.length];
-    if (e.key === "ArrowLeft") next = TABS[(i - 1 + TABS.length) % TABS.length];
+    if (e.key === "ArrowDown" || e.key === "ArrowRight") next = TABS[(i + 1) % TABS.length];
+    if (e.key === "ArrowUp" || e.key === "ArrowLeft") next = TABS[(i - 1 + TABS.length) % TABS.length];
     if (e.key === "Home") next = TABS[0];
     if (e.key === "End") next = TABS[TABS.length - 1];
     if (next) {
@@ -150,10 +154,10 @@ export function ProductShowcase() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
+    <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start lg:gap-16">
       <div>
-        <div role="tablist" aria-label="Parts of UniSphere" onKeyDown={onKeyDown} className="flex flex-wrap gap-2">
-          {TABS.map((t) => (
+        <div role="tablist" aria-label="Parts of UniSphere" aria-orientation="vertical" onKeyDown={onKeyDown} className="border-t">
+          {TABS.map((t, i) => (
             <button
               key={t.id}
               id={`showcase-tab-${t.id}`}
@@ -164,25 +168,35 @@ export function ProductShowcase() {
               tabIndex={active === t.id ? 0 : -1}
               onClick={() => setActive(t.id)}
               className={cn(
-                "focus-visible:ring-ring/50 inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-sm font-semibold transition-colors outline-none focus-visible:ring-[3px]",
-                active === t.id ? "border-primary bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground hover:border-foreground/40",
+                "focus-visible:ring-ring/50 relative flex w-full items-center gap-4 border-b py-4 pr-2 pl-5 text-left outline-none transition-colors focus-visible:ring-[3px]",
+                active === t.id ? "text-foreground" : "text-muted-foreground hover:text-foreground",
               )}
             >
-              <t.icon className="size-4" aria-hidden="true" />
-              {t.label}
+              {active === t.id && <m.span layoutId="showcase-bar" aria-hidden="true" className="bg-signal absolute inset-y-0 left-0 w-[3px]" transition={{ duration: 0.35, ease: EASE }} />}
+              <span className="kicker-num text-sm font-semibold tabular-nums">0{i + 1}</span>
+              <span className="font-display text-xl font-medium sm:text-2xl">{t.label}</span>
+              <t.icon className="ml-auto size-5 shrink-0" aria-hidden="true" />
             </button>
           ))}
         </div>
-        <div aria-live="polite" className="mt-6">
-          <h3 className="font-heading text-2xl font-extrabold tracking-tight">{tab.title}</h3>
-          <p className="text-muted-foreground mt-2 max-w-md leading-relaxed">{tab.text}</p>
+        <div aria-live="polite" className="mt-8 min-h-36">
+          <AnimatePresence mode="wait" initial={false}>
+            <m.div key={tab.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.28, ease: EASE }}>
+              <h3 className="font-display text-2xl font-medium tracking-tight">{tab.title}</h3>
+              <p className="text-muted-foreground mt-3 max-w-md leading-relaxed">{tab.text}</p>
+            </m.div>
+          </AnimatePresence>
         </div>
       </div>
 
       <div id="showcase-panel" role="tabpanel" aria-labelledby={`showcase-tab-${active}`} tabIndex={0} className="min-h-[25rem] outline-none">
         <MockWindow title={`unisphere / ${active}`}>
           <div className="p-3 sm:p-4">
-            <Panel />
+            <AnimatePresence mode="wait" initial={false}>
+              <m.div key={active} initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -14 }} transition={{ duration: 0.3, ease: EASE }}>
+                <Panel />
+              </m.div>
+            </AnimatePresence>
           </div>
         </MockWindow>
         <p className="text-muted-foreground mt-3 text-xs font-medium">Illustrative example with invented people and colleges.</p>

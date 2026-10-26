@@ -96,6 +96,15 @@
 
   --sidebar: #ffffff;
 
+  /* The public site's corporate skin (app/(marketing)/landing.css) redefines these; elsewhere they are just defaults. */
+  --signal: #c28f2c;
+  --signal-text: #7a5410;
+  --band: #0b1a2e;
+  --band-foreground: #eaeff6;
+  --band-muted: #a9b6c9;
+  --band-line: rgb(234 239 246 / 0.16);
+  --band-accent: #e0bd78;
+
   /* depth: one soft elevation, a stronger one for things that float above the page */
   --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.05);
   --shadow-pop: 0 4px 6px -2px rgb(16 24 40 / 0.05), 0 16px 32px -8px rgb(16 24 40 / 0.14);
@@ -182,6 +191,14 @@
 
   --sidebar: #0f1422;
 
+  --signal: #d6b06a;
+  --signal-text: #e3c48a;
+  --band: #050d18;
+  --band-foreground: #eaeff6;
+  --band-muted: #9fb0c6;
+  --band-line: rgb(234 239 246 / 0.14);
+  --band-accent: #e3c48a;
+
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow-pop: 0 4px 6px -2px rgb(0 0 0 / 0.4), 0 20px 40px -10px rgb(0 0 0 / 0.7);
   --lift-shadow: 0 8px 20px -8px rgb(0 0 0 / 0.7);
@@ -191,6 +208,8 @@
   --font-sans: var(--font-body), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-heading: var(--font-body), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
+  /* The public site's display face (Outfit, loaded by app/(marketing)/layout.js); elsewhere it falls back to the app's body face. */
+  --font-display: var(--font-outfit, var(--font-body)), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -249,6 +268,14 @@
   --color-coral-text: var(--coral-text);
   --color-rose-text: var(--rose-text);
   --color-plum-text: var(--plum-text);
+
+  --color-signal: var(--signal);
+  --color-signal-text: var(--signal-text);
+  --color-band: var(--band);
+  --color-band-foreground: var(--band-foreground);
+  --color-band-muted: var(--band-muted);
+  --color-band-line: var(--band-line);
+  --color-band-accent: var(--band-accent);
 
   --color-electric: var(--blue);
   --color-sidebar: var(--sidebar);

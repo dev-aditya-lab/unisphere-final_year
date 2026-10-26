@@ -39,7 +39,8 @@ export async function proxy(request) {
   const { pathname, search } = request.nextUrl;
   // A fresh nonce per request. Next.js reads it from the request's CSP header and tags its own scripts with it.
   const nonce = newNonce();
-  // Razorpay Checkout is admitted on the one page where a member pays, and nowhere else.
+  // The page where a member pays may post one form to a payment gateway that needs it (PAYMENT_FORM_ACTION_ORIGINS), and
+  // nowhere else may.
   const checkout = pathname === BLUE_TICK_PATH;
   const csp = buildCsp({ nonce, isDev: process.env.NODE_ENV === "development", checkout });
   const session = await updateSession(request, {

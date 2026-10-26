@@ -1,0 +1,670 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   The public site (landing page, features, about, legal)
+   ─────────────────────────────────────────────────────────────────────────────
+   Black, warm white and ONE vivid accent (signal blue, the brand's own royal blue). Big geometric type, flat colour, no gradients, hairlines, and
+   sections that alternate between white and black. The signed-in app keeps its own palette.
+
+   Everything hangs on `.corp-root` (the marketing layout's wrapper). The tokens are redefined on <html> through
+   `:has(.corp-root)` rather than on the wrapper, so things React portals out of it (the mobile menu, dialogs, toasts) wear the
+   same colours, and leaving the marketing layout restores the app palette with no code.
+
+   To change the accent, change --primary, --signal and --band-accent together (and re-check the *-text values: text on white needs 4.5:1).
+   Every text colour below was checked for WCAG AA on the surfaces it sits on (see docs/DESIGN.md).
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root:has(.corp-root) {
+  --radius: 0.75rem;
+
+  --background: #fafaf7;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --sunken: #f0efea;
+  --raised: #ffffff;
+
+  /* the one loud colour: buttons and marks. White on it is 5.0:1, and it is also readable as text on white (see --primary-text for tints). */
+  --primary: #2f63f0;
+  --primary-foreground: #ffffff;
+  --primary-text: #2450c8;
+  --primary-soft: #e7eeff;
+  --secondary: #f0efea;
+  --secondary-foreground: #0a0a0a;
+  --accent: #efeee8;
+  --accent-foreground: #0a0a0a;
+  --hot: #2f63f0;
+  --hot-foreground: #ffffff;
+  --hot-text: #2450c8;
+  --hot-soft: #e7eeff;
+
+  --muted: #f0efea;
+  --muted-foreground: #4a4a47;
+  --faint: #6b6b67;
+
+  --border: #e3e2dc;
+  --border-strong: #c9c8c1;
+  --input: #c9c8c1;
+  --ring: #0a0a0a;
+
+  /* content hues: everything is grey except the three that are the accent, so a row of tags never looks like a rainbow */
+  --stone: #8a8a85;  --stone-text: #52524e;
+  --teal: #8a8a85;   --teal-text: #52524e;
+  --blue: #8a8a85;   --blue-text: #52524e;
+  --leaf: #8a8a85;   --leaf-text: #52524e;
+  --plum: #8a8a85;   --plum-text: #52524e;
+  --sun: #2f63f0;    --sun-text: #2450c8;
+  --coral: #2f63f0;  --coral-text: #2450c8;
+  --rose: #2f63f0;   --rose-text: #2450c8;
+
+  --signal: #2f63f0;
+  --signal-text: #2450c8;
+  --band: #0a0a0a;
+  --band-foreground: #fafaf7;
+  --band-muted: #a8a8a3;
+  --band-line: rgb(250 250 247 / 0.16);
+  --band-accent: #5b86ff;
+
+  --shadow-card: 0 1px 2px rgb(10 10 10 / 0.05);
+  --shadow-pop: 0 2px 4px rgb(10 10 10 / 0.05), 0 22px 44px -16px rgb(10 10 10 / 0.28);
+  --lift-shadow: 0 14px 30px -14px rgb(10 10 10 / 0.3);
+}
+
+:root.dark:has(.corp-root) {
+  --background: #0a0a0a;
+  --foreground: #fafaf7;
+  --card: #141414;
+  --card-foreground: #fafaf7;
+  --popover: #181818;
+  --popover-foreground: #fafaf7;
+  --sunken: #050505;
+  --raised: #1c1c1c;
+
+  --primary: #2f63f0;
+  --primary-foreground: #ffffff;
+  --primary-text: #8fb0ff;
+  --primary-soft: #121c3f;
+  --secondary: #1c1c1c;
+  --secondary-foreground: #fafaf7;
+  --accent: #1c1c1c;
+  --accent-foreground: #fafaf7;
+  --hot: #2f63f0;
+  --hot-foreground: #ffffff;
+  --hot-text: #8fb0ff;
+  --hot-soft: #121c3f;
+
+  --muted: #181818;
+  --muted-foreground: #a8a8a3;
+  --faint: #8e8e89;
+
+  --border: #262626;
+  --border-strong: #3d3d3d;
+  --input: #3d3d3d;
+  --ring: #fafaf7;
+
+  --stone: #8a8a85;  --stone-text: #c8c8c3;
+  --teal: #8a8a85;   --teal-text: #c8c8c3;
+  --blue: #8a8a85;   --blue-text: #c8c8c3;
+  --leaf: #8a8a85;   --leaf-text: #c8c8c3;
+  --plum: #8a8a85;   --plum-text: #c8c8c3;
+  --sun: #2f63f0;    --sun-text: #8fb0ff;
+  --coral: #2f63f0;  --coral-text: #8fb0ff;
+  --rose: #2f63f0;   --rose-text: #8fb0ff;
+
+  --signal: #2f63f0;
+  --signal-text: #8fb0ff;
+  --band: #000000;
+  --band-foreground: #fafaf7;
+  --band-muted: #a8a8a3;
+  --band-line: rgb(250 250 247 / 0.14);
+  --band-accent: #5b86ff;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.5);
+  --shadow-pop: 0 4px 6px -2px rgb(0 0 0 / 0.5), 0 24px 48px -14px rgb(0 0 0 / 0.8);
+  --lift-shadow: 0 14px 30px -14px rgb(0 0 0 / 0.8);
+}
+
+.corp-root {
+  /* Outfit for everything on the public site; --font-outfit is set by the layout's next/font class. */
+  --font-body: var(--font-outfit), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: var(--font-body);
+  font-family: var(--font-body);
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* A black section. It re-points the colour tokens, so everything inside (text, icons, cards, buttons, diagrams) turns light on dark
+   with no per-component classes, in both themes. */
+.band {
+  --background: var(--band);
+  --foreground: var(--band-foreground);
+  --card: #141414;
+  --card-foreground: var(--band-foreground);
+  --sunken: #141414;
+  --muted-foreground: var(--band-muted);
+  --faint: #8e8e89;
+  --border: var(--band-line);
+  --border-strong: rgb(250 250 247 / 0.3);
+  --primary-text: #8fb0ff;
+  --signal-text: #8fb0ff;
+  --stone-text: #c8c8c3;
+  --teal-text: #c8c8c3;
+  --blue-text: #c8c8c3;
+  --leaf-text: #c8c8c3;
+  --plum-text: #c8c8c3;
+  --sun-text: #8fb0ff;
+  --coral-text: #8fb0ff;
+  --rose-text: #8fb0ff;
+  --primary-soft: #121c3f;
+  --ring: var(--band-foreground);
+  background: var(--band);
+  color: var(--band-foreground);
+}
+.band ::selection { background: color-mix(in srgb, var(--band-accent) 55%, transparent); }
+
+/* ── Type ────────────────────────────────────────────────────────────────────── */
+@layer components {
+  /* Headlines: Outfit, heavy and tight. Low specificity on purpose, so utility classes and component classes still win. */
+  :where(.corp-root) :where(h1, h2) {
+    font-family: var(--font-display);
+    font-weight: 650;
+    letter-spacing: -0.04em;
+    word-spacing: 0.08em;
+    line-height: 0.98;
+  }
+  .corp-root .display,
+  .corp-root .display-sm {
+    font-family: var(--font-display);
+    font-weight: 650;
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+  }
+
+  .corp-title {
+    font-size: clamp(2.6rem, 1.1rem + 5.4vw, 6.25rem);
+    line-height: 0.96;
+    letter-spacing: -0.04em;
+    word-spacing: 0.1em;
+    text-wrap: balance;
+  }
+  .corp-hero-title {
+    font-size: clamp(3.4rem, 1rem + 9.4vw, 10.5rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.055em;
+    word-spacing: 0.14em;
+  }
+  .corp-lede {
+    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem);
+    line-height: 1.45;
+    color: var(--muted-foreground);
+  }
+
+  /* The small label above a section: the number in the accent, then the name. */
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .kicker-num {
+    font-variant-numeric: tabular-nums;
+    color: var(--signal-text);
+  }
+  .kicker-dot { display: inline-block; width: 0.55rem; height: 0.55rem; border-radius: 9999px; background: var(--signal); }
+}
+
+/* ── Header and footer ───────────────────────────────────────────────────────── */
+.mkt-header { position: sticky; transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.35s ease; will-change: transform; }
+/* It slips away while you read down the page and returns on the first scroll up (set from scroll-fx.js). */
+.mkt-header[data-hidden="true"] { transform: translateY(-101%); }
+/* At the very top it is black, one piece with the black hero under it; it turns light on the first scroll. */
+.mkt-header[data-top="true"] {
+  --background: var(--band);
+  --foreground: #fafaf7;
+  --muted-foreground: #a8a8a3;
+  --accent: rgb(250 250 247 / 0.1);
+  --border: rgb(250 250 247 / 0.12);
+  --ring: #fafaf7;
+}
+.mkt-header[data-top="true"] a[aria-label="UniSphere home"] > span:first-child { background: #ffffff; padding: 2px; border-radius: 0.5rem; }
+/* Reading progress: an accent hairline under the header that fills as the page scrolls. CSS only (scroll-driven animation); where
+   that is unsupported, or motion is reduced, it is simply not shown. */
+.scroll-progress {
+  position: absolute;
+  inset: auto 0 -1px 0;
+  height: 3px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+@keyframes progress-grow { to { transform: scaleX(1); } }
+@supports (animation-timeline: scroll()) {
+  .scroll-progress { animation: progress-grow linear both; animation-timeline: scroll(root block); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress { animation: none; transform: none; opacity: 0; }
+}
+/* The landing page ends on a black band, so the black footer follows it with no gap. */
+:root:has(.landing-root) .site-footer { margin-top: 0; }
+
+/* The footer's giant wordmark is generated content (decoration, not text in the page). */
+.giant-word { overflow: hidden; line-height: 0.8; padding-top: 0.06em; }
+.giant-word::before {
+  content: attr(data-word);
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(4rem, 19.6vw, 24rem);
+  letter-spacing: -0.065em;
+  line-height: 0.82;
+  color: color-mix(in srgb, var(--band-foreground) 11%, transparent);
+  transform: translateY(var(--rise, 0%));
+}
+
+/* ── Smooth scrolling (Lenis) ────────────────────────────────────────────────── */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: clip; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
+/* ── Hero entrance (CSS only: it runs from the first paint, before any script) ───────────────────────────────────────── */
+.hero-line { display: block; overflow: hidden; padding-bottom: 0.26em; margin-bottom: -0.26em; }
+.landing-root { --intro: 1.7s; }
+html[data-intro="seen"] .landing-root { --intro: 0s; }
+@media (prefers-reduced-motion: reduce) { .landing-root { --intro: 0s; } }
+.hero-line > span { display: block; animation: hero-line-up 1.15s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: calc(var(--i, 0) * 130ms + 120ms + var(--intro, 0s)); }
+@keyframes hero-line-up { from { transform: translateY(112%) rotate(3deg); } }
+.hero-in { animation: hero-in 1s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: calc(var(--i, 0) * 110ms + 520ms + var(--intro, 0s)); }
+@keyframes hero-in { from { opacity: 0; transform: translateY(24px); } }
+.hero-frame { animation: hero-frame 1.4s cubic-bezier(0.76, 0, 0.24, 1) backwards; animation-delay: calc(0.1s + var(--intro, 0s)); }
+@keyframes hero-frame { from { clip-path: inset(100% 0 0 0 round 2rem); } to { clip-path: inset(0 0 0 0 round 2rem); } }
+.hero-img { animation: hero-img 1.8s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: calc(0.1s + var(--intro, 0s)); }
+@keyframes hero-img { from { transform: scale(1.25); } }
+.hero-card { animation: hero-card 1s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: calc(var(--i, 0) * 150ms + 1100ms + var(--intro, 0s)); }
+@keyframes hero-card { from { opacity: 0; transform: translateY(26px) scale(0.96); } }
+
+/* A path that draws itself once (the hero underline). `pathLength="1"` is set on the element. */
+.draw-once { stroke-dasharray: 1; stroke-dashoffset: 0; animation: draw-once 1.4s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: calc(var(--d, 0) * 1ms + 900ms + var(--intro, 0s)); }
+@keyframes draw-once { from { stroke-dashoffset: 1; } }
+
+/* Slow ambient motion for decorative rings. */
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.spin-slow { transform-box: fill-box; transform-origin: center; animation: spin-slow 90s linear infinite; }
+.spin-slow-rev { transform-box: fill-box; transform-origin: center; animation: spin-slow 140s linear infinite reverse; }
+@keyframes pulse-ring { 0% { transform: scale(0.6); opacity: 0.55; } 100% { transform: scale(2.2); opacity: 0; } }
+.pulse-ring { transform-box: fill-box; transform-origin: center; animation: pulse-ring 3.2s ease-out infinite; animation-delay: calc(var(--d, 0) * 1ms); }
+@keyframes live-dot { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(2.6); opacity: 0; } }
+.live-dot::after { content: ""; position: absolute; inset: 0; border-radius: 9999px; background: var(--signal); animation: live-dot 1.8s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .spin-slow, .spin-slow-rev, .pulse-ring, .live-dot::after { animation: none; }
+  .pulse-ring, .live-dot::after { opacity: 0; }
+}
+
+/* ── The marquee strip ───────────────────────────────────────────────────────── */
+.marquee { overflow: hidden; background: var(--signal); color: #ffffff; }
+.marquee-track { display: flex; width: max-content; will-change: transform; }
+.marquee-ink { background: var(--band); color: var(--band-foreground); }
+.marquee-ink svg { color: var(--band-accent); }
+
+/* ── Statement: words that fill in as you scroll, with a marker under the key ones ─────────────────────────────────── */
+.statement-text { font-weight: 600; letter-spacing: -0.04em; line-height: 1.04; font-size: clamp(2.2rem, 1rem + 4.6vw, 5.75rem); text-wrap: balance; }
+.statement-text { word-spacing: 0.06em; }
+.statement-text .word { color: color-mix(in srgb, var(--foreground) calc(var(--p, 1) * 100%), var(--faint)); }
+/* A flat marker stroke under the key phrases; its width is driven by --mark from the scroll, and it repeats on every line a phrase wraps onto. */
+.statement-text mark {
+  background-color: transparent;
+  color: inherit;
+  background-image: linear-gradient(var(--signal), var(--signal));
+  background-repeat: no-repeat;
+  background-position: 0 90%;
+  background-size: calc(var(--mark, 1) * 100%) 0.3em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* ── Facts ───────────────────────────────────────────────────────────────────── */
+.fact-num { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.06em; line-height: 0.85; font-size: clamp(3.75rem, 1rem + 7.2vw, 8.75rem); font-variant-numeric: tabular-nums; }
+
+/* ── How it works: three panels in a stack; on a large screen, one wide track that scrolls sideways while the page holds ──── */
+.hscroll-head { max-width: 72rem; margin-inline: auto; padding: 6rem 1rem 0; }
+.hscroll-track { position: relative; max-width: 72rem; margin-inline: auto; padding: 3rem 1rem 6rem; }
+@media (min-width: 640px) { .hscroll-head, .hscroll-track { padding-inline: 1.5rem; } }
+.hscroll-panels { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+@media (min-width: 768px) { .hscroll-panels { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.hscroll-panel { display: flex; flex-direction: column; gap: 1.5rem; border: 1px solid var(--border); border-radius: 1.75rem; background: var(--card); padding: 1.75rem; }
+.hscroll-path, .hscroll-progress { display: none; }
+
+[data-hscroll].is-pinned { position: relative; height: 100svh; overflow: hidden; }
+[data-hscroll].is-pinned .hscroll-head { position: absolute; top: 5.5rem; left: 0; right: 0; z-index: 3; max-width: none; margin: 0; padding: 0 max(2rem, calc((100vw - 72rem) / 2 + 1.5rem)); }
+[data-hscroll].is-pinned .hscroll-head .corp-title { font-size: clamp(2.2rem, 1rem + 3vw, 4.25rem); max-width: 46rem; }
+[data-hscroll].is-pinned .hscroll-track { display: flex; width: max-content; max-width: none; height: 100%; margin: 0; padding: 0; will-change: transform; }
+[data-hscroll].is-pinned .hscroll-panels { display: flex; gap: 0; height: 100%; }
+[data-hscroll].is-pinned .hscroll-panel {
+  position: relative;
+  flex: 0 0 100vw;
+  width: 100vw;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 5vw;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 15rem max(2rem, calc((100vw - 72rem) / 2 + 1.5rem)) 6rem;
+}
+/* The big ghost number behind each panel is generated content, so it is decoration and not text in the page. */
+[data-hscroll].is-pinned .hscroll-panel::before {
+  content: attr(data-n);
+  position: absolute;
+  left: 2vw;
+  bottom: -4vw;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 42vw;
+  line-height: 0.8;
+  letter-spacing: -0.08em;
+  color: transparent;
+  -webkit-text-stroke: 2px color-mix(in srgb, var(--foreground) 14%, transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+[data-hscroll].is-pinned .hscroll-panel > * { position: relative; z-index: 1; }
+[data-hscroll].is-pinned .step-art { order: 2; padding: 2.5rem; border: 1px solid var(--border); border-radius: 2rem; background: var(--card); }
+[data-hscroll].is-pinned .step-art svg { max-height: 22rem; }
+[data-hscroll].is-pinned .step-text { order: 1; }
+[data-hscroll].is-pinned .step-title { font-size: clamp(2.6rem, 1rem + 4.4vw, 5.5rem); line-height: 0.94; letter-spacing: -0.045em; }
+[data-hscroll].is-pinned .step-body { max-width: 30rem; font-size: 1.25rem; }
+[data-hscroll].is-pinned .hscroll-path { display: block; position: absolute; left: 0; bottom: 2rem; width: 300vw; height: auto; z-index: 0; pointer-events: none; overflow: visible; }
+[data-hscroll].is-pinned .hscroll-progress { display: block; position: absolute; left: max(2rem, calc((100vw - 72rem) / 2 + 1.5rem)); right: max(2rem, calc((100vw - 72rem) / 2 + 1.5rem)); bottom: 2.5rem; height: 3px; background: var(--border); z-index: 3; }
+[data-hscroll].is-pinned .hscroll-progress > span { display: block; height: 100%; background: var(--signal); transform: scaleX(0); transform-origin: 0 50%; }
+
+/* The story image: a framed picture on a phone, a full-screen scene that opens up as you scroll on a large screen. */
+.story-media { position: relative; overflow: hidden; aspect-ratio: 16 / 9; background: var(--sunken); }
+.story-copy { color: var(--foreground); }
+[data-pin-story].is-pinned { position: relative; height: 100svh; overflow: hidden; background: var(--background); }
+[data-pin-story].is-pinned .story-media { position: absolute; inset: 0; aspect-ratio: auto; }
+[data-pin-story].is-pinned .story-copy { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; justify-content: center; color: #ffffff; --muted-foreground: #e6e6e1; }
+.story-scrim { position: absolute; inset: 0; background: #060606; opacity: 0.6; }
+[data-pin-story]:not(.is-pinned) .story-scrim { display: none; }
+.story-line { display: block; overflow: hidden; padding-bottom: 0.22em; margin-bottom: -0.22em; }
+.story-line > span { display: block; }
+[data-pin-story].is-pinned .story-wrap { position: static; max-width: none; margin: 0; padding: 0; }
+[data-pin-story].is-pinned .story-media { border-radius: 0; }
+[data-pin-story].is-pinned .kicker { color: #e6e6e1; }
+[data-pin-story].is-pinned .kicker-num { color: var(--band-accent); }
+
+/* ── Pictures ────────────────────────────────────────────────────────────────── */
+.img-frame { position: relative; overflow: hidden; background: var(--sunken); }
+
+/* The communities index: a thumbnail on touch screens (where there is no pointer to follow); sheryjs's picture on a desktop. */
+.club-row { cursor: default; }
+@media (hover: hover) and (pointer: fine) { .club-thumb { display: none; } }
+
+/* ── sheryjs ─────────────────────────────────────────────────────────────────── */
+/* sheryjs ships a stylesheet with a global `body { background-color: #fff }` that would break dark mode, so its CSS is not
+   imported at all: these are only the rules its effects need, restyled to match the rest of the page. */
+.mousefollower {
+  position: fixed;
+  top: -10%;
+  left: -10%;
+  z-index: 60;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  pointer-events: none;
+  /* sheryjs scales this to 4x over a magnetic button, which would hide the button's label, so the scale is pinned here. */
+  transform: translate(-50%, -50%) !important;
+  background: #0a0a0a;
+  box-shadow: 0 0 0 2px #fafaf7, 0 0 0 3px rgb(10 10 10 / 0.35);
+}
+#behindmouse { display: none; }
+@media (hover: none), (pointer: coarse) { .mousefollower { display: none; } }
+
+.sheryelem { white-space: nowrap; }
+.sheryelem span { display: inline-block; }
+
+.mask { position: relative; display: block; overflow: hidden; }
+.img-frame .mask { position: absolute; inset: 0; }
+.mask .circle {
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: content-box;
+  padding: 12px;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hovercircle { position: relative; }
+.movercirc {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 55;
+  width: 0;
+  height: 0;
+  max-width: 260px;
+  max-height: 260px;
+  overflow: hidden;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: var(--shadow-pop);
+}
+.movercirc img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.just-a-white-blend-screen { display: none; }
+
+/* The one canvas sheryjs draws every image effect into: fixed, above ordinary page content (which is why the floating cards
+   in the hero carry a z-index) and never in the way of a click. */
+._canvas_container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+/* Hidden at rest (the original image shows the same picture) and between visits; shown only while the effect is moving. */
+._canvas_container[data-state="paused"], ._canvas_container[data-state="idle"] { opacity: 0; visibility: hidden; }
+
+/* ── Refer & Earn spotlight ──────────────────────────────────────────────────── */
+/* The one place on the page with a gradient: royal blue bleeding into black, inside a single rounded stage, so it highlights the
+   section without becoming the site's look. A soft light follows the pointer, a thin light circles the edge, colour drifts slowly and
+   embers rise. Every moving part stops for reduced motion and leaves the still gradient. */
+@property --a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes edge-spin { to { --a: 360deg; } }
+
+.refer-stage { position: relative; isolation: isolate; overflow: hidden; border-radius: 2.5rem; background: #111111; border: 1px solid rgb(250 250 247 / 0.08); padding: 2rem; --mx: 72%; --my: 26%; }
+@media (min-width: 640px) { .refer-stage { padding: 3rem; } }
+@media (min-width: 1024px) { .refer-stage { padding: 4.5rem; } }
+.refer-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(from var(--a), transparent 0 62%, #2f63f0 80%, #d6e2ff 92%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: edge-spin 7s linear infinite;
+}
+.refer-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(60% 75% at 90% 18%, rgb(47 99 240 / 0.58), transparent 62%),
+    radial-gradient(55% 70% at 4% 108%, rgb(20 34 130 / 0.55), transparent 68%);
+}
+.refer-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(360px circle at var(--mx) var(--my), rgb(120 160 255 / 0.2), transparent 62%);
+}
+.refer-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: radial-gradient(rgb(250 250 247 / 0.13) 1px, transparent 1.4px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(75% 75% at 72% 40%, #000, transparent);
+  mask-image: radial-gradient(75% 75% at 72% 40%, #000, transparent);
+}
+.refer-shift { position: absolute; inset: 0; z-index: 0; transform: translate3d(0, var(--shift, 0%), 0); will-change: transform; }
+.refer-blob { position: absolute; width: 34rem; height: 34rem; border-radius: 9999px; background: #2f63f0; filter: blur(110px); opacity: 0.3; will-change: transform; animation: blob-drift 18s ease-in-out infinite alternate; }
+.refer-blob-a { top: -14rem; right: -10rem; }
+.refer-blob-b { bottom: -18rem; left: -12rem; background: #1b2a9c; opacity: 0.4; animation-duration: 23s; animation-direction: alternate-reverse; }
+@keyframes blob-drift { to { transform: translate3d(-8%, 10%, 0) scale(1.12); } }
+
+.refer-embers { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+.ember { position: absolute; bottom: -12px; left: var(--x); width: 5px; height: 5px; border-radius: 9999px; background: #9db8ff; box-shadow: 0 0 10px 2px rgb(90 140 255 / 0.7); opacity: 0; animation: ember-rise-r var(--t) linear infinite backwards; animation-delay: var(--d); }
+.ember:nth-child(even) { animation-name: ember-rise-l; }
+@keyframes ember-rise-r {
+  0% { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; }
+  10% { opacity: 0.95; }
+  100% { transform: translate3d(18px, -34rem, 0) scale(1); opacity: 0; }
+}
+@keyframes ember-rise-l {
+  0% { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; }
+  10% { opacity: 0.95; }
+  100% { transform: translate3d(-18px, -34rem, 0) scale(1); opacity: 0; }
+}
+
+/* Decorative loops only run while their section is on screen (landing-fx marks it with data-live), so they cost nothing elsewhere. */
+[data-pause-offscreen][data-live="false"],
+[data-pause-offscreen][data-live="false"] *,
+[data-pause-offscreen][data-live="false"] *::before,
+[data-pause-offscreen][data-live="false"] *::after,
+[data-pause-offscreen][data-live="false"]::before { animation-play-state: paused !important; }
+
+/* the planet and the small planets that circle it */
+.orbit-ring { position: absolute; inset: var(--inset); border-radius: 50%; border: 1px dashed rgb(250 250 247 / 0.22); animation: orbit-spin var(--t) linear infinite; }
+.orbit-moon { position: absolute; top: calc(var(--s) / -2); left: calc(50% - var(--s) / 2); width: var(--s); height: var(--s); animation: orbit-spin var(--t) linear infinite reverse; }
+.orbit-moon-opposite { top: auto; bottom: calc(var(--s) / -2); }
+@keyframes orbit-spin { to { transform: rotate(360deg); } }
+
+/* the invite card and the friend's progress */
+.refer-card { position: relative; border: 1px solid rgb(250 250 247 / 0.16); border-radius: 1.25rem; background: #101010; padding: 0.9rem 1rem; color: #fafaf7; box-shadow: 0 24px 50px -24px rgb(0 0 0 / 0.9); }
+.friend { animation: friend-step 9s ease-in-out infinite backwards; animation-delay: calc(var(--i) * 2.4s); }
+@keyframes friend-step {
+  0%, 6% { opacity: 0; transform: translateY(16px) scale(0.96); }
+  14%, 72% { opacity: 1; transform: none; }
+  82%, 100% { opacity: 0; transform: translateY(-6px); }
+}
+.gain { animation: gain-rise 9s ease-out infinite backwards; animation-delay: calc(var(--i) * 2.4s + 0.9s); }
+@keyframes gain-rise {
+  0%, 8% { opacity: 0; transform: translate(0, 0) scale(0.8); }
+  16% { opacity: 1; transform: translate(0, -6px) scale(1.05); }
+  46% { opacity: 0; transform: translate(-5rem, -9rem) scale(1.3); }
+  100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .refer-stage::before, .refer-blob, .orbit-ring, .orbit-ring > .coin-sm, .friend, .gain { animation: none; }
+  .ember { display: none; }
+}
+
+/* ── The hero's 3D planet ────────────────────────────────────────────────────── */
+/* A still planet picture that floats gently, in the same place the 3D scene draws into on a capable desktop. The scene (landing-fx.jsx,
+   lib/landing/hero-scene.js) adds .is-3d once its first frame is up, which fades this picture out. Phone: in the flow above the headline. */
+.hero-3d { position: relative; height: 16rem; margin-inline: auto; pointer-events: none; z-index: 0; }
+@media (min-width: 1024px) { .hero-3d { position: absolute; inset: 0 0 auto 0; height: min(100svh, 62rem); margin: 0; } }
+.hero-3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1.4s ease; }
+.hero-planet {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(15rem, 62vw);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  transition: opacity 0.9s ease;
+  animation: planet-in 1.6s cubic-bezier(0.16, 1, 0.3, 1) backwards, planet-float 7s ease-in-out infinite;
+  animation-delay: calc(0.2s + var(--intro, 0s)), calc(1.8s + var(--intro, 0s));
+}
+@media (min-width: 1024px) { .hero-planet { left: 74%; width: min(34rem, 40vw); } }
+.hero-planet-img { width: 100%; height: auto; }
+.hero-3d.is-3d .hero-planet { opacity: 0; }
+@keyframes planet-in { from { opacity: 0; transform: scale(0.55) rotate(-24deg); } }
+@keyframes planet-float { 50% { transform: translateY(-14px) rotate(3deg); } }
+.planet-float { animation: planet-float 8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .hero-planet, .planet-float { animation: none; } }
+
+/* ── The loading screen ──────────────────────────────────────────────────────── */
+/* Plain CSS from the first paint; it lifts itself away at about 2 s whether or not any script loads. */
+@property --n { syntax: "<integer>"; inherits: false; initial-value: 0; }
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #060606;
+  color: #fafaf7;
+  animation: intro-lift 0.8s cubic-bezier(0.76, 0, 0.24, 1) 1.5s forwards;
+}
+.intro.is-skipped { animation-duration: 0.5s; animation-delay: 0s; }
+html[data-intro="seen"] .intro { display: none; }
+@media (prefers-reduced-motion: reduce) { .intro { display: none; } }
+@keyframes intro-lift {
+  from { transform: translateY(0); border-radius: 0; }
+  to { transform: translateY(-101%); border-radius: 0 0 50% 50% / 0 0 14vh 14vh; visibility: hidden; }
+}
+.intro-stage { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; padding: 1rem; text-align: center; }
+.intro-logo { position: relative; display: grid; place-items: center; width: 7.5rem; height: 7.5rem; }
+.intro-tile { display: block; width: 5.25rem; height: 5.25rem; padding: 0.45rem; border-radius: 1.4rem; background: #ffffff; animation: intro-pop 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards; }
+.intro-ring { position: absolute; inset: -1.1rem; width: calc(100% + 2.2rem); height: calc(100% + 2.2rem); transform: rotate(-90deg); }
+.intro-ring circle { stroke-dasharray: 1; stroke-dashoffset: 0; animation: intro-draw 1.3s cubic-bezier(0.65, 0, 0.35, 1) 0.25s backwards; }
+@keyframes intro-draw { from { stroke-dashoffset: 1; } }
+.intro-orbit { position: absolute; inset: -2.3rem; animation: intro-spin 1.7s cubic-bezier(0.3, 0.1, 0.2, 1) both; }
+.intro-planet { position: absolute; top: -1.4rem; left: calc(50% - 1.4rem); width: 2.8rem; height: 2.8rem; }
+@keyframes intro-spin { from { transform: rotate(-220deg) scale(0.5); opacity: 0; } to { transform: rotate(765deg) scale(1); opacity: 1; } }
+@keyframes intro-pop { from { transform: scale(0.5); opacity: 0; } }
+.intro-word { display: flex; overflow: hidden; padding-bottom: 0.18em; font-family: var(--font-display); font-weight: 700; font-size: clamp(2.8rem, 1rem + 5.5vw, 5rem); letter-spacing: -0.05em; line-height: 1; }
+.intro-word > span { display: inline-block; animation: intro-rise 0.85s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: calc(0.55s + var(--i, 0) * 45ms); }
+@keyframes intro-rise { from { transform: translateY(115%) rotate(6deg); } }
+.intro-tag { font-size: 0.95rem; letter-spacing: 0.02em; color: #a8a8a3; animation: intro-fade 0.8s ease 1.05s backwards; }
+@keyframes intro-fade { from { opacity: 0; transform: translateY(8px); } }
+.intro-count {
+  position: absolute;
+  right: clamp(1rem, 4vw, 3rem);
+  bottom: clamp(0.5rem, 2vw, 1.5rem);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(5rem, 2rem + 16vw, 16rem);
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  font-variant-numeric: tabular-nums;
+  color: rgb(250 250 247 / 0.14);
+  counter-reset: n var(--n);
+  animation: intro-count 1.4s cubic-bezier(0.25, 0.6, 0.3, 1) 0.1s forwards;
+}
+.intro-count::after { content: counter(n); }
+@keyframes intro-count { to { --n: 100; } }
+.intro-bar { position: absolute; inset: auto 0 0 0; height: 3px; background: rgb(250 250 247 / 0.1); }
+.intro-bar i { display: block; height: 100%; background: #2f63f0; transform-origin: 0 50%; animation: intro-bar 1.45s cubic-bezier(0.25, 0.6, 0.3, 1) 0.1s backwards; }
+@keyframes intro-bar { from { transform: scaleX(0); } }

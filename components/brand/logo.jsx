@@ -21,11 +21,11 @@ export function LogoMark({ className, tile = false, priority = false }) {
   );
 }
 
-export function Logo({ className, href = "/", showWordmark = true, markClassName, tile = false, priority = false }) {
+export function Logo({ className, href = "/", showWordmark = true, markClassName, wordmarkClassName, tile = false, priority = false }) {
   const content = (
     <>
       <LogoMark className={markClassName} tile={tile} priority={priority} />
-      {showWordmark && <span className="font-heading text-[1.2rem] font-extrabold tracking-tight">UniSphere</span>}
+      {showWordmark && <span className={cn("font-heading text-[1.2rem] font-extrabold tracking-tight", wordmarkClassName)}>UniSphere</span>}
     </>
   );
   if (!href) return <span className={cn("inline-flex items-center gap-2", className)}>{content}</span>;

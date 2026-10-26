@@ -91,7 +91,7 @@ the light `m` element (not `motion`); the animation engine is loaded after hydra
 - `fireConfetti` / `queueCelebration`: milestones only (finishing onboarding, publishing a project, getting
   verified). A celebration is queued by the page that completes the milestone and played by the page the member
   lands on, so nothing is delayed to make room for it.
-- Marketing: scroll reveals, the marquee strip, the orbit; all CSS or `motion` with transforms only.
+- Marketing: see "The public site" below (GSAP for scroll choreography, `motion` for interface state, sheryjs as a desktop extra).
 
 ## The home feed (2.4.0)
 
@@ -112,6 +112,102 @@ The home page is one calm column. Order, top to bottom: a one-line official anno
 Motion rules held: feedback 120 to 260 ms, only `transform` and `opacity` (the announcement opens with a grid-row
 transition, no layout script), nothing loops, and the global reduced-motion rule reduces everything to a single still
 frame. Touch targets are at least 44 px where a thumb is the pointer (Apple HIG 44 pt, Material 48 dp, WCAG 2.5.8 minimum 24 px).
+
+## The public site (2.5.0): black, white and one blue
+
+The landing page and every other marketing page (features, about, FAQ, pricing, legal) have their own, bolder look. The signed-in app is
+unchanged. Everything hangs on one wrapper, `.corp-root`, rendered by `app/(marketing)/layout.js`.
+
+**Palette.** Black, white and graphite, with **one** vivid blue, the same blue family as the signed-in app (`--primary: #2f63f0`; `--signal`
+and `--band-accent` follow it). Changing the accent is a one-place edit: those tokens at the top of `app/(marketing)/landing.css`. The
+rainbow of content hues is mapped to neutrals (blue, teal, leaf, plum, stone become greys; sun, coral, rose become the accent) so a row of
+tags reads as one family. Blue text on white uses `--primary-text: #2450c8` (AA on white); on black it is `#8fb0ff`. The tokens are redefined
+on `:root:has(.corp-root)`, not on the wrapper, so things React portals out of it (the mobile menu, dialogs, toasts) wear the same colours;
+leaving the marketing layout restores the app palette with no code. Dark mode has its own set.
+
+*Black sections.* `.band` re-points every text token, including the tag colours the mock-ups use (`--blue-text`, `--rose-text`, and the
+rest), so anything inside a black section is checked against black, not against the light theme. Forgetting one fails contrast (it did,
+twice). Tokens added: `--signal`, `--signal-text`, `--band`, `--band-foreground`, `--band-muted`, `--band-line`, `--band-accent`.
+
+*Gradients.* Flat everywhere, except two places that are the point of the page: the Refer & Earn stage (a blue glow bleeding into black,
+a rotating conic edge, drifting blobs) and the 3D planet's glow. Nothing else is a gradient.
+
+**Type.** Outfit (friendly geometric sans, variable, from `next/font/google`, loaded only by the marketing layout and exposed as
+`--font-outfit`; `--font-display` falls back to it). `.corp-title`, `.corp-hero-title` and `.corp-lede` are the roles. The small section
+label is `.kicker`: a dot, the section number in `--signal-text`, then the name.
+
+**The opening.** A loading screen (`components/landing/intro.jsx`, styles `.intro*` in `landing.css`): black, the logo inside a ring that draws
+itself, the Orbits planet circling it, "UniSphere" rising letter by letter, a counter climbing to 100, then the whole screen lifts away on a
+curved edge. About 2.3 seconds. It is plain CSS, so it runs from the first paint and dismisses itself even if scripts never load. It plays
+once per tab session (sessionStorage `unisphere:intro-seen`, listed on the cookies page), any click or key skips it, and it never plays with
+reduced motion. The hero's own entrance and the 3D planet's wait for it through `--intro` and a delay.
+
+**The hero.** Black. Three line headline, a blue underline that draws itself, the pill with a live dot, magnetic buttons, a spinning "open to
+everyone" badge, and the Orbits planet (`public/icons/reward/orbit.png`) behind the right half.
+- On a wide, capable screen the planet is a real three.js scene (`lib/landing/hero-scene.js`): the planet, a violet halo and a blue glow,
+  two tilted rings with a moon and a four-point star riding them, drifting specks and a star field, leaning toward the pointer and flying toward the
+  camera as the page scrolls away. It needs motion allowed, a width of 900 px or more, WebGL, no data-saver, nothing slower than 4G and at least
+  4 GB where the browser says. Everyone else keeps `HeroPlanet`, the same artwork as a still picture that floats; it is server-rendered and
+  is also what shows while the scene loads, so the planet is always there.
+- The scene draws only while it is on screen and the tab is visible (an IntersectionObserver and `visibilitychange`), and its teardown removes the
+  canvas and releases the GL context (checked: after a client-side navigation there is no canvas and no frame loop; coming back restarts it).
+- **Frame-time governor.** The scene is decoration, so a device that cannot draw it smoothly gets a softer picture and, failing that, the still
+  planet. After a warm-up it averages runs of 45 frames; above 26 ms (about 38 fps) it steps the resolution down (a device-pixel-ratio cap of 1.75,
+  1.25, 1, 0.75, 0.6, whichever is below the current one), and if it is still above 45 ms at the lowest it calls `onGiveUp`, which removes
+  the canvas and brings the still planet back for good. Checked with software rendering (no GPU): it stepped from 1440 x 900 to 864 x 540 and
+  kept going; with frames forced to 15 fps it walked the whole ladder and gave up cleanly with no errors.
+- The header over the hero is black and one piece with it (`data-top`), turns light after 60 px of scrolling, hides on the way down (after 320 px)
+  and returns on the way up. With reduced motion the script does not run, so the header is simply the light one.
+
+**Smooth scroll.** Lenis (`lib/landing/smooth-scroll.js`, `lerp: 0.09`), driven by GSAP's ticker so ScrollTrigger reads the same eased position;
+anchors on the same page glide to their target. It is not started for reduced motion, and it stays out of dialogs and menus.
+
+**Who animates what.** Sections are Server Components, complete and visible with no script; animation is added afterwards from data attributes.
+
+| Library | Owns | Where |
+| --- | --- | --- |
+| GSAP (ScrollTrigger, SplitText, DrawSVG, MotionPath) | Page choreography: the sideways *How it works* hold and the *story* hold, the scrubbed statement, scrubbed and one-shot SVG path drawing, a dot riding a path, split headlines, picture wipes and parallax, lagged tiles, staggered reveals, the giant footer wordmark, the Refer stage, the header's behaviour | `lib/landing/scroll-fx.js` (a lazily imported chunk), driven by `data-hero-line`, `data-statement`, `data-reveal`, `data-stagger`, `data-split`, `data-img-reveal`, `data-parallax`, `data-lag`, `data-draw`, `data-travel`, `data-hscroll`, `data-pin-story`, `data-giant`, `data-refer-stage` |
+| Motion (`motion/react`) | Interface that has state or velocity: the marquee that speeds up with your scroll, the product tabs (sliding `layoutId` bar, `AnimatePresence` panels), hero pointer depth, count-up numbers, card tilt, the Refer planet's float | `components/landing/{marquee,hero-pointer,count-up,tilt,spin-badge,refer-visual}.jsx`, `components/marketing/product-showcase.jsx`; engine from `<MotionFeatures>` |
+| three.js | The hero's 3D planet | `lib/landing/hero-scene.js` |
+| sheryjs | A desktop-only extra: cursor follower, magnetic buttons, letter-by-letter section labels, picture zoom with a "View" circle, a picture that follows the pointer along the communities list, a WebGL ripple on the hero photograph | `lib/landing/shery-runtime.js`, started late by `landing-fx.jsx` |
+| CSS | The loading screen, the hero entrance (from first paint, before any script), the marquee's static state, the header's reading-progress line, the Refer stage's glow, rings and embers | `app/(marketing)/landing.css` |
+
+**The two holds** (large screens only, `(min-width: 1024px) and (min-height: 620px)` with motion allowed): *How it works* pins and the three steps
+slide sideways while a blue path draws and a dot rides it; *Inside UniSphere* pins while a framed picture opens to the full screen and the
+headline rises out of it. Below that size, or with reduced motion, they are ordinary stacked content (the section gets `.is-pinned` only while a
+hold is active, and the layout CSS keys off that class).
+
+**Rules that keep it accessible and fast**
+- Nothing is hidden until script runs; reduced motion gets none of the GSAP, Lenis, three.js, Motion or sheryjs behaviour and no loading screen,
+  and the page is complete.
+- Markup must not depend on `useReducedMotion()` (the server cannot know it; a different first render is a hydration mismatch). Apply the
+  preference inside values and handlers.
+- Text that fades by opacity fails contrast. Switch colour by class or by a CSS variable instead (the scrubbed statement words use `--p`).
+- Decoration is not text: it is drawn with CSS `content: attr(...)` or is `alt=""`/`aria-hidden`, so there is nothing for a screen reader to
+  read twice or a contrast checker to fail. The loading screen and the planet are `aria-hidden`.
+- Animation setup is wrapped so that any failure reverts every element to its static, visible state instead of reaching the route error boundary.
+- Anything that loops is paused while off screen (`data-pause-offscreen` + `data-live`, `useInView`, IntersectionObserver). `@property` animations
+  and `var()` inside keyframes run on the main thread, so the always-on ones are kept few and cheap.
+- GSAP gotcha: `ScrollTrigger.config()` called without `syncInterval` wipes the library's internal one and its loop keeps ticking. It is
+  never called; teardown is `mm.revert()`, Lenis `destroy()` and `ScrollTrigger.disable(false, true)`, and the next visit calls `enable()`.
+- Weight (production build, encoded bytes): a plain marketing page ships about 225 KB of JavaScript; the landing page about 421 KB on a phone
+  (of which about 44 KB is the Markdown renderer the community explorer already used, about 60 KB GSAP and about 25 KB Motion's engine), 355 KB
+  with reduced motion (GSAP is a deferred chunk and three.js is not fetched at all), and about 554 KB on a capable desktop once the hero scene and
+  sheryjs have loaded. three.js (about 125 KB gzipped, named imports so it is tree-shaken) is one shared chunk for the hero scene and sheryjs.
+- Scroll smoothness (headless Chromium with *software* WebGL, which is the worst case; a GPU costs far less): with the hero scene and sheryjs
+  running there were about twice as many frames over 33 ms at the top of the page as with WebGL off, which is why the governor exists.
+
+**sheryjs in a React app.** The library has no teardown, so `shery-runtime.js` adds one: it records the `window`/`document` listeners the library
+adds and removes them, removes the elements it appends to `<body>`, puts wrapped images back and restores replaced text, ends its per-image render
+loop, and *pauses* (cannot dispose: the library keeps one module-level renderer) the shared canvas. The image effect renders only while it is
+being touched. Verified: after a client-side navigation away its render loop falls to zero and nothing it added remains; returning restarts it with
+no duplicates. Its stylesheet is not imported (it sets a global `body { background: #fff }`); the few rules its effects need are in `landing.css`.
+`next.config.mjs` points the library's `.glsl` shaders at `lib/landing/glsl-loader.cjs` and its debug-panel dependency at an empty stub, and
+the runtime wraps the library's one string timer (`setTimeout("…")`) because the production CSP has no `unsafe-eval`.
+
+**Pictures.** `lib/landing/image-specs.mjs` lists the eleven pictures; `npm run landing:images` writes placeholders or turns the real photographs
+in `assets/landing-source/` into the right size. Prompts and the workflow are in [`LANDING_IMAGES.md`](LANDING_IMAGES.md). The planet is not one
+of them: it is the existing reward artwork, `public/icons/reward/orbit.png`.
 
 ## Mobile and the installed app
 

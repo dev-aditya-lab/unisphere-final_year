@@ -1,7 +1,7 @@
 # Blue tick and payments
 
-An optional badge, bought once through Razorpay and confirmed by an administrator against an Aadhaar card, or given
-free by an administrator.
+An optional badge, bought once through the payment gateway you connect (`docs/PAYMENTS.md`) and confirmed by an
+administrator against an Aadhaar card, or given free by an administrator.
 
 ## How it works
 
@@ -9,11 +9,11 @@ free by an administrator.
 member                         server                          administrator
   | Settings > Blue tick         |                                   |
   |--- Pay (no amount sent) ---->| reads price from settings,        |
-  |                              | creates a Razorpay order          |
-  |<-- order id, public key id --|                                   |
-  | Razorpay Checkout            |                                   |
-  |--- order|payment|signature ->| verify HMAC, re-read payment from |
-  |                              | Razorpay, match order/amount      |
+  |                              | creates an order at the gateway   |
+  |<-- where to pay (hosted page)|                                   |
+  | pays on the gateway's page   |                                   |
+  |--- sent back, ?o=<order> --->| asks the gateway what happened,   |
+  |                              | matches order/amount/currency     |
   |                              | -> order PAID, application opens  |
   | upload masked Aadhaar        |                                   |
   |--------------------------------------------------------------->| /admin/blue-tick
@@ -27,28 +27,21 @@ member                         server                          administrator
 - **Free tick**: `/admin/blue-tick?status=ticks`, "Give a blue tick free of charge". Needs a reason. When
   other administrators exist, nobody can give a tick to themselves or review their own application; the only
   administrator can, and the audit log marks it `self_grant` / `self_review`.
-- **Webhook** (`/api/payments/razorpay/webhook`) is the safety net if a member closes the browser before the page
-  confirms, and it records refunds made in the Razorpay dashboard. Both paths use the same idempotent database
-  functions, so a repeated event changes nothing.
+- **Webhook** (`/api/payments/webhook`) is the safety net if a member closes the browser before coming back, and it
+  records refunds made in the gateway's dashboard. Both paths ask the gateway about the order and use the same idempotent
+  database functions, so a repeated event changes nothing.
 
 ## Setup
 
-1. Set in the server environment (never in code, never `NEXT_PUBLIC_`):
+1. Connect a payment gateway: write (or copy) its adapter and set `PAYMENT_GATEWAY` and the keys in the server
+   environment. Everything about this, with a worked example, is in `docs/PAYMENTS.md`.
+2. In the gateway's dashboard add the webhook `https://<your-domain>/api/payments/webhook` with the same secret you put in
+   `PAYMENT_WEBHOOK_SECRET`, and tick the events for a successful payment, a failed payment and a processed refund.
+3. Apply the migrations (`supabase db push`): `20260121000027_blue_tick.sql`, then the later payment ones.
+4. At `/admin/payments` check that it says the gateway is connected, set the price and switch it on.
 
-   | Variable | Value |
-   | --- | --- |
-   | `RAZORPAY_KEY_ID` | `rzp_test_...` while testing, `rzp_live_...` in production |
-   | `RAZORPAY_KEY_SECRET` | the matching key secret |
-   | `RAZORPAY_WEBHOOK_SECRET` | any long random string; the same value goes in the Razorpay webhook |
-
-2. In the Razorpay dashboard: Settings, Webhooks, add
-   `https://<your-domain>/api/payments/razorpay/webhook`, paste the secret, and tick `payment.captured`,
-   `order.paid`, `payment.failed`, `refund.processed`.
-3. Apply the migration `20260121000027_blue_tick.sql` (`supabase db push`).
-4. At `/admin/payments` set the price and switch it on.
-
-**The test keys that were pasted into a chat session should be treated as exposed.** They only move test money, but
-regenerate them in the Razorpay dashboard, and generate fresh live keys separately for production.
+Use the gateway's **test** credentials until you have paid and refunded once end to end. Any keys that were ever pasted
+into a chat or a ticket should be treated as exposed: regenerate them, and keep live keys separate from test keys.
 
 ## Security model
 
@@ -56,13 +49,14 @@ regenerate them in the Razorpay dashboard, and generate fresh live keys separate
 | --- | --- |
 | Member sets their own tick | `profiles.blue_tick` is not in the column-level UPDATE grant. Only the functions below change it. |
 | Member picks the price | The browser never sends an amount. The server reads the price and creates the order. |
-| Forged "payment done" | The checkout signature is verified (HMAC-SHA256, constant time) and the payment is read back from Razorpay: order id, amount, currency and `captured` must match. |
-| Someone else's order | An order is only confirmable by the member it was created for. |
+| Forged "payment done" | Nothing the browser sends is believed. The return page only names an order; the server asks the gateway about that order, and its order id, amount, currency and `paid` status must match what UniSphere created. |
+| Someone else's order | A payment is credited to the member the order was created for, whoever opens the return link; a guessed or replayed link only re-asks the gateway. |
 | Double payment | A second payment while a tick is held or in progress is recorded and refunded automatically. |
-| Webhook spoofing | HMAC over the raw body with the webhook secret; no secret configured means the route refuses everything. |
+| Webhook spoofing | The adapter verifies the signature over the raw body with the webhook secret (constant time); no secret configured means the route refuses everything, and repeated bad signatures from one address are rate limited. A "paid" event is also checked against the gateway before it counts. |
 | Staff misuse | Three separate permissions (`payments.view`, `bluetick.review`, `bluetick.manage`), global administrators only, re-checked in the database. Every decision is written to the audit log. A reviewer cannot review their own application. |
 | Price through a side door | `set_system_setting` refuses `blue_tick_*` keys. |
-| Card data | Never reaches UniSphere; Razorpay Checkout handles it. The CSP admits Razorpay only on `/settings/blue-tick`. |
+| Card data | Never reaches UniSphere: the member pays on the gateway's own page. UniSphere loads no payment script and its CSP admits no payment company (only a gateway that needs a form post is allowed, on `/settings/blue-tick` alone, via `PAYMENT_FORM_ACTION_ORIGINS`). |
+| A malicious or buggy adapter result | Ids, amounts and the checkout address are re-validated before use; only an `https:` address ever reaches the browser. |
 
 ## The Aadhaar document
 
@@ -78,8 +72,10 @@ Aadhaar is sensitive. The design keeps as little as possible:
 
 ## Known limits
 
-- Refunds through the API returned `invalid request sent` for the test account during development (reads and
-  payments worked). If that happens in production, refund from the Razorpay dashboard; the webhook records it.
+- Some gateways refuse API refunds on a test account. If a refund fails in production, refund from the gateway's own
+  dashboard; the webhook records it.
+- Each click on "Pay" creates a new order at the gateway, so a member who gives up and tries again leaves an unfinished
+  order behind. They show as "Not completed" in `/admin/payments` and cost nothing.
 - Members are not notified by email or in-app when a decision is made; they see the state on Settings, Blue tick.
 - The refund wording on `/refund-policy` is a draft default (refund if verification fails, none after approval).
   Confirm it is the policy you want.

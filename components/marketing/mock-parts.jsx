@@ -13,9 +13,9 @@ export function MockWindow({ title = "unisphere", children, className }) {
     <div className={cn("surface-raised overflow-hidden", className)}>
       <div className="bg-sunken flex items-center gap-3 border-b px-4 py-2.5" aria-hidden="true">
         <span className="flex gap-1.5">
-          <span className="bg-rose size-2.5 rounded-full" />
-          <span className="bg-sun size-2.5 rounded-full" />
-          <span className="bg-teal size-2.5 rounded-full" />
+          <span className="bg-border-strong size-2.5 rounded-full" />
+          <span className="bg-border-strong size-2.5 rounded-full" />
+          <span className="bg-border-strong size-2.5 rounded-full" />
         </span>
         <span className="bg-card text-muted-foreground mx-auto max-w-[16rem] flex-1 truncate rounded-md border px-3 py-0.5 text-center text-[11px] font-medium">{title}</span>
       </div>

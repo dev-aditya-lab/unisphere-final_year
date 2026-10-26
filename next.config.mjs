@@ -17,6 +17,15 @@ const nextConfig = {
   poweredByHeader: false,
   // Next.js buffers a request body for the proxy; keep that ceiling equal to MAX_UPLOAD_BODY_BYTES (lib/storage/policy.js).
   experimental: { proxyClientMaxBodySize: "12mb" },
+  // sheryjs (landing page image effects) ships its shaders as .glsl files and imports a debug-panel library we never use.
+  turbopack: {
+    rules: {
+      "*.glsl": { loaders: ["./lib/landing/glsl-loader.cjs"], as: "*.js" },
+    },
+    resolveAlias: {
+      controlkit: "./lib/landing/controlkit-stub.js",
+    },
+  },
   images: {
     remotePatterns: [{ protocol: "http", hostname: "localhost" }, ...(mediaHost ? [mediaHost] : [])],
   },
@@ -43,20 +52,11 @@ const nextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "X-Frame-Options", value: "DENY" },
-          { key: "Permissions-Policy", value: 'camera=(), microphone=(), geolocation=(), payment=(self "https://api.razorpay.com" "https://checkout.razorpay.com"), usb=(), interest-cohort=()' },
+          // Payment happens on the gateway's own page (a full-page redirect), so no page needs a link to a popup window.
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()" },
           ...(prod ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" }] : []),
         ],
-      },
-      {
-        // Fully isolated from other windows everywhere except the one page where a member pays.
-        source: "/:path((?!settings/blue-tick$).*)",
-        headers: [{ key: "Cross-Origin-Opener-Policy", value: "same-origin" }],
-      },
-      {
-        // Razorpay Checkout opens the bank's authentication page in a popup and talks back to this page. A strict
-        // `same-origin` policy cuts that link and leaves the popup blank, so this page (and only this page) keeps it.
-        source: "/settings/blue-tick",
-        headers: [{ key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" }],
       },
       {
         // The service worker must always be re-checked, or a bad release could stay installed on devices.
