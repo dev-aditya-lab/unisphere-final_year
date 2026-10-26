@@ -42,7 +42,7 @@ async function run(request) {
   const started = Date.now();
   const result = {};
   for (const [name, fn] of [
-    ["embeddings", () => processEmbeddingJobs({ limit: 20 })],
+    ["embeddings", () => processEmbeddingJobs({ limit: 20, requeueStale: true })],
     ["notificationEmails", () => processNotificationEmails({ limit: 100 })],
     ["push", () => processPushNotifications({ limit: 100 })],
     ["maintenance", () => runMaintenanceTasks()],

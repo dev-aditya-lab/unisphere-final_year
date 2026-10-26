@@ -11,8 +11,8 @@ Verified from the code on 2026-10-21. The public list on `/privacy-notice` is ge
 | Redis (REDIS_URL) | IP/account-id rate counters, cached settings, cached AI results keyed by a hash | Rate limiting, caching | Pseudonymous | TTLs of seconds to minutes | Region, persistence |
 | Groq | Text of an AI request, masked, only with `ai_assist` consent | Writing help, discovery, summaries | Possibly (member's own text) | Masking of emails/phones/IDs; trimmed; no messages, no private/connections-only posts; summaries only of platform- or college-visible content | Data retention and training settings on the account; US processing |
 | Backup AI provider (`AI_FALLBACK_*`) | Same as Groq, only on failure | Availability | Same | Same | Same |
-| Embeddings provider (Gemini or OpenAI-compatible) | Public/college posts, projects, profile summary with `ai_discovery_index`; masked search text with `ai_assist` | Related-idea search | Yes | Consent per member; withdrawal deletes vectors | Retention/training; region |
-| NVIDIA hosted models | No member data | Drafting the Daily Challenge | No | n/a | n/a |
+| Embeddings provider (NVIDIA, Gemini or OpenAI-compatible) | Public/college posts, projects, profile summary with `ai_discovery_index`; masked search text with `ai_assist` | Related-idea search | Yes | Consent per member; withdrawal deletes vectors | Retention/training; region |
+| NVIDIA hosted models (chat) | No member data | Drafting the Daily Challenge | No | n/a | n/a |
 | Razorpay | Checkout inputs (UniSphere receives only order/payment reference, amount, status) | Blue tick payment | Yes, at Razorpay | Loaded only on the pay page; CSP admits it only there | Razorpay's DPA; their cookies |
 | Browser push service | Push address and notification text | Notifications the member enables | Pseudonymous | Opt-in in the browser | n/a |
 

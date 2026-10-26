@@ -43,7 +43,15 @@ Matching itself is done with SQL (full-text, skill overlap, optional vector simi
 | `AI_DAILY_LIMIT_PER_USER`, `AI_REQUEST_TIMEOUT_MS` | env | Guardrails |
 | Feature flags `ai_features`, `ai_idea_discovery`, `ai_post_assistant`, `ai_matching`, `ai_moderation_assist` | Admin → Settings | Switch features off at runtime |
 | `ai_daily_limit_per_user`, `ai_share_college_content` | Admin → Settings | Budget and the college-content rule |
-| `EMBEDDING_PROVIDER`, `EMBEDDING_*` | env | Optional vectors for semantic search (768 dimensions) |
+| `EMBEDDING_PROVIDER`, `EMBEDDING_*` | env | Optional vectors for semantic search (768 dimensions). `nvidia` + `nvidia/nemotron-3.5-embed-1b` uses NVIDIA's hosted model with `NVIDIA_AI_API_KEY`; its 2048 values are cut to the first 768 and re-normalised |
+
+**Changing the embedding model.** Vectors from different models are not comparable (the nemotron 8B and 1B models score
+about 0 against each other on identical text), so there is deliberately no automatic cross-model fallback: one index, one
+model. If the configured model is unreachable, searches use keyword matching and new content waits in the job queue with
+back-off. The hosted 8B model (`nvidia/nemotron-3.5-embed-8b`, 4096 values) timed out on every try on 2026-10-26, which is
+why the 1B is the default. To switch model on purpose, change `EMBEDDING_MODEL`; each tick
+of the worker then re-embeds up to 50 rows still stored by the old model (`requeueStaleEmbeddings`), and until a row is
+re-embedded it is simply not matched semantically.
 
 Model catalogues change. **Admin → AI status** lists the models your key can actually use right now and marks the
 configured ones as active or missing: check it after changing keys or models, and whenever AI features start failing.
