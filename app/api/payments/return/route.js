@@ -25,7 +25,7 @@ async function handle(request) {
   const limit = await rateLimit({ key: `pay-return:${await getClientIp()}`, limit: 40, windowSec: 600 });
   if (!limit.ok) return NextResponse.redirect(back, 303);
 
-  const order = request.nextUrl.searchParams.get("o");
+  const order = new URL(request.url).searchParams.get("o");
   if (order && UUID.test(order)) {
     const state = await confirmReturn(order.toLowerCase());
     const notice = NOTICE[state] ?? null;

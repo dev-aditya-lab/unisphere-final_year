@@ -19,7 +19,7 @@ import {
 const field = "border-input bg-card h-9 w-full rounded-md border px-2 text-sm";
 
 /** Price (rupees) and the on/off switch. The server converts to paise and the database re-checks the limits. */
-export function PricingForm({ enabled: initialEnabled, price: initialPrice, canManage, paymentsReady }) {
+export function PricingForm({ enabled: initialEnabled, price: initialPrice, canManage, gatewayBlocking = null, gatewayWarning = null }) {
   const router = useRouter();
   const [enabled, setEnabled] = useState(initialEnabled);
   const [price, setPrice] = useState(initialPrice);
@@ -41,10 +41,8 @@ export function PricingForm({ enabled: initialEnabled, price: initialPrice, canM
 
   return (
     <form onSubmit={save} className="space-y-4" noValidate>
-      {!paymentsReady && (
-        <p role="status" className="bg-muted rounded-md px-3 py-2 text-sm">
-          Razorpay keys are not set on the server yet (RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET), so members cannot pay even when this is switched on.
-        </p>
+      {(gatewayBlocking || gatewayWarning) && (
+        <p role="status" className="bg-muted rounded-md px-3 py-2 text-sm">{gatewayBlocking ?? gatewayWarning}</p>
       )}
       <div className="grid gap-4 sm:grid-cols-[minmax(0,14rem)_1fr] sm:items-end">
         <div className="space-y-1.5">
@@ -123,7 +121,7 @@ export function ReviewActions({ id, orderId, canManage }) {
       {canManage && orderId && (
         <ActionDialog
           label="Reject and refund" icon={X} destructive title="Reject and refund the payment"
-          description="The full amount goes back to the member through Razorpay and the document is deleted. This cannot be undone."
+          description="The full amount goes back to the member through the payment gateway and the document is deleted. This cannot be undone."
           action={refundBlueTickOrderAction} args={{ orderId }} reasonLabel="Reason (kept in the audit log)"
           confirmLabel="Refund"
         />
@@ -146,7 +144,7 @@ export function RefundButton({ orderId }) {
   return (
     <ActionDialog
       label="Refund" icon={RotateCcw} destructive title="Refund this payment"
-      description="The full amount goes back to the payer through Razorpay, and the blue tick is removed if it was approved."
+      description="The full amount goes back to the payer through the payment gateway, and the blue tick is removed if it was approved."
       action={refundBlueTickOrderAction} args={{ orderId }} reasonLabel="Reason (kept in the audit log)"
       confirmLabel="Refund"
     />

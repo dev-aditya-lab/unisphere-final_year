@@ -1,42 +1,39 @@
 import { describe, expect, it } from "vitest";
-import { signCheckout, signWebhook, verifyCheckoutSignature, verifyWebhookSignature } from "@/lib/payments/signature";
+import { signHmac, verifyHmac } from "@/lib/payments/signature";
 import { formatInr, paiseToRupeesInput, rupeesToPaise } from "@/lib/blue-tick";
 import { buildCsp } from "@/lib/security/csp";
 
 const SECRET = "test_secret_value";
 
-describe("Razorpay checkout signature", () => {
-  const sig = signCheckout({ orderId: "order_ABC123", paymentId: "pay_XYZ789", secret: SECRET });
+describe("HMAC signatures (what gateway adapters verify webhooks with)", () => {
+  const message = "order_ABC123|pay_XYZ789";
+  const sig = signHmac({ message, secret: SECRET });
 
-  it("accepts the signature computed over order_id|payment_id", () => {
-    expect(verifyCheckoutSignature({ orderId: "order_ABC123", paymentId: "pay_XYZ789", signature: sig, secret: SECRET })).toBe(true);
+  it("accepts the signature computed over exactly that message", () => {
+    expect(verifyHmac({ message, signature: sig, secret: SECRET })).toBe(true);
+    expect(verifyHmac({ message, signature: sig.toUpperCase(), secret: SECRET })).toBe(true); // hex has one value, any case
   });
-  it("rejects a different order, payment, secret or a tampered signature", () => {
-    expect(verifyCheckoutSignature({ orderId: "order_OTHER1", paymentId: "pay_XYZ789", signature: sig, secret: SECRET })).toBe(false);
-    expect(verifyCheckoutSignature({ orderId: "order_ABC123", paymentId: "pay_OTHER1", signature: sig, secret: SECRET })).toBe(false);
-    expect(verifyCheckoutSignature({ orderId: "order_ABC123", paymentId: "pay_XYZ789", signature: sig, secret: "wrong" })).toBe(false);
-    expect(verifyCheckoutSignature({ orderId: "order_ABC123", paymentId: "pay_XYZ789", signature: sig.replace(/.$/, sig.endsWith("0") ? "1" : "0"), secret: SECRET })).toBe(false);
+  it("rejects a different message, secret or a tampered signature", () => {
+    expect(verifyHmac({ message: "order_OTHER1|pay_XYZ789", signature: sig, secret: SECRET })).toBe(false);
+    expect(verifyHmac({ message: `${message} `, signature: sig, secret: SECRET })).toBe(false);
+    expect(verifyHmac({ message, signature: sig, secret: "wrong" })).toBe(false);
+    expect(verifyHmac({ message, signature: sig.replace(/.$/, sig.endsWith("0") ? "1" : "0"), secret: SECRET })).toBe(false);
   });
   it("rejects missing, short or non-hex signatures without throwing", () => {
     for (const bad of [undefined, null, "", "abc", "z".repeat(64), `${sig}00`, 42]) {
-      expect(verifyCheckoutSignature({ orderId: "order_ABC123", paymentId: "pay_XYZ789", signature: bad, secret: SECRET })).toBe(false);
+      expect(verifyHmac({ message, signature: bad, secret: SECRET }), String(bad)).toBe(false);
     }
-    expect(verifyCheckoutSignature({ orderId: "order_ABC123", paymentId: "pay_XYZ789", signature: sig, secret: "" })).toBe(false);
   });
-});
-
-describe("Razorpay webhook signature", () => {
-  const body = JSON.stringify({ event: "payment.captured", payload: { payment: { entity: { id: "pay_1", order_id: "order_1", amount: 9900 } } } });
-  const sig = signWebhook({ rawBody: body, secret: SECRET });
-
-  it("verifies the exact raw body only", () => {
-    expect(verifyWebhookSignature({ rawBody: body, signature: sig, secret: SECRET })).toBe(true);
-    expect(verifyWebhookSignature({ rawBody: `${body} `, signature: sig, secret: SECRET })).toBe(false);
-    expect(verifyWebhookSignature({ rawBody: body.replace("9900", "100"), signature: sig, secret: SECRET })).toBe(false);
+  it("refuses when no secret is configured, even for a signature made with an empty one", () => {
+    expect(verifyHmac({ message, signature: sig, secret: undefined })).toBe(false);
+    expect(verifyHmac({ message, signature: sig, secret: "" })).toBe(false);
+    expect(verifyHmac({ message, signature: signHmac({ message, secret: "" }), secret: "" })).toBe(false);
   });
-  it("refuses when no secret is configured", () => {
-    expect(verifyWebhookSignature({ rawBody: body, signature: sig, secret: undefined })).toBe(false);
-    expect(verifyWebhookSignature({ rawBody: body, signature: sig, secret: "" })).toBe(false);
+  it("supports the other hashes and encodings gateways use, and base64 is case-sensitive", () => {
+    const b64 = signHmac({ message, secret: SECRET, algorithm: "sha512", encoding: "base64" });
+    expect(verifyHmac({ message, signature: b64, secret: SECRET, algorithm: "sha512", encoding: "base64" })).toBe(true);
+    expect(verifyHmac({ message, signature: b64.toLowerCase(), secret: SECRET, algorithm: "sha512", encoding: "base64" })).toBe(false);
+    expect(verifyHmac({ message, signature: b64, secret: SECRET })).toBe(false); // wrong algorithm and encoding
   });
 });
 
@@ -61,21 +58,28 @@ describe("price handling", () => {
   });
 });
 
-describe("Content-Security-Policy for checkout", () => {
+describe("Content-Security-Policy on the page where a member pays", () => {
   const env = { NEXT_PUBLIC_APP_URL: "https://unispheres.in", NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co" };
+  const directive = (csp, name) => csp.split("; ").find((d) => d.startsWith(`${name} `));
 
-  it("admits Razorpay only when checkout is requested", () => {
-    expect(buildCsp({ nonce: "n", env })).not.toMatch(/razorpay/);
-    const csp = buildCsp({ nonce: "n", env, checkout: true });
-    expect(csp).toMatch(/script-src[^;]*https:\/\/checkout\.razorpay\.com/);
-    expect(csp).toMatch(/frame-src[^;]*https:\/\/api\.razorpay\.com/);
-    expect(csp).toMatch(/connect-src[^;]*https:\/\/api\.razorpay\.com/);
+  it("admits no payment company at all: the member pays on the gateway's own page", () => {
+    for (const checkout of [false, true]) {
+      const csp = buildCsp({ nonce: "n", env, checkout });
+      expect(directive(csp, "script-src")).not.toMatch(/https:\/\/(?!x\.supabase)/);
+      expect(directive(csp, "frame-src")).toBe("frame-src 'none'");
+      expect(directive(csp, "connect-src")).not.toMatch(/pay|checkout/i);
+    }
   });
-  it("keeps the rest of the policy strict while checkout is allowed", () => {
+  it("lets only the payment page post a form, and only to the https origins listed for it", () => {
+    const withForm = { ...env, PAYMENT_FORM_ACTION_ORIGINS: "https://secure.gateway.example/pay, http://insecure.example, not a url, https://secure.gateway.example" };
+    expect(directive(buildCsp({ nonce: "n", env: withForm }), "form-action")).toBe("form-action 'self'");
+    expect(directive(buildCsp({ nonce: "n", env: withForm, checkout: true }), "form-action")).toBe("form-action 'self' https://secure.gateway.example");
+    expect(directive(buildCsp({ nonce: "n", env, checkout: true }), "form-action")).toBe("form-action 'self'");
+  });
+  it("keeps the rest of the policy strict", () => {
     const csp = buildCsp({ nonce: "n", env, checkout: true });
     expect(csp).toContain("object-src 'none'");
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).not.toMatch(/script-src[^;]*'unsafe-inline'/);
-    expect(buildCsp({ nonce: "n", env })).toMatch(/frame-src 'none'/);
   });
 });

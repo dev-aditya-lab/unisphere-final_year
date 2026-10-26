@@ -3,8 +3,10 @@ import { PageHeader } from "@/components/shell/page-header";
 import { DataTable, EmptyRow, FilterTabs, Pager, Panel, StatCard, StatusBadge, fmtDateTime, fmtNumber } from "@/components/admin/ui";
 import { TimeSeriesChart } from "@/components/admin/charts";
 import { PricingForm, RefundButton } from "@/components/admin/blue-tick-admin";
+import { Badge } from "@/components/ui/badge";
 import { hasPermission } from "@/lib/auth/session";
-import { getIntegrations } from "@/lib/env";
+import { publicEnv } from "@/lib/env-public";
+import { describePaymentsStatus, paymentsStatus } from "@/lib/payments/gateway";
 import { formatInr, paiseToRupeesInput } from "@/lib/blue-tick";
 import { getPaymentsOverview, listOrders } from "@/lib/services/blue-tick";
 
@@ -29,13 +31,14 @@ export default async function PaymentsPage({ searchParams }) {
   ]);
   const o = overview.orders;
   const total = Number(rows[0]?.total ?? 0);
-  const paymentsReady = getIntegrations().payments;
+  const gateway = paymentsStatus();
+  const gatewayNotice = describePaymentsStatus(gateway);
 
   return (
     <>
       <PageHeader
         eyebrow="Insights & system" title="Payments"
-        description="Blue tick purchases through Razorpay. Every amount is set and checked on the server; card and UPI details never reach UniSphere. Refunds made here or in the Razorpay dashboard are both recorded."
+        description={`Blue tick purchases through ${gateway.label ?? "the payment gateway you connect"}. Every amount is set and checked on the server; card and UPI details never reach UniSphere. Refunds made here or in the gateway's own dashboard are both recorded.`}
       />
 
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -54,12 +57,26 @@ export default async function PaymentsPage({ searchParams }) {
         <TimeSeriesChart title="Revenue per day (₹)" series={overview.series.map((p) => ({ day: p.day, value: Number(p.paise) / 100 }))} color="var(--chart-2)" />
       </div>
 
+      <Panel title="Payment gateway" description="Chosen with PAYMENT_GATEWAY on the server; see docs/PAYMENTS.md to connect another." className="mb-6">
+        <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[10rem_1fr]">
+          <dt className="text-muted-foreground">Gateway</dt>
+          <dd className="font-semibold">{gateway.label ?? (gateway.wanted ? `${gateway.wanted} (no adapter in the code)` : "Not connected")}</dd>
+          <dt className="text-muted-foreground">Keys</dt>
+          <dd><Badge variant={gateway.configured ? "success" : "warning"}>{gateway.configured ? "set" : "not set"}</Badge></dd>
+          <dt className="text-muted-foreground">Webhook</dt>
+          <dd><Badge variant={gateway.webhookReady ? "success" : "warning"}>{gateway.webhookReady ? "ready" : "not set up"}</Badge></dd>
+          <dt className="text-muted-foreground">Webhook address</dt>
+          <dd className="font-mono text-xs break-all">{publicEnv.appUrl}/api/payments/webhook</dd>
+        </dl>
+      </Panel>
+
       <Panel title="Blue tick price" description="One-time payment. Nothing is sold until it is switched on and a price is set." className="mb-6">
         <PricingForm
           enabled={overview.pricing.enabled}
           price={overview.pricing.price_paise ? paiseToRupeesInput(overview.pricing.price_paise) : ""}
           canManage={canManage}
-          paymentsReady={paymentsReady}
+          gatewayBlocking={gatewayNotice.blocking}
+          gatewayWarning={gatewayNotice.warning}
         />
       </Panel>
 

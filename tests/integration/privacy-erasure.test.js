@@ -109,7 +109,7 @@ describe("asking for erasure", () => {
 describe("executing the erasure", () => {
   it("removes the account, files, derived data and records, and says what was kept", async () => {
     const { u, friend, post, file, sent } = await populate("er-full");
-    await admin.from("blue_tick_orders").insert({ user_id: u.id, payer_username: u.username, provider_order_id: `order_${slug()}`, amount_paise: 49900, status: "paid" });
+    await admin.from("blue_tick_orders").insert({ user_id: u.id, payer_username: u.username, provider: "test", provider_order_id: `order_${slug()}`, amount_paise: 49900, status: "paid" });
     const { data: req } = await request(u.id);
     await admin.from("account_deletion_requests").update({ status: "processing" }).eq("user_id", u.id);
 

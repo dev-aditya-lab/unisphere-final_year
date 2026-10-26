@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { IdCard, Paperclip } from "lucide-react";
 import { CircleAlert, Clock, Lock, ShieldCheck } from "@/components/icons/lucide-compat";
@@ -9,25 +9,73 @@ import { Button } from "@/components/ui/button";
 import { BlueTick } from "@/components/ui/blue-tick";
 import { FormAlert } from "@/components/forms/form-alert";
 import { useImageEditor } from "@/components/images/use-image-editor";
-import { confirmBlueTickPaymentAction, startBlueTickPurchaseAction, submitBlueTickDocumentAction } from "@/lib/actions/blue-tick";
+import { startBlueTickPurchaseAction, submitBlueTickDocumentAction } from "@/lib/actions/blue-tick";
 import { uploadFileWithProgress } from "@/lib/storage/client";
 import { setConsentAction } from "@/lib/actions/privacy";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { formatInr } from "@/lib/blue-tick";
+import { BLUE_TICK_PATH, PAYMENT_RETURN_PATH, formatInr } from "@/lib/blue-tick";
 
-const CHECKOUT_SRC = "https://checkout.razorpay.com/v1/checkout.js";
+/**
+ * Send the member to the payment gateway's own page: open an address, or post the small form the gateway asked for. The server
+ * has already checked that it is an https address. Nothing from the gateway is loaded into this page.
+ */
+function goToCheckout(checkout) {
+  if (checkout?.type === "redirect" && /^https?:\/\//.test(checkout.url)) {
+    window.location.assign(checkout.url);
+    return true;
+  }
+  if (checkout?.type === "form" && /^https?:\/\//.test(checkout.action)) {
+    const form = document.createElement("form");
+    form.method = checkout.method === "GET" ? "GET" : "POST";
+    form.action = checkout.action;
+    form.hidden = true;
+    for (const [name, value] of Object.entries(checkout.fields ?? {})) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
+    return true;
+  }
+  return false;
+}
 
-function loadCheckout() {
-  if (typeof window !== "undefined" && window.Razorpay) return Promise.resolve(true);
-  return new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = CHECKOUT_SRC;
-    script.async = true;
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
+const NOTICES = {
+  done: { tone: "ok", text: "Payment received. Now send your ID." },
+  duplicate: { tone: "ok", text: "You already had a blue tick in progress, so this second payment was refunded." },
+  pending: { tone: "wait", text: "Your payment has not been confirmed yet. If you were charged, it is applied here automatically, usually within a few minutes." },
+  failed: { tone: "bad", text: "The payment was not completed, so you have not been charged. You can try again." },
+};
+
+/** What happened when the member came back from the payment page. Shown once; the address is then cleaned up. */
+function PaymentNotice({ notice, orderId }) {
+  const router = useRouter();
+  // Both are kept from the first render, because the address (and so the props) is cleaned up right after.
+  const [shown] = useState(notice);
+  const [shownOrder] = useState(orderId);
+  useEffect(() => {
+    if (shown) router.replace(BLUE_TICK_PATH, { scroll: false });
+  }, [shown, router]);
+  const info = NOTICES[shown];
+  if (!info) return null;
+  return (
+    <div role={info.tone === "bad" ? "alert" : "status"} className="flex items-start gap-2 rounded-md border px-3 py-2 text-sm">
+      <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+      <span>
+        {info.text}
+        {shown === "pending" && shownOrder && (
+          <>
+            {" "}
+            <a href={`${PAYMENT_RETURN_PATH}?o=${shownOrder}`} className="font-semibold underline underline-offset-2">Check again</a>
+          </>
+        )}
+      </span>
+    </div>
+  );
 }
 
 function Steps({ current }) {
@@ -54,9 +102,17 @@ function Steps({ current }) {
 }
 
 function BuyStep({ config }) {
-  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+
+  // Coming back with the browser's Back button restores this page as it was, still "opening"; make the button usable again.
+  useEffect(() => {
+    const onShow = (e) => {
+      if (e.persisted) setBusy(false);
+    };
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
 
   async function buy() {
     setError(null);
@@ -67,40 +123,11 @@ function BuyStep({ config }) {
       setBusy(false);
       return;
     }
-    const loaded = await loadCheckout();
-    if (!loaded || !window.Razorpay) {
-      setError("The payment window could not be loaded. Check your connection and try again.");
+    // The page is replaced by the payment gateway's, so on success the button simply stays busy until that happens.
+    if (!goToCheckout(started.checkout)) {
+      setError("The payment page could not be opened. Please try again.");
       setBusy(false);
-      return;
     }
-    const checkout = new window.Razorpay({
-      key: started.keyId,
-      order_id: started.orderId,
-      amount: started.amountPaise,
-      currency: "INR",
-      name: "UniSphere",
-      description: "Blue tick, one-time payment",
-      prefill: started.prefill,
-      theme: { color: "#1a8cd8" },
-      modal: { ondismiss: () => setBusy(false) },
-      handler: async (response) => {
-        const res = await confirmBlueTickPaymentAction({
-          orderId: response.razorpay_order_id,
-          paymentId: response.razorpay_payment_id,
-          signature: response.razorpay_signature,
-        });
-        setBusy(false);
-        if (res.ok) {
-          toast.success("Payment received. Now send your ID.");
-          router.refresh();
-        } else setError(res.error);
-      },
-    });
-    checkout.on("payment.failed", (response) => {
-      setError(response?.error?.description ? `The payment failed: ${response.error.description}` : "The payment failed. You have not been charged.");
-      setBusy(false);
-    });
-    checkout.open();
   }
 
   return (
@@ -123,7 +150,7 @@ function BuyStep({ config }) {
       ) : (
         <p className="bg-muted rounded-md px-3 py-2 text-sm">The blue tick is not on sale right now. Please check back later.</p>
       )}
-      <p className="text-muted-foreground text-xs">Payments are processed by Razorpay. UniSphere never sees or stores your card, UPI or bank details.</p>
+      <p className="text-muted-foreground text-xs">You pay on the payment gateway&apos;s own secure page. UniSphere never sees or stores your card, UPI or bank details.</p>
     </div>
   );
 }
@@ -217,7 +244,17 @@ function DocumentStep({ application, consented }) {
   );
 }
 
-export function BlueTickPanel({ hasTick, application, order, config, documentConsent = false }) {
+export function BlueTickPanel({ notice = null, noticeOrder = null, ...props }) {
+  // The notice sits first and keeps its place whichever step is showing, so it survives the page refreshing underneath it.
+  return (
+    <div className="space-y-4">
+      <PaymentNotice notice={notice} orderId={noticeOrder} />
+      <BlueTickSteps {...props} />
+    </div>
+  );
+}
+
+function BlueTickSteps({ hasTick, application, order, config, documentConsent = false }) {
   if (hasTick) {
     return (
       <div className="flex items-start gap-3">

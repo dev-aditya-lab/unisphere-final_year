@@ -142,8 +142,8 @@ describe("payment fulfilment is exactly-once and closed to members", () => {
     }
   });
 
-  it("settling the same payment twice (browser confirmation plus webhook, or a replay) creates one application", async () => {
-    expect((await admin.from("blue_tick_orders").insert({ user_id: a.id, payer_username: a.username, provider_order_id: orderId, amount_paise: 9900 })).error).toBeNull();
+  it("settling the same payment twice (return page plus webhook, or a replay) creates one application", async () => {
+    expect((await admin.from("blue_tick_orders").insert({ user_id: a.id, payer_username: a.username, provider: "test", provider_order_id: orderId, amount_paise: 9900 })).error).toBeNull();
     const first = await admin.rpc("fulfil_blue_tick_order", { p_order: orderId, p_payment: "pay_replay_1", p_amount: 9900, p_method: "upi" });
     const again = await admin.rpc("fulfil_blue_tick_order", { p_order: orderId, p_payment: "pay_replay_1", p_amount: 9900, p_method: "upi" });
     expect(first.data).toMatchObject({ status: "paid", duplicate: false, already: false });
@@ -155,7 +155,7 @@ describe("payment fulfilment is exactly-once and closed to members", () => {
 
   it("refuses a payment whose amount differs from the order", async () => {
     const other = `order_sec_${Math.random().toString(36).slice(2, 10)}`;
-    await admin.from("blue_tick_orders").insert({ user_id: b.id, payer_username: b.username, provider_order_id: other, amount_paise: 9900 });
+    await admin.from("blue_tick_orders").insert({ user_id: b.id, payer_username: b.username, provider: "test", provider_order_id: other, amount_paise: 9900 });
     const { error } = await admin.rpc("fulfil_blue_tick_order", { p_order: other, p_payment: "pay_cheap", p_amount: 100, p_method: null });
     expect(error?.message).toMatch(/amount_mismatch/);
     await admin.from("blue_tick_orders").delete().eq("provider_order_id", other);

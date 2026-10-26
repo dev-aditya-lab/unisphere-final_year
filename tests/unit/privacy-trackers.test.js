@@ -47,14 +47,13 @@ describe("no non-essential trackers", () => {
     expect(hits).toEqual([]);
   });
 
-  it("the content security policy admits only the project's own Supabase, its media storage, and Razorpay on the checkout page", () => {
+  it("the content security policy admits only the project's own Supabase and its media storage, with no payment company even on the checkout page", () => {
     const env = { NEXT_PUBLIC_SUPABASE_URL: "https://abc.supabase.co", NEXT_PUBLIC_APP_URL: "https://uni.example", CLOUDFLARE_ACCOUNT_ID: "acct" };
     const normal = buildCsp({ nonce: "n", env });
     const origins = (csp) => [...csp.matchAll(/https?:\/\/[^\s;]+/g)].map((m) => m[0]);
-    expect(normal).not.toMatch(/razorpay/);
     for (const o of origins(normal)) expect(o, o).toMatch(/supabase\.co|r2\.cloudflarestorage\.com/);
     const checkout = buildCsp({ nonce: "n", env, checkout: true });
-    expect(checkout).toMatch(/checkout\.razorpay\.com/);
+    for (const o of origins(checkout)) expect(o, o).toMatch(/supabase\.co|r2\.cloudflarestorage\.com/);
     expect(checkout).not.toMatch(/google|facebook|doubleclick/);
   });
 

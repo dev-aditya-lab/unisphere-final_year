@@ -1,5 +1,11 @@
 # Security audit, 2026-10-21
 
+> **Update, 2026-10-27:** the payment integration this audit examined was a single named gateway. It has since been made
+> gateway-neutral (`docs/PAYMENTS.md`): the same controls (signature over the raw body, constant-time compare, 256 KB cap, no
+> secret = 503, amounts and orders re-checked with the gateway, exactly-once settlement) now live in `lib/payments/gateway.js`,
+> `app/api/payments/webhook/route.js` and `tests/unit/payment-webhook-route.test.js`, and the checkout no longer loads any
+> third-party script. The findings below describe the code as audited and are otherwise unchanged.
+
 Scope: the repository at commit `299c4b9` plus the changes listed here (not yet committed). Environment: a local Docker
 Supabase stack (all 49 migrations), a production build (`next build`, `next start -p 3100`) with R2 and Redis switched
 off, Node 24. **No live domain, Cloudflare dashboard, Supabase dashboard, Vercel/Render setting or provider webhook was
@@ -51,12 +57,12 @@ critical/high, and part of it needs features you do not use.
 ## 3. Checklist by phase
 
 **Phase 1, discovery and threat model: PASS.** Inventory: 22 route handlers, ~150 pages/layouts, 24 server-action modules, 97
-tables, 238 member-callable definer functions, 9 upload purposes, one webhook (Razorpay), two job endpoints. Actors considered:
+tables, 238 member-callable definer functions, 9 upload purposes, one webhook (payment gateway), two job endpoints. Actors considered:
 anonymous, member, member vs member, compromised staff, forged webhook, hostile file, AI abuse, supply chain, public storage,
 scraping/spam. The findings table is the output.
 
 **Phase 2, authentication and API authorisation: PASS** (after F2/F3/F6). Every route handler classified: public (`health`,
-`llms.txt`, `robots`, `sitemap`, `.well-known`), webhook (Razorpay), job (cron, bearer), session (all others, 401 without
+`llms.txt`, `robots`, `sitemap`, `.well-known`), webhook (payment gateway), job (cron, bearer), session (all others, 401 without
 one; verified over HTTP: 17 requests). Server actions call `requireProfile`; privileged actions are re-checked in the
 database; permanent deletion also needs the administrator's password. IDOR: with two real members over HTTP, a stranger got
 404 for another member's conversation (read and write), inbox, and private file; admin exports returned 401/403/404
@@ -109,12 +115,12 @@ role grants audited and impossible for the grantee; audit log append-only (trigg
 deletion needs the admin's password and a typed confirmation. Not tested: a compromised global administrator (by design they
 can do everything; keep two, use strong passwords; no second factor exists yet).
 
-**Phase 10, webhooks and jobs: PASS.** Razorpay: HMAC over the raw body, constant-time compare, 256 KB cap, no secret = 503,
+**Phase 10, webhooks and jobs: PASS.** Payment gateway webhook: HMAC over the raw body, constant-time compare, 256 KB cap, no secret = 503,
 missing/wrong/malformed signature = 401 and the handler never runs (8 route tests); payment amount, currency and order are
-re-checked and the payment is read back from Razorpay; settlement is exactly-once in the database (replayed payment = one
-application; amount mismatch refused; members cannot call the functions). Razorpay sends no timestamp, so replay protection is
+re-checked and the payment is read back from the gateway; settlement is exactly-once in the database (replayed payment = one
+application; amount mismatch refused; members cannot call the functions). The gateway sent no timestamp, so replay protection is
 idempotency, not time windows. Cron: bearer secret in constant time; header-only on the account-erasure endpoint (5 tests).
-**NOT VERIFIED:** the live webhook secret and Razorpay dashboard configuration.
+**NOT VERIFIED:** the live webhook secret and the payment gateway's dashboard configuration.
 
 **Phase 11, production configuration: PASS.** No `console.log`; errors to users are generic (database errors mapped, digest
 shown, no stack); `productionBrowserSourceMaps: false`, `poweredByHeader: false`; the production build has no browser
@@ -167,7 +173,7 @@ no custom crypto, sanitiser or rate limiter written; Redis and Zod already prese
 | Existing e2e specs I ran (pwa, profile, phase6, auth, session, social, messaging-local-first) | **Many fail for reasons unrelated to this work and not fixed:** new test users are sent to `/privacy-review` (the privacy gate added by the DPDP work), the onboarding test expects a removed college step, the phase 6 CSP test does not allow the configured media host, the profile-upload test needs real R2. Not re-run on a pre-change baseline; the failure messages do not involve any file I changed. The full e2e suite needs maintenance |
 
 New tests: `client-ip`, `push-endpoint`, `cursor`, `ics`, `upload-inspection` (incl. bomb, polyglot, EXIF, scan boundary),
-`text-safety`, `security-config` (headers, CSP, source maps, CORS, sitemap, robots), `razorpay-webhook-route`, `cron-routes`,
+`text-safety`, `security-config` (headers, CSP, source maps, CORS, sitemap, robots), `payment-webhook-route`, `cron-routes`,
 `rate-limit-window` (unit); `security-hardening` (17 integration tests); `security.spec` (e2e). Existing `push.test.js` and
 `pwa.spec.js` fixtures changed to use an allowed push host.
 
@@ -189,7 +195,7 @@ after these changes, the CI workflow, behaviour behind a real proxy chain.
 - **Supabase dashboard:** email confirmation on, redirect URLs limited to your domain, leaked-password protection, session
   length, MFA if offered, backups tested.
 - **Hosting:** HTTPS and redirects, `NEXT_PUBLIC_APP_URL`, Redis URL, secrets set and unique, number of proxies.
-- **Razorpay:** webhook secret matches, only the events used are enabled.
+- **Payment gateway:** webhook secret matches, only the events used are enabled.
 - **A qualified tester** should attempt a real penetration test against staging (race conditions in payments and rewards,
   Realtime channel authorisation, session handling across devices); this audit did not.
 

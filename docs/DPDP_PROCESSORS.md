@@ -13,7 +13,7 @@ Verified from the code on 2026-10-21. The public list on `/privacy-notice` is ge
 | Backup AI provider (`AI_FALLBACK_*`) | Same as Groq, only on failure | Availability | Same | Same | Same |
 | Embeddings provider (NVIDIA, Gemini or OpenAI-compatible) | Public/college posts, projects, profile summary with `ai_discovery_index`; masked search text with `ai_assist` | Related-idea search | Yes | Consent per member; withdrawal deletes vectors | Retention/training; region |
 | NVIDIA hosted models (chat) | No member data | Drafting the Daily Challenge | No | n/a | n/a |
-| Razorpay | Checkout inputs (UniSphere receives only order/payment reference, amount, status) | Blue tick payment | Yes, at Razorpay | Loaded only on the pay page; CSP admits it only there | Razorpay's DPA; their cookies |
+| The payment gateway in use (`PAYMENT_GATEWAY`) | Name and email passed when a payment starts; what the member enters on the gateway's own page (UniSphere receives only order/payment reference, amount, status) | Blue tick payment | Yes, at the gateway | The member is sent to the gateway's own page; no gateway code loads on UniSphere and the CSP admits none | The gateway's DPA; their cookies |
 | Browser push service | Push address and notification text | Notifications the member enables | Pseudonymous | Opt-in in the browser | n/a |
 
 ## What the AI code does (`lib/ai`)

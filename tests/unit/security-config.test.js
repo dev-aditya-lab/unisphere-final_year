@@ -24,6 +24,8 @@ describe("response headers (next.config.mjs)", () => {
     expect(h["Permissions-Policy"]).toMatch(/camera=\(\)/);
     expect(h["Permissions-Policy"]).toMatch(/microphone=\(\)/);
     expect(h["Permissions-Policy"]).toMatch(/geolocation=\(\)/);
+    expect(h["Permissions-Policy"]).toMatch(/payment=\(\)/);
+    expect(h["Cross-Origin-Opener-Policy"]).toBe("same-origin");
   });
 
   it("enables HSTS in production only (never over plain-http development)", async () => {
@@ -91,12 +93,13 @@ describe("Content-Security-Policy", () => {
   it("connects only to this site, its own database and media host", () => {
     const d = directives(buildCsp({ nonce: "x", env }));
     expect(d["connect-src"].sort()).toEqual(["'self'", "https://abc.supabase.co", "https://media.example", "wss://abc.supabase.co"].sort());
-    expect(d["connect-src"].join(" ")).not.toContain("razorpay");
   });
 
-  it("admits the payment provider only on the checkout page", () => {
-    expect(buildCsp({ nonce: "x", env })).not.toContain("razorpay");
-    expect(buildCsp({ nonce: "x", env, checkout: true })).toContain("https://checkout.razorpay.com");
+  it("admits no payment company, even on the checkout page (payment is taken on the gateway's own page)", () => {
+    const csp = buildCsp({ nonce: "x", env, checkout: true });
+    expect(directives(csp)["script-src"].join(" ")).not.toMatch(/https:\/\//);
+    expect(directives(csp)["frame-src"]).toEqual(["'none'"]);
+    expect(directives(csp)["form-action"]).toEqual(["'self'"]);
   });
 
   it("allows eval only in development, and upgrades insecure requests only on an https site", () => {
