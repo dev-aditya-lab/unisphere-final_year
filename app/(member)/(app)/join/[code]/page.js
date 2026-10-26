@@ -42,12 +42,12 @@ export default async function JoinPage({ params }) {
   if (invite.already_member && invite.slug) redirect(`/communities/${invite.slug}/channels`);
   return (
     <div className="surface mx-auto max-w-md overflow-hidden">
-      <div className="bg-muted aspect-[3/1]">
+      <div className="bg-muted relative aspect-[3/1]">
         <MediaImage mediaKey={invite.cover_key} width={640} className="size-full object-cover" />
       </div>
       <div className="space-y-4 p-6">
-        <div className="-mt-12 flex items-end gap-3">
-          <span className="bg-card grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border-4 text-lg font-bold">
+        <div className="relative z-10 -mt-12 flex items-end gap-3">
+          <span className="bg-card border-card ring-border grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border-4 text-lg font-bold shadow-sm ring-1">
             {invite.avatar_key ? <MediaImage mediaKey={invite.avatar_key} width={128} className="size-full object-cover" /> : invite.name.slice(0, 2).toUpperCase()}
           </span>
         </div>

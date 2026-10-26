@@ -60,12 +60,14 @@ export default async function CommunityPage({ params }) {
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <header className="surface overflow-hidden">
-        <div className="bg-muted relative aspect-[3/1]">
+        {/* The banner keeps the 3:1 shape but is capped in height, so a wide screen does not turn it into a poster. */}
+        <div className="bg-muted relative aspect-[3/1] max-h-52 w-full sm:max-h-64">
           <MediaImage mediaKey={community.cover_key} width={1280} alt={`${community.name} banner`} className="size-full object-cover" fetchPriority="high" />
         </div>
         <div className="p-5 sm:p-6">
-          <div className="-mt-14 mb-3 flex items-end gap-3 sm:-mt-16">
-            <span className="bg-card grid size-20 shrink-0 place-items-center overflow-hidden rounded-2xl border-4 text-xl font-bold sm:size-24">
+          {/* The icon overlaps the banner. The banner is a positioned box, so the icon must be one too (relative z-10) or the banner paints over it. */}
+          <div className="relative z-10 -mt-12 mb-3 flex items-end gap-3 sm:-mt-14">
+            <span className="bg-card border-card ring-border grid size-20 shrink-0 place-items-center overflow-hidden rounded-2xl border-4 text-xl font-bold shadow-sm ring-1 sm:size-24">
               {community.avatar_key ? (
                 <MediaImage mediaKey={community.avatar_key} width={192} alt={`${community.name} icon`} className="size-full object-cover" />
               ) : (

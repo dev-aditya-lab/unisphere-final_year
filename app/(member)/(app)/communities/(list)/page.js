@@ -64,12 +64,12 @@ export default async function CommunitiesPage({ searchParams }) {
           {list.map((c) => (
             <li key={c.id}>
               <article className="surface h-full overflow-hidden">
-                <div className="bg-muted aspect-[3/1]">
+                <div className="bg-muted relative aspect-[3/1]">
                   <MediaImage mediaKey={c.cover_key} width={640} loading="lazy" decoding="async" className="size-full object-cover" />
                 </div>
                 <div className="p-4 sm:p-5">
-                <div className="-mt-10 mb-2 flex">
-                  <span className="bg-card grid size-12 place-items-center overflow-hidden rounded-xl border-2 text-sm font-bold">
+                <div className="relative z-10 -mt-10 mb-2 flex">
+                  <span className="bg-card border-card ring-border grid size-12 place-items-center overflow-hidden rounded-xl border-2 text-sm font-bold ring-1">
                     {c.avatar_key ? <MediaImage mediaKey={c.avatar_key} width={96} loading="lazy" decoding="async" className="size-full object-cover" /> : c.name.slice(0, 2).toUpperCase()}
                   </span>
                 </div>
