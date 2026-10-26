@@ -33,10 +33,10 @@ member                         server                          administrator
 
 ## Setup
 
-1. Connect a payment gateway: write (or copy) its adapter and set `PAYMENT_GATEWAY` and the keys in the server
-   environment. Everything about this, with a worked example, is in `docs/PAYMENTS.md`.
-2. In the gateway's dashboard add the webhook `https://<your-domain>/api/payments/webhook` with the same secret you put in
-   `PAYMENT_WEBHOOK_SECRET`, and tick the events for a successful payment, a failed payment and a processed refund.
+1. Connect a payment gateway. PayU is built in: set `PAYMENT_GATEWAY=payu` and the keys in the server environment. Any other
+   gateway needs a small adapter. Everything about this, with the PayU URLs and a worked example, is in `docs/PAYMENTS.md`.
+2. In the gateway's dashboard add the webhook `https://<your-domain>/api/payments/webhook` for a successful payment, a failed
+   payment and a refund (and, for gateways that use one, the same secret in `PAYMENT_WEBHOOK_SECRET`).
 3. Apply the migrations (`supabase db push`): `20260121000027_blue_tick.sql`, then the later payment ones.
 4. At `/admin/payments` check that it says the gateway is connected, set the price and switch it on.
 

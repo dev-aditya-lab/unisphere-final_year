@@ -10,6 +10,6 @@ insert into public.releases(version, title, summary, items, published_at) values
   'Buying the blue tick now takes you to the payment provider''s secure page and brings you back, instead of opening a payment window inside UniSphere.',
   '[{"kind":"improved","text":"When you buy the blue tick you are taken to the payment provider''s own secure page and brought back to UniSphere afterwards. UniSphere no longer loads any payment company''s code on its pages, and it still never sees your card, UPI or bank details."},
     {"kind":"improved","text":"If you close the page before coming back, your payment is still recorded and applied to your account automatically. If it is slow to appear, a Check again link on the blue tick page asks the payment provider again."},
-    {"kind":"improved","text":"Administrators can connect any payment provider with a small adapter, and the Payments page shows which one is connected and whether it is ready."}]'::jsonb,
+    {"kind":"improved","text":"Payments are taken through PayU. Administrators can connect another payment provider with a small adapter, and the Payments page shows which one is connected and whether it is ready."}]'::jsonb,
   null)
 on conflict (version) do nothing;

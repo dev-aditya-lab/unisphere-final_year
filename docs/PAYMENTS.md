@@ -4,8 +4,8 @@ UniSphere does not depend on one payment company. The blue tick (`docs/BLUE_TICK
 adapter**: one small file that says how to create an order, ask what happened to it, refund it and read its webhook.
 Nothing else in the app names a gateway, so switching companies means changing a file and four environment values.
 
-No adapter is bundled. Pick the gateway you have (or can get) an account with, write its adapter from the worked example
-below (usually 60 to 100 lines), and register it.
+**PayU** (India) is built in: see "Using PayU" below. For any other gateway, write its adapter from the worked example
+(usually 60 to 100 lines) and register it.
 
 ## How a payment flows
 
@@ -50,6 +50,66 @@ member            UniSphere server                         payment gateway
 4. Apply the migrations (`supabase db push`).
 5. At `/admin/payments` the page says in plain words whether the gateway is connected. Set the price and switch it on.
 
+## Using PayU
+
+The adapter is `lib/payments/gateways/payu.js`, written against PayU's Hosted Checkout documentation
+([hash](https://docs.payu.in/docs/generate-hash-payu-hosted), [_payment](https://docs.payu.in/reference/_payment_payu_hosted_checkout),
+[Verify Payment](https://docs.payu.in/docs/verify_payment_api), [Refund](https://docs.payu.in/reference/refund_transaction_api),
+[webhooks](https://docs.payu.in/docs/webhook-events-and-sample-payloads)).
+
+**Set in the server environment** (`.env.local` for development, the host's settings in production):
+
+| Variable | PayU value |
+| --- | --- |
+| `PAYMENT_GATEWAY` | `payu` |
+| `PAYMENT_KEY_ID` | your **Merchant Key** (PayU dashboard, Payment Gateway, Key Salt Details) |
+| `PAYMENT_KEY_SECRET` | your **Salt**, from the same page. It is never sent to PayU: it only goes into hashes. |
+| `PAYMENT_API_BASE_URL` | `https://test.payu.in` while testing; empty for live |
+| `PAYMENT_FORM_ACTION_ORIGINS` | `https://test.payu.in` while testing, `https://secure.payu.in` for live |
+| `PAYMENT_WEBHOOK_SECRET` | not used: PayU signs its webhooks with the salt |
+
+PayU has separate **test and live** keys and salts: change all of the values above together when going live, and restart the
+server after any change (the settings are read once at start-up).
+
+### The URLs
+
+Replace `https://<your-domain>` with `NEXT_PUBLIC_APP_URL` (a webhook cannot reach `localhost`; use a tunnel such as
+`cloudflared` or `ngrok` to test webhooks on your own machine).
+
+| What | URL | Where you set it |
+| --- | --- | --- |
+| **Webhook, Payments, Successful** | `https://<your-domain>/api/payments/webhook` | PayU dashboard, Developers, Webhooks, Create Webhook |
+| **Webhook, Payments, Failed** | `https://<your-domain>/api/payments/webhook` | the same, one webhook per event |
+| **Webhook, Payments, Refund** | `https://<your-domain>/api/payments/webhook` | the same. PayU must enable the refund callback for your account: ask your PayU contact or support. |
+| **Webhook, Payments, Dispute** | `https://<your-domain>/api/payments/webhook` | the same. It is acknowledged and not acted on: handle disputes in the PayU dashboard. |
+| Success URL (`surl`) | `https://<your-domain>/api/payments/return` | nothing to set: UniSphere sends it with every payment |
+| Failure URL (`furl`) | `https://<your-domain>/api/payments/return` | nothing to set: sent with every payment |
+| Cancel URL (`curl`) | `https://<your-domain>/api/payments/return` | nothing to set: sent with every payment |
+| Refund callback (`var5`) | `https://<your-domain>/api/payments/webhook` | nothing to set: sent with every refund made from `/admin/payments` (only when the site is on https) |
+
+One address serves every webhook event. In the PayU dashboard: **Developers, Webhooks, Create Webhook**, choose Type
+**Payments**, choose the Event, enter the URL, Create; repeat for each event. Check deliveries under Developers, Webhook logs.
+PayU lists the addresses it calls from; allow-listing them at your firewall is optional extra hardening (see its webhook page).
+
+### How PayU is checked
+
+- A payment webhook (form post) is accepted only if its `hash` matches PayU's reverse hash computed with your salt, and the
+  `key` is yours. A "paid" event is also checked with PayU's Verify Payment API before anything is recorded.
+- The refund webhook (JSON) carries no hash, so it is not believed: UniSphere asks PayU (`check_action_status`) whether that
+  refund really exists first.
+- After paying, the member is posted back to `/api/payments/return`. The posted fields are not trusted either; only the `txnid`
+  is used to find the order, then Verify Payment decides.
+- PayU limits `surl` and `furl` to 50 characters, so the return address is short and carries no query string.
+- A payment PayU has only authorised (not captured) is never counted as paid. Keep PayU on automatic capture.
+
+### First test
+
+With test credentials: open Settings, Blue tick, pay with one of PayU's test cards or the test UPI/netbanking flow described in
+its test-mode documentation, and confirm: success sends you back with "Payment received"; a failed payment says so; closing
+the PayU page after paying still records the payment once the webhook arrives; a refund from `/admin/payments` shows as refunded
+in the PayU dashboard. If the browser console reports a "form-action" violation after you press Pay, the address it names must
+be added to `PAYMENT_FORM_ACTION_ORIGINS`.
+
 ## Writing an adapter
 
 An adapter is a plain object. Its methods receive `cfg` (`{ keyId, keySecret, webhookSecret, baseUrl }`) first, and return
@@ -74,7 +134,10 @@ paise, and a checkout must be an `https:` address.
   blue tick page.
 
 Pass the gateway `returnUrl` as the address to send the member back to. It already carries `?o=<order id>`, so use a
-gateway field that keeps the query string. Set `PAYMENT_API_BASE_URL` for sandbox versus live.
+gateway field that keeps the query string. If the gateway limits the length of that address, or drops its query string, send
+a short address instead (`returnUrl` without its query) and add `parseReturn(cfg, { query, form })` to the adapter: it
+reads the gateway's own order id out of what the gateway posts back, as the PayU adapter does. Set `PAYMENT_API_BASE_URL`
+for sandbox versus live.
 
 ### Worked example
 

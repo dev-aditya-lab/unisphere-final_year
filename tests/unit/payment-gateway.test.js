@@ -169,6 +169,31 @@ describe("refunds", () => {
   });
 });
 
+describe("coming back from the gateway's page", () => {
+  const input = { query: new URLSearchParams(), form: new URLSearchParams("txnid=ord_1") };
+
+  it("asks the adapter which order the posted fields name, and only accepts a plain id", async () => {
+    adapter.parseReturn = vi.fn().mockResolvedValue({ orderId: "ord_1" });
+    expect(await gateway.parseReturn(input)).toBe("ord_1");
+    for (const orderId of ["", "has space", "x".repeat(201), 42, undefined]) {
+      adapter.parseReturn.mockResolvedValueOnce({ orderId });
+      expect(await gateway.parseReturn(input), String(orderId)).toBeNull();
+    }
+    adapter.parseReturn.mockResolvedValueOnce(null);
+    expect(await gateway.parseReturn(input)).toBeNull();
+  });
+
+  it("is simply null for an adapter without the hook, with no gateway, or when the adapter throws", async () => {
+    delete adapter.parseReturn;
+    expect(await gateway.parseReturn(input)).toBeNull();
+    adapter.parseReturn = vi.fn().mockRejectedValue(new Error("boom"));
+    expect(await gateway.parseReturn(input)).toBeNull();
+    env.PAYMENT_GATEWAY = undefined;
+    expect(await gateway.parseReturn(input)).toBeNull();
+    delete adapter.parseReturn;
+  });
+});
+
 describe("webhooks", () => {
   const input = { rawBody: "{}", headers: new Headers() };
 
