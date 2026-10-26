@@ -25,5 +25,18 @@ export function useCopyLink(post) {
       toast.error("Could not copy the link");
     }
   }, [post]);
-  return { copied, copy };
+
+  // On a phone the system share sheet is the natural "share" (messages, other apps, copy); everywhere else, and if the member
+  // dismisses or the sheet is unavailable, the link is copied. Cancelling the sheet is not an error.
+  const share = useCallback(async () => {
+    const canShare = typeof navigator.share === "function" && window.matchMedia?.("(pointer: coarse)").matches;
+    if (!canShare) return copy();
+    try {
+      await navigator.share({ title: post.title || `Post by ${post.author_name}`, url: postUrl(post) });
+    } catch (err) {
+      if (err?.name !== "AbortError") return copy();
+    }
+  }, [post, copy]);
+
+  return { copied, copy, share };
 }

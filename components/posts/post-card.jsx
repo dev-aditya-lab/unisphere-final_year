@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Repeat2 } from "lucide-react";
+import { ArrowRight, Repeat2 } from "lucide-react";
 import { Compass, Globe, GraduationCap, Lock, ShieldAlert, Users } from "@/components/icons/lucide-compat";
 import { AuthorLine } from "@/components/posts/author-line";
 import { CategoryBadge } from "@/components/posts/category-badge";
@@ -38,9 +38,10 @@ function OriginalEmbed({ post }) {
  * One post in a feed or list. Pure presentation + a client action bar and menu, so it renders on the server
  * and inside the client-side infinite feed alike. `full` shows the entire body (post page).
  *
- * On a phone a post is a full-width row separated by hairlines, so the text gets the whole screen; from sm up it is a
- * rounded card. The category badge is shown only for a specific type (the default "General" says nothing), and the
- * audience only when it is narrower than everyone.
+ * Social layout: a large avatar with the name and time, the type as a small coloured pill beside the menu (only for a
+ * specific type; "General" says nothing), big readable text, rounded media, and a bar of pill-shaped actions. On a phone a
+ * post is a full-width row separated by hairlines so the text gets the whole screen; from sm up it is a rounded card.
+ * Off-screen cards skip rendering (`feed-card`), which keeps long feeds light.
  */
 export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed, canSummarize = false, className, headingLevel = "h2" }) {
   const Heading = headingLevel;
@@ -50,7 +51,7 @@ export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed,
   const long = !full && post.body.length > 500;
   const VisIcon = VISIBILITY_ICON[post.visibility] ?? Globe;
   const narrowAudience = post.visibility && post.visibility !== "public";
-  const shell = "bg-card border-y max-sm:border-x-0 p-4 sm:rounded-2xl sm:border sm:p-5 sm:shadow-card";
+  const shell = "feed-card bg-card border-y max-sm:border-x-0 p-4 sm:rounded-3xl sm:border sm:p-5 sm:shadow-card sm:transition-shadow sm:duration-200 sm:hover:shadow-[var(--lift-shadow)]";
 
   if (post.status === "removed") {
     return (
@@ -79,6 +80,8 @@ export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed,
       )}
       <div className="flex items-start justify-between gap-2">
         <AuthorLine
+          size="post"
+          prominent
           name={post.author_name}
           username={post.author_username}
           avatarKey={post.author_avatar_key}
@@ -98,12 +101,14 @@ export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed,
             </>
           )}
         </AuthorLine>
-        <PostMenu post={post} viewerId={viewerId} onDeleted={onDeleted} onDismissed={onDismissed} />
+        <div className="-mt-0.5 -mr-1.5 flex shrink-0 items-center gap-1">
+          {!isPlainRepost && post.category !== "general" && <CategoryBadge category={post.category} compact />}
+          <PostMenu post={post} viewerId={viewerId} onDeleted={onDeleted} onDismissed={onDismissed} />
+        </div>
       </div>
 
       {!isPlainRepost && (
-        <div className="mt-3">
-          {post.category !== "general" && <CategoryBadge category={post.category} className="mb-2" />}
+        <div className="mt-3.5">
           {post.title && (
             <Heading className="font-heading text-lg leading-snug font-bold tracking-tight [overflow-wrap:anywhere] sm:text-xl">
               {full ? (
@@ -115,10 +120,11 @@ export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed,
               )}
             </Heading>
           )}
-          <MarkdownText text={long ? markdownExcerpt(post.body, 500) : post.body} className={cn("text-[15px] leading-[1.65] sm:text-base sm:leading-[1.7]", post.title && "mt-1.5")} />
+          <MarkdownText text={long ? markdownExcerpt(post.body, 500) : post.body} className={cn("text-base leading-relaxed", post.title && "mt-1.5")} />
           {long && (
-            <Link href={href} className="text-primary-text mt-1 inline-block text-sm font-semibold hover:underline">
-              Read more
+            <Link href={href} className="text-primary-text group/more mt-1.5 inline-flex min-h-8 items-center gap-1 text-sm font-semibold">
+              <span className="group-hover/more:underline">Read more</span>
+              <ArrowRight className="size-3.5 transition-transform duration-200 group-hover/more:translate-x-0.5" aria-hidden="true" />
             </Link>
           )}
         </div>
@@ -127,9 +133,9 @@ export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed,
       {canSummarize && !isRepost && post.body.length >= 600 && <PostSummary post={post} />}
 
       {isRepost && <OriginalEmbed post={post} />}
-      <PostMedia items={post.attachments} className="mt-3" />
+      <PostMedia items={post.attachments} className="mt-3.5 rounded-2xl" />
 
-      <PostActions post={post} viewerId={viewerId} className="mt-2 -mb-1 -ml-3" />
+      <PostActions post={post} viewerId={viewerId} className="mt-4" />
     </article>
   );
 }

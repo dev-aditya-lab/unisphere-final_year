@@ -93,6 +93,26 @@ the light `m` element (not `motion`); the animation engine is loaded after hydra
   lands on, so nothing is delayed to make room for it.
 - Marketing: scroll reveals, the marquee strip, the orbit; all CSS or `motion` with transforms only.
 
+## The home feed (2.4.0)
+
+The home page is one calm column. Order, top to bottom: a one-line official announcement (the rest one tap away), a single
+"today" row for Orbits (screens without the sidebar), the composer, the sticky tab bar, the type chips, the posts.
+
+| Piece | Behaviour | Why |
+| --- | --- | --- |
+| Tab bar (`FeedFilters`) | Sticky under the app bar; the selected tab has an ink bar that slides (`layoutId`); on a phone it slides away while scrolling down and returns on the first upward scroll or on focus; the tap shows at once and is ignored as soon as the server answers | Always one tap from "whose posts", and the posts get the screen while reading |
+| Type chips | Lighter chips, selected = ink pill; each type icon carries its own hue | A scan by colour and shape, never colour alone |
+| Composer | Prompt plus one-tap starters (Photo, Project, Idea, Question, Achievement) that open the editor already set to that type | Start the kind of post you have in mind in one tap |
+| Post card (`PostCard`) | Hairline rows on a phone, a card that lifts under the pointer from `sm`; a typed post takes a faint wash of its hue; `feed-card` skips rendering when off screen; the first screenful eases in with a capped stagger (`feed-item`) | Calm, scannable, cheap to render for long feeds |
+| Action row (`PostActions`) | 44 px targets on a phone (40 px with a mouse); icon only on a phone, icon plus label from `sm`; counts roll (`RollingNumber`) | Thumb-friendly and readable |
+| Reactions | Tap Like for a quick like. Touch and hold (380 ms) or rest the mouse (450 ms) opens a tray of four, each with its own icon and hue (`reaction-ui.jsx`); a visible face button opens the same tray, so nothing depends on discovering a gesture; the choice springs in with a ring of dots (`react-pop`, `react-burst`) and a short vibration where supported (`lib/client/haptics.js`) | Research on long-press pickers: hold-only is rarely discovered, so there is always a visible control and a keyboard path |
+| Share | The system share sheet on touch devices that have one; otherwise copy the link | Native on phones |
+| Back to top | Offered only far down a feed while scrolling up | Helps a long feed, never covers a post |
+
+Motion rules held: feedback 120 to 260 ms, only `transform` and `opacity` (the announcement opens with a grid-row
+transition, no layout script), nothing loops, and the global reduced-motion rule reduces everything to a single still
+frame. Touch targets are at least 44 px where a thumb is the pointer (Apple HIG 44 pt, Material 48 dp, WCAG 2.5.8 minimum 24 px).
+
 ## Mobile and the installed app
 
 - Bottom tab bar with a raised "write a post" button; the top bar keeps search, notifications and the account

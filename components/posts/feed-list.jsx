@@ -3,6 +3,7 @@
 import { memo, useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { CircleAlert } from "@/components/icons/lucide-compat";
 import { Button } from "@/components/ui/button";
+import { BackToTop } from "@/components/posts/back-to-top";
 import { PostCard } from "@/components/posts/post-card";
 import { PostSkeleton } from "@/components/skeletons";
 import { loadFeedAction } from "@/lib/actions/posts";
@@ -120,9 +121,10 @@ export function FeedList({ initialItems, initialCursor, scope, category, viewerI
 
   return (
     <div>
+      {items.length > 6 && <BackToTop />}
       <ul className="-mx-3 sm:mx-0 sm:space-y-4 max-sm:[&>li+li]:-mt-px" aria-label="Posts">
-        {items.map((post) => (
-          <li key={post.id}>
+        {items.map((post, i) => (
+          <li key={post.id} className="feed-item" style={{ "--i": i < 6 ? i : 0 }}>
             <FeedItem post={post} viewerId={viewerId} onDeleted={removePost} onDismissed={scope === "for_you" ? removePost : undefined} canSummarize={canSummarize} />
           </li>
         ))}

@@ -1,3 +1,4 @@
+import { AppIcon } from "@/components/icons/app-icon";
 import { Bookmark, Heart, MessageCircle, Search, Sparkles, UserPlus } from "@/components/icons/lucide-compat";
 import { cn } from "@/lib/utils";
 
@@ -52,10 +53,21 @@ export function MockPost({ initials, name, meta, category, tone, children, stats
       </div>
       <div className="mt-3 text-sm leading-relaxed">{children}</div>
       {stats && (
-        <div className="text-muted-foreground mt-3 flex items-center gap-4 border-t pt-2.5 text-xs">
-          <span className="flex items-center gap-1"><Heart className="size-3.5" aria-hidden="true" /> {stats[0]}</span>
-          <span className="flex items-center gap-1"><MessageCircle className="size-3.5" aria-hidden="true" /> {stats[1]}</span>
-          <Bookmark className="ml-auto size-3.5" aria-hidden="true" />
+        <div className="text-muted-foreground mt-3 flex items-center gap-3 border-t pt-2.5 text-xs">
+          {/* The real card's reactions: a filled heart that springs in once, and the small icons of the other kinds it received. */}
+          <span className="tone-rose flex items-center gap-1.5 font-semibold text-(--tone-text)">
+            <span className="react-pop"><AppIcon name="heart" size={18} fill="solid" animate={false} /></span>
+            {stats[0]}
+          </span>
+          <span className="flex items-center" aria-hidden="true">
+            {[["bulb", "tone-sun"], ["sparkle", "tone-coral"]].map(([icon, t]) => (
+              <span key={icon} className={cn(t, "bg-card ring-card -ml-1 grid size-[18px] place-items-center rounded-full text-(--tone-text) ring-2 first:ml-0")}>
+                <AppIcon name={icon} size={11} fill="solid" animate={false} />
+              </span>
+            ))}
+          </span>
+          <span className="flex items-center gap-1"><MessageCircle className="size-4" aria-hidden="true" /> {stats[1]}</span>
+          <Bookmark className="ml-auto size-4" aria-hidden="true" />
         </div>
       )}
     </article>

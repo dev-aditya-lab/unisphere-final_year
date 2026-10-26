@@ -52,10 +52,11 @@ export default async function FeedPage({ searchParams }) {
       }
     >
       <h1 className="sr-only">Feed</h1>
-      <div className="space-y-4">
+      {/* One calm column: a one-line announcement, one "today" row, the composer, then the sticky tabs and the posts. */}
+      <div className="space-y-3 sm:space-y-4">
         <AnnouncementsBanner items={announcements} />
         {/* Below xl the sidebar is hidden, so a compact "today" strip takes its place (it renders nothing on xl and up) */}
-        <Suspense fallback={<div aria-hidden="true" className="skeleton h-[4.25rem] xl:hidden" />}>
+        <Suspense fallback={<div aria-hidden="true" className="skeleton h-14 rounded-2xl xl:hidden" />}>
           <OrbitsFeedStrip />
         </Suspense>
         {noPostsYet && <FirstPostPrompt name={profile.full_name} />}

@@ -9,12 +9,13 @@ const SIZES = {
   xs: "size-6 text-[10px]",
   sm: "size-8 text-xs",
   md: "size-10 text-sm",
+  post: "size-11 text-sm",
   lg: "size-14 text-base",
   xl: "size-24 text-2xl",
 };
 
 // The width each size is shown at, doubled for sharp screens: a 24 px avatar should not download a 1024 px photo.
-const WIDTHS = { xs: 48, sm: 64, md: 96, lg: 112, xl: 192 };
+const WIDTHS = { xs: 48, sm: 64, md: 96, post: 112, lg: 112, xl: 192 };
 
 /**
  * Profile photo with an initials fallback (also shown if the picture is missing or fails to load). `avatarKey` is the

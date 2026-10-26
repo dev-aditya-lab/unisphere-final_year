@@ -208,17 +208,10 @@ export function OrbitsWidgetUnavailable() {
   );
 }
 
-function StripCard({ children, className, ...rest }) {
-  return (
-    <li className={cn("bg-card/90 relative flex h-[4.25rem] min-w-[13.25rem] shrink-0 snap-start items-center gap-2.5 overflow-hidden rounded-2xl border border-[var(--orbit-line)] px-2.5 sm:min-w-0 sm:flex-1", className)} {...rest}>
-      {children}
-    </li>
-  );
-}
-
 /**
- * A compact "today" strip for screens too narrow for the sidebar widget: balance, streak, and the single next step. On a phone
- * it scrolls sideways inside itself (the page never does). It repeats nothing from the header beyond the balance itself.
+ * A compact "today" row for screens too narrow for the sidebar widget: the balance, the streak, and the one next step, on a
+ * single line (it used to be three cards that scrolled sideways above the posts). It repeats nothing from the header beyond the
+ * balance itself. The step is state-aware: claim the bonus, then answer the challenge, then "all done".
  */
 export function OrbitsStrip({ initial }) {
   const glance = useGlance(initial);
@@ -227,60 +220,57 @@ export function OrbitsStrip({ initial }) {
   const step = nextStep(glance, claimed);
   const ch = glance.challenge;
   const claimRef = useRef(null);
+  const focus = "focus-visible:ring-ring/40 rounded-xl outline-none focus-visible:ring-[3px]";
+  const pill = "orbit-glint relative flex h-10 shrink-0 items-center gap-1.5 overflow-hidden rounded-xl px-3 text-[13px] font-bold whitespace-nowrap transition-transform duration-150 active:scale-95";
 
   return (
     <section aria-label="Your Orbits today" className="orbit-enter xl:hidden">
-      <ul className="scrollbar-none -mx-3 flex snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain px-3 pb-0.5 sm:mx-0 sm:px-0">
-        <StripCard className="bg-[var(--orbit-wash)]">
-          <Link href="/orbits" className="focus-visible:ring-ring/40 flex min-w-0 flex-1 items-center gap-2 rounded-xl outline-none focus-visible:ring-[3px]">
-            <OrbitalIcon size={52} scale={0.62} bump={bump} />
-            <span className="relative min-w-0">
-              <span className="eyebrow block !text-[10px]">Orbit Balance</span>
-              <span className="font-heading block text-xl leading-tight font-extrabold" data-testid="strip-orbit-balance"><AnimatedNumber value={glance.balance} /></span>
-              <GainChip key={gain?.id} amount={gain?.amount} className="top-3 left-14" />
+      <div className="bg-card/90 flex min-h-14 items-center gap-1 rounded-2xl border border-[var(--orbit-line)] bg-[var(--orbit-wash)] py-1 pr-1.5 pl-1">
+        <Link href="/orbits" className={cn(focus, "relative flex min-w-0 items-center gap-1")}>
+          <OrbitalIcon size={48} scale={0.62} bump={bump} />
+          <span className="min-w-0">
+            <span className="eyebrow block !text-[10px] leading-none">Orbits</span>
+            <span className="font-heading block text-lg leading-tight font-extrabold" data-testid="strip-orbit-balance">
+              <AnimatedNumber value={glance.balance} />
+            </span>
+          </span>
+          <GainChip key={gain?.id} amount={gain?.amount} className="top-1 left-12" />
+        </Link>
+
+        {glance.streak ? (
+          <Link href="/orbits" className={cn(focus, "ml-1 flex shrink-0 items-center gap-1 px-1.5 py-1")} aria-label={`Orbit Streak: ${glance.streak.current} ${glance.streak.current === 1 ? "day" : "days"}`}>
+            <RewardIcon name="flame" size={28} alt="" />
+            <span className="text-sm font-bold tabular-nums">
+              {glance.streak.current}
+              <span className="text-muted-foreground max-[420px]:sr-only text-xs font-medium"> day{glance.streak.current === 1 ? "" : "s"}</span>
             </span>
           </Link>
-        </StripCard>
+        ) : null}
 
-        <StripCard>
-          <Link href="/orbits" className="focus-visible:ring-ring/40 flex min-w-0 flex-1 items-center gap-2 rounded-xl outline-none focus-visible:ring-[3px]">
-            <RewardIcon name="flame" size={38} alt="" />
-            <span className="min-w-0">
-              <span className="eyebrow block !text-[10px]">Streak</span>
-              <StreakLine streak={glance.streak} showToday={false} />
+        <span className="ml-auto" />
+        {step === "claim" ? (
+          <button ref={claimRef} type="button" onClick={() => claim(claimRef.current)} disabled={pending} aria-busy={pending} className={cn(pill, focus, "bg-primary text-primary-foreground")}>
+            {pending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <RewardIcon name="calendar-check" size={20} alt="" />}
+            {pending ? "Claiming…" : (
+              <span>
+                Claim +{glance.checkin.reward}<span className="max-[420px]:sr-only"> Orbits</span>
+              </span>
+            )}
+          </button>
+        ) : step === "challenge" ? (
+          <Link href="/orbits#challenge" className={cn(pill, focus, "bg-primary text-primary-foreground")}>
+            <RewardIcon name="brain" size={20} alt="" />
+            <span>
+              Daily Challenge<span className="max-[420px]:sr-only"> +{ch.reward}</span>
             </span>
           </Link>
-        </StripCard>
-
-        <StripCard className={cn(step !== "done" && "border-primary/40")}>
-          {step === "claim" ? (
-            <button ref={claimRef} type="button" onClick={() => claim(claimRef.current)} disabled={pending} aria-busy={pending} className="focus-visible:ring-ring/40 orbit-glint relative flex min-w-0 flex-1 items-center gap-2.5 overflow-hidden rounded-xl text-left outline-none focus-visible:ring-[3px]">
-              {pending ? <Loader2 className="size-9 shrink-0 animate-spin p-1.5" aria-hidden="true" /> : <RewardIcon name="calendar-check" size={38} alt="" />}
-              <span className="min-w-0">
-                <span className="eyebrow block !text-[10px]">Daily bonus</span>
-                <span className="text-primary-text block text-sm font-bold">{pending ? "Claiming…" : `Claim +${glance.checkin.reward} Orbits`}</span>
-              </span>
-            </button>
-          ) : step === "challenge" ? (
-            <Link href="/orbits#challenge" className="focus-visible:ring-ring/40 flex min-w-0 flex-1 items-center gap-2.5 rounded-xl outline-none focus-visible:ring-[3px]">
-              <RewardIcon name="brain" size={38} alt="" />
-              <span className="min-w-0">
-                <span className="eyebrow block !text-[10px]">Daily Challenge</span>
-                <span className="text-primary-text block text-sm font-bold">Answer for up to +{ch.reward}</span>
-              </span>
-            </Link>
-          ) : (
-            <Link href="/orbits" className="focus-visible:ring-ring/40 flex min-w-0 flex-1 items-center gap-2.5 rounded-xl outline-none focus-visible:ring-[3px]">
-              <RewardIcon name="circle-check" size={38} alt="" />
-              <span className="min-w-0">
-                <span className="eyebrow block !text-[10px]">Today</span>
-                <span className="block text-sm font-bold">All done</span>
-                <span className="text-muted-foreground block text-xs">See your progress</span>
-              </span>
-            </Link>
-          )}
-        </StripCard>
-      </ul>
+        ) : (
+          <Link href="/orbits" className={cn(pill.replace("orbit-glint ", ""), focus, "border-primary/25 bg-primary-soft text-primary-text border")}>
+            <RewardIcon name="circle-check" size={20} alt="" />
+            All done
+          </Link>
+        )}
+      </div>
       <p role="status" className={cn("mt-1.5 px-1 text-xs font-medium", error ? "text-destructive-text" : "text-success-text", !error && !gain && "sr-only")}>
         {error || (gain ? `You earned +${gain.amount} Orbits. Your balance is now ${n(glance.balance)}.` : "")}
       </p>

@@ -266,7 +266,7 @@ export function FirstPostPrompt({ name }) {
               <X className="size-4" aria-hidden="true" />
             </button>
             <div className="relative grid items-center gap-4 sm:grid-cols-[10.5rem_1fr] sm:gap-6">
-              <FirstPostIllustration className="mx-auto max-w-44 sm:max-w-none" />
+              <FirstPostIllustration className="mx-auto max-w-44 max-sm:hidden sm:max-w-none" />
               <div className="space-y-3 pr-6">
                 <Steps />
                 <div>

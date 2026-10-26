@@ -66,8 +66,8 @@ export function TuneFeed({ interests: initial = [], topics = [], personalized = 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
-        <Button type="button" variant="outline" size="sm">
-          <SlidersHorizontal /> Tune your feed
+        <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground h-11 max-sm:w-11 max-sm:px-0 sm:h-10">
+          <SlidersHorizontal className="size-[18px]" /> <span className="max-sm:sr-only">Tune your feed</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[min(22rem,calc(100vw-1.5rem))] space-y-3 p-4">

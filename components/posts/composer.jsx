@@ -29,6 +29,8 @@ import { cn } from "@/lib/utils";
 
 const MAX = 10000;
 const MAX_IMAGES = 4;
+// The post types offered as one-tap starters under the prompt (the rest are in the editor's own type picker).
+const QUICK_TYPES = ["projects", "ideas", "questions", "achievements"];
 const VISIBILITY_ICON = { public: Globe, college: GraduationCap, connections: Users, private: Lock, community: Users };
 
 /**
@@ -361,15 +363,15 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
   }
 
   const firstLine = body.split("\n", 1)[0];
-  const placeholder = "Share something with your community…";
+  const placeholder = community ? "Share something with this community…" : `What's on your mind, ${profile.full_name?.trim().split(/\s+/)[0] ?? "friend"}?`;
   const remaining = MAX - body.length;
   const nearLimit = remaining <= 500;
 
   return (
     <section id={community ? undefined : "compose"} aria-label="Create a post" className="bg-card scroll-mt-20 rounded-2xl border p-3 shadow-card sm:p-4">
       {/* Compact prompt: a real input that opens the full editor. */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:flex-nowrap">
-        <UserAvatar name={profile.full_name} avatarKey={profile.avatar_key} size="md" className="shrink-0 max-sm:hidden" />
+      <div className="flex items-center gap-3">
+        <UserAvatar name={profile.full_name} avatarKey={profile.avatar_key} size="md" className="shrink-0" />
         <input
           type="text"
           aria-label="Start a post"
@@ -383,18 +385,34 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
           onKeyDown={(e) => {
             if (e.key === "Enter" || (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey)) openEditor();
           }}
-          className="bg-muted placeholder:text-faint hover:bg-accent focus-visible:ring-ring/40 h-11 min-w-0 flex-1 cursor-text rounded-full border border-transparent px-4 text-sm outline-none focus-visible:ring-[3px]"
+          className="bg-muted placeholder:text-faint hover:bg-accent focus-visible:ring-ring/40 h-11 min-w-0 flex-1 cursor-text rounded-full border border-transparent px-4 text-sm transition-colors outline-none focus-visible:ring-[3px]"
         />
-        <div className="flex w-full items-center gap-1 sm:w-auto">
-          <Button type="button" variant="ghost" size="sm" className="text-muted-foreground" onClick={() => fileInput.current?.click()} disabled={uploads.length >= MAX_IMAGES}>
-            <ImagePlus />
-            Add images
-          </Button>
-          <Button type="button" size="sm" className="ml-auto sm:ml-0" disabled={pending} onClick={() => (hasContent ? submit() : openEditor())}>
-            {pending ? <Loader2 className="animate-spin" /> : null}
-            {pending ? "Posting…" : "Post"}
-          </Button>
-        </div>
+      </div>
+      {/* One tap to start the kind of post you have in mind: the editor opens already set to that type. */}
+      <div className="scrollbar-none -mx-1 mt-2.5 flex gap-0.5 overflow-x-auto px-1 max-sm:[mask-image:linear-gradient(to_right,black_calc(100%-1.75rem),transparent)] sm:gap-1">
+        <button type="button" onClick={() => fileInput.current?.click()} disabled={uploads.length >= MAX_IMAGES} className="tap text-muted-foreground hover:bg-accent hover:text-foreground flex h-10 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 disabled:opacity-50 sm:px-3">
+          <ImagePlus className="text-leaf-text size-[18px]" aria-hidden="true" />
+          Photo
+        </button>
+        {!lockCategory &&
+          !community &&
+          QUICK_TYPES.map((value) => {
+            const c = CATEGORY_BY_VALUE[value];
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => {
+                  setCategory(value);
+                  openEditor();
+                }}
+                className={cn(c.tone, "tap text-muted-foreground hover:bg-accent hover:text-foreground flex h-10 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 sm:px-3")}
+              >
+                <CategoryIcon value={value} className="size-[18px] text-(--tone-text)" aria-hidden="true" />
+                {c.label}
+              </button>
+            );
+          })}
       </div>
       {hasDraft && !open && (
         <p className="text-muted-foreground mt-2.5 flex items-center gap-2 border-t pt-2.5 text-xs">

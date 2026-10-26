@@ -1,15 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { m } from "motion/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Compass, Globe, GraduationCap, Users } from "@/components/icons/lucide-compat";
 import { CategoryIcon } from "@/components/posts/category-icons";
-import { FEED_SCOPES, POST_CATEGORIES } from "@/lib/content/post-meta";
+import { useScrollState } from "@/hooks/use-scroll-state";
+import { CATEGORY_BY_VALUE, FEED_SCOPES, POST_CATEGORIES } from "@/lib/content/post-meta";
+import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 const SCOPE_ICON = { for_you: Compass, college: GraduationCap, following: Users, public: Globe };
+// On a phone four tabs share one row, so the longer names are shortened (the full name is still what a screen reader hears).
+const SCOPE_SHORT = { for_you: "For you", college: "College", following: "Following", public: "Everyone" };
 
 function href(pathname, params, patch) {
   const next = new URLSearchParams(params.toString());
@@ -47,10 +52,11 @@ function useScrollEdges(ref) {
 }
 
 /**
- * Two separate controls, so they never read as one row of tabs:
- *   - the audience (my college / following / all members) is a segmented control, a choice about *whose* posts;
- *   - the type is a row of icon chips, a choice about *what kind* of posts, scrollable on narrow screens with a fade
- *     on the side that has more.
+ * Two controls, each answering one question, so they never read as one row of tabs:
+ *   - the audience ("For you", my college, following, everyone) is the tab bar. It is sticky under the app bar, the
+ *     selected tab has an ink bar that slides to the next one, and on a phone it slides away while scrolling down and returns
+ *     the moment the member scrolls up. The tab answers the tap at once (before the server has replied);
+ *   - the type of post is a row of chips below it, scrollable on narrow screens with a fade on the side that has more.
  * Both live in the URL, so they are shareable, survive a refresh and always match the posts shown.
  */
 export function FeedFilters({ scope, category, hideCategories = false, hasCollege = true, includeForYou = false, defaultScope = "college", actions = null }) {
@@ -59,6 +65,14 @@ export function FeedFilters({ scope, category, hideCategories = false, hasColleg
   const params = useSearchParams();
   const scroller = useRef(null);
   const edges = useScrollEdges(scroller);
+  const { scrolled, hidden } = useScrollState();
+  const barId = useId();
+
+  // What the member just chose shows at once; it is ignored as soon as the server's answer (the `scope`/`category` props) moves on.
+  const [pickedScope, setPickedScope] = useState(null);
+  const [pickedCategory, setPickedCategory] = useState(null);
+  const activeScope = pickedScope && pickedScope.base === scope ? pickedScope.value : scope;
+  const activeCategory = pickedCategory && pickedCategory.base === (category ?? null) ? pickedCategory.value : (category ?? null);
 
   // Bring the selected chip into view (inside the strip only: the page itself must not jump).
   useEffect(() => {
@@ -85,58 +99,75 @@ export function FeedFilters({ scope, category, hideCategories = false, hasColleg
     links[next].scrollIntoView({ block: "nearest", inline: "nearest" });
   }
 
+  // A fragment, not a wrapper: a sticky bar only sticks within its parent, which must be the whole feed column.
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-      <nav aria-label="Whose posts" className="bg-muted flex w-full rounded-xl p-1 sm:inline-flex sm:w-auto">
-        {scopes.map((s) => {
-          const Icon = SCOPE_ICON[s.value];
-          const active = scope === s.value;
-          return (
-            <Link
-              key={s.value}
-              href={href(pathname, params, { scope: s.value === defaultScope ? null : s.value })}
-              scroll={false}
-              aria-current={active ? "true" : undefined}
-              className={cn(
-                "flex h-8 flex-1 items-center justify-center gap-1.5 rounded-lg px-2 text-[13px] font-semibold whitespace-nowrap transition-[color,background-color,box-shadow] duration-150 sm:flex-none sm:px-3",
-                active ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {Icon && <Icon className="size-3.5 shrink-0 max-[440px]:hidden" aria-hidden="true" />}
-              {s.label}
-            </Link>
-          );
-        })}
-      </nav>
-      {actions}
+    <>
+      {/* Sticky under the app bar (which is 3.5rem plus the notch). A focus inside it brings it back, so a keyboard user never loses it. */}
+      <div
+        data-hidden={hidden ? "true" : undefined}
+        className={cn(
+          "bg-background/90 supports-[backdrop-filter]:bg-background/75 sticky top-[calc(3.5rem+env(safe-area-inset-top)+1px)] z-10 -mx-3 border-b px-3 backdrop-blur-md transition-[transform,border-color] duration-200 ease-out sm:mx-0 sm:px-0",
+          scrolled ? "border-border" : "border-transparent",
+          "max-sm:data-[hidden=true]:-translate-y-[calc(100%+0.5rem)] max-sm:data-[hidden=true]:focus-within:translate-y-0",
+        )}
+      >
+        <div className="flex items-center gap-1">
+          <nav aria-label="Whose posts" className="flex min-w-0 flex-1 sm:flex-none">
+            {scopes.map((s) => {
+              const Icon = SCOPE_ICON[s.value];
+              const active = activeScope === s.value;
+              return (
+                <Link
+                  key={s.value}
+                  href={href(pathname, params, { scope: s.value === defaultScope ? null : s.value })}
+                  scroll={false}
+                  onClick={() => setPickedScope({ base: scope, value: s.value })}
+                  aria-current={active ? "true" : undefined}
+                  className={cn(
+                    "tap relative flex h-11 flex-1 items-center justify-center gap-1.5 rounded-lg px-1 text-[13px] font-semibold whitespace-nowrap outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 sm:flex-none sm:px-4",
+                    active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {/* In a wrapper: the icon's own stylesheet sets its display, which a utility class on the icon cannot override. */}
+                  {Icon && (
+                    <span className="max-sm:hidden" aria-hidden="true">
+                      <Icon className="size-4 shrink-0" />
+                    </span>
+                  )}
+                  <span className="sm:hidden" aria-hidden="true">
+                    {SCOPE_SHORT[s.value] ?? s.label}
+                  </span>
+                  <span className="max-sm:sr-only">{s.label}</span>
+                  {active && <m.span layoutId={`${barId}-scope`} aria-hidden="true" transition={EASE.spring} className="bg-primary absolute inset-x-2 -bottom-px h-[3px] rounded-full sm:inset-x-3" />}
+                </Link>
+              );
+            })}
+          </nav>
+          {actions && <div className="ml-auto shrink-0">{actions}</div>}
+        </div>
       </div>
 
       {!hideCategories && (
-        <div className="relative -mx-3 sm:mx-0">
-          <nav
-            ref={scroller}
-            aria-label="Filter by type"
-            onKeyDown={onKeyDown}
-            className="scrollbar-none overflow-x-auto overscroll-x-contain px-3 py-1 sm:px-0.5"
-          >
-            <ul className="flex w-max gap-2">
+        <div className="relative -mx-3 -mt-1.5 sm:mx-0">
+          <nav ref={scroller} aria-label="Filter by type" onKeyDown={onKeyDown} className="scrollbar-none overflow-x-auto overscroll-x-contain px-3 py-1 sm:px-0.5">
+            <ul className="flex w-max gap-1.5">
               {[{ value: null, label: "All" }, ...POST_CATEGORIES].map((c) => {
-                const active = (category ?? null) === c.value;
+                const active = activeCategory === c.value;
+                const tone = c.value ? CATEGORY_BY_VALUE[c.value]?.tone : null;
                 return (
                   <li key={c.value ?? "all"}>
                     <Link
                       href={href(pathname, params, { category: c.value })}
                       scroll={false}
+                      onClick={() => setPickedCategory({ base: category ?? null, value: c.value })}
                       aria-current={active ? "true" : undefined}
                       className={cn(
-                        "press flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-semibold whitespace-nowrap transition-colors duration-150",
-                        active
-                          ? "border-primary/30 bg-primary-soft text-primary-text"
-                          : "bg-card text-muted-foreground hover:bg-accent hover:text-foreground",
+                        "tap flex h-9 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold whitespace-nowrap outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40",
+                        tone,
+                        active ? "bg-foreground text-background" : "bg-muted/80 text-muted-foreground hover:bg-accent hover:text-foreground",
                       )}
                     >
-                      <CategoryIcon value={c.value} className="size-4 shrink-0" aria-hidden="true" />
+                      <CategoryIcon value={c.value} className={cn("size-4 shrink-0", !active && tone && "text-(--tone-text)")} aria-hidden="true" />
                       {c.label}
                     </Link>
                   </li>
@@ -163,6 +194,6 @@ export function FeedFilters({ scope, category, hideCategories = false, hasColleg
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
