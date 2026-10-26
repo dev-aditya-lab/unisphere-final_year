@@ -98,7 +98,7 @@ function Sidebar({ active, onPick, compact = false }) {
         <ul className="space-y-0.5">
           {CHANNELS.slice(1).map((c) => <ChannelButton key={c.id} c={c} active={active} onPick={onPick} />)}
           <li className="text-muted-foreground flex min-h-9 items-center gap-2 rounded-lg px-2 text-sm" title="Members cannot see this channel at all">
-            <Lock className="size-4" aria-hidden="true" /> staff-room <span className="ml-auto text-[11px] font-semibold">staff only</span>
+            <Lock className="size-4 shrink-0" aria-hidden="true" /> <span className="whitespace-nowrap">staff-room</span> <span className="ml-auto text-[11px] font-semibold whitespace-nowrap"><span className="sm:hidden">staff</span><span className="hidden sm:inline">staff only</span></span>
           </li>
         </ul>
       </div>
@@ -122,18 +122,19 @@ function ChannelsPanel() {
   const c = CHANNELS.find((x) => x.id === active);
   return (
     <div>
-      <div className="bg-primary-soft relative h-20 border-b" aria-hidden="true" />
-      <div className="-mt-6 flex items-end gap-3 px-4">
-        <span aria-hidden="true" className="bg-card tone-chip grid size-12 place-items-center rounded-xl border-2 text-sm font-bold">EC</span>
-        <div className="pb-0.5 leading-tight">
+      {/* No `relative` on the banner: a positioned box paints over the unpositioned avatar row that is pulled up under it. */}
+      <div className="bg-primary-soft h-20 border-b" aria-hidden="true" />
+      <div className="relative -mt-6 flex items-start gap-3 px-4">
+        <span aria-hidden="true" className="bg-card tone-chip grid size-12 shrink-0 place-items-center rounded-xl border-2 text-sm font-bold">EC</span>
+        <div className="min-w-0 pt-7 leading-tight">
           <p className="font-heading text-sm font-bold">Example Coding Club</p>
           <p className="text-muted-foreground flex items-center gap-1 text-xs"><Users className="size-3" aria-hidden="true" /> Open to join · Example community</p>
         </div>
       </div>
-      <div className="mt-2 grid grid-cols-[10rem_1fr] border-t sm:grid-cols-[11rem_1fr]">
+      <div className="mt-2 grid grid-cols-[10.5rem_1fr] border-t sm:grid-cols-[13rem_1fr]">
         <div className="border-r"><Sidebar active={active} onPick={setActive} compact /></div>
         <div className="min-h-64 p-3">
-          <p className="mb-3 flex items-center gap-1.5 border-b pb-2 text-sm font-bold"><c.icon className="size-4" aria-hidden="true" /> {c.name} <span className="text-muted-foreground ml-1 text-xs font-normal">{c.note}</span></p>
+          <p className="mb-3 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 border-b pb-2 text-sm font-bold"><c.icon className="size-4 shrink-0" aria-hidden="true" /> {c.name} <span className="text-muted-foreground basis-full text-xs font-normal sm:ml-1 sm:basis-auto">{c.note}</span></p>
           <div key={active} className="motion-safe:animate-in motion-safe:fade-in motion-safe:duration-200"><Thread messages={THREADS[active]} /></div>
         </div>
       </div>
