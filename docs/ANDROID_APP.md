@@ -83,6 +83,28 @@ cd android
 - **Safe areas and the keyboard** are handled by Capacitor 8's `SystemBars` plugin (`insetsHandling: css`) together with the page's `viewport-fit=cover` and `env(safe-area-inset-*)`: on WebView 140+ the page receives the insets natively; on older ones Capacitor pads the window instead and zeroes `env()`, so nothing is counted twice.
 - Keep `overscroll-behavior`, `touch-action: manipulation` and the tap-highlight reset in `app/globals.css`: they are why taps and scrolling already feel native.
 
+## Testing without a phone
+
+Most of the app can be tested on a computer, and was: a real browser against the real site and the local database, with only the phone faked.
+
+```
+npx supabase db reset --local        # local Docker database, every migration from scratch (Docker Desktop must be running)
+# export the LOCAL Supabase keys (npx supabase status -o env) plus REDIS_URL="" and blank CLOUDFLARE_* values, then:
+NEXT_PUBLIC_APP_URL=http://localhost:3100 NEXT_DIST_DIR=.next-e2e npx next build
+NEXT_PUBLIC_APP_URL=http://localhost:3100 NEXT_DIST_DIR=.next-e2e npx next start -p 3100
+E2E_BASE_URL=http://localhost:3100 npx playwright test tests/e2e/android-app.spec.js
+npx vitest run --project integration tests/integration/push-devices.test.js
+```
+
+- `tests/e2e/android-app.spec.js` (20 tests: landing skip, Settings, the pop-up in light and dark, permission flows, notification tap, back button, deep links, sign-out, blue tick hidden) uses `tests/helpers/fake-android.js`. It injects **Capacitor's own `native-bridge.js`** (the script the app injects) and fakes only the Java side, so plugin calls take the same path as on a phone. Set `E2E_FCM_TOKEN` to a real phone's token to also send a real notification through Google.
+- `tests/unit/native-push-plugin.test.js` and `native-push-flow.test.js` guard the push flow, including the bug below. `tests/integration/push-devices.test.js` covers the table: who can see a phone, that the token column never reaches a client, what `claim_push_notifications` picks, erasure.
+- Still needs a real phone: the Android permission box and notification settings (the fake answers as Android is documented to), the system notification itself, downloads, the splash and loading view, the keyboard and safe areas, App Links verification.
+
+### Two traps this found (worth knowing)
+
+1. **Never return or await a Capacitor plugin.** A plugin is a Proxy that answers every property, `then` included, so `async () => (await import("@capacitor/…")).Plugin` makes JavaScript call the plugin's `then` natively and the call never finishes (Settings stayed on "Checking…"). Pass a plugin inside an object, as `lib/native/push.js` does.
+2. **FCM data keys must not be reserved words**: `from`, `message_type`, or anything starting with `google` or `gcm`. Google rejects the whole message (`Invalid data payload key: from`), so every notification failed while the token and key were fine. The app now uses `origin`; `tests/unit/push-fcm.test.js` checks the keys. Only a real call to Google can tell, so after changing the message shape, send one real test.
+
 ## Device test checklist (not automated)
 
 Run on at least one Android 7–9 phone, one Android 13+ phone, and an emulator with a current and an old WebView:

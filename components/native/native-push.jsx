@@ -26,12 +26,15 @@ const typing = () => {
   return Boolean(el) && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
 };
 
-/** Waits for a quiet moment: no other sheet or dialog open (the welcome pop-up, say) and nobody typing. False if it never comes. */
+/**
+ * Waits for a quiet moment: no other sheet or dialog open (the welcome pop-up, say), nobody typing, and the member is not already on the
+ * notifications settings, where the switch is right in front of them. False if it never comes.
+ */
 async function waitForQuietMoment(cancelled) {
   await sleep(FIRST_DELAY_MS);
   for (let tries = 0; tries < GIVE_UP_AFTER; tries += 1) {
     if (cancelled()) return false;
-    if (!document.querySelector(OPEN_LAYER) && !typing()) return true;
+    if (!document.querySelector(OPEN_LAYER) && !typing() && !location.pathname.startsWith("/settings/notifications")) return true;
     await sleep(RETRY_EVERY_MS);
   }
   return false;
