@@ -80,6 +80,7 @@ deletions simply wait.
 | **AI** (Groq) | `GROQ_API_KEY`, optional `GROQ_MODEL_*`. Check `/admin/ai` | AI buttons show a polite "not available" and every feature has a non-AI fallback |
 | **Semantic search** | `EMBEDDING_PROVIDER` (`nvidia`, `openai-compatible` or `gemini`) + key/model/URL. NVIDIA: `nvidia` + `EMBEDDING_MODEL=nvidia/nemotron-3.5-embed-1b` (reuses `NVIDIA_AI_API_KEY`) | Keyword and concept search only |
 | **Push notifications** | `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`. Generate with `npx web-push generate-vapid-keys` | The "Push notifications" control explains it is not set up |
+| **Push to the Android app** | `FIREBASE_SERVICE_ACCOUNT` (a Firebase service account key; see [ANDROID_APP.md](ANDROID_APP.md)) | The app's notifications control says it is not set up. Web Push is independent of it |
 
 Development-only helpers: `RATE_LIMIT_MULTIPLIER=50` (in `.env.development.local`) stops the test suites being
 throttled; it is ignored in production. `NEXT_PUBLIC_PWA_DEV=true` registers the service worker in development.

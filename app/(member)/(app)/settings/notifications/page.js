@@ -12,7 +12,7 @@ export default async function NotificationSettingsPage() {
   const prefs = await getPreferences(user.id);
   return (
     <div className="space-y-6">
-      <AppSettings pushConfigured={getIntegrations().push} vapidPublicKey={publicEnv.vapidPublicKey} />
+      <AppSettings pushConfigured={getIntegrations().push} vapidPublicKey={publicEnv.vapidPublicKey} fcmConfigured={getIntegrations().fcm} />
       <NotificationPrefsForm initial={prefs} />
     </div>
   );

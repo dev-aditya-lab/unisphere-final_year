@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The web app's own tokens (app/globals.css), so there is no flash of another colour before the first page paints. -->
+    <color name="app_background">#F8FAFC</color>
+    <color name="app_muted">#64748B</color>
+    <color name="app_accent">#4F46E5</color>
+    <color name="splash_background">#F8FAFC</color>
+    <color name="notification_accent">#4F46E5</color>
+</resources>

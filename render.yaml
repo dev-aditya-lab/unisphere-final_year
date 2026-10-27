@@ -36,3 +36,6 @@ services:
       - { key: NEXT_PUBLIC_VAPID_PUBLIC_KEY, sync: false }
       - { key: VAPID_PRIVATE_KEY, sync: false }
       - { key: VAPID_SUBJECT, sync: false }
+      - { key: FIREBASE_SERVICE_ACCOUNT, sync: false }       # Android app push (docs/ANDROID_APP.md); base64 of the service account JSON is easiest
+      - { key: ANDROID_PACKAGE_NAME, sync: false }           # unisphere.devaditya.dev
+      - { key: ANDROID_SHA256_CERT_FINGERPRINTS, sync: false } # from Play Console > App signing

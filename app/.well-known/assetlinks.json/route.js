@@ -4,8 +4,9 @@ export const dynamic = "force-static";
 export const revalidate = 3600;
 
 /**
- * Digital Asset Links for the Android app (a Trusted Web Activity wrapping this site).
- * Android only hides the browser address bar if the app's signing-key fingerprint is listed here.
+ * Digital Asset Links for the Android app (the Capacitor app, or a Trusted Web Activity wrapping this site).
+ * Android opens this site's links in the app (App Links), and a Trusted Web Activity hides the browser address bar, only if the
+ * app's signing-key fingerprint is listed here.
  * Set ANDROID_PACKAGE_NAME and ANDROID_SHA256_CERT_FINGERPRINTS (comma separated, from Play Console →
  * Setup → App signing). Until both are set this returns an empty list, which is valid and grants nothing.
  */

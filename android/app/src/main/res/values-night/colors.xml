@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="app_background">#0B0F1A</color>
+    <color name="app_muted">#94A3B8</color>
+    <color name="app_accent">#818CF8</color>
+    <color name="splash_background">#0B0F1A</color>
+    <color name="notification_accent">#818CF8</color>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">UniSphere</string>
+    <string name="title_activity_main">UniSphere</string>
+    <string name="package_name">unisphere.devaditya.dev</string>
+    <string name="custom_url_scheme">unisphere.devaditya.dev</string>
+    <!-- The site's address for Android App Links (and the host downloads are allowed to send the sign-in cookie to). -->
+    <string name="app_link_host" translatable="false">unispheres.in</string>
+    <string name="loading_waking">Waking up UniSphere…</string>
+    <string name="download_started">Downloading %1$s</string>
+    <string name="download_failed">This file could not be downloaded.</string>
+</resources>

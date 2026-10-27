@@ -38,6 +38,17 @@ Not erasable by UniSphere: backups and logs held by Supabase, Cloudflare, Resend
 
 Rules 6(1)(e) and 8(3) will ask for logs and personal data to be kept at least one year for the Seventh Schedule purposes. The defaults (365 days) reflect that floor for logs; whether this conflicts with erasing personal data on request is a question for a lawyer.
 
+## Push notification addresses
+
+Two kinds, both opt-in per device, both with a cascade on the member's profile (so erasure removes them): Web Push subscriptions (`push_subscriptions`) and the Android app's Firebase Cloud Messaging tokens (`push_devices`). A token is deleted:
+
+- when the member signs out in the app, or switches notifications off (the app asks the server to forget it, then tells Firebase to discard it);
+- when Google reports it dead (the app was uninstalled or its data cleared), or after repeated failures;
+- when the app has not been opened with notifications on for 90 days (`purgeStalePushDevices`, run by the worker);
+- with the account, on erasure.
+
+The member's own client cannot read the token column, and the data export lists only when each phone was added and last used.
+
 ## Backups and restores (preventing resurrection)
 
 1. Backups are managed by Supabase. Write the real backup retention window here: **\_\_ days** (owner to fill).

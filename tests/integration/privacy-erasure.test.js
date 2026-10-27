@@ -273,6 +273,7 @@ describe("a copy of my data", () => {
     await admin.from("ai_usage_logs").insert({ user_id: u.id, task: "suggest_tags", status: "success" });
     await admin.rpc("record_consent_for", { p_user: u.id, p_purpose: "ai_assist", p_status: "granted", p_notice_version: V, p_source: "settings" });
     await admin.from("push_subscriptions").insert({ user_id: u.id, endpoint: "https://push.example.test/secret-endpoint", p256dh: "k-secret", auth: "a-secret" });
+    await admin.from("push_devices").insert({ user_id: u.id, platform: "android", token: "fcm-secret-token-0123456789abcdef" });
     const body = await buildDataExport(u.client, { id: u.id, email: u.email, created_at: new Date().toISOString() });
     expect(body.account.email).toBe(u.email);
     expect(body.posts).toHaveLength(1);
@@ -285,7 +286,9 @@ describe("a copy of my data", () => {
     const text = JSON.stringify(body);
     expect(text).not.toContain(friend.email);
     expect(text).not.toContain(friend.username);
-    expect(text).not.toMatch(/secret-endpoint|k-secret|a-secret/);
+    expect(text).not.toMatch(/secret-endpoint|k-secret|a-secret|fcm-secret-token/);
+    // The Android app's phones are listed (when added, last used) but never by token.
+    expect(body.android_app_devices_registered_for_push).toHaveLength(1);
     expect(body.incomplete_sections ?? []).toEqual([]);
   });
 });

@@ -60,5 +60,13 @@ playstore/build/
 playstore/app/build/
 *.keystore
 *.jks
-android
+keystore.properties
+# The Capacitor Android app (android/) is committed; its own android/.gitignore keeps out build output, google-services.json and signing files.
 .aaaaaaa
+
+# Firebase / Google credentials: never commit, wherever the file ends up. Render deploys from this repository, so anything committed
+# is exposed; these go into the host's environment instead (FIREBASE_SERVICE_ACCOUNT, see docs/ANDROID_APP.md).
+*-firebase-adminsdk-*.json
+service-account*.json
+google-services.json
+GoogleService-Info.plist

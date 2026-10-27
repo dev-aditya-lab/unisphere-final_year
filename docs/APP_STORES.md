@@ -5,7 +5,7 @@ UniSphere is a Progressive Web App (PWA): members can already **install it from 
 step of also listing it in the app stores. Everything here that can be done in code is done; what remains needs
 developer accounts, signing keys and store review, which only the team (not the codebase) can do.
 
-> **Status:** the web app, manifest, icons, service worker, push, store listing text and screenshots are ready.
+> **Status:** the web app, manifest, icons, service worker, push, the Capacitor Android app, store listing text and screenshots are ready.
 > Submission, review, approval and release are **not done**. They need your Google Play and Apple developer accounts.
 
 ## A private app: say so plainly
@@ -28,10 +28,28 @@ exactly this: choose "all or some functionality is restricted" and supply the de
 | Screenshots and feature graphic | `store/screenshots/` (regenerate with `npm run screenshots`) |
 | Listing text | `store/listing.md` |
 
-## Android: Trusted Web Activity (recommended)
+## Android: the Capacitor app (recommended)
+
+`android/` is a native shell built with Capacitor (package `unisphere.devaditya.dev`). It loads the live site, so website updates
+still reach everyone instantly, and adds native push notifications (FCM), the back button, links that open in the app, downloads, a
+splash screen and an offline screen. Google Play treats an app that is only a webview of a website as spam, so these native features
+are what make the listing safe. **Everything about building, Firebase, signing, release and testing is in
+[ANDROID_APP.md](ANDROID_APP.md).**
+
+Two points specific to Play:
+
+- **The blue tick is not sold in the app.** Play requires Play Billing for digital goods sold inside an app and forbids linking to
+  another payment method, so the app shows status only (no price, checkout or "buy on the website" wording). The web is unchanged.
+  Choose "all or some functionality is restricted" in *App access* and supply the demo account as below.
+- **Data safety**: add *Device or other IDs* to the table below (the FCM token: collected only if the member turns notifications on,
+  used for app functionality, not shared, deleted on sign-out or account deletion).
+
+## Android: Trusted Web Activity (alternative, no native features)
 
 A Trusted Web Activity (TWA) is a thin Android app that opens the site full-screen, with no browser bar. Updates
-to the website reach everyone instantly; the Play listing only changes when you want it to.
+to the website reach everyone instantly; the Play listing only changes when you want it to. It has no push notifications
+of its own and Google may see it as a bare website wrapper, so prefer the Capacitor app above. It uses the **same package ID**, so
+publish only one of the two, and `ANDROID_PACKAGE_NAME` / `ANDROID_SHA256_CERT_FINGERPRINTS` serve whichever you publish.
 
 1. **Pick a package name** you will never change, for example `com.example.unisphere` (reverse of a domain you control).
 2. **Install Bubblewrap**: `npm i -g @bubblewrap/cli` (needs JDK 17 and the Android SDK; Bubblewrap offers to download them).
@@ -72,6 +90,7 @@ information. It has reporting, blocking and moderation. No gambling, no real-mon
 | Name, email address | Yes | Account and sign-in | No | No |
 | Profile details, photos, posts, messages | Yes (user-provided) | The product itself | Only with people the member allows | Yes |
 | Push subscription (device endpoint) | Yes, if the member turns push on | Notifications | No | Yes |
+| Device or other IDs (the app's FCM token, Android app only) | Yes, only if the member turns notifications on in the app | App functionality (notifications) | No (Google delivers it as our processor) | Yes |
 | App activity (reports, votes, feedback) | Yes | Safety and product improvement | No | Yes |
 | Advertising ID, precise location, contacts, analytics SDKs | **No** | | | |
 

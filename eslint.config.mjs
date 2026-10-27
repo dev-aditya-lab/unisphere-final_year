@@ -11,6 +11,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The Android app: native code, plus the web files Gradle and Capacitor copy and generate (android/.gitignore).
+    "android/**",
+    "native-shell/**",
   ]),
 ]);
 

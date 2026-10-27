@@ -15,6 +15,7 @@ import { ReferNavChip, ReferNavMark } from "@/components/referrals/nav-mark";
 import { MOBILE_BOTTOM_HREFS, NAV_GROUPS, shouldPrefetch } from "@/lib/nav";
 import { NavPending } from "@/components/shell/nav-pending";
 import { EASE } from "@/lib/motion";
+import { tapHaptic } from "@/lib/native/haptics";
 import { cn } from "@/lib/utils";
 
 const isActive = (pathname, href) => pathname === href || pathname.startsWith(`${href}/`);
@@ -32,6 +33,7 @@ function Tab({ item, count, active, indicatorId }) {
       href={href}
       prefetch={shouldPrefetch(href) ? undefined : false}
       aria-current={active ? "page" : undefined}
+      onClick={tapHaptic}
       className={cn(TAB, active ? "text-primary-text" : "text-muted-foreground")}
     >
       {active && <Indicator id={indicatorId} />}

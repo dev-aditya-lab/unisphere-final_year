@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
 import { isGuestOnlyPath, isProtectedPath } from "@/lib/routes";
 import { PAYMENT_CHECKOUT_PATH } from "@/lib/blue-tick";
+import { isNativeAppUserAgent } from "@/lib/native-app";
 import { buildCheckoutPageCsp, buildCsp, newNonce } from "@/lib/security/csp";
 import { REF_COOKIE, REF_COOKIE_MAX_DAYS, REF_PARAM, makeRefCookieValue, normalizeRefCode } from "@/lib/referrals/core";
 
@@ -74,6 +75,15 @@ export async function proxy(request) {
         return secure(NextResponse.rewrite(url, { status: 503, headers: { "Retry-After": "300" }, request: { headers: session.requestHeaders } }));
       }
     }
+  }
+
+  // The Android app has no use for the public landing page (lib/native-app.js): it opens on the feed, or on the sign-in page when
+  // nobody is signed in, in one hop rather than two. If the auth server is unreachable the feed page shows its own retry screen.
+  if (pathname === "/" && request.method === "GET" && isNativeAppUserAgent(request.headers.get("user-agent"))) {
+    const url = request.nextUrl.clone();
+    url.pathname = signedIn || unavailable ? "/feed" : "/login";
+    url.search = "";
+    return secure(NextResponse.redirect(url));
   }
 
   if (!pathname.startsWith("/api/") && !unavailable) {

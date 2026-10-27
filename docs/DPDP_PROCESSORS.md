@@ -15,6 +15,7 @@ Verified from the code on 2026-10-21. The public list on `/privacy-notice` is ge
 | NVIDIA hosted models (chat) | No member data | Drafting the Daily Challenge | No | n/a | n/a |
 | The payment gateway in use (`PAYMENT_GATEWAY`) | Name and email passed when a payment starts; what the member enters on the gateway's own page (UniSphere receives only order/payment reference, amount, status) | Blue tick payment | Yes, at the gateway | The member is sent to the gateway's own page; no gateway code loads on UniSphere and the CSP admits none | The gateway's DPA; their cookies |
 | Browser push service | Push address and notification text | Notifications the member enables | Pseudonymous | Opt-in in the browser | n/a |
+| Google, Firebase Cloud Messaging (`FIREBASE_SERVICE_ACCOUNT`; Android app only) | A token that identifies the app on one phone, and the notification text (never message text) | Notifications the member enables in the app | Pseudonymous | Opt-in in the app (Android also asks for the notification permission); the member can switch it off in the app or the phone's settings | Google's Firebase terms; Google's data processing terms for Firebase apply |
 
 ## What the AI code does (`lib/ai`)
 

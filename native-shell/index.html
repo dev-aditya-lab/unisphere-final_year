@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>UniSphere</title>
+<style>
+  :root { color-scheme: light dark; --bg: #f8fafc; --fg: #111827; --muted: #64748b; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0b0f1a; --fg: #f1f5f9; --muted: #94a3b8; } }
+  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 24px; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, sans-serif; text-align: center; }
+  p { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>UniSphere</h1>
+  <!-- Capacitor needs a web folder with an index.html. The app loads the live site (capacitor.config.ts: server.url), so
+       this page only appears if that setting is missing from a build. -->
+  <p>This build is not connected to a server. Reinstall the latest version of the app.</p>
+</main>
+</body>
+</html>

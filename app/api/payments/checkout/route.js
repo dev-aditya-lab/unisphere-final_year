@@ -4,6 +4,7 @@ import { publicEnv } from "@/lib/env-public";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
 import { BLUE_TICK_PATH } from "@/lib/blue-tick";
 import { openCheckout } from "@/lib/payments/checkout-token";
+import { isNativeAppUserAgent } from "@/lib/native-app";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,9 @@ export async function GET(request) {
     if (notice) url.searchParams.set("payment", notice);
     return NextResponse.redirect(url, 303);
   };
+
+  // The Android app never takes a payment (Google Play requires its own billing for digital goods sold in an app).
+  if (isNativeAppUserAgent(request.headers.get("user-agent"))) return back(null);
 
   const limit = await rateLimit({ key: `pay-checkout:${await getClientIp()}`, limit: 30, windowSec: 600 });
   if (!limit.ok) return back("failed");

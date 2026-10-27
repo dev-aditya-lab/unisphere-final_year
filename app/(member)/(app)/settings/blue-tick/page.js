@@ -2,6 +2,7 @@ import { BlueTickPanel } from "@/components/settings/blue-tick-panel";
 import { BlueTick } from "@/components/ui/blue-tick";
 import { requireProfile } from "@/lib/auth/session";
 import { PAYMENT_NOTICES } from "@/lib/blue-tick";
+import { isNativeAppRequest } from "@/lib/native-app-server";
 import { getBlueTickConfig, getMemberBlueTick } from "@/lib/services/blue-tick";
 
 export const metadata = { title: "Blue tick" };
@@ -11,7 +12,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export default async function BlueTickPage({ searchParams }) {
   const sp = await searchParams;
   const { profile } = await requireProfile();
-  const [config, state] = await Promise.all([getBlueTickConfig(), getMemberBlueTick(profile.id)]);
+  const [config, state, inApp] = await Promise.all([getBlueTickConfig(), getMemberBlueTick(profile.id), isNativeAppRequest()]);
   // `?payment=` is set by /api/payments/return and only chooses which message to show; the state above is what is true.
   const notice = PAYMENT_NOTICES.includes(sp?.payment) ? sp.payment : null;
   const noticeOrder = typeof sp?.o === "string" && UUID.test(sp.o) ? sp.o : null;
@@ -32,6 +33,7 @@ export default async function BlueTickPage({ searchParams }) {
         documentConsent={profile.consents?.identity_verification?.status === "granted"}
         notice={notice}
         noticeOrder={noticeOrder}
+        inApp={inApp}
       />
     </section>
   );

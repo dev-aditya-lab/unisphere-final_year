@@ -1,6 +1,7 @@
 import { LegalPage } from "@/components/marketing/legal-page";
 import { COMMERCE_UPDATED, getPricingSections } from "@/lib/content/commerce";
 import { getBlueTickConfig } from "@/lib/services/blue-tick";
+import { isNativeAppRequest } from "@/lib/native-app-server";
 
 export const metadata = {
   title: "Pricing",
@@ -10,6 +11,7 @@ export const metadata = {
 
 export default async function PricingPage() {
   // Read the live price so this page can never state a number that differs from what is charged.
+  const inApp = await isNativeAppRequest();
   let blueTick = null;
   try {
     const config = await getBlueTickConfig();
@@ -21,8 +23,8 @@ export default async function PricingPage() {
     <LegalPage
       eyebrow="Pricing"
       title="Pricing"
-      intro="UniSphere is free. The blue tick is the only optional, paid item."
-      sections={getPricingSections({ blueTick })}
+      intro={inApp ? "UniSphere is free." : "UniSphere is free. The blue tick is the only optional, paid item."}
+      sections={getPricingSections({ blueTick, inApp })}
       markdown={null}
       updated={COMMERCE_UPDATED}
     />

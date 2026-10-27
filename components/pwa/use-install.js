@@ -2,6 +2,7 @@
 
 import { useCallback, useSyncExternalStore } from "react";
 import { useClientValue } from "@/hooks/use-client-value";
+import { isNativeApp } from "@/lib/native/client";
 
 /**
  * One shared view of "can this app be installed?". Chromium browsers fire `beforeinstallprompt` once; we keep the
@@ -35,7 +36,8 @@ const subscribe = (cb) => {
 function readDevice() {
   const ua = navigator.userAgent;
   const ios = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  const standalone = window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  // The Android app is "installed" by definition: no install banner or Add to Home Screen steps inside it.
+  const standalone = window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true || isNativeApp();
   const iosSafari = ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
   return `${standalone ? 1 : 0}${ios ? 1 : 0}${iosSafari ? 1 : 0}`;
 }

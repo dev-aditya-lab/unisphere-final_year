@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>UniSphere</title>
+<style>
+  /* Shown by the Android app (MainActivity / AppWebViewClient) when the site cannot be reached. It is a local file, so it
+     works with no connection at all. The colours are the app's own tokens (app/globals.css). */
+  :root { color-scheme: light dark; --bg: #f8fafc; --fg: #111827; --muted: #64748b; --primary: #4f46e5; --on-primary: #ffffff; --card: #ffffff; --border: #e2e8f0; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0b0f1a; --fg: #f1f5f9; --muted: #94a3b8; --primary: #818cf8; --on-primary: #0b0f1a; --card: #111827; --border: #1e293b; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom));
+    background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+  main { width: 100%; max-width: 24rem; text-align: center; }
+  img { width: 72px; height: 72px; border-radius: 18px; }
+  h1 { font-size: 1.5rem; line-height: 1.25; margin: 20px 0 8px; }
+  p { color: var(--muted); margin: 0 0 12px; }
+  button { margin-top: 8px; min-height: 48px; padding: 0 28px; border: 0; border-radius: 12px; background: var(--primary); color: var(--on-primary); font: 600 16px system-ui; cursor: pointer; }
+  button:active { opacity: .85; }
+  button:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+  button[disabled] { opacity: .6; }
+  .card { margin-top: 24px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); font-size: 14px; text-align: left; color: var(--muted); }
+  .card strong { color: var(--fg); }
+  .spin { display: none; width: 18px; height: 18px; margin: 0 8px -3px 0; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
+  .busy .spin { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spin { animation-duration: 2.4s; } }
+</style>
+</head>
+<body>
+<main id="main">
+  <img src="logo-mark.png" alt="" width="72" height="72">
+  <h1>Can&rsquo;t reach UniSphere</h1>
+  <p>Check your internet connection. If you&rsquo;re connected, UniSphere may be starting up. That can take up to a minute.</p>
+  <button type="button" id="retry"><span class="spin" aria-hidden="true"></span><span id="label">Try again</span></button>
+  <p id="status" role="status" aria-live="polite"></p>
+  <div class="card"><strong>Your messages are safe.</strong><br>Anything you were writing stays in the page you left. Nothing private is stored on this screen.</div>
+</main>
+<script>
+  (function () {
+    // The app passes the page that failed as ?u=. Only an https address that is not this local page is ever opened.
+    var target = null;
+    try {
+      var u = new URL(new URLSearchParams(location.search).get("u") || "");
+      if (u.protocol === "https:" && u.hostname !== "localhost") target = u.href;
+    } catch (e) {}
+
+    var button = document.getElementById("retry");
+    var label = document.getElementById("label");
+    var status = document.getElementById("status");
+    var busy = false;
+
+    function go() {
+      if (target) location.replace(target);
+      else if (history.length > 1) history.back();
+      else location.reload();
+    }
+
+    function retry() {
+      if (busy) return;
+      busy = true;
+      document.body.classList.add("busy");
+      button.disabled = true;
+      label.textContent = "Trying…";
+      status.textContent = "";
+      if (!target) return go();
+      // Probe first, so a still-unreachable site keeps this page instead of showing a blank screen again.
+      var ctrl = new AbortController();
+      var timer = setTimeout(function () { ctrl.abort(); }, 8000);
+      fetch(target, { method: "HEAD", mode: "no-cors", cache: "no-store", signal: ctrl.signal })
+        .then(function () { clearTimeout(timer); go(); })
+        .catch(function () {
+          clearTimeout(timer);
+          busy = false;
+          document.body.classList.remove("busy");
+          button.disabled = false;
+          label.textContent = "Try again";
+          status.textContent = "Still can’t reach UniSphere. We’ll keep trying.";
+        });
+    }
+
+    button.addEventListener("click", retry);
+    window.addEventListener("online", retry);
+    // Keep trying quietly while this screen is showing, so the app recovers by itself once the site is back.
+    setInterval(function () { if (!document.hidden && navigator.onLine) retry(); }, 15000);
+  })();
+</script>
+</body>
+</html>

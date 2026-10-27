@@ -84,6 +84,8 @@ No `openssl`? Use any password manager's "generate 64 hex characters".
 | `REDIS_URL` | optional | Upstash `rediss://default:<password>@<host>:6379` |
 | `GROQ_API_KEY` (+ `AI_ENABLED=true`) | optional | AI features |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | optional | Push. Public key is **build-time** |
+| `FIREBASE_SERVICE_ACCOUNT` | optional | Push to the Android app. JSON or its base64 (`docs/ANDROID_APP.md`). Secret |
+| `ANDROID_PACKAGE_NAME`, `ANDROID_SHA256_CERT_FINGERPRINTS` | optional | Makes links open in the Android app (`/.well-known/assetlinks.json`) |
 | `NEXT_PUBLIC_MEDIA_URL`, `CLOUDFLARE_R2_PUBLIC_BUCKET_NAME`, `CLOUDFLARE_R2_PUBLIC_URL` | optional | Direct delivery of avatars from a public bucket. Set all three or none. Cache and Cloudflare settings: `docs/MEDIA_CACHING.md` |
 | `NEXT_PUBLIC_MEDIA_RESIZE` | optional | `cloudflare` serves avatars and covers at the size they are shown (needs Cloudflare Image Transformations on the media domain) |
 

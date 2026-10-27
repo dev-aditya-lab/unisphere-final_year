@@ -4,6 +4,7 @@ import { useEffect, useRef, useSyncExternalStore } from "react";
 import { WifiOff } from "lucide-react";
 import { toast } from "sonner";
 import { clearAllDrafts } from "@/lib/client/drafts";
+import { isNativeApp } from "@/lib/native/client";
 
 /**
  * Removes anything this device may have kept for the signed-in member (called when they log out): the on-device
@@ -12,6 +13,15 @@ import { clearAllDrafts } from "@/lib/client/drafts";
  */
 export async function clearUserCaches() {
   clearAllDrafts();
+  if (isNativeApp()) {
+    // In the Android app, forget this phone for push, so the next person to sign in here never gets this member's notifications.
+    try {
+      const { disableNativePush } = await import("@/lib/native/push");
+      await disableNativePush();
+    } catch {
+      /* the phone is offline: the token is discarded with Firebase and the server drops it the next time it tries */
+    }
+  }
   try {
     // Feed pages kept for a quick return to the feed.
     const { clearFeedCache } = await import("@/lib/client/feed-cache");

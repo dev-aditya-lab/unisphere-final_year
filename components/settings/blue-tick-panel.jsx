@@ -229,7 +229,9 @@ export function BlueTickPanel({ notice = null, noticeOrder = null, ...props }) {
   );
 }
 
-function BlueTickSteps({ hasTick, application, order, config, documentConsent = false }) {
+// `inApp`: the Android app. Google Play requires its own billing for digital goods sold inside an app, so the app never offers,
+// prices or links to a purchase; it only shows where a member already stands (see lib/native-app.js).
+function BlueTickSteps({ hasTick, application, order, config, documentConsent = false, inApp = false }) {
   if (hasTick) {
     return (
       <div className="flex items-start gap-3">
@@ -252,6 +254,9 @@ function BlueTickSteps({ hasTick, application, order, config, documentConsent = 
         </p>
       </div>
     );
+  }
+  if (inApp) {
+    return <p className="text-muted-foreground text-sm">The blue tick is not managed in the UniSphere app. When you have one, it shows next to your name.</p>;
   }
   return (
     <div className="space-y-4">

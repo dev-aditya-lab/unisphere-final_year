@@ -7,6 +7,8 @@ import { BellRing } from "@/components/icons/lucide-compat";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useInstall } from "@/components/pwa/use-install";
+import { NativeAppSettings } from "@/components/native/native-app-settings";
+import { useIsNativeApp } from "@/hooks/use-native-app";
 import { sendTestPushAction } from "@/lib/actions/push";
 
 const urlBase64ToUint8Array = (base64) => {
@@ -27,8 +29,12 @@ async function getRegistration() {
   return existing ?? navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" }).then(() => navigator.serviceWorker.ready);
 }
 
-/** Install the app and turn on push notifications for this device. */
-export function AppSettings({ pushConfigured, vapidPublicKey }) {
+/**
+ * Install the app and turn on push notifications for this device. Inside the Android app there is nothing to install and push goes
+ * through Firebase instead of the browser, so it shows its own version (components/native/native-app-settings.jsx).
+ */
+export function AppSettings({ pushConfigured, vapidPublicKey, fcmConfigured = false }) {
+  const native = useIsNativeApp();
   const { installed, canPrompt, needsIosSteps, ios, install } = useInstall();
   const support = useClientValue(() => ("serviceWorker" in navigator && "PushManager" in window && "Notification" in window ? "ready" : "unsupported"), "checking");
   const initialPermission = useClientValue(() => ("Notification" in window ? Notification.permission : "default"), "default");
@@ -78,6 +84,8 @@ export function AppSettings({ pushConfigured, vapidPublicKey }) {
   }
 
   const pushNeedsInstall = ios && !installed && support === "unsupported";
+
+  if (native) return <NativeAppSettings configured={fcmConfigured} />;
 
   return (
     <section className="surface space-y-5 p-5 sm:p-6" aria-labelledby="app-settings-heading">

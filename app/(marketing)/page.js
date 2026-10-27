@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { UserX } from "@/components/icons/lucide-compat";
+import { ArrowRight, ArrowUpRight, Smartphone } from "lucide-react";
+import { BellRing, UserX } from "@/components/icons/lucide-compat";
 import { BadgeCheck, CalendarDays, Gift, GraduationCap, Lightbulb, Lock, MessageSquareQuote, ShieldCheck, Sparkles, Trophy, UserPlus, Users } from "@/components/icons/lucide-compat";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -21,6 +21,7 @@ import { HscrollPath } from "@/components/landing/svg/hscroll-path";
 import { CampusGraph } from "@/components/landing/svg/campus-graph";
 import { ReferStage } from "@/components/landing/refer-stage";
 import { ReferVisual } from "@/components/landing/refer-visual";
+import { PhoneVisual } from "@/components/landing/phone-visual";
 import { Orbit } from "@/components/landing/svg/orbit";
 import { ProductShowcase } from "@/components/marketing/product-showcase";
 import { CommunityExplorer } from "@/components/marketing/community-explorer";
@@ -90,6 +91,12 @@ const REFER_POINTS = [
   [Gift, "Your own invite link", "Share it anywhere: a message, a group chat, a poster. Opening a link earns nothing, so there is nothing to game."],
   [Users, "Rewarded when a friend is really in", "You earn 100 Orbits, once, when a friend confirms their email, sets up their profile and uses UniSphere on two different days."],
   [Trophy, "A leaderboard of its own", "See who brought the most friends this week and of all time. You see a status for each friend, never their name."],
+];
+
+const ANDROID_POINTS = [
+  [BellRing, "Notifications you choose", "Off until you turn them on. Messages, replies and events are separate switches in your phone's own settings, so you silence one kind without losing the rest."],
+  [Lock, "Private on the lock screen", "A notification says that something happened, never what a message says. Signing out removes your phone from notifications straight away."],
+  [Smartphone, "It behaves like an app", "It opens on your feed and keeps you signed in. The back button closes what is open first, links to UniSphere open inside it, and downloads such as your data copy work."],
 ];
 
 const TILES = [
@@ -487,6 +494,36 @@ export default async function HomePage() {
             </div>
           </section>
 
+          {/* The Android app */}
+          <section id="android-app" aria-labelledby="android-title" className="mx-auto max-w-6xl scroll-mt-16 px-4 py-24 sm:px-6 lg:py-36">
+            <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-2">
+              <div data-reveal="up">
+                <Kicker number="09">The Android app</Kicker>
+                <h2 id="android-title" data-split className="corp-title mt-5 max-w-xl">
+                  UniSphere in your pocket, on your terms.
+                </h2>
+                <p className="corp-lede mt-8 max-w-xl">
+                  UniSphere is also an app for Android, with the same feed, projects, messages and communities as the website. It tells you when something needs you, even when it is closed. Notifications are optional, and you decide which kinds you get.
+                </p>
+                <ul data-stagger className="mt-10 divide-y border-y">
+                  {ANDROID_POINTS.map(([Icon, title, text]) => (
+                    <li key={title} className="flex gap-4 py-6">
+                      <IconBox icon={Icon} />
+                      <div>
+                        <h3 className="text-lg font-semibold">{title}</h3>
+                        <p className="text-muted-foreground mt-1 text-[15px] leading-relaxed">{text}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div data-reveal="scale">
+                <PhoneVisual />
+                <p className="text-muted-foreground mt-8 text-center text-xs">Illustrative example with invented people and events, not real notifications.</p>
+              </div>
+            </div>
+          </section>
+
           {/* Refer & Earn: a spotlight of its own */}
           <section id="refer-and-earn" className="band scroll-mt-16">
             <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-32">
@@ -494,7 +531,7 @@ export default async function HomePage() {
                 <ReferStage>
                   <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-2">
                     <div>
-                      <Kicker number="09">Refer &amp; Earn</Kicker>
+                      <Kicker number="10">Refer &amp; Earn</Kicker>
                       <h2 className="corp-title mt-5 text-[clamp(2.5rem,1rem+3.6vw,4.5rem)]">
                         Invite friends. <span className="text-signal-text">Earn 100 Orbits.</span>
                       </h2>
@@ -536,7 +573,7 @@ export default async function HomePage() {
           {/* FAQ */}
           <section id="faq" className="mx-auto max-w-3xl scroll-mt-16 px-4 py-24 sm:px-6 lg:py-36">
             <div data-reveal="up">
-              <Kicker number="10">Questions</Kicker>
+              <Kicker number="11">Questions</Kicker>
               <h2 className="corp-title mt-5">Frequently asked questions</h2>
             </div>
             <Accordion type="single" collapsible className="mt-12">

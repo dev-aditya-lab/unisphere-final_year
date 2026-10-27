@@ -9,6 +9,7 @@ import { BottomNav } from "@/components/shell/mobile-nav";
 import { UserMenu } from "@/components/shell/user-menu";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { InstallBanner } from "@/components/pwa/install-banner";
+import { NativePush } from "@/components/native/native-push";
 import { CelebrationListener } from "@/components/motion/celebrate";
 import { MotionFeatures } from "@/components/motion/motion-features";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import { OrbitCelebrations } from "@/components/orbits/celebrations";
 import { publicEnv } from "@/lib/env-public";
 import { visibleNav } from "@/lib/nav";
 import { getFlags } from "@/lib/settings";
+import { getIntegrations } from "@/lib/env";
 import { hasPermission } from "@/lib/auth/session";
 
 /**
@@ -93,6 +95,7 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
         </header>
 
         <InstallBanner />
+        <NativePush configured={getIntegrations().fcm} />
 
         <main id="main" tabIndex={-1} className="mx-auto w-full max-w-6xl py-4 pr-[max(0.75rem,env(safe-area-inset-right))] pb-[calc(5.5rem+env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))] outline-none sm:px-6 sm:py-6 lg:pb-10">
           {children}

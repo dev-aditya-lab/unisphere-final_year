@@ -4,11 +4,12 @@ import { SettingRow, FlagRow } from "@/components/admin/settings-forms";
 import { hasPermission } from "@/lib/auth/session";
 import { FLAG_META, SETTING_GROUPS, SETTING_META } from "@/lib/admin/settings-meta";
 import { listSettingsAndFlags } from "@/lib/services/admin";
+import { getPushOverview } from "@/lib/services/push";
 
 export const metadata = { title: "Settings & flags" };
 
 export default async function SettingsPage() {
-  const [{ settings, flags }, canEdit, canFlag] = await Promise.all([listSettingsAndFlags(), hasPermission("settings.manage"), hasPermission("flags.manage")]);
+  const [{ settings, flags }, canEdit, canFlag, push] = await Promise.all([listSettingsAndFlags(), hasPermission("settings.manage"), hasPermission("flags.manage"), getPushOverview().catch(() => null)]);
   const byKey = Object.fromEntries(settings.map((s) => [s.key, s]));
   const flagGroups = [...new Set(Object.values(FLAG_META).map((f) => f.group))];
 
@@ -32,6 +33,28 @@ export default async function SettingsPage() {
           </Panel>
         ))}
       </div>
+
+      {push && (
+        <>
+          <h2 className="font-heading mt-10 mb-3 text-lg font-bold">Push notifications</h2>
+          <Panel title="Where notifications can be delivered" description="Set up in the server environment, never here. A device is one browser or one phone a member turned notifications on for.">
+            <div className="divide-y text-sm">
+              {[
+                { label: "Browsers and installed web app (Web Push)", ready: push.web.configured, devices: push.web.devices, missing: "VAPID keys are missing (NEXT_PUBLIC_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)." },
+                { label: "Android app (Firebase Cloud Messaging)", ready: push.android.configured, devices: push.android.devices, missing: "FIREBASE_SERVICE_ACCOUNT is missing or not a service account key. See docs/ANDROID_APP.md." },
+              ].map((row) => (
+                <div key={row.label} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
+                  <div>
+                    <p className="font-semibold">{row.label}</p>
+                    <p className="text-muted-foreground text-[13px]">{row.ready ? "Ready to send." : row.missing}</p>
+                  </div>
+                  <p className="text-muted-foreground tabular-nums">{row.devices.toLocaleString("en-IN")} {row.devices === 1 ? "device" : "devices"}</p>
+                </div>
+              ))}
+            </div>
+          </Panel>
+        </>
+      )}
 
       <h2 className="font-heading mt-10 mb-3 text-lg font-bold">Feature flags</h2>
       <p className="text-muted-foreground mb-3 -mt-1 text-sm">Switching a flag off hides the feature everywhere and makes its server endpoints refuse requests. Existing data is kept.</p>
