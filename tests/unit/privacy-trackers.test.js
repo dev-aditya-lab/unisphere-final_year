@@ -57,6 +57,6 @@ describe("no non-essential trackers", () => {
 
   it("the cookies page lists the real storage keys the code uses", () => {
     const cookies = readFileSync(path.join(ROOT, "lib/content/legal.js"), "utf8");
-    for (const key of ["unisphere-theme", "unisphere:draft:", "unisphere:install-dismissed", "unisphere:first-post-seen"]) expect(cookies).toContain(key);
+    for (const key of ["unisphere-theme", "unisphere:draft:", "unisphere:install-dismissed", "unisphere:first-post-seen", "unisphere:native-push", "unisphere:fcm-token", "unisphere:native-push-nudge", "unisphere:launch-url-handled"]) expect(cookies).toContain(key);
   });
 });

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useIsNativeApp } from "@/hooks/use-native-app";
+import { OPEN_LAYER } from "@/lib/native/layers";
 import { MOBILE_BOTTOM_HREFS } from "@/lib/nav";
 import { safeNext } from "@/lib/safe-redirect";
 
@@ -17,8 +18,6 @@ import { safeNext } from "@/lib/safe-redirect";
  */
 const TOP_LEVEL = new Set(["/", "/login", "/notifications", ...MOBILE_BOTTOM_HREFS]);
 const LAUNCH_HANDLED = "unisphere:launch-url-handled";
-// Radix (sheets, dialogs, menus) closes on Escape, so the back button sends it one.
-const OPEN_LAYER = '[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"], [role="menu"][data-state="open"]';
 
 /** The page a link points to, if it is on this site; otherwise null. */
 function pathOnThisSite(url) {
@@ -52,6 +51,7 @@ export function NativeBridge() {
 
       const back = await App.addListener("backButton", ({ canGoBack }) => {
         if (document.querySelector(OPEN_LAYER)) {
+          // Radix closes sheets, dialogs and menus on Escape.
           document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
         } else if (canGoBack && !TOP_LEVEL.has(pathRef.current)) {
           window.history.back();

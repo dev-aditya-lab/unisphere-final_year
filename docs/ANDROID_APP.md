@@ -29,7 +29,10 @@ UniSphere is server-rendered (server actions, cookie sessions, a request proxy),
 Web Push (browsers, installed web app) and FCM (this app) are separate: Android WebView does not support the Web Push API.
 
 1. **Table**: `push_devices` (migration `0061`): one row per phone, a unique `token`, RLS so a member sees only their own rows, and the `token` column is never granted to the client. `claim_push_notifications` now claims for members with either kind of device.
-2. **Registering**: Settings → Notifications (or a one-time offer after first start) → Android permission (13+) → FCM token → `POST /api/push/native` (`app/api/push/native/route.js`: same-origin check, session, rate limit 30/hour).
+2. **Registering**: the pop-up below, or Settings → Notifications → Android permission (13+) → FCM token → `POST /api/push/native` (`app/api/push/native/route.js`: same-origin check, session, rate limit 30/hour).
+   - **The pop-up** (`components/native/push-prompt.jsx`, SVG bell illustration, a bottom sheet on phones) appears about 4 seconds after a signed-in member first opens the app, waiting until no other dialog is open and nobody is typing. When it comes again is decided by `lib/native/push-nudge.js`: after 3, then 7, then 14 days, at most four times, never after "Don't ask me again", and never after the member switched notifications off in Settings (that is a decision).
+   - **Two kinds**: *ask* (leads to Android's permission box) and *settings* (Android only shows that box twice; after that the pop-up shows three steps and **Open settings** goes straight to the app's notification page through `capacitor-native-settings`). When the member comes back, the app finishes turning notifications on by itself.
+   - Android 12 and older never show a permission box (notifications are on by default), so *Turn on* simply registers the token.
 3. **Sending**: the worker (`/api/cron/tick`) pushes each new unread in-app notification, so the bell's preferences and blocks apply. `lib/services/push.js` sends to Web Push and FCM; `lib/services/fcm.js` calls the FCM HTTP v1 API with `google-auth-library` (the large Firebase Admin SDK is not needed). `lib/push-fcm.js` builds the message and reads Google's answers.
 4. **Message shape**: a *notification* message, which Android shows even when the app is closed. Lock-screen text never includes message bodies. `data.url` is opened on tap through `safeNext`, so only a path on this site opens.
 5. **Channels** (`lib/push-channels.js`): *Messages* (high priority), *Replies and connections*, *Events and account*. Android lists them in the phone's own settings, so a member can silence one kind.
@@ -88,6 +91,9 @@ Run on at least one Android 7–9 phone, one Android 13+ phone, and an emulator 
 - [ ] Airplane mode on start → offline screen → turn it off → recovers by itself.
 - [ ] Sign in, swipe the app away, reopen: still signed in.
 - [ ] Back button: closes a sheet; goes back a page; on Feed minimises.
+- [ ] First signed-in start: about 4 seconds later the "Don't miss what matters" pop-up slides up (light and dark). It waits if the welcome pop-up is open. *Not now* closes it; it does not come back for 3 days.
+- [ ] Pop-up → *Turn on notifications* → Android permission box (13+) → *Allow* → success message. Repeat with *Don't allow* twice, then reopen the app after 3 days (or clear `unisphere:native-push-nudge`): the "Notifications are off" version appears, *Open settings* opens UniSphere's notification page, and after switching them on and coming back the app turns them on by itself.
+- [ ] *Don't ask me again* and *Turn off* in Settings both stop the pop-up for good.
 - [ ] Settings → Notifications → Turn on → permission prompt (Android 13+) → *Send a test* arrives with the app open, in the background and swiped away; tap opens the right page; message text is not on the lock screen.
 - [ ] Sign out, then check the phone no longer receives that member's notifications; sign in as someone else on the same phone.
 - [ ] Open a post link from another app / an email: opens in the app on that page; a sign-in or invite link works.
