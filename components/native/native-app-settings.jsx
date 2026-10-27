@@ -7,6 +7,8 @@ import { BellRing } from "@/components/icons/lucide-compat";
 import { sendTestPushAction } from "@/lib/actions/push";
 import { disableNativePush, enableNativePush, getNativePushState, openNativeNotificationSettings, silenceNativePushNudges } from "@/lib/native/push";
 
+const TEST_DELAY_SECONDS = 8;
+
 // checking | error | unsupported | blocked | off | on
 const statusOf = (state) => (state.failed ? "error" : !state.supported ? "unsupported" : state.permission === "denied" ? "blocked" : state.enabled ? "on" : "off");
 
@@ -43,6 +45,16 @@ export function NativeAppSettings({ configured }) {
     else toast.error(result.error);
   }
 
+  // Android shows nothing for a push while the app is open (the app shows a banner instead), so the test waits a few seconds to give the
+  // member time to leave the app, which is the way to see a real system notification.
+  async function sendTest() {
+    toast("Press the Home button now. The test arrives in " + TEST_DELAY_SECONDS + " seconds.", { duration: TEST_DELAY_SECONDS * 1000 });
+    await new Promise((resolve) => setTimeout(resolve, TEST_DELAY_SECONDS * 1000));
+    const result = await sendTestPushAction();
+    if (result.ok) toast.success("Test sent. With the app closed it shows in your notifications; with the app open, as a banner here.");
+    else toast.error(result.error);
+  }
+
   async function turnOff() {
     setBusy(true);
     await disableNativePush();
@@ -59,7 +71,7 @@ export function NativeAppSettings({ configured }) {
         error: "Could not read this phone's notification settings. Check your connection and try again.",
         unsupported: "This phone cannot receive push notifications.",
         blocked: "Blocked in your phone's settings. Open them below, switch notifications on for UniSphere, then come back.",
-        on: "On for this phone. You choose which kinds of updates arrive in the settings below, and the phone's own settings can silence messages, replies or events separately.",
+        on: "On for this phone. To check it works, tap Send a test and press the Home button: the test arrives 8 seconds later. You choose which kinds of updates arrive in the settings below, and the phone's own settings can silence messages, replies or events separately.",
         off: "Get a notification for new messages, replies and other updates, even when the app is closed. Message text is never shown on your lock screen.",
       }[status];
 
@@ -86,7 +98,7 @@ export function NativeAppSettings({ configured }) {
               variant="outline"
               size="sm"
               disabled={testing || busy}
-              onClick={() => startTest(async () => { const r = await sendTestPushAction(); r.ok ? toast.success("Test sent. It should arrive in a moment.") : toast.error(r.error); })}
+              onClick={() => startTest(sendTest)}
             >
               Send a test
             </Button>

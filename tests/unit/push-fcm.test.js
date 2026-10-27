@@ -44,6 +44,11 @@ describe("the message sent to a phone", () => {
     expect(buildFcmMessage("t", { ...payload, category: undefined }).message.android.notification.channelId).toBe("updates");
   });
 
+  it("also wakes the phone at once for the member's own test", () => {
+    expect(buildFcmMessage("t", { ...payload, category: "updates", urgent: true }).message.android.priority).toBe("HIGH");
+    expect(buildFcmMessage("t", { ...payload, category: "updates", urgent: "yes" }).message.android.priority).toBe("NORMAL");
+  });
+
   it.each(["https://evil.example/x", "//evil.example", "javascript:alert(1)", "/a\\b", "", undefined, 42])("only ever opens a page on this site: %s becomes the notifications page", (url) => {
     expect(buildFcmMessage("t", { ...payload, url }).message.data.url).toBe("/notifications");
   });

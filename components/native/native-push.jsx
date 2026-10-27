@@ -56,6 +56,10 @@ export function NativePush({ configured }) {
       const push = await import("@/lib/native/push");
       pushRef.current = push;
       push.setNativeNavigator((path) => router.push(path));
+      // A push that arrives while the app is open: Android shows nothing by itself then, so show it as a banner.
+      push.setNativeForegroundHandler(({ title, body, path }) =>
+        toast(title, { description: body, duration: 7000, action: { label: "Open", onClick: () => router.push(path) } }),
+      );
       await push.initNativePush();
 
       // Back from the phone's notification settings: if the member allowed them there, finish turning them on.

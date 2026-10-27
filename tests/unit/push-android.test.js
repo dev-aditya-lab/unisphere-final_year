@@ -144,7 +144,7 @@ describe("pushing to the Android app", () => {
   it("sends a test notification to the member's phones on the quiet channel", async () => {
     const res = await sendTestPush("u1");
     expect(res.ok).toBe(true);
-    expect(state.sent[0].payload).toMatchObject({ url: "/settings/notifications", tag: "push-test", category: "updates" });
+    expect(state.sent[0].payload).toMatchObject({ url: "/settings/notifications", tag: "push-test", category: "updates", urgent: true });
   });
 
   it("says there is no phone yet, rather than succeeding, when the member has none", async () => {

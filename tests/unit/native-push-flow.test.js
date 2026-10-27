@@ -220,6 +220,48 @@ describe("tapping a notification", () => {
   });
 });
 
+describe("a push that arrives while the app is open", () => {
+  const arrive = (notification) => h.listeners.pushNotificationReceived(notification);
+  let banner;
+  beforeEach(async () => {
+    banner = vi.fn();
+    push.setNativeForegroundHandler(banner);
+    await push.initNativePush();
+  });
+
+  it("is shown as a banner, because Android shows nothing for it by itself", () => {
+    arrive({ title: "UniSphere", body: "Ravi sent you a message", data: { origin: "unisphere", url: "/messages/abc" } });
+    expect(banner).toHaveBeenCalledWith({ title: "UniSphere", body: "Ravi sent you a message", path: "/messages/abc" });
+  });
+
+  it("ignores anything UniSphere did not send", () => {
+    arrive({ title: "Hi", body: "x", data: { url: "/feed" } });
+    arrive({ title: "Hi", body: "x", data: { origin: "other", url: "/feed" } });
+    arrive({ title: "Hi", body: "x" });
+    expect(banner).not.toHaveBeenCalled();
+  });
+
+  it("never points the banner away from this site, and keeps the text a sensible length", () => {
+    arrive({ title: "T".repeat(200), body: "B".repeat(500), data: { origin: "unisphere", url: "https://evil.example/x" } });
+    const shown = banner.mock.calls[0][0];
+    expect(shown.path).toBe("/notifications");
+    expect(shown.title).toHaveLength(80);
+    expect(shown.body).toHaveLength(200);
+  });
+
+  it("falls back to sensible words when the push has no title or text", () => {
+    arrive({ data: { origin: "unisphere", url: "/feed" } });
+    expect(banner).toHaveBeenCalledWith({ title: "UniSphere", body: "", path: "/feed" });
+  });
+
+  it("does nothing, and does not fail, before the app has set a handler", async () => {
+    vi.resetModules();
+    const fresh = await import("@/lib/native/push");
+    await fresh.initNativePush();
+    expect(() => h.listeners.pushNotificationReceived({ title: "x", body: "y", data: { origin: "unisphere", url: "/feed" } })).not.toThrow();
+  });
+});
+
 describe("the turn-on pop-up", () => {
   it("is offered at first, then waits, and stops for good once the member decides", async () => {
     expect(await push.getNativePushNudge()).toBe("ask");

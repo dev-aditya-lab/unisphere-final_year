@@ -83,6 +83,15 @@ cd android
 - **Safe areas and the keyboard** are handled by Capacitor 8's `SystemBars` plugin (`insetsHandling: css`) together with the page's `viewport-fit=cover` and `env(safe-area-inset-*)`: on WebView 140+ the page receives the insets natively; on older ones Capacitor pads the window instead and zeroes `env()`, so nothing is counted twice.
 - Keep `overscroll-behavior`, `touch-action: manipulation` and the tap-highlight reset in `app/globals.css`: they are why taps and scrolling already feel native.
 
+## A notification did not appear: where to look
+
+Work down this list; each step rules out one place.
+
+1. **Was the app open?** Android shows no system notification while the app is on screen (the plugin does so only if \`presentationOptions\` asks, and \`capacitor.config.ts\` leaves it empty on purpose). The app shows its own banner instead (\`components/native/native-push.jsx\`). To see a real system notification, leave the app first: *Send a test* waits 8 seconds so there is time to press Home.
+2. **Did Google accept it?** In the database, \`push_devices.last_success_at\` moves on every accepted send, \`failure_count\` stays 0, and Admin → Settings → Push notifications counts the phones. If a send is refused, the server log says why (\`[push] FCM failed: <status> <message>\`). The Firebase console *Messaging → Reports* page stays empty for messages sent through the API; it is not a delivery log.
+3. **Messages specifically**: a notification is only made for a message from *another* member; there is **one notification per conversation until it is read** (a new message in a conversation with an unread notification makes no new one, so open the conversation first); the worker (\`/api/cron/tick\`) sends it, so with UptimeRobot every 5 minutes it can take up to about five minutes (a 1-minute free cron service such as cron-job.org shortens that; run only one caller); and the category's *In app* switch in Settings → Notifications must be on, since push follows it.
+4. **The phone itself**: Settings → Apps → UniSphere → Notifications must be on, and so must the channel (Messages, Replies and connections, Events and account); Do Not Disturb off; battery set to *Unrestricted*. On Xiaomi, Oppo, Vivo, Realme and OnePlus phones also allow *Autostart*, and note that an app that was force-stopped receives nothing until it is opened again.
+
 ## Testing without a phone
 
 Most of the app can be tested on a computer, and was: a real browser against the real site and the local database, with only the phone faked.

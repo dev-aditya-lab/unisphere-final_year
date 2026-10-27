@@ -142,6 +142,25 @@ test.describe("Settings > Notifications in the app", () => {
     await context.close();
   });
 
+  test("'Send a test' gives the member time to leave the app, then sends and says what happened", async ({ browser }) => {
+    test.setTimeout(90_000);
+    const { context, page } = await inApp(browser);
+    await page.goto("/settings/notifications");
+    await page.getByRole("button", { name: "Turn on", exact: true }).click();
+    await expect(onFor(page)).toBeVisible({ timeout: 15_000 });
+    await expect(onFor(page)).toContainText("press the Home button");
+
+    const send = page.getByRole("button", { name: "Send a test" });
+    await send.click();
+    await expect(page.getByText("Press the Home button now. The test arrives in 8 seconds.")).toBeVisible();
+    await expect(send).toBeDisabled(); // no second test while one is waiting
+    // After the wait the server sends. With this test's made-up token Google says the phone is gone (or, offline, the send fails), so
+    // the member is told it did not arrive: what matters here is that the outcome is always stated, never silence.
+    const outcome = page.locator("[data-sonner-toast]").filter({ hasText: /Test sent|could not be delivered|not set up|No device/ });
+    await expect(outcome.first()).toBeVisible({ timeout: 40_000 });
+    await context.close();
+  });
+
   test("when Android has blocked notifications, the screen says so and offers the phone's settings", async ({ browser }) => {
     const { context, page, fake } = await inApp(browser, { phone: { permission: "denied" } });
     await page.goto("/settings/notifications");
@@ -189,7 +208,7 @@ test.describe("Settings > Notifications in the app", () => {
     await page.getByRole("button", { name: "Turn on", exact: true }).click();
     await expect(onFor(page)).toBeVisible({ timeout: 15_000 });
     await page.getByRole("button", { name: "Send a test" }).click();
-    await expect(page.getByText("Test sent. It should arrive in a moment.")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText("Test sent. With the app closed it shows in your notifications")).toBeVisible({ timeout: 30_000 });
     await context.close();
   });
 });
@@ -327,6 +346,23 @@ test.describe("what the phone can do to the page", () => {
     await expect.poll(async () => (await fake.callIds(page)).includes("PushNotifications.addListener")).toBe(true);
     await fake.fire(page, "PushNotifications", "pushNotificationActionPerformed", { notification: { data: { origin: "unisphere", url: "https://evil.example/phish" } } });
     await expect(page).toHaveURL(/\/notifications/); // sent to our own notifications page, never away
+    await context.close();
+  });
+
+  test("a push that arrives while the app is open shows as a banner (Android shows nothing by itself), and Open goes to its page", async ({ browser }) => {
+    const { context, page, fake } = await inApp(browser);
+    await page.goto("/settings");
+    await expect.poll(async () => (await fake.callIds(page)).includes("PushNotifications.addListener")).toBe(true);
+    await fake.fire(page, "PushNotifications", "pushNotificationReceived", { id: "1", title: "UniSphere", body: "Ravi sent you a message", data: { origin: "unisphere", url: "/notifications" } });
+    const banner = page.locator("[data-sonner-toast]").filter({ hasText: "Ravi sent you a message" });
+    await expect(banner).toBeVisible();
+    await banner.getByRole("button", { name: "Open" }).click();
+    await expect(page).toHaveURL(/\/notifications/);
+
+    // Something UniSphere did not send is not shown.
+    await fake.fire(page, "PushNotifications", "pushNotificationReceived", { id: "2", title: "Spam", body: "Win a prize", data: { url: "/feed" } });
+    await page.waitForTimeout(600);
+    await expect(page.locator("[data-sonner-toast]").filter({ hasText: "Win a prize" })).toHaveCount(0);
     await context.close();
   });
 
