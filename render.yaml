@@ -37,5 +37,6 @@ services:
       - { key: VAPID_PRIVATE_KEY, sync: false }
       - { key: VAPID_SUBJECT, sync: false }
       - { key: FIREBASE_SERVICE_ACCOUNT, sync: false }       # Android app push (docs/ANDROID_APP.md); base64 of the service account JSON is easiest
+      - { key: PUSH_LOOP_SECONDS, value: "15" }              # the server sends pending push notifications itself, every N seconds (0 = off); docs/NOTIFICATIONS.md
       - { key: ANDROID_PACKAGE_NAME, sync: false }           # unisphere.devaditya.dev
       - { key: ANDROID_SHA256_CERT_FINGERPRINTS, sync: false } # from Play Console > App signing

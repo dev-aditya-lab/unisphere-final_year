@@ -215,6 +215,15 @@ the existing messaging end-to-end tests.
 - Group conversations do not exist in the product; the engine and schema key on conversation ids and would not
   need to change for them, but the header and read receipts assume one other person.
 
+## 7a. Since 2.7.0: a message is pushed at once
+
+Sending a message (`sendMessage` in `lib/services/messages.js`) schedules `pushNewMessage` with Next's `after()`, so the sender's response is not delayed by Google.
+The database decides who is told (`message_push_targets`: not the sender, not muted, not blocked, the Messages In app and Push switches on, at least one device).
+Each push carries the sender's name and "Sent you a message" or "N new messages", never the text, and the tag `message:<conversationId>`, so a burst collects
+into one notification on the phone. The bell is unchanged (one entry per conversation until it is read). If the instant push cannot reach a device, the worker pushes
+the bell's notification 15 seconds later. A replayed send (same `clientOpId`) pushes nothing. Anything that changes how messages are sent must keep this working:
+see [NOTIFICATIONS.md](NOTIFICATIONS.md).
+
 ## 7. Since 2.3.0: Markdown, attachments and channels
 
 - Direct messages render Markdown with the same safe renderer as posts (`components/posts/chat-markdown.jsx`) and have a preview and formatting help.

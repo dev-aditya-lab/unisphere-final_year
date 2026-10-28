@@ -147,6 +147,21 @@ describe("pushing to the Android app", () => {
     expect(state.sent[0].payload).toMatchObject({ url: "/settings/notifications", tag: "push-test", category: "messages", urgent: true });
   });
 
+  it("asks a browser's push service to deliver an urgent push (a message, the member's own test) at once, and an ordinary one normally", async () => {
+    const { default: webpush } = await import("web-push");
+    state.integrations = { push: true, fcm: false };
+    state.devices = {};
+    state.subs = { u1: [{ id: "s1", endpoint: "https://fcm.googleapis.com/fcm/send/abc123", p256dh: "k", auth: "a", failure_count: 0 }] };
+    webpush.sendNotification.mockClear();
+
+    await sendTestPush("u1"); // urgent
+    expect(webpush.sendNotification.mock.calls.at(-1)[2]).toMatchObject({ urgency: "high" });
+
+    state.claimed = [note({})];
+    await processPushNotifications(); // an ordinary notification
+    expect(webpush.sendNotification.mock.calls.at(-1)[2]).toMatchObject({ urgency: "normal" });
+  });
+
   it("says there is no phone yet, rather than succeeding, when the member has none", async () => {
     state.devices = {};
     const res = await sendTestPush("u1");

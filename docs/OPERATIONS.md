@@ -10,7 +10,7 @@ What to watch, what to back up, and what to do when something breaks.
 | --- | --- | --- |
 | Embeddings | Generates vectors for new posts/profiles (only if an embeddings provider is configured) | Semantic search gets stale; keyword search is unaffected |
 | Notification emails | Sends queued emails, combining several into one digest | Emails are late (they are retried up to 3 times) |
-| Push notifications | Sends Web Push for new unread notifications | Push is late; the bell and inbox are unaffected |
+| Push notifications | Sends Web Push and Android (FCM) push for new unread notifications. Messages are pushed the moment they are sent; the server's own loop (`PUSH_LOOP_SECONDS`, 15 s) sends the rest, and this worker is the backstop | Push is late; the bell and inbox are unaffected. See `docs/NOTIFICATIONS.md` |
 | Maintenance | Event reminders (24h and 1h), orphan-file cleanup, **scheduled account erasure** | Reminders are missed; deletions are late but never lost |
 
 It is safe to run more than one worker or to overlap ticks: every step claims work with `FOR UPDATE SKIP LOCKED`.

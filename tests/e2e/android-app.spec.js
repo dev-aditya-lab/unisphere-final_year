@@ -366,6 +366,21 @@ test.describe("what the phone can do to the page", () => {
     await context.close();
   });
 
+  test("a push about the page the member is already on is not shown again (a new message in the open conversation)", async ({ browser }) => {
+    const { context, page, fake } = await inApp(browser);
+    await page.goto("/notifications");
+    await expect.poll(async () => (await fake.callIds(page)).includes("PushNotifications.addListener")).toBe(true);
+    const banner = (text) => page.locator("[data-sonner-toast]").filter({ hasText: text });
+
+    await fake.fire(page, "PushNotifications", "pushNotificationReceived", { id: "1", title: "Asha", body: "Sent you a message", data: { origin: "unisphere", url: "/notifications" } });
+    await page.waitForTimeout(800);
+    await expect(banner("Sent you a message")).toHaveCount(0); // already here
+
+    await fake.fire(page, "PushNotifications", "pushNotificationReceived", { id: "2", title: "Ravi", body: "Replied to your post", data: { origin: "unisphere", url: "/feed" } });
+    await expect(banner("Replied to your post")).toBeVisible(); // somewhere else: shown
+    await context.close();
+  });
+
   test("the back button closes what is open, then goes back, and on a top-level screen leaves the app", async ({ browser }) => {
     const { context, page, fake } = await inApp(browser);
     await page.goto("/feed");

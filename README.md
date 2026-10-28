@@ -56,6 +56,7 @@ The full walk-through, including every environment variable, is in [docs/SETUP.m
 | [docs/ADMIN_GUIDE.md](docs/ADMIN_GUIDE.md) | College staff: moderation, appeals, roles, announcements |
 | [docs/SECURITY.md](docs/SECURITY.md) | How data and access are protected, and what to review before launch |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the pieces fit together |
+| [docs/NOTIFICATIONS.md](docs/NOTIFICATIONS.md) | Notifications: the per-category switches, instant message push, Admin → Broadcast, and the checklist for every new feature |
 | [docs/EMAIL.md](docs/EMAIL.md) | Resend, sender domain, templates, troubleshooting |
 | [docs/AI.md](docs/AI.md) | What the AI features do, their limits and privacy rules |
 | [docs/APP_STORES.md](docs/APP_STORES.md) | Google Play / App Store publishing kit |

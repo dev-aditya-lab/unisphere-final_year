@@ -185,14 +185,24 @@ self.addEventListener("push", (event) => {
   if (!data || data.from !== "unisphere") return;
   const title = String(data.title || "UniSphere").slice(0, 80);
   event.waitUntil(
-    self.registration.showNotification(title, {
-      body: String(data.body || "").slice(0, 200),
-      icon: "/icons/icon-192.png",
-      badge: "/icons/badge-96.png",
-      tag: data.tag || undefined,
-      renotify: Boolean(data.tag),
-      data: { from: "unisphere", url: typeof data.url === "string" ? data.url : "/notifications" },
-    }),
+    (async () => {
+      // The member is looking at the very page this is about (a new message in the open conversation): it is already on their screen.
+      // Browsers allow this only while a visible, focused window of the site exists, which is exactly what is checked.
+      const path = typeof data.url === "string" ? data.url.split(/[?#]/)[0].replace(/\/+$/, "") : "";
+      if (path) {
+        const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+        const here = windows.some((w) => w.visibilityState === "visible" && w.focused && new URL(w.url).pathname.replace(/\/+$/, "") === path);
+        if (here) return;
+      }
+      await self.registration.showNotification(title, {
+        body: String(data.body || "").slice(0, 200),
+        icon: "/icons/icon-192.png",
+        badge: "/icons/badge-96.png",
+        tag: data.tag || undefined,
+        renotify: Boolean(data.tag),
+        data: { from: "unisphere", url: typeof data.url === "string" ? data.url : "/notifications" },
+      });
+    })(),
   );
 });
 

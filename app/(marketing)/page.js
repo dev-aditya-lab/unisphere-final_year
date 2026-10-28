@@ -94,8 +94,8 @@ const REFER_POINTS = [
 ];
 
 const ANDROID_POINTS = [
-  [BellRing, "Notifications you choose", "Off until you turn them on. Messages, replies and events are separate switches in your phone's own settings, so you silence one kind without losing the rest."],
-  [Lock, "Private on the lock screen", "A notification says that something happened, never what a message says. Signing out removes your phone from notifications straight away."],
+  [BellRing, "A switch for every kind", "Off until you turn them on. Messages, reactions, events, communities and more each have their own In app, Push and Email switches, so you silence reactions and keep messages, or the other way round."],
+  [Lock, "Messages arrive at once, privately", "A new message reaches your phone within seconds, and a run of them from one person collects into one notification. It says who wrote, never what. Signing out removes your phone straight away."],
   [Smartphone, "It behaves like an app", "It opens on your feed and keeps you signed in. The back button closes what is open first, links to UniSphere open inside it, and downloads such as your data copy work."],
 ];
 

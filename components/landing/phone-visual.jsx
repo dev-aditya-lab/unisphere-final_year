@@ -7,7 +7,7 @@ import { m, useInView, useReducedMotion } from "motion/react";
 // What the three kinds of notification look like on a lock screen. The text is the same plain sentence the real notifications carry
 // (never a message's own words), and every name and event here is invented.
 const NOTES = [
-  { channel: "Messages", text: "Ravi sent you a message" },
+  { channel: "Messages", text: "Ravi sent you 2 new messages" },
   { channel: "Replies and connections", text: "Asha replied to your post “Robotics club kit”" },
   { channel: "Events and account", text: "Hack the Campus starts tomorrow at 10:00" },
 ];

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { PushPrompt } from "@/components/native/push-prompt";
 import { useIsNativeApp } from "@/hooks/use-native-app";
+import { isAlreadyThere } from "@/lib/native/foreground";
 import { OPEN_LAYER } from "@/lib/native/layers";
 import { tapHaptic } from "@/lib/native/haptics";
 
@@ -57,9 +58,11 @@ export function NativePush({ configured }) {
       pushRef.current = push;
       push.setNativeNavigator((path) => router.push(path));
       // A push that arrives while the app is open: Android shows nothing by itself then, so show it as a banner.
-      push.setNativeForegroundHandler(({ title, body, path }) =>
-        toast(title, { description: body, duration: 7000, action: { label: "Open", onClick: () => router.push(path) } }),
-      );
+      // Not when the member is already on the page it is about (a new message in the conversation that is open).
+      push.setNativeForegroundHandler(({ title, body, path }) => {
+        if (isAlreadyThere(window.location.pathname, path)) return;
+        toast(title, { description: body, duration: 7000, action: { label: "Open", onClick: () => router.push(path) } });
+      });
       await push.initNativePush();
 
       // Back from the phone's notification settings: if the member allowed them there, finish turning them on.

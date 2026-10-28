@@ -89,6 +89,15 @@ restrict, suspend, reinstate). Reinstating closes any pending appeal.
 
 - **Announcements**: notifies every member of the college. Use sparingly; pinned ones stay on top; you can archive but not
   unsend notifications.
+- **Broadcast** (Admin → Broadcast; needs the announcements permission): a notification to exactly the people you choose,
+  in the bell and, if you leave it on, on their phones. Pick any mix of **everyone** (global admins only), **colleges**,
+  **communities** (by address, e.g. `robotics-club`) and **named people** (usernames), then narrow by account type
+  (students, alumni, faculty, staff). The page shows how many people it reaches before you send, asks once more with that
+  number, and records the send in the audit log. College admins can only reach members of their own colleges, even if they
+  ask for everyone. Each member's own settings still apply (someone who switched off *Official announcements* is not
+  notified, and someone who switched off its *Push* sees it in the bell only). You can send ten an hour; it cannot be
+  unsent, so keep it short, useful and rare. Optionally add a link to a page on UniSphere (for example `/events`) that opens
+  when the notification is tapped.
 - **Support inbox**: messages from the public contact form. Reply from your email; mark as *in progress* / *resolved* /
   *spam* here.
 - **Feedback** (global admins and support): bug reports with severity and automatic context (page, version, browser),

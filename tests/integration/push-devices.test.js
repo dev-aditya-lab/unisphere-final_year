@@ -86,7 +86,9 @@ describe("what the worker claims", () => {
   it("claims a notification for a member whose only device is an Android phone, once, with its category", async () => {
     const dev = await createUser("pd-android-only");
     await admin.from("push_devices").insert({ user_id: dev.id, platform: "android", token: token(20) });
-    const { data: inserted, error } = await admin.from("notifications").insert(note(dev, { category: "messages", type: "message" })).select("id").single();
+    // A message notification waits 15 s for the app's own instant push (0063); this one is a minute old, so the worker owns it.
+    const aMinuteAgo = new Date(Date.now() - 60_000).toISOString();
+    const { data: inserted, error } = await admin.from("notifications").insert(note(dev, { category: "messages", type: "message", created_at: aMinuteAgo })).select("id").single();
     expect(error).toBeNull();
 
     const first = await claimFor(dev);
