@@ -42,7 +42,7 @@ export async function proxy(request) {
   const nonce = newNonce();
   // The one page that hands a member over to a payment gateway (and may post a form to it) has a policy of its own; no other
   // page may post a form anywhere but here.
-  const csp = pathname === PAYMENT_CHECKOUT_PATH ? buildCheckoutPageCsp(nonce) : buildCsp({ nonce, isDev: process.env.NODE_ENV === "development" });
+  const csp = pathname === PAYMENT_CHECKOUT_PATH ? buildCheckoutPageCsp(nonce) : buildCsp({ nonce, isDev: process.env.NODE_ENV === "development", academy: pathname === "/academy" || pathname.startsWith("/academy/") });
   const session = await updateSession(request, {
     "x-pathname": pathname + search,
     "x-nonce": nonce,

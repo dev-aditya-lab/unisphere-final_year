@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
 import { parseWebhook } from "@/lib/payments/gateway";
 import { handleWebhookEvent } from "@/lib/services/blue-tick";
+import { handleAcademyWebhookEvent, ownsAcademyEvent } from "@/lib/services/academy-commerce";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,7 @@ export async function POST(request) {
   }
   if (!parsed.event) return NextResponse.json({ ok: true, ignored: true });
 
-  const result = await handleWebhookEvent(parsed.event);
+  // One gateway account serves both the blue tick and the Academy: the order the event names says whose it is.
+  const result = (await ownsAcademyEvent(parsed.event)) ? await handleAcademyWebhookEvent(parsed.event) : await handleWebhookEvent(parsed.event);
   return NextResponse.json({ ok: result.ok }, { status: result.ok ? 200 : 500 });
 }

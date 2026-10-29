@@ -4,6 +4,7 @@ import { getClientIp, rateLimit } from "@/lib/rate-limit";
 import { BLUE_TICK_PATH } from "@/lib/blue-tick";
 import { parseReturn } from "@/lib/payments/gateway";
 import { confirmReturn } from "@/lib/services/blue-tick";
+import { confirmAcademyReturn, findAcademyOrder } from "@/lib/services/academy-commerce";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,18 @@ async function handle(request) {
   }
 
   if (target) {
+    // An Academy order? Same trust rules: the reference only finds the order, the gateway says whether it was paid.
+    const academyOrder = await findAcademyOrder(target);
+    if (academyOrder) {
+      const result = await confirmAcademyReturn(academyOrder);
+      const to = new URL("/academy/payments", publicEnv.appUrl);
+      const notice = NOTICE[result.state] ?? null;
+      if (notice) {
+        to.searchParams.set("payment", notice);
+        if (notice === "pending") to.searchParams.set("o", result.id);
+      }
+      return NextResponse.redirect(to, 303);
+    }
     const { state, id } = await confirmReturn(target);
     const notice = NOTICE[state] ?? null;
     if (notice) {

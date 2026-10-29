@@ -12,6 +12,14 @@ describe("route classification (closed network)", () => {
       expect(isProtectedPath(p), p).toBe(true);
     }
   });
+  it("opens the Academy's catalogue, policies and certificate checks, and nothing that buys, learns or administers", () => {
+    for (const p of ["/academy", "/academy/courses", "/academy/courses/full-stack-web", "/academy/programs/x", "/academy/internships", "/academy/mentorship", "/academy/pricing", "/academy/verify", "/academy/verify/US-2026-WD-00142"]) {
+      expect(isProtectedPath(p), p).toBe(false);
+    }
+    for (const p of ["/academy/dashboard", "/academy/my-learning", "/academy/learn/abc", "/academy/checkout/full-stack-web", "/academy/payments", "/academy/certificates", "/academy/assignments", "/academy/profile", "/academy/admin", "/academy/admin/orders", "/academy/some-new-page"]) {
+      expect(isProtectedPath(p), p).toBe(true);
+    }
+  });
   it("bounces signed-in members away from the sign-in pages only", () => {
     expect(isGuestOnlyPath("/login")).toBe(true);
     expect(isGuestOnlyPath("/register")).toBe(true);

@@ -1,5 +1,7 @@
 # Payments: connecting a payment gateway
 
+The same gateway account also sells UniSphere Academy courses (docs/ACADEMY.md). Its orders use the same return and webhook endpoints; the order an event names decides whether the blue tick or the Academy handles it.
+
 UniSphere does not depend on one payment company. The blue tick (`docs/BLUE_TICK.md`) is paid for through a **gateway
 adapter**: one small file that says how to create an order, ask what happened to it, refund it and read its webhook.
 Nothing else in the app names a gateway, so switching companies means changing a file and four environment values.

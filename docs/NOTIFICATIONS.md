@@ -83,6 +83,7 @@ message, optionally a page to open, and decide whether to push as well as put it
 | Refer & Earn invitation | everyone, once, if staff switch it on | Offers & invitations | bell only |
 | Feedback and roadmap | the author: status changes | Reactions, comments & mentions* | Replies and connections |
 | Official announcements | everyone in a college (Admin > Announcements) | Official announcements | Events and account |
+| **Academy** | student: enrolment, payment receipt or failure, refund update, live-class reminder (24 h, 1 h), deadline reminder, mentor feedback, course completion, certificate issued/corrected/revoked, course announcement | Academy | Events and account |
 | **Broadcast** | whoever staff choose | Official announcements | Events and account |
 
 \* Feedback status changes use the type `feedback_update`, which falls in *Reactions, comments & mentions*.

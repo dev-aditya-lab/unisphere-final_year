@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BookOpen, ChartColumn, IndianRupee, Inbox, KeyRound, LayoutDashboard, Megaphone, Orbit, Rocket, Scale, ScrollText, SlidersHorizontal, Tags, UserX } from "@/components/icons/lucide-compat";
-import { BellRing, CalendarDays, FileText, Flag, Gift, Landmark, MessageSquareHeart, ShieldAlert, ShieldCheck, Sparkles, Users, UsersRound } from "@/components/icons/lucide-compat";
+import { BadgeCheck, BellRing, CalendarDays, FileText, Flag, GraduationCap, Gift, Landmark, Trophy, MessageSquareHeart, ShieldAlert, ShieldCheck, Sparkles, Users, UsersRound } from "@/components/icons/lucide-compat";
 import { ADMIN_GROUPS } from "@/lib/admin/nav";
 import { cn } from "@/lib/utils";
 
-const ICONS = { ShieldAlert, BellRing, BookOpen, CalendarDays, ChartColumn, FileText, Flag, Gift, IndianRupee, ShieldCheck, Inbox, KeyRound, Landmark, LayoutDashboard, Megaphone, MessageSquareHeart, Orbit, Rocket, Scale, ScrollText, SlidersHorizontal, Sparkles, Tags, UserX, Users, UsersRound };
+const ICONS = { BadgeCheck, GraduationCap, Trophy, ShieldAlert, BellRing, BookOpen, CalendarDays, ChartColumn, FileText, Flag, Gift, IndianRupee, ShieldCheck, Inbox, KeyRound, Landmark, LayoutDashboard, Megaphone, MessageSquareHeart, Orbit, Rocket, Scale, ScrollText, SlidersHorizontal, Sparkles, Tags, UserX, Users, UsersRound };
 
 /** Grouped admin navigation (sidebar and mobile drawer). `counts` maps a count key to a waiting-item number. */
 export function AdminNav({ items, counts = {}, onNavigate }) {

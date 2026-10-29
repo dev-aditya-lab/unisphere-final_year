@@ -6,8 +6,11 @@ describe("badge picture upload policy", () => {
     const rule = UPLOAD_PURPOSES.orbit_badge;
     expect(rule).toMatchObject({ bucket: "public", permission: "orbits.manage" });
     expect(rule.mimes).toEqual(["image/jpeg", "image/png", "image/webp"]);
-    // every other purpose stays open to its own owner: only this one carries a permission
-    expect(Object.entries(UPLOAD_PURPOSES).filter(([, r]) => r.permission).map(([k]) => k)).toEqual(["orbit_badge"]);
+    // every other purpose stays open to its own owner: only staff purposes carry a permission (the badge, and the Academy's cover,
+    // resource and certificate-template files, each tied to its own permission)
+    const staffOnly = Object.fromEntries(Object.entries(UPLOAD_PURPOSES).filter(([, r]) => r.permission).map(([k, r]) => [k, r.permission]));
+    expect(staffOnly).toEqual({ orbit_badge: "orbits.manage", academy_cover: "academy.courses.manage", academy_resource: "academy.courses.manage", academy_template: "academy.templates.manage" });
+    expect(UPLOAD_PURPOSES.academy_submission.permission).toBeUndefined(); // a student's own assignment file
   });
 
   it("decides the type from the file's bytes, so a renamed file cannot pass", () => {

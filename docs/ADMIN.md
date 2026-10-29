@@ -114,3 +114,8 @@ use the existing `moderation.warn`.
 * **Estimated AI cost.** Tokens are measured; no price table is stored, so no cost figure is shown.
 * **Dashboard "total registered accounts"** counts onboarded members; accounts that never finished onboarding are not
   in any admin number. Add a separate figure if you want it.
+
+
+## Academy
+
+The Academy is run from the Academy group of this console (`/admin/academy`): courses and programs, pricing and coupons, orders and refunds, students, grading, live classes and announcements, certificates, certificate templates, mentors, reports, settings and the Academy audit log. Access is by the `academy.*` permissions through five roles (Academy administrator, course manager, finance manager, mentor, support). See docs/ACADEMY.md. To tell students about something, use Academy, Live classes & news (it respects their Academy notification switches); Admin, Broadcast reaches anyone.

@@ -100,6 +100,7 @@ Migrations in `supabase/migrations` are the single source of truth (forward-only
 | 0057 | `report_community`: report a whole community to the platform team |
 | 0058 | Release note 2.4.0 (draft) |
 | 0059 | Release note 2.5.0 (draft) |
+| 0065 to 0069 | UniSphere Academy: roles and permissions, courses, pricing engine, coupons, orders, payments, refunds, enrolments, learning, grading, live classes, certificates and public verification (docs/ACADEMY.md) |
 
 Design rules: RLS on everything; column-level `UPDATE` grants protect trust fields; counters and notifications are
 trigger-maintained; recursion in policies is avoided with definer helper functions; soft deletes keep audit history.

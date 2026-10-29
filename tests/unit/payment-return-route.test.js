@@ -5,6 +5,9 @@ const parseReturn = vi.fn();
 const limit = vi.fn();
 vi.mock("@/lib/services/blue-tick", () => ({ confirmReturn: (...a) => confirmReturn(...a) }));
 vi.mock("@/lib/payments/gateway", () => ({ parseReturn: (...a) => parseReturn(...a) }));
+const findAcademyOrder = vi.fn();
+const confirmAcademyReturn = vi.fn();
+vi.mock("@/lib/services/academy-commerce", () => ({ findAcademyOrder: (...a) => findAcademyOrder(...a), confirmAcademyReturn: (...a) => confirmAcademyReturn(...a) }));
 vi.mock("@/lib/rate-limit", () => ({ getClientIp: async () => "203.0.113.9", rateLimit: (...a) => limit(...a) }));
 const { GET, POST } = await import("@/app/api/payments/return/route");
 
@@ -15,6 +18,9 @@ const post = (body, qs = "") =>
 const where = (res) => new URL(res.headers.get("location"));
 
 beforeEach(() => {
+  findAcademyOrder.mockReset();
+  findAcademyOrder.mockResolvedValue(null);
+  confirmAcademyReturn.mockReset();
   confirmReturn.mockReset();
   parseReturn.mockReset();
   parseReturn.mockResolvedValue(null);
@@ -23,6 +29,15 @@ beforeEach(() => {
 });
 
 describe("/api/payments/return", () => {
+  it("sends the student of an Academy order to their payments page, after asking the gateway, never believing the link", async () => {
+    findAcademyOrder.mockResolvedValue({ id: ID });
+    confirmAcademyReturn.mockResolvedValue({ state: "done", id: ID });
+    const res = await get(`?o=${ID}`);
+    expect(res.status).toBe(303);
+    expect(confirmReturn).not.toHaveBeenCalled();
+    expect(where(res).pathname + where(res).search).toBe("/academy/payments?payment=done");
+  });
+
   it("looks the order up, asks for its state, and sends the member to the blue tick page with a GET", async () => {
     confirmReturn.mockResolvedValue({ state: "done", id: ID });
     const res = await get(`?o=${ID.toUpperCase()}`);

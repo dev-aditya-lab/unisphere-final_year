@@ -1,0 +1,210 @@
+import { describe, expect, it } from "vitest";
+import { PDFArray, PDFDocument, PDFName } from "pdf-lib";
+import { formatBps, formatMoney, inclusiveTaxNote, minorToInput, percentToBps, priceSummary, quoteLines, toMinor } from "@/lib/academy/money";
+import { CERT_VARIABLE_KEYS, certificateData, cleanText, fillText, formatDateLong, missingRequired, sampleData, variablesIn } from "@/lib/academy/cert-vars";
+import { CertificateError, inspectTemplatePdf, renderCertificate } from "@/lib/academy/cert-pdf";
+import { parseVideoInput, videoSource } from "@/lib/academy/video";
+import { verifyUrl } from "@/lib/academy/urls";
+import { assignmentSchema, couponSchema, courseSchema, lessonContentSchema, priceRuleSchema, quizQuestionSchema, settingSchemas } from "@/lib/validators/academy";
+import { describeNotification, notificationCategory } from "@/lib/notification-text";
+import { buildCsp } from "@/lib/security/csp";
+
+const UUID = "0f8fad5b-d9cb-469f-a165-70867728950e";
+
+describe("money is whole paise and never goes through floating point", () => {
+  it("reads typed amounts exactly", () => {
+    expect(toMinor("19.99")).toBe(1999);
+    expect(toMinor("0.1")).toBe(10);
+    expect(toMinor("1000")).toBe(100000);
+    expect(toMinor("0")).toBe(0);
+    for (const bad of ["", "-5", "1,000", "1.234", "abc", "1e3", "99999999999"]) expect(toMinor(bad), bad).toBeNull();
+  });
+  it("formats and round-trips", () => {
+    expect(formatMoney(100000)).toBe("₹1,000");
+    expect(formatMoney(149950)).toBe("₹1,499.50");
+    expect(formatMoney("2500")).toBe("₹25");
+    expect(minorToInput(149950)).toBe("1499.50");
+    expect(minorToInput(100000)).toBe("1000");
+    expect(toMinor(minorToInput(1999))).toBe(1999);
+  });
+  it("reads percentages as basis points", () => {
+    expect(percentToBps("18")).toBe(1800);
+    expect(percentToBps("12.5")).toBe(1250);
+    expect(percentToBps("0")).toBeNull();
+    expect(percentToBps("101")).toBeNull();
+    expect(formatBps(1800)).toBe("18%");
+    expect(formatBps(1825)).toBe("18.25%");
+  });
+  it("lays out a quote's lines without adding anything up itself", () => {
+    const q = { ok: true, list_minor: 100000, sale: { label: "Launch", discount_minor: 20000, ends_at: null }, coupon: { code: "HELLO", discount_minor: 8000 }, tax: { mode: "exclusive", minor: 12960, rate_bps: 1800, label: "GST" }, total_minor: 84960 };
+    expect(quoteLines(q).map((l) => [l.key, l.minor])).toEqual([["list", 100000], ["sale", -20000], ["coupon", -8000], ["tax", 12960]]);
+    expect(inclusiveTaxNote({ tax: { mode: "inclusive", minor: 15254, label: "GST", rate_bps: 1800 } })).toBe("Includes ₹152.54 GST (18%)");
+    expect(inclusiveTaxNote({ tax: { mode: "exclusive", minor: 100 } })).toBeNull();
+  });
+  it("summarises a card price", () => {
+    expect(priceSummary({ free: true }).label).toBe("Free");
+    expect(priceSummary({ sold_out: true }).soldOut).toBe(true);
+    expect(priceSummary({ total_minor: 70000, list_minor: 100000, sale: { label: "Early bird" }, tax: { mode: "none" } })).toMatchObject({ label: "₹700", was: "₹1,000", saleLabel: "Early bird" });
+    expect(priceSummary(null).label).toMatch(/unavailable/);
+  });
+});
+
+describe("certificate variables", () => {
+  it("lists exactly the variables the database accepts", () => {
+    expect([...CERT_VARIABLE_KEYS].sort()).toEqual(["assessment_score", "certificate_id", "completion_date", "course_code", "course_title", "issue_date", "issuing_organization", "mentor_name", "program_duration", "project_title", "project_url", "skills_covered", "student_name"]);
+  });
+  it("fills text and reports what was empty", () => {
+    const data = certificateData({ recipient_name: "Asha Rao", course_title: "Python", course_code: "USA-PY-002", issue_date: "2026-10-29", issuing_organization: "UniSphere Academy", skills: ["Python", "SQL"], score_pct: 87.4 }, "US-2026-PY-00007");
+    expect(fillText("{{student_name}} finished {{course_title}} ({{ course_code }})", data)).toEqual({ text: "Asha Rao finished Python (USA-PY-002)", missing: [] });
+    expect(fillText("Mentor: {{mentor_name}}", data)).toEqual({ text: "Mentor:", missing: ["mentor_name"] });
+    expect(data.skills_covered).toBe("Python, SQL");
+    expect(data.assessment_score).toBe("87%");
+    expect(data.issue_date).toBe("29 October 2026");
+    expect(fillText("{{not_a_variable}}", data).text).toBe("");
+    expect(variablesIn("{{a}} {{b}} {{a}}")).toEqual(["a", "b"]);
+  });
+  it("strips control characters; text only ever goes into a PDF, never into a page", () => {
+    expect(cleanText("Asha\u0000 \n Rao‮")).toBe("Asha Rao");
+    expect(formatDateLong("not a date")).toBe("");
+  });
+  it("names the required values that are missing", () => {
+    expect(missingRequired({ student_name: "A", course_title: "B" })).toEqual(["course_code", "certificate_id", "issue_date", "issuing_organization"]);
+    expect(missingRequired(sampleData())).toEqual([]);
+  });
+});
+
+describe("certificate PDF", () => {
+  async function template(pages = 1) {
+    const doc = await PDFDocument.create();
+    for (let i = 0; i < pages; i += 1) doc.addPage([842, 595]);
+    // An annotation list like an uploaded file might carry: it must not survive.
+    doc.getPage(0).node.set(PDFName.of("Annots"), doc.context.obj([doc.context.obj({ Type: "Annot", Subtype: "Link" })]));
+    return doc.save();
+  }
+  const fields = [
+    { id: "name", kind: "text", page: 0, x: 0.1, y: 0.4, w: 0.8, text: "{{student_name}}", font: "HelveticaBold", size: 34, color: "#111111", align: "center", required: true },
+    { id: "course", kind: "text", page: 0, x: 0.1, y: 0.52, w: 0.8, text: "has completed {{course_title}} ({{course_code}})", font: "Helvetica", size: 16, color: "#222222", align: "center" },
+    { id: "cid", kind: "text", page: 0, x: 0.06, y: 0.9, w: 0.4, text: "{{certificate_id}}", font: "Courier", size: 10, color: "#333333", align: "left" },
+    { id: "qr", kind: "qr", page: 0, x: 0.8, y: 0.78, w: 0.12 },
+  ];
+  const data = (over = {}) => ({ ...sampleData("US-2026-WD-00142"), ...over });
+
+  it("draws the fields and the QR code over the template and returns a valid PDF with a checksum", async () => {
+    const out = await renderCertificate({ templateBytes: await template(), fields, data: data(), verifyUrl: verifyUrl("US-2026-WD-00142", "https://unispheres.in") });
+    expect(Buffer.from(out.bytes.subarray(0, 5)).toString()).toBe("%PDF-");
+    expect(out.sha256).toMatch(/^[0-9a-f]{64}$/);
+    const reread = await PDFDocument.load(out.bytes);
+    expect(reread.getPageCount()).toBe(1);
+    expect(reread.getTitle()).toBe("Certificate US-2026-WD-00142");
+    expect(reread.getPage(0).node.lookupMaybe(PDFName.of("Annots"), PDFArray)?.size() ?? 0).toBe(0); // the template's link annotation was dropped
+  });
+  it("keeps the QR address on the configured site, with the certificate ID encoded", () => {
+    expect(verifyUrl("US-2026-WD-00142", "https://unispheres.in")).toBe("https://unispheres.in/academy/verify/US-2026-WD-00142");
+    expect(verifyUrl("a/b?c", "https://x.test")).toBe("https://x.test/academy/verify/a%2Fb%3Fc");
+  });
+  it("refuses to make a real certificate when a required value is missing, but previews with a sample mark", async () => {
+    await expect(renderCertificate({ templateBytes: await template(), fields, data: data({ student_name: "" }), verifyUrl: "https://x.test" })).rejects.toMatchObject({ code: "missing_data" });
+    const preview = await renderCertificate({ templateBytes: await template(), fields, data: data({ student_name: "" }), verifyUrl: "https://x.test", preview: true });
+    expect((await PDFDocument.load(preview.bytes)).getTitle()).toBe("Certificate preview");
+  });
+  it("shrinks a very long name to fit, and fails clearly on characters the font cannot print", async () => {
+    const long = "Venkata Satya Narayana Raghavendra Subrahmanyam Chandrasekhara Venkataraman Iyer";
+    await expect(renderCertificate({ templateBytes: await template(), fields, data: data({ student_name: long }), verifyUrl: "https://x.test" })).resolves.toBeTruthy();
+    await expect(renderCertificate({ templateBytes: await template(), fields, data: data({ student_name: "आरव शर्मा" }), verifyUrl: "https://x.test" })).rejects.toMatchObject({ code: "unsupported_characters" });
+  });
+  it("inspects an upload and rejects what is not a usable PDF", async () => {
+    expect(await inspectTemplatePdf(await template(2))).toMatchObject({ pageCount: 2, width: 842, height: 595 });
+    await expect(inspectTemplatePdf(Buffer.from("not a pdf"))).rejects.toBeInstanceOf(CertificateError);
+    await expect(inspectTemplatePdf(Buffer.alloc(9 * 1024 * 1024))).rejects.toMatchObject({ code: "too_large" });
+  });
+});
+
+describe("video links", () => {
+  it("accepts YouTube and Vimeo in their usual forms and nothing else", () => {
+    expect(parseVideoInput("https://www.youtube.com/watch?v=dQw4w9WgXcQ")).toEqual({ provider: "youtube", ref: "dQw4w9WgXcQ" });
+    expect(parseVideoInput("https://youtu.be/dQw4w9WgXcQ?t=5")).toEqual({ provider: "youtube", ref: "dQw4w9WgXcQ" });
+    expect(parseVideoInput("https://vimeo.com/123456789")).toEqual({ provider: "vimeo", ref: "123456789" });
+    expect(parseVideoInput("dQw4w9WgXcQ")).toEqual({ provider: "youtube", ref: "dQw4w9WgXcQ" });
+    for (const bad of ["", "http://youtube.com/watch?v=dQw4w9WgXcQ", "https://evil.example/watch?v=dQw4w9WgXcQ", "javascript:alert(1)", "https://youtube.com.evil.test/watch?v=dQw4w9WgXcQ"]) expect(parseVideoInput(bad), bad).toBeNull();
+  });
+  it("builds an embed only from a valid pair, on the two allowed hosts", () => {
+    expect(videoSource("youtube", "dQw4w9WgXcQ").src).toMatch(/^https:\/\/www\.youtube-nocookie\.com\/embed\/dQw4w9WgXcQ/);
+    expect(videoSource("vimeo", "123456789").src).toMatch(/^https:\/\/player\.vimeo\.com\/video\/123456789/);
+    expect(videoSource("youtube", "x\"><script>")).toBeNull();
+    expect(videoSource("url", "https://evil.test/a.mp4")).toBeNull();
+  });
+  it("lets those two hosts be framed on Academy pages only", () => {
+    expect(buildCsp({ nonce: "n", academy: true })).toMatch(/frame-src https:\/\/www\.youtube-nocookie\.com https:\/\/player\.vimeo\.com/);
+    expect(buildCsp({ nonce: "n" })).toMatch(/frame-src 'none'/);
+  });
+});
+
+describe("form rules", () => {
+  it("turns a coupon form into database values in paise and basis points", () => {
+    const base = { code: "launch20", kind: "percent", percent: "12.5", max_discount: "500", min_purchase: "1000", active: "on", per_user_limit: "1", kinds: ["course"], course_ids: [], category_ids: [] };
+    const r = couponSchema.parse(base);
+    expect(r.couponRow).toMatchObject({ code: "LAUNCH20", percent_bps: 1250, max_discount_minor: 50000, min_purchase_minor: 100000, amount_minor: null });
+    expect(couponSchema.safeParse({ ...base, percent: "" }).success).toBe(false);
+    expect(couponSchema.safeParse({ ...base, code: "a b" }).success).toBe(false);
+    expect(couponSchema.parse({ ...base, kind: "fixed", amount: "300" }).couponRow).toMatchObject({ amount_minor: 30000, percent_bps: null, max_discount_minor: null });
+  });
+  it("reads a rubric one criterion per line and refuses a malformed one", () => {
+    const base = { course_id: UUID, title: "Build a thing", due_at: "", max_score: "100", pass_pct: "60", formats: ["repo"], allow_resubmission: "on", max_attempts: "3", allow_late: "on", required_for_certificate: "on", status: "published" };
+    const ok = assignmentSchema.parse({ ...base, rubric_text: "code_quality | Code quality | 60\ndocs | Documentation | 40" });
+    expect(ok.rubric).toEqual([{ key: "code_quality", label: "Code quality", max: 60 }, { key: "docs", label: "Documentation", max: 40 }]);
+    expect(assignmentSchema.safeParse({ ...base, rubric_text: "Code Quality | x | 60" }).success).toBe(false);
+  });
+  it("checks a quiz question's key against its answers", () => {
+    const base = { lesson_id: UUID, position: "0", prompt: "2 + 2?", options_text: "3\n4\n5", correct: "2", multiple: "false" };
+    expect(quizQuestionSchema.parse(base)).toMatchObject({ options: ["3", "4", "5"], correct: [1] });
+    expect(quizQuestionSchema.safeParse({ ...base, correct: "4" }).success).toBe(false);
+    expect(quizQuestionSchema.safeParse({ ...base, correct: "1,2" }).success).toBe(false);
+  });
+  it("reads a price rule's price into paise", () => {
+    const r = priceRuleSchema.parse({ course_id: UUID, kind: "sale", label: "Launch", price: "799.50", starts_at: "", ends_at: "2026-12-31T10:00", cohort_id: "", max_uses: "", active: "on" });
+    expect(r.price_minor).toBe(79950);
+    expect(r.cohort_id).toBeNull();
+    expect(r.ends_at).toMatch(/^2026-12-31T/);
+  });
+  it("stores a lesson's video as provider and id, never as a raw address", () => {
+    expect(lessonContentSchema.parse({ lesson_id: UUID, body_md: "hi", video: "https://youtu.be/dQw4w9WgXcQ" })).toMatchObject({ video_provider: "youtube", video_ref: "dQw4w9WgXcQ" });
+    expect(lessonContentSchema.safeParse({ lesson_id: UUID, video: "https://evil.test/x" }).success).toBe(false);
+  });
+  it("accepts a course with a slug and criteria, and rejects a bad slug", () => {
+    const base = { title: "Full-stack web", slug: "full-stack-web", kind: "course", category_id: UUID, level: "beginner", language: "English", duration_minutes: "", enrollment_limit: "", access_days: "", cert_min_completion: "100", cert_min_score: "0" };
+    expect(courseSchema.safeParse(base).success).toBe(true);
+    expect(courseSchema.safeParse({ ...base, slug: "Bad Slug!" }).success).toBe(false);
+  });
+  it("validates each setting's shape", () => {
+    expect(settingSchemas.tax_rate_bps.parse("18")).toBe(1800);
+    expect(settingSchemas.tax_rate_bps.safeParse("abc").success).toBe(false);
+    expect(settingSchemas.tax_mode.safeParse("sometimes").success).toBe(false);
+    expect(settingSchemas.support_email.safeParse("not an email").success).toBe(false);
+  });
+});
+
+describe("Academy notifications", () => {
+  const types = ["academy_enrolled", "academy_payment", "academy_refund", "academy_live_reminder", "academy_assignment_due", "academy_feedback", "academy_completed", "academy_certificate", "academy_announcement"];
+  it("are all in the Academy category, with a sentence and a page of their own", () => {
+    for (const type of types) {
+      expect(notificationCategory(type), type).toBe("academy");
+      const n = describeNotification({ type, data: { course_id: UUID, title: "Python", event: "received", status: "completed", hours: 1 } }, "x");
+      expect(n.text, type).not.toBe("You have a new notification");
+      expect(n.href, type).toMatch(/^\/academy\//);
+    }
+  });
+  it("never puts a mentor's feedback or a certificate holder's words on the lock screen", () => {
+    const n = describeNotification({ type: "academy_feedback", data: { assignment: "Build a thing", passed: true, feedback: "SECRET-FEEDBACK", snippet: "SECRET-FEEDBACK", reason: "SECRET-FEEDBACK" } }, "x");
+    expect(n.text).not.toContain("SECRET");
+    expect(n.detail ?? "").not.toContain("SECRET");
+  });
+  it("only builds a course link from a real id", () => {
+    expect(describeNotification({ type: "academy_enrolled", data: { course_id: "../../admin", title: "X" } }).href).toBe("/academy/my-learning");
+    expect(describeNotification({ type: "academy_enrolled", data: { course_id: UUID, title: "X" } }).href).toBe(`/academy/learn/${UUID}`);
+  });
+  it("tells a payment from a refund in plain words", () => {
+    expect(describeNotification({ type: "academy_payment", data: { event: "received", amount_minor: 250000, title: "Python" } }).text).toBe("We received your payment of ₹2,500 for Python");
+    expect(describeNotification({ type: "academy_payment", data: { event: "failed", title: "Python" } }).text).toBe("Your payment for Python did not go through");
+    expect(describeNotification({ type: "academy_certificate", data: { event: "revoked", title: "Python" } }).text).toBe("Your certificate for Python was revoked");
+  });
+});

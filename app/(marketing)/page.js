@@ -524,6 +524,43 @@ export default async function HomePage() {
             </div>
           </section>
 
+          {/* UniSphere Academy: learn inside the same account */}
+          <section id="academy" aria-labelledby="academy-title" className="mx-auto max-w-6xl scroll-mt-16 px-4 py-24 sm:px-6 lg:py-36">
+            <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-2">
+              <div data-reveal="up">
+                <Kicker number="10">Academy</Kicker>
+                <h2 id="academy-title" data-split className="corp-title mt-5 max-w-xl">
+                  Learn it. Build it. Prove it.
+                </h2>
+                <p className="corp-lede mt-8">
+                  UniSphere Academy has courses, guided programs and project internships, with mentor feedback and certificates anyone can verify online. It uses the account you already have: your profile, notifications and messages stay where they are.
+                </p>
+                <ul className="mt-8 space-y-3 text-[15px]">
+                  {["Free and paid courses, with the full price shown before you pay", "Assignments reviewed by a mentor against a clear rubric", "A certificate with its own ID and QR code, checked on an official page"].map((t) => (
+                    <li key={t} className="flex gap-3"><BadgeCheck className="text-primary-text mt-0.5 size-5 shrink-0" aria-hidden="true" />{t}</li>
+                  ))}
+                </ul>
+                <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+                  <Button asChild size="lg" variant="hot" className="sh-magnet group h-14 rounded-full px-8 text-base">
+                    <Link href="/academy">
+                      Open the Academy <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
+                    </Link>
+                  </Button>
+                  <Link href="/academy/verify" className={textLink}>
+                    Verify a certificate
+                  </Link>
+                </div>
+              </div>
+              <div data-reveal="scale">
+                <Tilt>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/academy/story-4.webp" alt="A printed Academy certificate with a QR code" width={1200} height={900} loading="lazy" decoding="async" className="h-auto w-full rounded-3xl border" />
+                </Tilt>
+                <p className="text-muted-foreground mt-4 text-center text-xs">Illustration of a certificate, not a real one.</p>
+              </div>
+            </div>
+          </section>
+
           {/* Refer & Earn: a spotlight of its own */}
           <section id="refer-and-earn" className="band scroll-mt-16">
             <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-32">
@@ -531,7 +568,7 @@ export default async function HomePage() {
                 <ReferStage>
                   <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-2">
                     <div>
-                      <Kicker number="10">Refer &amp; Earn</Kicker>
+                      <Kicker number="11">Refer &amp; Earn</Kicker>
                       <h2 className="corp-title mt-5 text-[clamp(2.5rem,1rem+3.6vw,4.5rem)]">
                         Invite friends. <span className="text-signal-text">Earn 100 Orbits.</span>
                       </h2>

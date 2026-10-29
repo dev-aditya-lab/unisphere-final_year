@@ -13,6 +13,11 @@ const ROLES = [
   { value: "college_admin", label: "College admin", adminOnly: true },
   { value: "global_admin", label: "Global admin", adminOnly: true },
   { value: "privacy_officer", label: "Privacy officer (platform-wide; handles privacy requests and breaches)", adminOnly: true },
+  { value: "academy_admin", label: "Academy administrator (platform-wide; everything in the Academy)", adminOnly: true },
+  { value: "course_manager", label: "Academy course manager (courses, publishing, live classes; no prices or payments)", adminOnly: true },
+  { value: "finance_manager", label: "Academy finance manager (prices, coupons, orders, refunds; no certificates)", adminOnly: true },
+  { value: "academy_mentor", label: "Academy mentor (grades work in the courses they are assigned to)", adminOnly: true },
+  { value: "academy_support", label: "Academy support (sees students, posts announcements)", adminOnly: true },
 ];
 
 export function GrantRoleForm({ colleges, canGrantAdmin }) {
@@ -23,7 +28,7 @@ export function GrantRoleForm({ colleges, canGrantAdmin }) {
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   const roles = ROLES.filter((r) => canGrantAdmin || !r.adminOnly);
-  const scoped = role !== "global_admin" && role !== "privacy_officer";
+  const scoped = !["global_admin", "privacy_officer", "academy_admin", "course_manager", "finance_manager", "academy_mentor", "academy_support"].includes(role);
 
   function submit(e) {
     e.preventDefault();

@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import nextConfig from "../../next.config.mjs";
 import { buildCsp } from "@/lib/security/csp";
 import sitemap from "@/app/sitemap";
@@ -110,10 +110,15 @@ describe("Content-Security-Policy", () => {
 });
 
 describe("sitemap.xml and robots.txt", () => {
-  const entries = sitemap();
-  const base = new URL(entries[0].url).origin;
+  let entries;
+  let base;
+  beforeAll(async () => {
+    // Published courses are listed from the database (one page per course); the checks below are about the fixed pages.
+    entries = (await sitemap()).filter((e) => !/^\/academy\/(courses|programs|internships)\/[^/]+$/.test(new URL(e.url).pathname));
+    base = new URL(entries[0].url).origin;
+  });
   const pathOf = (u) => new URL(u).pathname;
-  const marketing = (p) => path.join(root, "app", "(marketing)", p === "/" ? "" : p, "page.js");
+  const marketing = (p) => (p === "/academy" || p.startsWith("/academy/") ? path.join(root, "app", "academy", "(site)", p.slice("/academy".length), "page.js") : path.join(root, "app", "(marketing)", p === "/" ? "" : p, "page.js"));
 
   it("lists only pages that exist, with absolute URLs on one origin and no duplicates", () => {
     const urls = entries.map((e) => e.url);

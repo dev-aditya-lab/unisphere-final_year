@@ -8,6 +8,7 @@ import { getAuthUser } from "@/lib/auth/session";
 
 export const MARKETING_LINKS = [
   { href: "/features", label: "Features" },
+  { href: "/academy", label: "Academy" },
   { href: "/#how-it-works", label: "How it works" },
   { href: "/about", label: "About" },
   { href: "/guidelines", label: "Guidelines" },

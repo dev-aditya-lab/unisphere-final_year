@@ -9,6 +9,7 @@ export const metadata = { title: { default: "Admin console", template: "%s · Ad
 const ROLE_LABELS = {
   global_admin: "Global admin", college_admin: "College admin", moderator: "Moderator",
   verification_staff: "Verification", support_agent: "Support", privacy_officer: "Privacy officer",
+  academy_admin: "Academy admin", course_manager: "Course manager", finance_manager: "Academy finance", academy_mentor: "Mentor", academy_support: "Academy support",
 };
 
 /** Waiting-item counts for the sidebar. Each query runs through the member's own session, so scope is enforced by the database. */
@@ -24,6 +25,7 @@ async function queueCounts(names) {
   if (names.has("feedback.manage")) jobs.push(supabase.rpc("admin_list_feedback", { p_status: "new", p_limit: 1 }).then(({ data }) => { counts.feedback = Number(data?.[0]?.total_count ?? 0); }));
   if (names.has("referrals.view")) jobs.push(supabase.rpc("referral_admin_list", { p_status: "flagged", p_limit: 1 }).then(({ data }) => { counts.referrals = Number(data?.[0]?.total_count ?? 0); }));
   if (names.has("privacy.requests")) jobs.push(supabase.rpc("privacy_request_counts").then(({ data }) => { counts.privacyRequests = Number(data?.open ?? 0); }));
+  if (names.has("academy.assignments.review")) jobs.push(supabase.rpc("academy_review_queue", { p_status: "submitted", p_limit: 1 }).then(({ data }) => { counts.academyGrading = Number(data?.[0]?.total_count ?? 0); }));
   await Promise.all(jobs);
   return counts;
 }

@@ -24,6 +24,10 @@ const limit = vi.fn(async () => ({ ok: true, resetSec: 60 }));
 vi.mock("@/lib/env", () => ({ getEnv: () => env }));
 vi.mock("@/lib/payments/gateways", () => ({ GATEWAYS: { fakepay: adapter } }));
 vi.mock("@/lib/services/blue-tick", () => ({ handleWebhookEvent: (...a) => handle(...a) }));
+// The Academy shares the gateway account; these tests are about the blue tick, so no event is ever the Academy's here.
+const academyOwns = vi.fn(async () => false);
+const academyHandle = vi.fn(async () => ({ ok: true }));
+vi.mock("@/lib/services/academy-commerce", () => ({ ownsAcademyEvent: (...a) => academyOwns(...a), handleAcademyWebhookEvent: (...a) => academyHandle(...a) }));
 vi.mock("@/lib/rate-limit", () => ({ getClientIp: async () => "203.0.113.9", rateLimit: (...a) => limit(...a) }));
 const { POST } = await import("@/app/api/payments/webhook/route");
 
@@ -40,6 +44,14 @@ beforeEach(() => {
 });
 
 describe("POST /api/payments/webhook", () => {
+  it("hands an event to the Academy when the order it names is an Academy order, and not to the blue tick", async () => {
+    academyOwns.mockResolvedValueOnce(true);
+    const res = await call(body, { "x-fakepay-signature": sign(body) });
+    expect(res.status).toBe(200);
+    expect(academyHandle).toHaveBeenCalledTimes(1);
+    expect(handle).not.toHaveBeenCalled();
+  });
+
   it("refuses a request with no signature, and never runs the handler", async () => {
     const res = await call(body);
     expect(res.status).toBe(401);
