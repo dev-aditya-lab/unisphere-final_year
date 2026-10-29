@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/shell/page-header";
 import { DataTable, EmptyRow, Pager, Panel, fmtDateTime } from "@/components/admin/ui";
 import { SettingRow } from "@/components/academy/admin/setting-row";
+import { GooglePanel } from "@/components/academy/admin/google-panel";
 import { PAGE_SIZE } from "@/lib/admin/paging";
 import { can, needAcademy, offset, rows } from "@/lib/services/academy-admin";
 import { createClient } from "@/lib/supabase/server";
@@ -16,7 +17,8 @@ export default async function AcademySettings({ searchParams }) {
   await needAcademy("academy.settings.manage", "academy.audit.view", "academy.pricing.manage");
   const sp = await searchParams;
   const [settingsOk, pricing, auditOk] = await Promise.all([can("academy.settings.manage"), can("academy.pricing.manage"), can("academy.audit.view")]);
-  const { data } = await (await createClient()).from("academy_settings").select("key, value");
+  const supabase = await createClient();
+  const [{ data }, google] = await Promise.all([supabase.from("academy_settings").select("key, value"), settingsOk ? supabase.rpc("academy_google_status") : Promise.resolve({ data: null })]);
   const all = new Map((data ?? []).map((r) => [r.key, r.value]));
   const page = Math.max(1, Number(sp.page) || 1);
   const q = typeof sp.q === "string" ? sp.q.slice(0, 80) : "";
@@ -30,6 +32,7 @@ export default async function AcademySettings({ searchParams }) {
       <PageHeader eyebrow="Academy" title="Settings and audit log" description="Change anything here without touching code. Every change is recorded with who made it and the old and new value." />
       {settingsOk && (
         <>
+          <GooglePanel status={google.data} flash={typeof sp.google === "string" ? sp.google : null} />
           <Panel title="Selling" description="Money, tax and coupon rules need pricing access as well. Tax rates are not invented: set them with your accountant or tax adviser." className="mb-6">
             <div className="divide-y">
               <SettingRow settingKey="sales_enabled" type="checkbox" label="Paid enrolment is open" hint="Free courses always work. Turn this on only after a payment gateway is connected and tested." initial={v(all, "sales_enabled", false) === true} disabled={!money} />

@@ -13,7 +13,7 @@ export function PriceTag({ price, size = "md", className }) {
       {p.taxNote && <span className="text-muted-foreground text-xs">{p.taxNote}</span>}
       {p.saleLabel && (
         <span className="ac-sale inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold">
-          {p.saleLabel}
+          {p.saleLabel}{p.percentOff ? ` · ${p.percentOff}% off` : ""}
           {p.saleEnds && <><Clock className="size-3" aria-hidden /><span>ends {new Date(p.saleEnds).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" })}</span></>}
         </span>
       )}

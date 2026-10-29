@@ -6,7 +6,8 @@ import { CheckCircle2, Lock, ShieldCheck, TicketPercent, X } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { quoteAction, startCheckoutAction } from "@/lib/actions/academy";
-import { formatMoney, inclusiveTaxNote, quoteLines } from "@/lib/academy/money";
+import { formatMoney, inclusiveTaxNote, offersFromQuote, quoteLines } from "@/lib/academy/money";
+import { OfferBanner } from "@/components/academy/ui/offer-banner";
 
 const field = "border-input bg-card h-10 w-full rounded-lg border px-3 text-sm";
 
@@ -30,6 +31,7 @@ export function CheckoutPanel({ courseId, cohorts, initialQuote, canPay, blocker
   const free = quote?.total_minor === 0 || quote?.free;
   const lines = quoteLines(quote);
   const note = inclusiveTaxNote(quote);
+  const offers = offersFromQuote(quote);
 
   function requote(nextCoupon, nextCohort = cohortId) {
     setCouponError(null);
@@ -86,6 +88,13 @@ export function CheckoutPanel({ courseId, cohorts, initialQuote, canPay, blocker
             </div>
           )}
           <p id="coupon-msg" role="status" className={couponError ? "text-destructive-text mt-1.5 text-sm" : "sr-only"}>{couponError}</p>
+        </div>
+      )}
+
+      {offers.length > 0 && (
+        <div className="space-y-2">
+          {offers.map((o, i) => <OfferBanner key={o.id} celebrate={i === 0} {...o} />)}
+          {quote?.coupon?.auto && <p className="text-muted-foreground text-xs">Applied for you. If you type a code instead, that code is used in its place.</p>}
         </div>
       )}
 

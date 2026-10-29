@@ -55,3 +55,15 @@ pointing at Resend). Use Resend's test addresses to exercise the real API safely
 | Sign-up says "could not send the confirmation email" | Resend is not configured or the sender domain is not verified: check `RESEND_API_KEY`, `EMAIL_FROM` and Resend → Logs |
 | Members complain they get too many | They can change categories in Settings → Notifications; digest delay can be raised in `claim_notification_emails` |
 | Emails land in spam | Add DMARC, keep `From` consistent, avoid link shorteners, warm up gradually for a new domain |
+
+## UniSphere Academy mail
+
+Academy mail comes from its own sender, `ACADEMY_EMAIL_FROM` (default `UniSphere Academy <no-reply@system.unispheres.in>`), so students recognise it. The sender domain (`system.unispheres.in`) must be verified in Resend like any other (SPF, DKIM, and a DMARC record), otherwise Resend refuses the send.
+
+| Mail | When | Sender |
+|---|---|---|
+| Payment receipt | Once, the first time an order is recorded as paid (price, discount, tax, total). Idempotency key `acad-receipt:<order id>`, so a retry or a second webhook never sends it twice | Academy |
+| Academy notifications (enrolment, refund, certificate, reminders, feedback, announcements) | The normal notification email queue. A batch made only of Academy notifications uses the Academy sender and name; a mixed batch uses the UniSphere sender | Academy / UniSphere |
+| Google Calendar invitations for live classes | Sent by Google itself to invited students (see GOOGLE.md) | Google |
+
+The receipt marks its own "payment received" notification as already emailed, so the digest does not repeat it. Receipts follow the global `email_notifications` switch and never block or fail a payment. `sendEmail` accepts an internal `from`; it is checked against a strict pattern (no line breaks, no angle-bracket tricks) and falls back to `EMAIL_FROM`, so request data can never choose the sender.

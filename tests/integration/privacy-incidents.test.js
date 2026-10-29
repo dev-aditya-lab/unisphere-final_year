@@ -166,7 +166,13 @@ describe("database self-audit", () => {
     expect(data.tables_without_rls).toEqual([]);
     const open = new Set(data.definer_functions_callable_by_anon);
     // Deliberately public helpers only.
-    expect([...open].sort()).toEqual(["flag_enabled", "has_permission", "setting_bool", "username_available"]);
+    // The Academy adds the few that visitors really need: public prices, settings and showcase, certificate verification, and the
+    // helpers the catalogue's read policies call (supabase/migrations/..._academy_function_privileges.sql).
+    expect([...open].sort()).toEqual([
+      "academy_can_open_lesson", "academy_catalog_prices", "academy_has_access", "academy_is_staff", "academy_public_settings",
+      "academy_public_showcase", "academy_quote", "academy_verify_certificate",
+      "flag_enabled", "has_permission", "setting_bool", "username_available",
+    ]);
     // None of the privacy tables can be written to by members directly.
     const writable = new Set(data.tables_authenticated_can_write);
     for (const t of ["consent_current", "consent_events", "privacy_requests", "privacy_request_events", "privacy_incidents", "privacy_incident_events", "privacy_incident_notices", "privacy_incident_affected", "privacy_nominations", "erasure_ledger", "privacy_notice_versions", "privacy_access_reviews", "account_deletion_requests"]) {

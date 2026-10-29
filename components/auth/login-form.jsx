@@ -13,8 +13,9 @@ import { FormAlert } from "@/components/forms/form-alert";
 import { Button } from "@/components/ui/button";
 import { loginSchema } from "@/lib/validators/auth";
 import { loginAction, resendVerificationAction } from "@/lib/actions/auth";
+import { GoogleButton, OrDivider } from "@/components/auth/google-button";
 
-export function LoginForm({ next, flash }) {
+export function LoginForm({ next, flash, google = false }) {
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState(null);
   const [needsConfirm, setNeedsConfirm] = useState(false);
@@ -58,6 +59,8 @@ export function LoginForm({ next, flash }) {
         {flash === "reset" && <FormAlert variant="success">Password updated. Log in with your new password.</FormAlert>}
         {flash === "expired_link" && <FormAlert variant="warning">That link has expired or was already used. Request a new one.</FormAlert>}
         {flash === "invalid_link" && <FormAlert variant="warning">That link is not valid.</FormAlert>}
+        {flash === "google_failed" && <FormAlert variant="warning">Google sign-in did not finish. Please try again, or use your email.</FormAlert>}
+        {flash === "registration_closed" && <FormAlert variant="info">New accounts are not being accepted right now. If you already have an account, sign in with your email.</FormAlert>}
         {flash === "profile_missing" && <FormAlert variant="error">Your profile could not be loaded. Please log in again.</FormAlert>}
         {serverError && (
           <FormAlert variant="error">
@@ -71,7 +74,14 @@ export function LoginForm({ next, flash }) {
         )}
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-5 space-y-4">
+      {google && (
+        <div className="mt-5">
+          <GoogleButton next={next} />
+          <OrDivider />
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className={google ? "space-y-4" : "mt-5 space-y-4"}>
         <input type="hidden" {...register("next")} />
         <Field id="email" label="Email" error={errors.email?.message}>
           <Input

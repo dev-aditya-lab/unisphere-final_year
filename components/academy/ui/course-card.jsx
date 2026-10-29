@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Clock, Signal, Users } from "lucide-react";
 import { CourseCover } from "@/components/academy/ui/course-cover";
 import { PriceTag } from "@/components/academy/ui/price";
-import { KINDS, LEVELS, detailPath } from "@/lib/academy/constants";
+import { DELIVERY_MODES, KINDS, LEVELS, detailPath } from "@/lib/academy/constants";
 
 /** One course, program or internship in a grid. The whole card is the link; the price is the engine's, never a number from a page. */
 export function CourseCard({ course, price, priority = false }) {
@@ -13,6 +13,7 @@ export function CourseCard({ course, price, priority = false }) {
         <div className="flex flex-wrap items-center gap-2">
           <span className="ac-chip">{KINDS[course.kind]?.label ?? "Course"}</span>
           <span className="ac-chip ac-chip-line"><Signal className="size-3" aria-hidden />{LEVELS[course.level] ?? course.level}</span>
+          {course.delivery_mode && course.delivery_mode !== "recorded" && <span className="ac-chip ac-chip-line">{DELIVERY_MODES[course.delivery_mode]?.label}</span>}
           <span className="text-muted-foreground ml-auto font-mono text-[11px]">{course.code}</span>
         </div>
         <h3 className="ac-display text-[1.35rem] leading-tight">

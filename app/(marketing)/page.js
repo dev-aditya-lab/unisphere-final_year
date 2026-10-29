@@ -536,7 +536,7 @@ export default async function HomePage() {
                   UniSphere Academy has courses, guided programs and project internships, with mentor feedback and certificates anyone can verify online. It uses the account you already have: your profile, notifications and messages stay where they are.
                 </p>
                 <ul className="mt-8 space-y-3 text-[15px]">
-                  {["Free and paid courses, with the full price shown before you pay", "Assignments reviewed by a mentor against a clear rubric", "A certificate with its own ID and QR code, checked on an official page"].map((t) => (
+                  {["Free and paid courses, with the full price shown before you pay", "Assignments reviewed by a mentor against a clear rubric", "Live classes on Google Meet, with the invitation in your inbox", "A certificate with its own ID and QR code, checked on an official page"].map((t) => (
                     <li key={t} className="flex gap-3"><BadgeCheck className="text-primary-text mt-0.5 size-5 shrink-0" aria-hidden="true" />{t}</li>
                   ))}
                 </ul>

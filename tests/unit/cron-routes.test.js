@@ -7,6 +7,7 @@ vi.mock("@/lib/ai/embeddings/jobs", () => ({ processEmbeddingJobs: async () => (
 vi.mock("@/lib/services/notification-email", () => ({ processNotificationEmails: async () => ({}) }));
 vi.mock("@/lib/services/push", () => ({ processPushNotifications: async () => ({}) }));
 vi.mock("@/lib/services/maintenance", () => ({ runMaintenanceTasks: async () => ({}) }));
+vi.mock("@/lib/services/academy-google", () => ({ processGoogleSync: async () => ({}) }));
 vi.mock("@/lib/services/orbit-question-automation", () => ({ draftNextDailyQuestion: async () => ({}), publishDueDailyQuestion: async () => ({}) }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => ({ auth: { admin: { getUserById: async () => ({ data: { user: { id: "x" } } }) } } }) }));
 vi.mock("@/lib/services/account-deletion", () => ({ executeAccountDeletion: (...a) => executeAccountDeletion(...a) }));

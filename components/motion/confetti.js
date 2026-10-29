@@ -8,7 +8,8 @@
 
 const COLORS = ["#FF5A36", "#FFC83D", "#1FB89A", "#6AA7FF", "#F4EEE3", "#1B1812"];
 
-export function fireConfetti({ x = 0.5, y = 0.35, count = 70, spread = 1, colors = COLORS } = {}) {
+/** `cone` ({ angle, width } in radians, angle -PI/2 = straight up) shoots the pieces in one direction like a party popper; without it they burst outward. */
+export function fireConfetti({ x = 0.5, y = 0.35, count = 70, spread = 1, colors = COLORS, cone = null } = {}) {
   if (typeof window === "undefined") return;
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
 
@@ -26,11 +27,11 @@ export function fireConfetti({ x = 0.5, y = 0.35, count = 70, spread = 1, colors
   const originX = window.innerWidth * x;
   const originY = window.innerHeight * y;
   const pieces = Array.from({ length: count }, (_, i) => {
-    const angle = (Math.PI * 2 * i) / count + Math.random() * 0.6;
+    const angle = cone ? cone.angle + (Math.random() - 0.5) * cone.width : (Math.PI * 2 * i) / count + Math.random() * 0.6;
     const speed = (4 + Math.random() * 7) * spread;
     return {
       x: originX, y: originY,
-      vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 5,
+      vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - (cone ? 0 : 5),
       w: 6 + Math.random() * 6, h: 3 + Math.random() * 5,
       rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.4,
       color: colors[i % colors.length], round: i % 5 === 0,
@@ -65,4 +66,10 @@ export function fireConfetti({ x = 0.5, y = 0.35, count = 70, spread = 1, colors
     else canvas.remove();
   }
   requestAnimationFrame(frame);
+}
+
+/** Two party poppers going off at the lower corners of the screen, aimed at the middle. */
+export function firePartyPopper({ colors = COLORS } = {}) {
+  fireConfetti({ x: 0.06, y: 0.96, count: 55, spread: 2.1, colors, cone: { angle: -Math.PI / 2 + 0.55, width: 0.7 } });
+  setTimeout(() => fireConfetti({ x: 0.94, y: 0.96, count: 55, spread: 2.1, colors, cone: { angle: -Math.PI / 2 - 0.55, width: 0.7 } }), 140);
 }

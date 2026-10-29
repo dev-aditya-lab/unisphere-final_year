@@ -56,6 +56,25 @@ finance approval) followed by the gateway moving the money; an order is marked r
   the holder switched them on. A certificate cannot be issued until the student agreed to public verification.
 * Certificate PDFs are stored privately and served through `/api/academy/certificates/<id>/pdf` after an access check.
 
+## Delivery, syllabus, timetable and instructor (2.9.0)
+
+* **How it is taught:** each course is *Recorded*, *Live* or *Live + recorded* (`delivery_mode`). It shows as a chip on the course page and cards, and the catalogue can filter by live classes.
+* **Syllabus (Markdown)** is the written overview (`syllabus_md`); the lesson-by-lesson **Curriculum** is still built separately.
+* **Timetable** is typed one slot per line (`Mon | 19:00-20:30 | Topic`, India time), stored as rows and shown as a table. The database re-checks every row, so a hand-made request cannot store anything else.
+* **About the instructor:** photo (a copy of the mentor's own UniSphere profile picture, taken when you save the mentor), bio up to 1500 characters, expertise, years of experience and https links. The public page never reads a member profile.
+* **Cover image:** Admin, Academy, Courses, open a course, Details tab, *Upload cover image* (needs Cloudflare R2). Without one a drawn cover is used.
+
+## Offers that apply by themselves (2.9.0)
+
+* A **scheduled price** (Pricing, price rules) already applies between its dates. It now also reports the real end time and, when a seat limit is set at that price, the real number left.
+* An **automatic coupon** (tick *Apply automatically* on a coupon and give it a public name such as "Welcome offer") applies to signed-in students who qualify, with no code to type. It goes through exactly the same checks as a typed code (dates, courses, first purchase, per-person and total limits, minimum spend, stacking), is locked at checkout so the last use cannot be taken twice, and the best one wins. A code the student types replaces it; they never add up. Visitors are told an offer exists, not what it is worth to them.
+* The page shows a live countdown (from the real end date), "Only N left at this price" (from the real count, only when 20 or fewer remain) and the amount saved. A **party popper** plays once per offer per browser session, never with reduced-motion on. Nothing on the page is a number someone typed in to create urgency.
+
+## Mail, Google sign-in and live classes (2.9.0)
+
+* Academy receipts and Academy-only notification emails come from `ACADEMY_EMAIL_FROM` (docs/EMAIL.md).
+* Continue with Google, and live classes on Google Calendar + Meet: docs/GOOGLE.md.
+
 ## Notifications
 
 Category **Academy** (own In app / Push / Email switches). Types: `academy_enrolled`, `academy_payment`, `academy_refund`,
@@ -67,14 +86,14 @@ Category **Academy** (own In app / Push / Email switches). Types: `academy_enrol
 
 Implemented and tested: everything above. **Needs you:**
 
-1. Apply migrations 0065 to 0069 (`supabase db push --linked`).
+1. Apply migrations 0065 to 0073 (`supabase db push --linked`).
 2. Connect a payment gateway (`PAYMENT_GATEWAY` and keys, docs/PAYMENTS.md) and test it in the gateway's test mode. The Academy cannot sell until
    this works and Admin, Academy, Settings, "Paid enrolment is open" is on. The webhook address is the existing `/api/payments/webhook`.
 3. File storage (Cloudflare R2) must be configured for uploads, templates and certificate PDFs.
 4. In Academy settings: support email, issuing organisation, tax (only with your accountant's advice; nothing is assumed) and refund window.
 5. Create a certificate template (upload a PDF, place fields, test, activate) and set a default.
 6. Add mentors (Admin, Academy, Mentors) and give them the Mentor role.
-7. Live classes use a meeting link you paste (Google Meet or similar). The Academy does **not** create meetings.
+7. Live classes: either paste a link from any meeting service, or connect a Google account (docs/GOOGLE.md) and tick *Create a Google Meet and invite enrolled students by email* on the class.
 8. Have the Terms, Privacy and Refund text reviewed by a lawyer. The Academy sections describe what the software does; they are not legal advice.
 9. Replace the grey placeholder pictures in `public/academy/` (`node scripts/academy-placeholders.mjs` redraws them).
 
@@ -89,7 +108,7 @@ Implemented and tested: everything above. **Needs you:**
 
 ## Tests
 
-`npm run test:unit` (pricing display, certificate drawing, forms, notifications, routes) and
+`npm run test:unit` (pricing display, offers, certificate drawing, forms, notifications, routes, mail, Google) and
 `npx vitest run --project integration tests/integration/academy.test.js` (pricing engine, coupon race, payment settlement and refunds,
 grading, access rules, certificates and verification, against a real database).
 

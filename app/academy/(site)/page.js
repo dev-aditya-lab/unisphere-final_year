@@ -31,7 +31,7 @@ const SHOWCASE = [
   { title: "Courses", text: "Lessons, quizzes and graded assignments.", src: "/academy/show-courses.svg" },
   { title: "Programs", text: "Guided paths of projects, with a cohort.", src: "/academy/show-programs.svg" },
   { title: "Project internships", text: "A real brief and a mentor. Training, not employment.", src: "/academy/show-internships.svg" },
-  { title: "Live classes", text: "Join from your course page when it starts.", src: "/academy/show-live.svg" },
+  { title: "Live classes", text: "Live or recorded, your choice. For live classes you get a Google Calendar invitation by email and join the Meet in one tap.", src: "/academy/show-live.svg" },
   { title: "Mentor reviews", text: "Rubric scores and written feedback.", src: "/academy/show-mentors.svg" },
   { title: "Verified certificates", text: "A public page that says valid or revoked.", src: "/academy/show-verify.svg" },
 ];
@@ -53,6 +53,7 @@ const FAQ = [
   ["How does a certificate get verified?", "Every certificate has an ID like US-2026-WD-00142 and a QR code. Scanning it opens the official verification page, which reads our records and shows valid, revoked or not found."],
   ["What does the verification page show about me?", "Your name, the course, dates and the issuing organisation. Your score and project link appear only if you switch that on. Never your email or phone number."],
   ["Can I get a refund?", "Yes, within the window in the refund policy. Ask from your payments page; a person reviews it and the money goes back through the same payment provider."],
+  ["How do I join a live class?", "When you enrol, Google emails you a Calendar invitation for each live class. Open it, or the course page, and join the Google Meet. People who were not enrolled have to ask to be let in."],
   ["Are live classes recorded?", "Only if participants were told beforehand. Recordings are available only to that course's students, for a limited time."],
 ];
 

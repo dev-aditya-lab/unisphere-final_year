@@ -5,6 +5,8 @@ import { REF_COOKIE, REF_PARAM, normalizeRefCode, parseRefCookieValue } from "@/
 import { getAttributionDays, previewInvite } from "@/lib/services/referrals";
 import { enforceRateLimit, getClientIp } from "@/lib/rate-limit";
 import { cookies } from "next/headers";
+import { isNativeAppRequest } from "@/lib/native-app-server";
+import { publicEnv } from "@/lib/env-public";
 import Link from "next/link";
 
 export const metadata = {
@@ -39,5 +41,6 @@ export default async function RegisterPage({ searchParams }) {
   // Looking a code up is rate limited per address, so the page cannot be used to probe for valid codes.
   const limited = code ? await enforceRateLimit("ref-preview", await getClientIp(), { limit: 40, windowSec: 60 }) : null;
   const invite = code && !limited ? await previewInvite(code) : { valid: false };
-  return <RegisterForm referralCode={invite.valid ? code : null} inviterName={invite.valid ? invite.name : null} />;
+  const google = publicEnv.googleSignin && !(await isNativeAppRequest());
+  return <RegisterForm referralCode={invite.valid ? code : null} inviterName={invite.valid ? invite.name : null} google={google} />;
 }

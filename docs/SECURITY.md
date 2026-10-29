@@ -94,3 +94,14 @@ Authorisation lives in SQL (`community_can`, `can_view_channel`, `channel_post_s
 tables are read-only for members. Findings fixed: unchecked community picture keys, banned and pending members listable by any member, direct-message attachments readable after
 deletion. Invitation codes are stored as hashes, shown once, and every failure answers identically. Reports are visible only to staff who outrank the reported person, and
 platform staff see escalated reports only. See docs/COMMUNITIES.md for the full list, the tests that prove it, and the remaining risks.
+
+## Google sign-in and the Calendar connection (2.9.0)
+
+Full steps and limits: `docs/GOOGLE.md`.
+
+- **Sign in with Google** goes through Supabase Auth with PKCE: the code in `/auth/callback` is useless without the verifier cookie held by the same browser. `next` is checked against same-site paths only. The route is rate limited, honours "registration closed" (a brand-new account made while sign-ups are off is deleted at once), and the privacy review still applies to new accounts. The button is hidden in the Android app.
+- **Calendar connection:** only `calendar.events` is requested. The refresh token is sealed with AES-256-GCM (`lib/security/secret-box.js`, key from `APP_SECRET` and a purpose label) before storage; the table has no grants for any API role. Connect and callback need `academy.settings.manage`, use a random `state` sealed in a 10-minute HttpOnly, SameSite=Lax cookie bound to the signed-in person, and clear it afterwards. The Google client secret is only ever read on the server.
+- **Student emails** go to Google only through `_academy_session_attendees` (service role only), for one class at a time, capped at Google's 200-guest limit. Guests cannot see each other, invite others or edit the event.
+- **Email sender:** `sendEmail` accepts an internal `from` only if it matches a strict pattern (no line breaks or angle-bracket tricks); callers pass only configured sender settings, never request data.
+- **Automatic offers** are decided in the database by the same function as typed coupons, locked at checkout; the browser never sends a price, a discount or an end time, and the countdown shows the server's end date.
+

@@ -1,5 +1,7 @@
 import { LoginForm } from "@/components/auth/login-form";
 import { safeNext } from "@/lib/safe-redirect";
+import { isNativeAppRequest } from "@/lib/native-app-server";
+import { publicEnv } from "@/lib/env-public";
 
 export const metadata = {
   title: "Log in",
@@ -11,5 +13,6 @@ export default async function LoginPage({ searchParams }) {
   const sp = await searchParams;
   const next = safeNext(typeof sp.next === "string" ? sp.next : undefined, "/feed");
   const flash = sp.reset ? "reset" : typeof sp.error === "string" ? sp.error : null;
-  return <LoginForm next={next} flash={flash} />;
+  const google = publicEnv.googleSignin && !(await isNativeAppRequest());
+  return <LoginForm next={next} flash={flash} google={google} />;
 }

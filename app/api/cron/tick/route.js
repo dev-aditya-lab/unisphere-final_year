@@ -5,6 +5,7 @@ import { processEmbeddingJobs } from "@/lib/ai/embeddings/jobs";
 import { processNotificationEmails } from "@/lib/services/notification-email";
 import { processPushNotifications } from "@/lib/services/push";
 import { runMaintenanceTasks } from "@/lib/services/maintenance";
+import { processGoogleSync } from "@/lib/services/academy-google";
 import { draftNextDailyQuestion, publishDueDailyQuestion } from "@/lib/services/orbit-question-automation";
 import { deliverReferralCampaign, runReferralMaintenance } from "@/lib/services/referrals";
 
@@ -33,7 +34,7 @@ function authorised(request) {
 }
 
 /**
- * Background work tick: embedding jobs, notification email batches, push notifications, event reminders, Refer & Earn upkeep and its one-time announcement, orphan cleanup, and the Daily Challenge automation (draft at 16:00 IST, publish at 02:00 IST).
+ * Background work tick: embedding jobs, notification email batches, push notifications, Academy live-class Google sync, event reminders, Refer & Earn upkeep and its one-time announcement, orphan cleanup, and the Daily Challenge automation (draft at 16:00 IST, publish at 02:00 IST).
  * Called by `npm run worker` (a loop) or any scheduler: UptimeRobot, Vercel cron, a server cron job.
  * Nothing here runs unless something calls it, and it is refused without CRON_SECRET.
  */
@@ -45,6 +46,8 @@ async function run(request) {
     ["embeddings", () => processEmbeddingJobs({ limit: 20, requeueStale: true })],
     ["notificationEmails", () => processNotificationEmails({ limit: 100 })],
     ["push", () => processPushNotifications({ limit: 100 })],
+    // Live classes: create/refresh Google Calendar events with a Meet link and invite the enrolled students (does nothing until Google is connected).
+    ["academyGoogle", () => processGoogleSync({ limit: 10 })],
     ["maintenance", () => runMaintenanceTasks()],
     // Refer & Earn: expire referrals that ran out of time, then (only if an administrator switched it on) send the in-app announcement.
     ["referrals", () => runReferralMaintenance()],

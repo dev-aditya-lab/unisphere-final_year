@@ -5,7 +5,8 @@ import { CERT_VARIABLE_KEYS, certificateData, cleanText, fillText, formatDateLon
 import { CertificateError, inspectTemplatePdf, renderCertificate } from "@/lib/academy/cert-pdf";
 import { parseVideoInput, videoSource } from "@/lib/academy/video";
 import { verifyUrl } from "@/lib/academy/urls";
-import { assignmentSchema, couponSchema, courseSchema, lessonContentSchema, priceRuleSchema, quizQuestionSchema, settingSchemas } from "@/lib/validators/academy";
+import { parseTimetable, timetableToText } from "@/lib/academy/timetable";
+import { assignmentSchema, couponSchema, courseSchema, lessonContentSchema, mentorSchema, priceRuleSchema, quizQuestionSchema, settingSchemas } from "@/lib/validators/academy";
 import { describeNotification, notificationCategory } from "@/lib/notification-text";
 import { buildCsp } from "@/lib/security/csp";
 
@@ -206,5 +207,61 @@ describe("Academy notifications", () => {
     expect(describeNotification({ type: "academy_payment", data: { event: "received", amount_minor: 250000, title: "Python" } }).text).toBe("We received your payment of ₹2,500 for Python");
     expect(describeNotification({ type: "academy_payment", data: { event: "failed", title: "Python" } }).text).toBe("Your payment for Python did not go through");
     expect(describeNotification({ type: "academy_certificate", data: { event: "revoked", title: "Python" } }).text).toBe("Your certificate for Python was revoked");
+  });
+
+  it("reads a timetable typed one slot per line, in day order, and says which line is wrong", () => {
+    const ok = parseTimetable("Wed | 19:00-20:30 | Backend\nmon | 9:00 - 10:00 | Frontend basics\n\n");
+    expect(ok.rows).toEqual([{ day: "Mon", start: "09:00", end: "10:00", topic: "Frontend basics" }, { day: "Wed", start: "19:00", end: "20:30", topic: "Backend" }]);
+    expect(timetableToText(ok.rows)).toBe("Mon | 09:00-10:00 | Frontend basics\nWed | 19:00-20:30 | Backend");
+    expect(parseTimetable("Funday | 10:00-11:00").error).toMatch(/Line 1/);
+    expect(parseTimetable("Mon | 25:00-26:00").error).toMatch(/Line 1/);
+    expect(parseTimetable("Mon | 11:00-10:00").error).toMatch(/after the start/);
+    expect(parseTimetable(Array.from({ length: 41 }, () => "Mon | 10:00-11:00").join("\n")).error).toMatch(/At most/);
+    expect(parseTimetable("").rows).toEqual([]);
+  });
+  it("a course carries its delivery mode, written syllabus and timetable", () => {
+    const base = { title: "Full-stack web", slug: "full-stack-web", kind: "course", category_id: UUID, level: "beginner", language: "English", duration_minutes: "", enrollment_limit: "", access_days: "", cert_min_completion: "100", cert_min_score: "0" };
+    const r = courseSchema.parse({ ...base, delivery_mode: "hybrid", syllabus_md: "## Week 1", timetable_text: "Sat | 10:00-12:00 | Workshop" });
+    expect(r.delivery_mode).toBe("hybrid");
+    expect(r.timetable).toEqual([{ day: "Sat", start: "10:00", end: "12:00", topic: "Workshop" }]);
+    expect(courseSchema.parse(base).delivery_mode).toBe("recorded");
+    expect(courseSchema.safeParse({ ...base, delivery_mode: "telepathy" }).success).toBe(false);
+    expect(courseSchema.safeParse({ ...base, timetable_text: "nonsense" }).success).toBe(false);
+  });
+  it("a mentor's links must be https and the lists are bounded", () => {
+    const base = { username: "asha", display_name: "Asha Rao", active: "on" };
+    const good = mentorSchema.parse({ ...base, expertise: "React, Node.js, React", experience_years: "7", linkedin_url: "https://linkedin.com/in/asha" });
+    expect(good.expertise).toEqual(["React", "Node.js"]);
+    expect(good.experience_years).toBe(7);
+    expect(mentorSchema.safeParse({ ...base, website_url: "javascript:alert(1)" }).success).toBe(false);
+    expect(mentorSchema.safeParse({ ...base, expertise: "a,b,c,d,e,f,g,h,i" }).success).toBe(false);
+  });
+});
+
+describe("offers shown from a quote", () => {
+  const quoteWith = (extra) => ({ ok: true, free: false, list_minor: 100000, ...extra });
+  it("lists an automatic coupon first, then a scheduled price, using only what the server returned", async () => {
+    const { offersFromQuote } = await import("@/lib/academy/money");
+    const offers = offersFromQuote(quoteWith({
+      coupon: { id: "c1", auto: true, label: "Welcome offer", kind: "percent", percent_bps: 1250, discount_minor: 12500 },
+      sale: { rule_id: "r1", label: "Early bird", discount_minor: 30000, ends_at: "2030-01-01T00:00:00Z", uses_left: 4 },
+    }));
+    expect(offers.map((o) => o.id)).toEqual(["coupon:c1", "rule:r1"]);
+    expect(offers[0]).toMatchObject({ label: "Welcome offer", percentOff: 12.5, saved: "₹125.00" });
+    expect(offers[1]).toMatchObject({ percentOff: 30, usesLeft: 4, endsAt: "2030-01-01T00:00:00Z" });
+  });
+  it("shows nothing for a typed code, a free course or a failed quote", async () => {
+    const { offersFromQuote } = await import("@/lib/academy/money");
+    expect(offersFromQuote(quoteWith({ coupon: { id: "c1", auto: false, code: "X", discount_minor: 500 } }))).toEqual([]);
+    expect(offersFromQuote({ ok: true, free: true, list_minor: 0 })).toEqual([]);
+    expect(offersFromQuote({ ok: false })).toEqual([]);
+    expect(offersFromQuote(null)).toEqual([]);
+  });
+  it("requires a name for an offer that applies by itself", () => {
+    const base = { code: "WELCOME", kind: "percent", percent: "10", per_user_limit: "1", kinds: ["course"], active: "on" };
+    expect(couponSchema.safeParse({ ...base, auto_apply: "on" }).success).toBe(false);
+    const ok = couponSchema.parse({ ...base, auto_apply: "on", public_label: "Welcome offer" });
+    expect(ok.couponRow).toMatchObject({ auto_apply: true, public_label: "Welcome offer" });
+    expect(couponSchema.parse({ ...base, public_label: "ignored" }).couponRow).toMatchObject({ auto_apply: false, public_label: null });
   });
 });

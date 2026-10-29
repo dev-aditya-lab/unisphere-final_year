@@ -79,7 +79,7 @@ export default async function PricingAndCoupons({ searchParams }) {
                 const s = statBy.get(c.id);
                 return (
                   <tr key={c.id}>
-                    <td className="px-4 py-3 font-mono text-xs font-semibold">{c.code}{c.internal_note && <p className="text-muted-foreground max-w-48 truncate font-sans font-normal">{c.internal_note}</p>}</td>
+                    <td className="px-4 py-3 font-mono text-xs font-semibold">{c.code}{c.auto_apply && <Badge variant="mono" className="ml-2 font-sans">auto · {c.public_label}</Badge>}{c.internal_note && <p className="text-muted-foreground max-w-48 truncate font-sans font-normal">{c.internal_note}</p>}</td>
                     <td className="px-4 py-3">{c.kind === "percent" ? formatBps(c.percent_bps) : formatMoney(c.amount_minor, { withZero: true })}{c.max_discount_minor ? ` (max ${formatMoney(c.max_discount_minor)})` : ""}{c.min_purchase_minor > 0 ? <p className="text-muted-foreground text-xs">min {formatMoney(c.min_purchase_minor)}</p> : null}</td>
                     <td className="px-4 py-3"><StatusBadge value={couponState(c) === "inactive" ? "deactivated" : couponState(c)} /></td>
                     <td className="px-4 py-3 tabular-nums">{s?.redeemed ?? 0}{c.usage_limit ? ` / ${c.usage_limit}` : ""}{s?.reserved ? <p className="text-muted-foreground text-xs">{s.reserved} held</p> : null}<p className="text-muted-foreground text-xs">saved {formatMoney(s?.discount_minor ?? 0, { withZero: true })}</p></td>

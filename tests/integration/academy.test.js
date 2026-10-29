@@ -688,3 +688,227 @@ describe("staff views, audit and erasure", () => {
     expect(c.has("academy.finance.view")).toBe(false);
   });
 });
+
+describe("delivery mode, timetable and instructor details (0070)", () => {
+  it("defaults to recorded and accepts only the three modes", async () => {
+    const c = await makeCourse(owner);
+    expect(c.delivery_mode).toBe("recorded");
+    expect(c.timetable).toEqual([]);
+    expect((await owner.client.from("academy_courses").update({ delivery_mode: "hybrid" }).eq("id", c.id)).error).toBeNull();
+    expect((await owner.client.from("academy_courses").update({ delivery_mode: "telepathy" }).eq("id", c.id)).error).not.toBeNull();
+  });
+
+  it("stores a well-formed timetable and refuses a malformed one even from a hand-made request", async () => {
+    const c = await makeCourse(owner);
+    const rows = [{ day: "Mon", start: "19:00", end: "20:30", topic: "Basics" }];
+    expect((await owner.client.from("academy_courses").update({ timetable: rows }).eq("id", c.id)).error).toBeNull();
+    for (const bad of [
+      [{ day: "Funday", start: "19:00", end: "20:00" }],
+      [{ day: "Mon", start: "25:00", end: "26:00" }],
+      [{ day: "Mon", start: "20:00", end: "19:00" }],
+      [{ day: "Mon", start: "10:00", end: "11:00", topic: "x".repeat(121) }],
+      [{ day: "Mon" }],
+      { day: "Mon", start: "10:00", end: "11:00" },
+      Array.from({ length: 41 }, () => ({ day: "Mon", start: "10:00", end: "11:00" })),
+    ]) {
+      expect((await owner.client.from("academy_courses").update({ timetable: bad }).eq("id", c.id)).error, JSON.stringify(bad).slice(0, 60)).not.toBeNull();
+    }
+  });
+
+  it("lets a course manager write the syllabus, and visitors read it on a published course", async () => {
+    const { course: pub } = await publishedCourse(0, { syllabus_md: "## Week 1\n- HTML" });
+    expect((await anon().from("academy_courses").select("syllabus_md, delivery_mode").eq("id", pub.id).single()).data.syllabus_md).toContain("Week 1");
+    const draft = await makeCourse(manager);
+    expect((await manager.client.from("academy_courses").update({ syllabus_md: "ok" }).eq("id", draft.id)).error).toBeNull();
+    expect((await alice.client.from("academy_courses").update({ syllabus_md: "no" }).eq("id", draft.id).select()).data ?? []).toHaveLength(0);
+  });
+
+  it("keeps instructor links to https only", async () => {
+    const m = await admin.from("academy_mentors").upsert({ user_id: mentor.id, display_name: "Mentor T", expertise: ["React"], experience_years: 5, linkedin_url: "https://linkedin.com/in/x" }).select("*").single();
+    expect(m.error, m.error?.message).toBeNull();
+    expect((await admin.from("academy_mentors").update({ website_url: "javascript:alert(1)" }).eq("user_id", mentor.id)).error).not.toBeNull();
+    expect((await admin.from("academy_mentors").update({ expertise: Array.from({ length: 9 }, (_, i) => `s${i}`) }).eq("user_id", mentor.id)).error).not.toBeNull();
+  });
+});
+
+describe("automatic offers (0071)", () => {
+  let target, other;
+  const auto = async (over = {}) => {
+    const cp = await makeCoupon({ auto_apply: true, public_label: "Welcome offer", ...over });
+    must(await owner.client.from("academy_coupon_courses").insert({ coupon_id: cp.id, course_id: target.id }), "restrict to the test course");
+    return cp;
+  };
+  const off = (cp) => admin.from("academy_coupons").update({ active: false }).eq("id", cp.id);
+
+  beforeAll(async () => {
+    ({ course: target } = await publishedCourse(100000));
+    ({ course: other } = await publishedCourse(100000));
+  });
+
+  it("needs a public label before a coupon can apply by itself", async () => {
+    const res = await owner.client.from("academy_coupons").insert({ code: `NOLABEL${tag}`.toUpperCase(), kind: "percent", percent_bps: 1000, auto_apply: true });
+    expect(res.error).not.toBeNull();
+  });
+
+  it("applies to a signed-in student with no code typed, and is labelled as automatic", async () => {
+    const cp = await auto({ percent_bps: 2000 });
+    const q = await quote(alice, target.id);
+    expect(q.coupon).toMatchObject({ id: cp.id, auto: true, label: "Welcome offer", discount_minor: 20000 });
+    expect(q.total_minor).toBe(80000);
+    await off(cp);
+  });
+
+  it("does not touch courses the offer was not made for", async () => {
+    const cp = await auto({ percent_bps: 2000 });
+    const q = await quote(alice, other.id);
+    expect(q.coupon).toBeNull();
+    expect(q.total_minor).toBe(100000);
+    await off(cp);
+  });
+
+  it("tells a visitor that an offer exists but not what it is worth to them", async () => {
+    const cp = await auto({ percent_bps: 2000 });
+    const { data: q } = await anon().rpc("academy_quote", { p_course: target.id });
+    expect(q.coupon).toBeNull();
+    expect(q.total_minor).toBe(100000);
+    expect(q.auto_hint).toMatchObject({ label: "Welcome offer", kind: "percent" });
+    await off(cp);
+  });
+
+  it("takes the best of several, and a typed code replaces it instead of adding to it", async () => {
+    const small = await auto({ percent_bps: 1000 });
+    const big = await auto({ percent_bps: 3000 });
+    const typed = await makeCoupon({ percent_bps: 500 });
+    must(await owner.client.from("academy_coupon_courses").insert({ coupon_id: typed.id, course_id: target.id }));
+    expect((await quote(alice, target.id)).coupon.id).toBe(big.id);
+    const withCode = await quote(alice, target.id, typed.code);
+    expect(withCode.coupon).toMatchObject({ id: typed.id, auto: false, discount_minor: 5000 });
+    expect(withCode.total_minor).toBe(95000);
+    for (const c of [small, big, typed]) await off(c);
+  });
+
+  it("keeps first-purchase and per-person limits, and records the redemption on the order", async () => {
+    const cp = await auto({ percent_bps: 1000, per_user_limit: 1 });
+    const created = must(await bob.client.rpc("academy_create_order", { p_course: target.id, p_cohort: null, p_coupon: null, p_consent: true, p_idem: null }));
+    const order = (await admin.from("academy_orders").select("coupon_id, coupon_discount_minor, total_minor").eq("id", created.order_id).single()).data;
+    expect(order).toMatchObject({ coupon_id: cp.id, coupon_discount_minor: 10000, total_minor: 90000 });
+    const red = (await admin.from("academy_coupon_redemptions").select("status").eq("order_id", created.order_id).single()).data;
+    expect(red.status).toBe("reserved");
+    // the receipt email reads the order together with its item title in one query
+    const withItem = await admin.from("academy_orders").select("id, order_no, academy_order_items(title)").eq("id", created.order_id).single();
+    expect(withItem.error, withItem.error?.message).toBeNull();
+    expect(withItem.data.academy_order_items[0].title).toBe(target.title);
+    // another student still gets it; the used-up offer would not be offered to bob again once it is redeemed
+    expect((await quote(carol, target.id)).coupon?.id).toBe(cp.id);
+    await off(cp);
+  });
+
+  it("stops offering a limited offer when its uses are gone, even under a race for the last one", async () => {
+    const cp = await auto({ percent_bps: 1000, usage_limit: 1 });
+    const attempt = (u) => u.client.rpc("academy_create_order", { p_course: target.id, p_cohort: null, p_coupon: null, p_consent: true, p_idem: null });
+    const [a, b] = await Promise.all([attempt(dave), attempt(carol)]);
+    const discounted = [a, b].filter((r) => r.data?.ok && r.data.total_minor === 90000);
+    expect(discounted).toHaveLength(1);
+    await off(cp);
+  });
+
+  it("reports how many places remain at a scheduled price from the real count", async () => {
+    const { course: c } = await publishedCourse(100000);
+    must(await owner.client.from("academy_price_rules").insert({ course_id: c.id, kind: "early_bird", label: "Early bird", price_minor: 70000, max_uses: 3 }));
+    const q = await quote(alice, c.id);
+    expect(q.sale).toMatchObject({ discount_minor: 30000, uses_left: 3 });
+  });
+});
+
+describe("Google Calendar and Meet plumbing (0072)", () => {
+  let c, session, sid;
+  const enrol = async (user, over = {}) => must(await admin.rpc("_academy_enroll", { p_user: user.id, p_course: c.id, p_cohort: null, p_source: "complimentary", p_order: null, p_granted_by: null, p_reason: "test", p_consent: true, ...over }), "enrol");
+  const emailsOf = async () => ((await admin.rpc("_academy_session_attendees", { p_session: sid })).data ?? []).map((r) => r.email);
+  const row = async () => (await admin.from("academy_live_google").select("*").eq("session_id", sid).maybeSingle()).data;
+
+  beforeAll(async () => {
+    ({ course: c } = await publishedCourse(0));
+    session = must(await owner.client.from("academy_live_sessions").insert({
+      course_id: c.id, title: "Live 1", starts_at: new Date(Date.now() + 86_400_000).toISOString(), ends_at: new Date(Date.now() + 90_000_000).toISOString(), auto_meet: true,
+    }).select("*").single(), "session");
+    sid = session.id;
+  });
+
+  it("keeps the connection (and its sealed token) out of reach of every API role", async () => {
+    await admin.rpc("academy_google_save", { p_email: "owner@gmail.com", p_enc: "v1.x.y", p_scopes: "openid", p_by: owner.id });
+    for (const who of [alice.client, owner.client, anon()]) {
+      const res = await who.from("academy_google_connection").select("*");
+      expect(res.error !== null || (res.data ?? []).length === 0, "table must not be readable").toBe(true);
+      expect((await who.rpc("academy_google_get")).error).not.toBeNull();
+      expect((await who.rpc("academy_google_save", { p_email: "x@y.z", p_enc: "e", p_scopes: "s", p_by: alice.id })).error).not.toBeNull();
+    }
+    expect((await alice.client.rpc("academy_google_status")).error).not.toBeNull();
+    const status = must(await owner.client.rpc("academy_google_status"));
+    expect(status).toMatchObject({ connected: true, email: "owner@gmail.com" });
+    expect(JSON.stringify(status)).not.toContain("v1.x.y");
+    await admin.rpc("academy_google_clear", { p_by: owner.id });
+    expect(must(await owner.client.rpc("academy_google_status"))).toEqual({ connected: false });
+  });
+
+  it("queues a class for Google when it asks for it, and not otherwise", async () => {
+    expect((await row())?.sync).toBe("pending");
+    const plain = must(await owner.client.from("academy_live_sessions").insert({ course_id: c.id, title: "Plain", starts_at: new Date(Date.now() + 86_400_000).toISOString(), ends_at: new Date(Date.now() + 90_000_000).toISOString() }).select("id").single());
+    expect((await admin.from("academy_live_google").select("*").eq("session_id", plain.id).maybeSingle()).data).toBeNull();
+  });
+
+  it("invites only students with valid access, with a confirmed email and an active account", async () => {
+    expect(await emailsOf()).toEqual([]);
+    await enrol(alice);
+    await enrol(bob);
+    const mails = await emailsOf();
+    expect(mails).toHaveLength(2);
+    expect(mails).toEqual([...mails].sort());
+    await admin.from("academy_enrollments").update({ status: "refunded" }).eq("user_id", bob.id).eq("course_id", c.id);
+    expect(await emailsOf()).toHaveLength(1);
+    await admin.from("academy_enrollments").update({ access_expires_at: new Date(Date.now() - 1000).toISOString() }).eq("user_id", alice.id).eq("course_id", c.id);
+    expect(await emailsOf()).toEqual([]);
+    expect((await alice.client.rpc("_academy_session_attendees", { p_session: sid })).error).not.toBeNull();
+    expect((await owner.client.rpc("_academy_session_attendees", { p_session: sid })).error).not.toBeNull();
+  });
+
+  it("hands the queue to one worker at a time and re-queues a synced class whose guest list changed", async () => {
+    const first = must(await admin.rpc("academy_google_claim", { p_limit: 5 }));
+    expect(first.map((r) => r.session_id)).toContain(sid);
+    expect(must(await admin.rpc("academy_google_claim", { p_limit: 5 })).map((r) => r.session_id)).not.toContain(sid);
+    await admin.rpc("academy_google_done", { p_session: sid, p_event: "ev1", p_url: "https://meet.google.com/abc-defg-hij", p_emails: [] });
+    expect((await row()).sync).toBe("synced");
+    expect((await admin.from("academy_live_session_links").select("meeting_url").eq("session_id", sid).single()).data.meeting_url).toBe("https://meet.google.com/abc-defg-hij");
+    await admin.from("academy_live_google").update({ synced_at: new Date(Date.now() - 600_000).toISOString() }).eq("session_id", sid);
+    await enrol(carol);
+    expect(must(await admin.rpc("academy_google_claim", { p_limit: 5 })).map((r) => r.session_id)).toContain(sid);
+  });
+
+  it("backs off after a failure and gives up on a permanent one", async () => {
+    await admin.from("academy_live_google").update({ sync: "pending", attempts: 0, next_try: new Date().toISOString() }).eq("session_id", sid);
+    await admin.rpc("academy_google_fail", { p_session: sid, p_error: "Google had a temporary problem", p_permanent: false });
+    let r = await row();
+    expect(r).toMatchObject({ sync: "pending", attempts: 1 });
+    expect(new Date(r.next_try).getTime()).toBeGreaterThan(Date.now());
+    await admin.rpc("academy_google_fail", { p_session: sid, p_error: "Not connected", p_permanent: true });
+    r = await row();
+    expect(r).toMatchObject({ sync: "failed", error: "Not connected" });
+    expect((await alice.client.rpc("academy_google_retry", { p_session: sid })).error).not.toBeNull();
+    must(await owner.client.rpc("academy_google_retry", { p_session: sid }));
+    expect(await row()).toMatchObject({ sync: "pending", attempts: 0, error: null });
+  });
+
+  it("remembers the Google event of a deleted class so it can be removed from the calendar", async () => {
+    const gone = must(await owner.client.from("academy_live_sessions").insert({ course_id: c.id, title: "Doomed", starts_at: new Date(Date.now() + 86_400_000).toISOString(), ends_at: new Date(Date.now() + 90_000_000).toISOString(), auto_meet: true }).select("id").single());
+    await admin.rpc("academy_google_done", { p_session: gone.id, p_event: `evt-${tag}`, p_url: null, p_emails: [] });
+    must(await owner.client.from("academy_live_sessions").delete().eq("id", gone.id));
+    const taken = must(await admin.rpc("academy_google_tombstones_take", { p_limit: 50 }));
+    expect(taken.map((t) => t.event_id)).toContain(`evt-${tag}`);
+    expect(must(await admin.rpc("academy_google_tombstones_take", { p_limit: 50 })).map((t) => t.event_id)).not.toContain(`evt-${tag}`);
+  });
+
+  it("shows the sync state to live-class staff but never to students", async () => {
+    expect((await owner.client.from("academy_live_google").select("session_id").eq("session_id", sid)).data).toHaveLength(1);
+    expect((await alice.client.from("academy_live_google").select("session_id")).data ?? []).toHaveLength(0);
+    expect((await alice.client.from("academy_live_google").update({ sync: "synced" }).eq("session_id", sid).select()).data ?? []).toHaveLength(0);
+  });
+});

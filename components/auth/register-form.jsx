@@ -15,6 +15,7 @@ import { FormAlert } from "@/components/forms/form-alert";
 import { UsernameField } from "@/components/forms/username-field";
 import { registerSchema } from "@/lib/validators/auth";
 import { registerAction } from "@/lib/actions/auth";
+import { GoogleButton, OrDivider } from "@/components/auth/google-button";
 import { cn } from "@/lib/utils";
 
 function ConsentCheck({ name, control, label, error }) {
@@ -48,7 +49,7 @@ function ConsentCheck({ name, control, label, error }) {
   );
 }
 
-export function RegisterForm({ referralCode = null, inviterName = null }) {
+export function RegisterForm({ referralCode = null, inviterName = null, google = false }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState(null);
@@ -100,7 +101,15 @@ export function RegisterForm({ referralCode = null, inviterName = null }) {
 
       {serverError && <FormAlert className="mt-6">{serverError}</FormAlert>}
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-6 space-y-4">
+      {google && (
+        <div className="mt-6">
+          <GoogleButton next="/feed" label="Sign up with Google" />
+          <p className="text-muted-foreground mt-2 text-center text-xs">You will still be asked to confirm the privacy choices every new account makes.</p>
+          <OrDivider />
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className={google ? "space-y-4" : "mt-6 space-y-4"}>
         <Field id="fullName" label="Full name" error={errors.fullName?.message}>
           <Input id="fullName" autoComplete="name" aria-invalid={Boolean(errors.fullName)} aria-describedby="fullName-desc" {...register("fullName")} />
         </Field>

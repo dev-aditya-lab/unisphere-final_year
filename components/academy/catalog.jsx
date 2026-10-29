@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { CourseCard } from "@/components/academy/ui/course-card";
 import { EmptyBlock } from "@/components/academy/ui/section";
 import { RevealGroup, RevealItem } from "@/components/academy/ui/reveal";
-import { KINDS, LEVELS } from "@/lib/academy/constants";
+import { DELIVERY_MODES, KINDS, LEVELS } from "@/lib/academy/constants";
 import { PAGE, listCategories, listCourses } from "@/lib/services/academy";
 
 const field = "border-input bg-card h-10 rounded-lg border px-3 text-sm";
@@ -13,23 +13,25 @@ const field = "border-input bg-card h-10 rounded-lg border px-3 text-sm";
 export async function Catalog({ kind, searchParams, basePath }) {
   const sp = await searchParams;
   const level = Object.hasOwn(LEVELS, sp.level) && sp.level !== "all" ? sp.level : null;
+  const mode = typeof sp.mode === "string" && Object.hasOwn(DELIVERY_MODES, sp.mode) ? sp.mode : null;
   const sort = sp.sort === "title" ? "title" : "new";
   const page = Math.max(1, Number(sp.page) || 1);
   const q = typeof sp.q === "string" ? sp.q.slice(0, 60) : "";
   const category = typeof sp.category === "string" ? sp.category.slice(0, 60) : null;
-  const [categories, { courses, total, prices }] = await Promise.all([listCategories(), listCourses({ kind, category, level, q, sort, page })]);
+  const [categories, { courses, total, prices }] = await Promise.all([listCategories(), listCourses({ kind, category, level, mode, q, sort, page })]);
   const pages = Math.max(1, Math.ceil(total / PAGE));
   const href = (p) => {
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (category) params.set("category", category);
     if (level) params.set("level", level);
+    if (mode) params.set("mode", mode);
     if (sort !== "new") params.set("sort", sort);
     if (p > 1) params.set("page", String(p));
     const s = params.toString();
     return s ? `${basePath}?${s}` : basePath;
   };
-  const filtered = Boolean(q || category || level);
+  const filtered = Boolean(q || category || level || mode);
 
   return (
     <>
@@ -64,6 +66,14 @@ export async function Catalog({ kind, searchParams, basePath }) {
             <select id="f-level" name="level" defaultValue={level ?? ""} className={`${field} mt-1 block`}>
               <option value="">Any level</option>
               {Object.entries(LEVELS).filter(([k]) => k !== "all").map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="f-mode" className="text-xs font-semibold">How it is taught</label>
+            <select id="f-mode" name="mode" defaultValue={mode ?? ""} className={`${field} mt-1 block`}>
+              <option value="">Live or recorded</option>
+              <option value="live">Live classes</option>
+              <option value="recorded">Recorded</option>
             </select>
           </div>
           <div>
