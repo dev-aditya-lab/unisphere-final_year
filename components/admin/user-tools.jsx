@@ -68,7 +68,7 @@ export function TimedModerationDialog({ userId, kind, title, description, label 
         </div>
         <div className="space-y-1.5">
           <Label htmlFor={`reason-${kind}`} className="text-[13px] font-semibold">Reason shown to the member</Label>
-          <Textarea id={`reason-${kind}`} rows={3} maxLength={1000} value={reason} onChange={(e) => setReason(e.target.value)} />
+          <Textarea id={`reason-${kind}`} placeholder="e.g. Harassing other members after two warnings" rows={3} maxLength={1000} value={reason} onChange={(e) => setReason(e.target.value)} />
         </div>
         {error && <p role="alert" className="text-destructive-text text-sm">{error}</p>}
         <DialogFooter>
@@ -135,11 +135,11 @@ export function EditProfileDialog({ member }) {
           <DialogDescription>For names, handles or text that break the guidelines. The change and your reason are recorded in the audit log and the member&rsquo;s history.</DialogDescription>
         </DialogHeader>
         <div className="max-h-[55dvh] space-y-3 overflow-y-auto px-0.5">
-          <div className="space-y-1.5"><Label htmlFor="ep-name" className="text-[13px] font-semibold">Name</Label><Input id="ep-name" value={f.fullName} maxLength={80} onChange={set("fullName")} /></div>
-          <div className="space-y-1.5"><Label htmlFor="ep-user" className="text-[13px] font-semibold">Username</Label><Input id="ep-user" value={f.username} maxLength={30} onChange={set("username")} /></div>
-          <div className="space-y-1.5"><Label htmlFor="ep-head" className="text-[13px] font-semibold">Headline</Label><Input id="ep-head" value={f.headline} maxLength={160} onChange={set("headline")} /></div>
-          <div className="space-y-1.5"><Label htmlFor="ep-bio" className="text-[13px] font-semibold">Bio</Label><Textarea id="ep-bio" rows={4} maxLength={2000} value={f.bio} onChange={set("bio")} /></div>
-          <div className="space-y-1.5"><Label htmlFor="ep-reason" className="text-[13px] font-semibold">Reason</Label><Textarea id="ep-reason" rows={2} maxLength={500} value={reason} onChange={(e) => setReason(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label htmlFor="ep-name" className="text-[13px] font-semibold">Name</Label><Input id="ep-name" placeholder="e.g. Aarav Sharma" value={f.fullName} maxLength={80} onChange={set("fullName")} /></div>
+          <div className="space-y-1.5"><Label htmlFor="ep-user" className="text-[13px] font-semibold">Username</Label><Input id="ep-user" placeholder="e.g. aarav_sharma" value={f.username} maxLength={30} onChange={set("username")} /></div>
+          <div className="space-y-1.5"><Label htmlFor="ep-head" className="text-[13px] font-semibold">Headline</Label><Input id="ep-head" placeholder="e.g. CSE student · Android developer" value={f.headline} maxLength={160} onChange={set("headline")} /></div>
+          <div className="space-y-1.5"><Label htmlFor="ep-bio" className="text-[13px] font-semibold">Bio</Label><Textarea id="ep-bio" placeholder="A short line about the member" rows={4} maxLength={2000} value={f.bio} onChange={set("bio")} /></div>
+          <div className="space-y-1.5"><Label htmlFor="ep-reason" className="text-[13px] font-semibold">Reason</Label><Textarea id="ep-reason" placeholder="e.g. Removed an inappropriate bio" rows={2} maxLength={500} value={reason} onChange={(e) => setReason(e.target.value)} /></div>
         </div>
         {error && <p role="alert" className="text-destructive-text text-sm">{error}</p>}
         <DialogFooter>

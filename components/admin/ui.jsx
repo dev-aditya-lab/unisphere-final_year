@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Inbox } from "@/components/icons/lucide-compat";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { PAGE_SIZE } from "@/lib/admin/paging";
@@ -27,19 +28,24 @@ export function StatusBadge({ value, className }) {
 }
 
 export function StatCard({ label, value, hint, href, tone }) {
+  const attention = tone === "warn" && Number(String(value).replace(/,/g, "")) > 0;
   const body = (
     <>
-      <p className="eyebrow">{label}</p>
-      <p className={cn("font-heading mt-1 text-3xl font-extrabold tabular-nums", tone === "warn" && Number(value) > 0 && "text-warning-text")}>{value}</p>
-      {hint && <p className="text-muted-foreground mt-0.5 text-xs">{hint}</p>}
+      <div className="flex items-center justify-between gap-2">
+        <p className="eyebrow">{label}</p>
+        {href && <ArrowUpRight className="text-muted-foreground size-4 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" aria-hidden="true" />}
+      </div>
+      <p className={cn("font-heading mt-1.5 text-3xl font-extrabold tabular-nums", attention && "text-warning-text")}>{value}</p>
+      {hint && <p className="text-muted-foreground mt-1 text-xs leading-snug">{hint}</p>}
     </>
   );
+  const frame = cn("surface relative block p-4", attention && "border-warning/40 bg-warning-soft/40");
   return href ? (
-    <Link href={href} className="surface hover:border-ring block p-4 transition-colors">
+    <Link href={href} className={cn(frame, "group hover:border-ring transition-colors")}>
       {body}
     </Link>
   ) : (
-    <div className="surface p-4">{body}</div>
+    <div className={frame}>{body}</div>
   );
 }
 
@@ -69,15 +75,15 @@ export function FilterTabs({ label, basePath, param = "status", current, options
     return `${basePath}?${sp}`;
   };
   return (
-    <nav aria-label={label} className="mb-4 flex flex-wrap gap-1.5">
+    <nav aria-label={label} className="mb-4 flex flex-wrap gap-1 rounded-lg border bg-muted/50 p-1 sm:w-fit">
       {options.map((o) => (
         <Link
           key={o.value}
           href={href(o.value)}
           aria-current={current === o.value ? "page" : undefined}
           className={cn(
-            "rounded-md border px-3 py-1.5 text-[13px] font-medium transition-colors",
-            current === o.value ? "bg-accent text-accent-foreground border-transparent" : "text-muted-foreground hover:bg-muted",
+            "rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors",
+            current === o.value ? "bg-card text-foreground shadow-sm ring-1 ring-border font-semibold" : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
           )}
         >
           {o.label}
@@ -103,12 +109,12 @@ export function Pager({ basePath, page, total, params = {} }) {
       </p>
       <div className="flex gap-2">
         {page > 1 && (
-          <Link href={href(page - 1)} className="hover:bg-muted inline-flex items-center gap-1 rounded-md border px-3 py-1.5">
+          <Link href={href(page - 1)} className="bg-card hover:bg-muted inline-flex items-center gap-1 rounded-md border px-3 py-1.5 font-medium transition-colors">
             <ChevronLeft className="size-4" aria-hidden="true" /> Previous
           </Link>
         )}
         {page < pages && (
-          <Link href={href(page + 1)} className="hover:bg-muted inline-flex items-center gap-1 rounded-md border px-3 py-1.5">
+          <Link href={href(page + 1)} className="bg-card hover:bg-muted inline-flex items-center gap-1 rounded-md border px-3 py-1.5 font-medium transition-colors">
             Next <ChevronRight className="size-4" aria-hidden="true" />
           </Link>
         )}
@@ -127,7 +133,7 @@ export function DataTable({ caption, columns, children, empty }) {
     <div className="surface relative overflow-x-auto">
       <table className="w-full text-left text-sm">
         <caption className="sr-only">{caption}</caption>
-        <thead className="bg-muted/50 text-muted-foreground text-xs">
+        <thead className="bg-muted/60 text-muted-foreground border-b text-[11px] tracking-wide uppercase">
           <tr>
             {columns.map((c) => (
               <th key={c.label ?? c} scope="col" className={cn("px-4 py-2.5 font-semibold whitespace-nowrap", c.className)}>
@@ -136,7 +142,7 @@ export function DataTable({ caption, columns, children, empty }) {
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y">{children}</tbody>
+        <tbody className="[&_tr]:transition-colors [&_tr:hover]:bg-muted/40 divide-y">{children}</tbody>
       </table>
       {empty}
     </div>
@@ -144,7 +150,14 @@ export function DataTable({ caption, columns, children, empty }) {
 }
 
 export function EmptyRow({ children = "Nothing here." }) {
-  return <p className="text-muted-foreground px-4 py-10 text-center text-sm">{children}</p>;
+  return (
+    <div className="text-muted-foreground flex flex-col items-center gap-2 px-4 py-12 text-center text-sm">
+      <span className="bg-muted grid size-10 place-items-center rounded-full" aria-hidden="true">
+        <Inbox className="size-5" />
+      </span>
+      <p>{children}</p>
+    </div>
+  );
 }
 
 export const fmtDateTime = (iso) =>

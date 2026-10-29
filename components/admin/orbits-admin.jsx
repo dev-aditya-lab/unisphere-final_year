@@ -92,17 +92,17 @@ export function QuestionDialog({ question = null, label, variant = "outline", ai
               {drafting.error && <p role="alert" className="text-destructive-text text-sm">{drafting.error}</p>}
             </fieldset>
           )}
-          <div className="space-y-1.5"><Label htmlFor="q-text" className="text-[13px] font-semibold">Question</Label><Textarea id="q-text" rows={2} maxLength={400} value={f.question} disabled={locked} onChange={(e) => setF({ ...f, question: e.target.value })} /></div>
+          <div className="space-y-1.5"><Label htmlFor="q-text" className="text-[13px] font-semibold">Question</Label><Textarea id="q-text" placeholder="e.g. Which keyword declares a constant in JavaScript?" rows={2} maxLength={400} value={f.question} disabled={locked} onChange={(e) => setF({ ...f, question: e.target.value })} /></div>
           <fieldset className="min-w-0 space-y-2">
             <legend className="text-[13px] font-semibold">Answers (select the correct one)</legend>
             {f.options.map((o, i) => (
               <div key={i} className="flex items-center gap-2">
                 <input type="radio" name="correct" aria-label={`Answer ${"ABCD"[i]} is correct`} checked={f.correct === i} disabled={locked} onChange={() => setF({ ...f, correct: i })} className="size-4 shrink-0" />
-                <Input aria-label={`Answer ${"ABCD"[i]}`} value={o} maxLength={200} disabled={locked} onChange={(e) => setOpt(i, e.target.value)} />
+                <Input aria-label={`Answer ${"ABCD"[i]}`} placeholder={`Answer ${"ABCD"[i]}`} value={o} maxLength={200} disabled={locked} onChange={(e) => setOpt(i, e.target.value)} />
               </div>
             ))}
           </fieldset>
-          <div className="space-y-1.5"><Label htmlFor="q-exp" className="text-[13px] font-semibold">Explanation shown after answering</Label><Textarea id="q-exp" rows={3} maxLength={600} value={f.explanation} onChange={(e) => setF({ ...f, explanation: e.target.value })} /></div>
+          <div className="space-y-1.5"><Label htmlFor="q-exp" className="text-[13px] font-semibold">Explanation shown after answering</Label><Textarea id="q-exp" placeholder="e.g. const declares a binding that cannot be reassigned." rows={3} maxLength={600} value={f.explanation} onChange={(e) => setF({ ...f, explanation: e.target.value })} /></div>
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="space-y-1.5"><Label htmlFor="q-cat" className="text-[13px] font-semibold">Category</Label>
               <select id="q-cat" className={field} value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })}>{Object.entries(CATEGORY_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></div>
@@ -269,9 +269,9 @@ export function AchievementDialog({ a }) {
         </DialogHeader>
         <BadgePicture a={a} />
         <div className="space-y-3">
-          <div className="space-y-1.5"><Label htmlFor="ac-title" className="text-[13px] font-semibold">Title</Label><Input id="ac-title" value={f.title} maxLength={60} onChange={(e) => setF({ ...f, title: e.target.value })} /></div>
-          <div className="space-y-1.5"><Label htmlFor="ac-desc" className="text-[13px] font-semibold">Description</Label><Textarea id="ac-desc" rows={2} maxLength={200} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></div>
-          <div className="space-y-1.5"><Label htmlFor="ac-bonus" className="text-[13px] font-semibold">Bonus Orbits when earned</Label><Input id="ac-bonus" inputMode="numeric" value={f.bonus} onChange={(e) => setF({ ...f, bonus: e.target.value })} className="w-28" /></div>
+          <div className="space-y-1.5"><Label htmlFor="ac-title" className="text-[13px] font-semibold">Title</Label><Input id="ac-title" placeholder="e.g. Early bird" value={f.title} maxLength={60} onChange={(e) => setF({ ...f, title: e.target.value })} /></div>
+          <div className="space-y-1.5"><Label htmlFor="ac-desc" className="text-[13px] font-semibold">Description</Label><Textarea id="ac-desc" placeholder="e.g. Earned by signing in before 7 am" rows={2} maxLength={200} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></div>
+          <div className="space-y-1.5"><Label htmlFor="ac-bonus" className="text-[13px] font-semibold">Bonus Orbits when earned</Label><Input id="ac-bonus" placeholder="e.g. 50" inputMode="numeric" value={f.bonus} onChange={(e) => setF({ ...f, bonus: e.target.value })} className="w-28" /></div>
           <div className="flex items-center gap-2"><Switch id="ac-active" checked={f.active} onCheckedChange={(v) => setF({ ...f, active: v })} /><Label htmlFor="ac-active" className="text-sm">Active</Label></div>
         </div>
         {error && <p role="alert" className="text-destructive-text text-sm">{error}</p>}
@@ -298,8 +298,8 @@ export function AdjustForm({ defaultUser = "" }) {
   return (
     <form onSubmit={(e) => { e.preventDefault(); run({ userId, amount: Number(amount), reason, key }); }} className="space-y-3">
       <div className="space-y-1.5"><Label htmlFor="adj-user" className="text-[13px] font-semibold">Member ID</Label><Input id="adj-user" value={userId} onChange={(e) => setUserId(e.target.value.trim())} placeholder="Member ID (from the member page)" className="font-mono text-xs" /></div>
-      <div className="space-y-1.5"><Label htmlFor="adj-amount" className="text-[13px] font-semibold">Orbits (negative takes away)</Label><Input id="adj-amount" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-32" /></div>
-      <div className="space-y-1.5"><Label htmlFor="adj-reason" className="text-[13px] font-semibold">Reason (kept in the ledger and audit log)</Label><Textarea id="adj-reason" rows={2} maxLength={500} value={reason} onChange={(e) => setReason(e.target.value)} /></div>
+      <div className="space-y-1.5"><Label htmlFor="adj-amount" className="text-[13px] font-semibold">Orbits (negative takes away)</Label><Input id="adj-amount" placeholder="e.g. 100, or -50 to take away" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-32" /></div>
+      <div className="space-y-1.5"><Label htmlFor="adj-reason" className="text-[13px] font-semibold">Reason (kept in the ledger and audit log)</Label><Textarea id="adj-reason" placeholder="e.g. Prize for winning the campus quiz" rows={2} maxLength={500} value={reason} onChange={(e) => setReason(e.target.value)} /></div>
       {error && <p role="alert" className="text-destructive-text text-sm">{error}</p>}
       <Button type="submit" disabled={pending || !userId || !Number(amount) || reason.trim().length < 5}>{pending ? "Applying…" : "Apply correction"}</Button>
     </form>

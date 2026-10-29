@@ -59,7 +59,7 @@ export function ActionDialog({
             <Label htmlFor={`reason-${reasonField}-${label}`} className="text-[13px] font-semibold">
               {reasonLabel} {!reasonRequired && <span className="text-muted-foreground font-normal">(optional)</span>}
             </Label>
-            <Textarea id={`reason-${reasonField}-${label}`} rows={3} maxLength={1000} value={reason} onChange={(e) => setReason(e.target.value)} aria-invalid={Boolean(error) || undefined} />
+            <Textarea id={`reason-${reasonField}-${label}`} placeholder="e.g. Repeated spam after an earlier warning" rows={3} maxLength={1000} value={reason} onChange={(e) => setReason(e.target.value)} aria-invalid={Boolean(error) || undefined} />
           </div>
         )}
         {error && (

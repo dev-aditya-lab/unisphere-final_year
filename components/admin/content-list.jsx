@@ -33,7 +33,7 @@ export async function ContentList({ kind, searchParams }) {
           <span className="text-muted-foreground mb-1 block text-xs font-medium">Search</span>
           <span className="relative block">
             <Search aria-hidden="true" className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-            <input name="q" defaultValue={q ?? ""} className="border-input bg-card h-9 w-full rounded-md border pr-3 pl-9 text-sm" />
+            <input name="q" placeholder="Search by keyword" defaultValue={q ?? ""} className="border-input bg-card h-9 w-full rounded-md border pr-3 pl-9 text-sm" />
           </span>
         </label>
         <label className="text-[13px]">

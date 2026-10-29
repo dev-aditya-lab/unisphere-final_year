@@ -79,14 +79,14 @@ export function RequestStaffForm({ id, kind, assigned }) {
       </div>
       {needsReason && (
         <Field id="rq-reason" label="Lawful reason it is not carried out in full" hint="The requester sees this. Name the law or the exception." required>
-          <Textarea id="rq-reason" rows={2} maxLength={1000} value={outcomeReason} onChange={(e) => setOutcomeReason(e.target.value)} aria-describedby="rq-reason-desc" />
+          <Textarea id="rq-reason" placeholder="e.g. We could not verify the requester after two attempts" rows={2} maxLength={1000} value={outcomeReason} onChange={(e) => setOutcomeReason(e.target.value)} aria-describedby="rq-reason-desc" />
         </Field>
       )}
       <Field id="rq-public" label="Message to the requester" hint="Shown on their request. Do not include other people's information.">
-        <Textarea id="rq-public" rows={3} maxLength={2000} value={noteRequester} onChange={(e) => setNoteRequester(e.target.value)} aria-describedby="rq-public-desc" />
+        <Textarea id="rq-public" placeholder="e.g. We have deleted your profile and posts. Backups clear within 30 days." rows={3} maxLength={2000} value={noteRequester} onChange={(e) => setNoteRequester(e.target.value)} aria-describedby="rq-public-desc" />
       </Field>
       <Field id="rq-internal" label="Internal note" hint="Only privacy staff see this. Keep personal data out of it.">
-        <Textarea id="rq-internal" rows={2} maxLength={2000} value={noteInternal} onChange={(e) => setNoteInternal(e.target.value)} aria-describedby="rq-internal-desc" />
+        <Textarea id="rq-internal" placeholder="e.g. Checked with engineering; backups purge on the 30th" rows={2} maxLength={2000} value={noteInternal} onChange={(e) => setNoteInternal(e.target.value)} aria-describedby="rq-internal-desc" />
       </Field>
       <div className="flex flex-wrap gap-2">
         <SubmitButton pending={pending} pendingText="Saving…" size="sm">Save</SubmitButton>
@@ -124,7 +124,7 @@ export function IncidentCreateForm({ categories }) {
       }}
     >
       {error && <FormAlert>{error}</FormAlert>}
-      <Field id="inc-title" label="Title" required><Input id="inc-title" value={title} maxLength={160} onChange={(e) => setTitle(e.target.value)} /></Field>
+      <Field id="inc-title" label="Title" required><Input id="inc-title" placeholder="e.g. Unauthorised access to a support mailbox" value={title} maxLength={160} onChange={(e) => setTitle(e.target.value)} /></Field>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="inc-sev" className="text-[13px] font-semibold">Severity (first assessment)</Label>
@@ -132,8 +132,8 @@ export function IncidentCreateForm({ categories }) {
         </div>
         <Field id="inc-detected" label="First detected" required><Input id="inc-detected" type="datetime-local" value={detectedAt} onChange={(e) => setDetectedAt(e.target.value)} /></Field>
       </div>
-      <Field id="inc-desc" label="What is known so far" hint="Facts only. Leave out anything you have not confirmed."><Textarea id="inc-desc" rows={3} maxLength={4000} value={description} onChange={(e) => setDescription(e.target.value)} aria-describedby="inc-desc-desc" /></Field>
-      <Field id="inc-systems" label="Systems involved" hint="One per line, e.g. database, file storage, email provider"><Textarea id="inc-systems" rows={2} value={systems} onChange={(e) => setSystems(e.target.value)} aria-describedby="inc-systems-desc" /></Field>
+      <Field id="inc-desc" label="What is known so far" hint="Facts only. Leave out anything you have not confirmed."><Textarea id="inc-desc" placeholder="e.g. An old API key was used to read member emails between 2 and 4 am" rows={3} maxLength={4000} value={description} onChange={(e) => setDescription(e.target.value)} aria-describedby="inc-desc-desc" /></Field>
+      <Field id="inc-systems" label="Systems involved" hint="One per line, e.g. database, file storage, email provider"><Textarea id="inc-systems" placeholder="e.g. database, file storage, email provider" rows={2} value={systems} onChange={(e) => setSystems(e.target.value)} aria-describedby="inc-systems-desc" /></Field>
       <fieldset>
         <legend className="text-[13px] font-semibold">Kinds of data possibly involved</legend>
         <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">
@@ -176,26 +176,26 @@ export function IncidentEditor({ incident, categories }) {
       {error && <FormAlert>{error}</FormAlert>}
       <fieldset disabled={closed || pending} className="space-y-3">
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field id="e-title" label="Title"><Input id="e-title" value={v.title} onChange={set("title")} /></Field>
+          <Field id="e-title" label="Title"><Input id="e-title" placeholder="e.g. Unauthorised access to a support mailbox" value={v.title} onChange={set("title")} /></Field>
           <div className="space-y-1.5"><Label htmlFor="e-sev" className="text-[13px] font-semibold">Severity</Label><select id="e-sev" value={v.severity} onChange={set("severity")} className={field}>{SEVERITIES.map((s) => <option key={s}>{s}</option>)}</select></div>
         </div>
-        <Field id="e-desc" label="Description (nature of the breach)"><Textarea id="e-desc" rows={3} value={v.description} onChange={set("description")} aria-describedby="e-desc-desc" /></Field>
+        <Field id="e-desc" label="Description (nature of the breach)"><Textarea id="e-desc" placeholder="e.g. An old API key was used to read member emails" rows={3} value={v.description} onChange={set("description")} aria-describedby="e-desc-desc" /></Field>
         <div className="grid gap-3 sm:grid-cols-2">
           <Field id="e-occ" label="Occurred at"><Input id="e-occ" type="datetime-local" value={v.occurred_at} onChange={set("occurred_at")} /></Field>
-          <Field id="e-occn" label="…or when, in words (if the time is not exact)"><Input id="e-occn" value={v.occurred_note} onChange={set("occurred_note")} /></Field>
+          <Field id="e-occn" label="…or when, in words (if the time is not exact)"><Input id="e-occn" placeholder="e.g. Overnight, between 2 and 4 am" value={v.occurred_note} onChange={set("occurred_note")} /></Field>
         </div>
         {incident.aware_at && <Field id="e-aware" label="UniSphere became aware at" hint="Starts the 72-hour clock. Correct it only if the confirmation time was wrong."><Input id="e-aware" type="datetime-local" value={v.aware_at} onChange={set("aware_at")} aria-describedby="e-aware-desc" /></Field>}
-        <Field id="e-systems" label="Systems involved (one per line)"><Textarea id="e-systems" rows={2} value={v.systems} onChange={set("systems")} aria-describedby="e-systems-desc" /></Field>
+        <Field id="e-systems" label="Systems involved (one per line)"><Textarea id="e-systems" placeholder="e.g. database, file storage" rows={2} value={v.systems} onChange={set("systems")} aria-describedby="e-systems-desc" /></Field>
         <fieldset>
           <legend className="text-[13px] font-semibold">Kinds of data involved</legend>
           <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">{categories.map((c) => <label key={c.value} className="flex items-center gap-2 text-sm"><Checkbox checked={v.data_categories.includes(c.value)} onCheckedChange={() => toggle(c.value)} />{c.label}</label>)}</div>
         </fieldset>
         <Field id="e-count" label="People affected (estimate)"><Input id="e-count" type="number" min={0} value={v.affected_count_estimate} onChange={set("affected_count_estimate")} /></Field>
-        <Field id="e-cont" label="Containment: what was done to stop it"><Textarea id="e-cont" rows={2} value={v.containment} onChange={set("containment")} aria-describedby="e-cont-desc" /></Field>
-        <Field id="e-root" label="Reasons and events that led to it (root cause)"><Textarea id="e-root" rows={2} value={v.root_cause} onChange={set("root_cause")} aria-describedby="e-root-desc" /></Field>
-        <Field id="e-rem" label="Remedial measures to prevent a repeat"><Textarea id="e-rem" rows={2} value={v.remediation} onChange={set("remediation")} aria-describedby="e-rem-desc" /></Field>
-        <Field id="e-person" label="Findings about the person who caused it"><Textarea id="e-person" rows={2} value={v.findings_on_person} onChange={set("findings_on_person")} aria-describedby="e-person-desc" /></Field>
-        <Field id="e-bref" label="Board reference (once the Board gives one)"><Input id="e-bref" value={v.board_reference} onChange={set("board_reference")} /></Field>
+        <Field id="e-cont" label="Containment: what was done to stop it"><Textarea id="e-cont" placeholder="e.g. Rotated the key and disabled the account" rows={2} value={v.containment} onChange={set("containment")} aria-describedby="e-cont-desc" /></Field>
+        <Field id="e-root" label="Reasons and events that led to it (root cause)"><Textarea id="e-root" placeholder="e.g. A key was left active after a staff member moved teams" rows={2} value={v.root_cause} onChange={set("root_cause")} aria-describedby="e-root-desc" /></Field>
+        <Field id="e-rem" label="Remedial measures to prevent a repeat"><Textarea id="e-rem" placeholder="e.g. Expire keys automatically after 90 days" rows={2} value={v.remediation} onChange={set("remediation")} aria-describedby="e-rem-desc" /></Field>
+        <Field id="e-person" label="Findings about the person who caused it"><Textarea id="e-person" placeholder="e.g. Followed the process; no action needed" rows={2} value={v.findings_on_person} onChange={set("findings_on_person")} aria-describedby="e-person-desc" /></Field>
+        <Field id="e-bref" label="Board reference (once the Board gives one)"><Input id="e-bref" placeholder="e.g. DPB/2026/014" value={v.board_reference} onChange={set("board_reference")} /></Field>
       </fieldset>
       {!closed && <SubmitButton pending={pending} pendingText="Saving…" size="sm">Save facts</SubmitButton>}
     </form>
@@ -224,7 +224,7 @@ export function IncidentStatusForm({ id, status }) {
         <Label htmlFor="st-to" className="text-[13px] font-semibold">Move to</Label>
         <select id="st-to" value={to} onChange={(e) => setTo(e.target.value)} className={field}>{next.map((s) => <option key={s} value={s}>{s.replace(/_/g, " ")}</option>)}</select>
       </div>
-      <Field id="st-note" label={to === "confirmed" ? "Why this is a confirmed breach (this starts the 72-hour clock)" : "Why"} required><Textarea id="st-note" rows={2} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} aria-describedby="st-note-desc" /></Field>
+      <Field id="st-note" label={to === "confirmed" ? "Why this is a confirmed breach (this starts the 72-hour clock)" : "Why"} required><Textarea id="st-note" placeholder="e.g. Logs confirm an outsider read personal data" rows={2} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} aria-describedby="st-note-desc" /></Field>
       <SubmitButton pending={pending} pendingText="Saving…" size="sm" variant={to === "confirmed" ? "destructive" : "default"}>Update status</SubmitButton>
     </form>
   );
@@ -243,7 +243,7 @@ export function IncidentEventForm({ id }) {
           <option value="note">Note</option><option value="containment">Containment step</option><option value="evidence">Evidence kept (describe where; do not paste personal data)</option>
         </select>
       </div>
-      <Field id="ev-body" label="Entry" required><Textarea id="ev-body" rows={2} maxLength={4000} value={body} onChange={(e) => setBody(e.target.value)} aria-describedby="ev-body-desc" /></Field>
+      <Field id="ev-body" label="Entry" required><Textarea id="ev-body" placeholder="e.g. Contacted the email provider; waiting for access logs" rows={2} maxLength={4000} value={body} onChange={(e) => setBody(e.target.value)} aria-describedby="ev-body-desc" /></Field>
       <SubmitButton pending={pending} pendingText="Adding…" size="sm">Add to timeline</SubmitButton>
     </form>
   );
@@ -256,7 +256,7 @@ export function AffectedForm({ id }) {
     <form noValidate className="space-y-3" onSubmit={(e) => { e.preventDefault(); run(() => incidentAffectedAction({ id, usernames }), () => setUsernames("")); }}>
       {error && <FormAlert>{error}</FormAlert>}
       <Field id="af-names" label="Add affected members by username" hint="One per line, or separated by commas. Only add people you have confirmed were affected." required>
-        <Textarea id="af-names" rows={3} value={usernames} onChange={(e) => setUsernames(e.target.value)} aria-describedby="af-names-desc" />
+        <Textarea id="af-names" placeholder="One username per line, e.g. aarav_sharma" rows={3} value={usernames} onChange={(e) => setUsernames(e.target.value)} aria-describedby="af-names-desc" />
       </Field>
       <SubmitButton pending={pending} pendingText="Adding…" size="sm">Add to the list</SubmitButton>
     </form>
@@ -274,7 +274,7 @@ export function NoticeEditor({ incidentId, audience, label, notice, canApprove, 
       {error && <FormAlert>{error}</FormAlert>}
       {notice && <p className="text-muted-foreground text-xs">Status: <strong>{notice.status}</strong>{notice.approved_at ? `, approved ${new Date(notice.approved_at).toLocaleString("en-IN")}` : ""}{notice.sent_at ? `, sent ${new Date(notice.sent_at).toLocaleString("en-IN")}` : ""}</p>}
       <fieldset disabled={sent || pending} className="space-y-3">
-        <Field id={`n-${audience}-s`} label="Subject"><Input id={`n-${audience}-s`} value={subject} onChange={(e) => setSubject(e.target.value)} maxLength={200} /></Field>
+        <Field id={`n-${audience}-s`} label="Subject"><Input id={`n-${audience}-s`} placeholder="e.g. Notice of a personal data breach" value={subject} onChange={(e) => setSubject(e.target.value)} maxLength={200} /></Field>
         <Field id={`n-${audience}-b`} label="Text" hint="Every [to be completed: …] must be replaced before it can be approved."><Textarea id={`n-${audience}-b`} rows={12} value={body} onChange={(e) => setBody(e.target.value)} maxLength={8000} aria-describedby={`n-${audience}-b-desc`} /></Field>
         <div className="flex flex-wrap gap-2">
           <Button type="button" variant="outline" size="sm" onClick={() => run(async () => { const r = await draftIncidentNoticeAction({ id: incidentId, audience }); if (r.ok) { setSubject(r.subject); setBody(r.body); return { ok: true, message: "Draft generated from the incident record. Complete and save it." }; } return r; })}>
@@ -290,7 +290,7 @@ export function NoticeEditor({ incidentId, audience, label, notice, canApprove, 
       {notice?.status === "approved" && audience !== "principals" && (
         <div className="bg-muted/40 space-y-2 rounded-md border p-3">
           <p className="text-[13px]">Submit this report to the Data Protection Board through the Board&rsquo;s own channel, then record it here. UniSphere does not submit it for you.</p>
-          <Field id={`n-${audience}-ref`} label="Board reference (if given)"><Input id={`n-${audience}-ref`} value={reference} onChange={(e) => setReference(e.target.value)} maxLength={120} /></Field>
+          <Field id={`n-${audience}-ref`} label="Board reference (if given)"><Input id={`n-${audience}-ref`} placeholder="e.g. DPB/2026/014" value={reference} onChange={(e) => setReference(e.target.value)} maxLength={120} /></Field>
           <Button type="button" size="sm" disabled={pending} onClick={() => run(() => markBoardNoticeSentAction({ noticeId: notice.id, reference }))}>I submitted it: record</Button>
         </div>
       )}
@@ -307,7 +307,7 @@ export function AccessReviewForm() {
   return (
     <form noValidate className="space-y-3" onSubmit={(e) => { e.preventDefault(); run(() => recordAccessReviewAction({ notes }), () => setNotes("")); }}>
       {error && <FormAlert>{error}</FormAlert>}
-      <Field id="ar-notes" label="Review notes" hint="Who you checked, and what you decided. Saves a snapshot of the list above."><Textarea id="ar-notes" rows={3} maxLength={2000} value={notes} onChange={(e) => setNotes(e.target.value)} aria-describedby="ar-notes-desc" /></Field>
+      <Field id="ar-notes" label="Review notes" hint="Who you checked, and what you decided. Saves a snapshot of the list above."><Textarea id="ar-notes" placeholder="e.g. Checked all four officers; removed access for one who left" rows={3} maxLength={2000} value={notes} onChange={(e) => setNotes(e.target.value)} aria-describedby="ar-notes-desc" /></Field>
       <SubmitButton pending={pending} pendingText="Recording…" size="sm">Record this review</SubmitButton>
     </form>
   );

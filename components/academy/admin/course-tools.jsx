@@ -42,7 +42,7 @@ export function ResourceUploader({ courseId, lessons = [] }) {
   return (
     <form onSubmit={add} className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
-        <div><label htmlFor="res-title" className="text-[13px] font-semibold">Title</label><input id="res-title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} className="border-input bg-card mt-1 h-9 w-full rounded-md border px-3 text-sm" /></div>
+        <div><label htmlFor="res-title" className="text-[13px] font-semibold">Title</label><input id="res-title" placeholder="e.g. Week 1 slides" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} className="border-input bg-card mt-1 h-9 w-full rounded-md border px-3 text-sm" /></div>
         <div><label htmlFor="res-lesson" className="text-[13px] font-semibold">For</label>
           <select id="res-lesson" value={lessonId} onChange={(e) => setLessonId(e.target.value)} className="border-input bg-card mt-1 h-9 w-full rounded-md border px-2 text-sm"><option value="">The whole course</option>{lessons.map((l) => <option key={l.id} value={l.id}>{l.title}</option>)}</select></div>
       </div>
@@ -75,7 +75,7 @@ export function PricePreview({ courses }) {
     <form onSubmit={run} className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2"><label htmlFor="pp-course" className="text-[13px] font-semibold">Course</label><select id="pp-course" value={form.courseId} onChange={(e) => set("courseId", e.target.value)} className="border-input bg-card mt-1 h-9 w-full rounded-md border px-2 text-sm">{courses.map((c) => <option key={c.id} value={c.id}>{c.code} {c.title} ({c.status})</option>)}</select></div>
-        <div><label htmlFor="pp-coupon" className="text-[13px] font-semibold">Coupon code</label><input id="pp-coupon" value={form.coupon} onChange={(e) => set("coupon", e.target.value.toUpperCase())} className="border-input bg-card mt-1 h-9 w-full rounded-md border px-3 font-mono text-sm" /></div>
+        <div><label htmlFor="pp-coupon" className="text-[13px] font-semibold">Coupon code</label><input id="pp-coupon" placeholder="e.g. WELCOME10" value={form.coupon} onChange={(e) => set("coupon", e.target.value.toUpperCase())} className="border-input bg-card mt-1 h-9 w-full rounded-md border px-3 font-mono text-sm" /></div>
         <div><label htmlFor="pp-user" className="text-[13px] font-semibold">As this student (username)</label><input id="pp-user" value={form.username} onChange={(e) => set("username", e.target.value)} placeholder="optional" className="border-input bg-card mt-1 h-9 w-full rounded-md border px-3 text-sm" /></div>
         <div><label htmlFor="pp-at" className="text-[13px] font-semibold">At this moment</label><input id="pp-at" type="datetime-local" value={form.at} onChange={(e) => set("at", e.target.value)} className="border-input bg-card mt-1 h-9 w-full rounded-md border px-3 text-sm" /></div>
       </div>

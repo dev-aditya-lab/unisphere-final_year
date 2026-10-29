@@ -149,12 +149,12 @@ export function BroadcastForm({ colleges, canReachEveryone }) {
         <legend className="text-[13px] font-semibold">What does it say?</legend>
         <div className="space-y-1.5">
           <Label htmlFor="bc-title" className="text-xs font-medium">Title</Label>
-          <input id="bc-title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} className={field} required />
+          <input id="bc-title" placeholder="e.g. New: study groups are here" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} className={field} required />
           {errors.title && <p className="text-destructive-text text-xs">{errors.title}</p>}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="bc-body" className="text-xs font-medium">Message <span className="text-muted-foreground font-normal">({body.length}/2000)</span></Label>
-          <Textarea id="bc-body" value={body} onChange={(e) => setBody(e.target.value)} rows={5} maxLength={2000} required />
+          <Textarea id="bc-body" placeholder="A short message members see in their notification" value={body} onChange={(e) => setBody(e.target.value)} rows={5} maxLength={2000} required />
           {errors.body && <p className="text-destructive-text text-xs">{errors.body}</p>}
         </div>
         <div className="space-y-1.5">

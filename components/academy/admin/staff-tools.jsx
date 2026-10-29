@@ -33,8 +33,8 @@ export function StaffRefundButton({ orderId, orderNo, refundableMinor }) {
       <DialogContent>
         <form onSubmit={submit} noValidate className="space-y-4">
           <DialogHeader><DialogTitle>Refund {orderNo}</DialogTitle><DialogDescription>The refund is sent to the payment gateway now. The order is marked refunded only after the gateway accepts it.</DialogDescription></DialogHeader>
-          <div><label htmlFor="rf-amt" className="text-[13px] font-semibold">Amount (₹, at most {minorToInput(refundableMinor)})</label><input id="rf-amt" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} className={`${field} mt-1 h-9`} /></div>
-          <div><label htmlFor="rf-why" className="text-[13px] font-semibold">Reason</label><textarea id="rf-why" rows={3} value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} className={`${field} mt-1 py-2`} /></div>
+          <div><label htmlFor="rf-amt" className="text-[13px] font-semibold">Amount (₹, at most {minorToInput(refundableMinor)})</label><input id="rf-amt" placeholder="e.g. 499.00" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} className={`${field} mt-1 h-9`} /></div>
+          <div><label htmlFor="rf-why" className="text-[13px] font-semibold">Reason</label><textarea id="rf-why" placeholder="e.g. Student asked within the refund window" rows={3} value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} className={`${field} mt-1 py-2`} /></div>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={revoke} onChange={(e) => setRevoke(e.target.checked)} className="accent-primary size-4" />End the student&apos;s access when fully refunded</label>
           <p role="alert" className={error ? "text-destructive-text text-sm" : "sr-only"}>{error}</p>
           <DialogFooter><Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button><Button type="submit" disabled={pending || reason.trim().length < 3}>{pending ? "Sending…" : "Refund"}</Button></DialogFooter>
@@ -72,7 +72,7 @@ export function GradeForm({ submission }) {
       ) : (
         <div className="max-w-40"><label htmlFor={`g-${submission.id}`} className="text-[13px] font-semibold">Score <span className="text-muted-foreground font-normal">/ {submission.max_score}</span></label><input id={`g-${submission.id}`} type="number" min={0} max={submission.max_score} value={score} onChange={(e) => setScore(e.target.value)} className={`${field} mt-1 h-9`} /></div>
       )}
-      <div><label htmlFor={`gf-${submission.id}`} className="text-[13px] font-semibold">Feedback to the student</label><textarea id={`gf-${submission.id}`} rows={4} maxLength={4000} value={feedback} onChange={(e) => setFeedback(e.target.value)} className={`${field} mt-1 py-2`} /></div>
+      <div><label htmlFor={`gf-${submission.id}`} className="text-[13px] font-semibold">Feedback to the student</label><textarea id={`gf-${submission.id}`} placeholder="What went well, and what to improve next time" rows={4} maxLength={4000} value={feedback} onChange={(e) => setFeedback(e.target.value)} className={`${field} mt-1 py-2`} /></div>
       <p role="alert" className={error ? "text-destructive-text text-sm" : "sr-only"}>{error}</p>
       <div className="flex flex-wrap gap-2">
         <Button type="button" size="sm" disabled={pending} onClick={() => send("grade")}>{submission.status === "graded" ? "Update grade" : "Grade"}</Button>

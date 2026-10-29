@@ -49,7 +49,7 @@ export function RenameAcademicDialog({ item }) {
         </DialogHeader>
         <div className="space-y-1.5">
           <Label htmlFor={`rename-${item.id}`} className="text-[13px] font-semibold">Name</Label>
-          <Input id={`rename-${item.id}`} value={name} maxLength={120} onChange={(e) => setName(e.target.value)} />
+          <Input id={`rename-${item.id}`} placeholder="Enter the new name" value={name} maxLength={120} onChange={(e) => setName(e.target.value)} />
         </div>
         {error && <p role="alert" className="text-destructive-text text-sm">{error}</p>}
         <DialogFooter>

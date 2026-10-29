@@ -92,8 +92,8 @@ export default async function AcademyOrders({ searchParams }) {
         <div><label htmlFor="o-c" className="text-xs font-semibold">Course</label><select id="o-c" name="course" defaultValue={course ?? ""} className={`${input} mt-1 block`}><option value="">All</option>{courses.map((c) => <option key={c.id} value={c.id}>{c.code}</option>)}</select></div>
         <div><label htmlFor="o-f" className="text-xs font-semibold">From</label><input id="o-f" type="date" name="from" defaultValue={sp.from ?? ""} className={`${input} mt-1 block`} /></div>
         <div><label htmlFor="o-t" className="text-xs font-semibold">To</label><input id="o-t" type="date" name="to" defaultValue={sp.to ?? ""} className={`${input} mt-1 block`} /></div>
-        <div><label htmlFor="o-min" className="text-xs font-semibold">Min ₹</label><input id="o-min" name="min" defaultValue={sp.min ?? ""} className={`${input} mt-1 block w-24`} /></div>
-        <div><label htmlFor="o-max" className="text-xs font-semibold">Max ₹</label><input id="o-max" name="max" defaultValue={sp.max ?? ""} className={`${input} mt-1 block w-24`} /></div>
+        <div><label htmlFor="o-min" className="text-xs font-semibold">Min ₹</label><input id="o-min" placeholder="0" name="min" defaultValue={sp.min ?? ""} className={`${input} mt-1 block w-24`} /></div>
+        <div><label htmlFor="o-max" className="text-xs font-semibold">Max ₹</label><input id="o-max" placeholder="5000" name="max" defaultValue={sp.max ?? ""} className={`${input} mt-1 block w-24`} /></div>
         <Button type="submit" size="sm">Filter</Button>
       </form>
       <DataTable caption="Academy orders" columns={["Order", "Student", "Course", "Total", "Status", "Gateway", "When", ""]} empty={list.length === 0 && <EmptyRow>No orders match.</EmptyRow>}>

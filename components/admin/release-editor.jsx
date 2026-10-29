@@ -45,10 +45,10 @@ export function ReleaseEditor({ release = null, suggestedVersion = "0.9.0" }) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-[8rem_1fr]">
-        <div className="space-y-1.5"><Label htmlFor={`v-${uid}`} className="text-[13px] font-semibold">Version</Label><input id={`v-${uid}`} value={version} onChange={(e) => setVersion(e.target.value)} className={`${field} w-full font-mono`} /></div>
-        <div className="space-y-1.5"><Label htmlFor={`t-${uid}`} className="text-[13px] font-semibold">Title</Label><input id={`t-${uid}`} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} className={`${field} w-full`} /></div>
+        <div className="space-y-1.5"><Label htmlFor={`v-${uid}`} className="text-[13px] font-semibold">Version</Label><input id={`v-${uid}`} placeholder="e.g. 2.9.0" value={version} onChange={(e) => setVersion(e.target.value)} className={`${field} w-full font-mono`} /></div>
+        <div className="space-y-1.5"><Label htmlFor={`t-${uid}`} className="text-[13px] font-semibold">Title</Label><input id={`t-${uid}`} placeholder="e.g. Faster feed and a new admin console" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} className={`${field} w-full`} /></div>
       </div>
-      <div className="space-y-1.5"><Label htmlFor={`s-${uid}`} className="text-[13px] font-semibold">One-line summary (optional)</Label><Textarea id={`s-${uid}`} value={summary} onChange={(e) => setSummary(e.target.value)} rows={2} maxLength={300} /></div>
+      <div className="space-y-1.5"><Label htmlFor={`s-${uid}`} className="text-[13px] font-semibold">One-line summary (optional)</Label><Textarea id={`s-${uid}`} placeholder="e.g. We made the feed faster and fixed sign-in on Android." value={summary} onChange={(e) => setSummary(e.target.value)} rows={2} maxLength={300} /></div>
       <fieldset className="min-w-0 space-y-2">
         <legend className="text-[13px] font-semibold">Changes</legend>
         {items.map((it, i) => (

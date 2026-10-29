@@ -47,12 +47,12 @@ export function AnnouncementForm({ colleges }) {
       )}
       <div className="space-y-1.5">
         <Label htmlFor="ann-title" className="text-[13px] font-semibold">Title</Label>
-        <input id="ann-title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={140} className={field} required />
+        <input id="ann-title" placeholder="e.g. Campus fest registrations are open" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={140} className={field} required />
         {errors.title && <p className="text-destructive-text text-xs">{errors.title}</p>}
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="ann-body" className="text-[13px] font-semibold">Message</Label>
-        <Textarea id="ann-body" value={body} onChange={(e) => setBody(e.target.value)} rows={6} maxLength={5000} required />
+        <Textarea id="ann-body" placeholder="What should members know? e.g. Registrations close on Friday at 5 pm." value={body} onChange={(e) => setBody(e.target.value)} rows={6} maxLength={5000} required />
         {errors.body && <p className="text-destructive-text text-xs">{errors.body}</p>}
       </div>
       <div className="flex flex-wrap items-end gap-4">

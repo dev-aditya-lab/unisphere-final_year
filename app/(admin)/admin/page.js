@@ -10,6 +10,8 @@ import { parseRange } from "@/lib/admin/range";
 import { getAiOverview, getOverview, getSeries, listAudit } from "@/lib/services/admin";
 import { fmtDateTime } from "@/components/admin/ui";
 import { createClient } from "@/lib/supabase/server";
+import { ADMIN_GROUPS, visibleAdminNav } from "@/lib/admin/nav";
+import { adminIcon } from "@/components/admin/admin-icons";
 
 export const metadata = { title: "Overview" };
 
@@ -23,6 +25,7 @@ export default async function AdminOverviewPage({ searchParams }) {
   const sp = await searchParams;
   const names = new Set((await getMyPermissions()).map((p) => p.permission));
   const supabase = await createClient();
+  const tools = visibleAdminNav(names).filter((i) => i.href !== "/admin");
 
   const queues = await Promise.all(
     QUEUES.filter((q) => names.has(q.perm)).map(async (q) => {
@@ -52,6 +55,9 @@ export default async function AdminOverviewPage({ searchParams }) {
     <>
       <PageHeader eyebrow="Admin console" title="Overview" description={scope ? "What needs attention, and how the community is doing." : "What needs your attention."} />
 
+      {queues.length > 0 && (
+        <h2 className="eyebrow mb-2">Needs attention</h2>
+      )}
       {queues.length > 0 && (
         <section aria-label="Waiting for review" className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {queues.map((q) => (
@@ -84,6 +90,41 @@ export default async function AdminOverviewPage({ searchParams }) {
         </>
       ) : (
         <Panel title="Your tools" description="Use the menu to open the queues and tools your role covers." />
+      )}
+
+      {tools.length > 0 && (
+        <section aria-label="All your tools" className="mt-8">
+          <h2 className="eyebrow mb-1">Your tools</h2>
+          <p className="text-muted-foreground mb-4 text-[13px]">
+            Everything your role covers, by area. Press <kbd className="bg-muted rounded border px-1 text-[11px]">Ctrl K</kbd> anywhere to jump to a page.
+          </p>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {ADMIN_GROUPS.map((group) => {
+              const groupTools = tools.filter((t) => t.group === group.id);
+              if (groupTools.length === 0) return null;
+              const GroupIcon = adminIcon(group.icon);
+              return (
+                <div key={group.id} className="surface p-4">
+                  <h3 className="font-heading mb-2 flex items-center gap-2 text-sm font-bold">
+                    <GroupIcon className="text-primary-text size-4" aria-hidden="true" /> {group.label}
+                  </h3>
+                  <ul className="-mx-2 space-y-0.5">
+                    {groupTools.map((t) => {
+                      const Icon = adminIcon(t.icon);
+                      return (
+                        <li key={t.href}>
+                          <Link href={t.href} className="text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[13.5px] font-medium transition-colors">
+                            <Icon className="size-4 shrink-0" aria-hidden="true" /> <span className="truncate">{t.label}</span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+        </section>
       )}
 
       {(recent || ai) && (

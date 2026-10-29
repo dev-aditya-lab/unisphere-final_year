@@ -48,7 +48,7 @@ export function PricingForm({ enabled: initialEnabled, price: initialPrice, canM
         <div className="space-y-1.5">
           <label htmlFor="bt-price" className="text-[13px] font-semibold">One-time price (₹)</label>
           <input
-            id="bt-price" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} disabled={!canManage || pending}
+            id="bt-price" inputMode="decimal" placeholder="e.g. 99" value={price} onChange={(e) => setPrice(e.target.value)} disabled={!canManage || pending}
             aria-describedby="bt-price-hint" aria-invalid={Boolean(error) || undefined} className={field}
           />
           <p id="bt-price-hint" className="text-muted-foreground text-xs">Between ₹1 and ₹1,00,000. Paid once, never renews. Applies to new purchases only.</p>
@@ -98,7 +98,7 @@ export function GrantForm() {
       </div>
       <div className="space-y-1.5">
         <label htmlFor="grant-reason" className="text-[13px] font-semibold">Reason (kept in the audit log)</label>
-        <input id="grant-reason" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} className={field} />
+        <input id="grant-reason" placeholder="e.g. Student ID checked over email" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} className={field} />
       </div>
       <Button type="submit" size="sm" disabled={pending || username.trim().length < 3 || reason.trim().length < 3}>
         <Gift aria-hidden="true" /> {pending ? "Granting…" : "Give blue tick"}

@@ -74,7 +74,7 @@ export function TriageDialog({ item, releases }) {
           )}
           <div className="space-y-1.5">
             <Label htmlFor={`resp-${item.id}`} className="text-[13px] font-semibold">Reply to the member {status === "declined" ? "(required)" : "(optional)"}</Label>
-            <Textarea id={`resp-${item.id}`} value={response} onChange={(e) => setResponse(e.target.value)} rows={3} maxLength={1000} />
+            <Textarea id={`resp-${item.id}`} placeholder="e.g. Thanks for the feedback, we are looking into it." value={response} onChange={(e) => setResponse(e.target.value)} rows={3} maxLength={1000} />
             {item.kind === "feature" && <p className="text-muted-foreground text-xs">This reply is shown on the public idea board and roadmap.</p>}
           </div>
           {item.kind === "feature" && (

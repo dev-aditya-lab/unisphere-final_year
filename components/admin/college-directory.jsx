@@ -137,15 +137,15 @@ export function CollegeDirectoryRow({ college, canVerify, canMerge }) {
             }}
             className="grid grid-cols-1 gap-3 sm:grid-cols-2"
           >
-            {field("name", "Name", "name", { maxLength: 160 })}
-            {field("short", "Short name", "shortName", { maxLength: 24 })}
-            {field("city", "City", "city", { maxLength: 80 })}
-            {field("state", "State", "state", { maxLength: 80 })}
-            {field("country", "Country", "country", { maxLength: 80 })}
-            {field("site", "Website", "website", { maxLength: 300, type: "url" })}
+            {field("name", "Name", "name", { maxLength: 160, placeholder: "e.g. Greenfield Institute of Technology" })}
+            {field("short", "Short name", "shortName", { maxLength: 24, placeholder: "e.g. GIT" })}
+            {field("city", "City", "city", { maxLength: 80, placeholder: "e.g. Pune" })}
+            {field("state", "State", "state", { maxLength: 80, placeholder: "e.g. Maharashtra" })}
+            {field("country", "Country", "country", { maxLength: 80, placeholder: "e.g. India" })}
+            {field("site", "Website", "website", { maxLength: 300, type: "url", placeholder: "https://www.example.edu" })}
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor={`desc-${college.id}`} className="text-[13px] font-semibold">Description <span className="text-muted-foreground font-normal">(leave empty to keep as is)</span></Label>
-              <Textarea id={`desc-${college.id}`} rows={2} value={v.description} onChange={set("description")} maxLength={500} />
+              <Textarea id={`desc-${college.id}`} placeholder="A line or two about the college" rows={2} value={v.description} onChange={set("description")} maxLength={500} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor={`status-${college.id}`} className="text-[13px] font-semibold">Listing status</Label>

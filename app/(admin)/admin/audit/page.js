@@ -43,7 +43,7 @@ export default async function AuditPage({ searchParams }) {
         </label>
         <label className="text-[13px]"><span className="text-muted-foreground mb-1 block text-xs font-medium">From</span><input type="date" name="from" defaultValue={from ?? ""} className="border-input bg-card h-9 rounded-md border px-2 text-sm" /></label>
         <label className="text-[13px]"><span className="text-muted-foreground mb-1 block text-xs font-medium">To</span><input type="date" name="to" defaultValue={to ?? ""} className="border-input bg-card h-9 rounded-md border px-2 text-sm" /></label>
-        <label className="text-[13px]"><span className="text-muted-foreground mb-1 block text-xs font-medium">About (record id)</span><input name="target" defaultValue={target ?? ""} className="border-input bg-card h-9 w-64 rounded-md border px-2 font-mono text-xs" /></label>
+        <label className="text-[13px]"><span className="text-muted-foreground mb-1 block text-xs font-medium">About (record id)</span><input name="target" placeholder="Paste a record ID" defaultValue={target ?? ""} className="border-input bg-card h-9 w-64 rounded-md border px-2 font-mono text-xs" /></label>
         <Button type="submit" size="sm" variant="secondary">Filter</Button>
       </form>
 

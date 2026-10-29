@@ -25,7 +25,7 @@ export function TemplateUpload({ templateId }) {
   return (
     <form onSubmit={submit} className="space-y-3">
       <FileUpload purpose="academy_template" accept="application/pdf" label="Choose the PDF" onChange={setFile} hint="Your own design as a PDF, up to 8 MB, 20 pages at most. It is kept as it is: fields are drawn over it, never edited into it." />
-      <div><label htmlFor="tu-notes" className="text-[13px] font-semibold">What changed (optional)</label><input id="tu-notes" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={300} className="border-input bg-card mt-1 h-9 w-full rounded-md border px-3 text-sm" /></div>
+      <div><label htmlFor="tu-notes" className="text-[13px] font-semibold">What changed (optional)</label><input id="tu-notes" placeholder="e.g. Updated logo and signature" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={300} className="border-input bg-card mt-1 h-9 w-full rounded-md border px-3 text-sm" /></div>
       <p role="alert" className={error ? "text-destructive-text text-sm" : "sr-only"}>{error}</p>
       <Button type="submit" size="sm" disabled={pending || !file}>{pending ? "Reading the PDF…" : "Add as a new version"}</Button>
     </form>

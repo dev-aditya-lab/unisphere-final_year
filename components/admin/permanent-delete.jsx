@@ -190,7 +190,7 @@ export function PermanentDelete({ kind, id, name, label = "Delete permanently", 
             </div>
             <div className="space-y-1.5">
               <Label htmlFor={`purge-pass-${id}`} className="text-[13px] font-semibold">Your password</Label>
-              <Input id={`purge-pass-${id}`} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" aria-invalid={fieldError ? true : undefined} />
+              <Input id={`purge-pass-${id}`} type="password" placeholder="Your admin password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" aria-invalid={fieldError ? true : undefined} />
               {fieldError ? <p role="alert" className="text-destructive-text text-xs">{fieldError}</p> : <p className="text-muted-foreground text-xs">Asked again so a left-open session cannot delete anything.</p>}
             </div>
           </div>

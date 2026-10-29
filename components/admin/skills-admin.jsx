@@ -59,12 +59,12 @@ export function SkillDialog({ skill = null, kind = "skill", categories = [], lab
         <div className="space-y-3">
           <div className="space-y-1.5">
             <Label htmlFor={`${listId}-name`} className="text-[13px] font-semibold">Name</Label>
-            <Input id={`${listId}-name`} value={f.name} maxLength={40} onChange={(e) => setF({ ...f, name: e.target.value })} />
+            <Input id={`${listId}-name`} placeholder="e.g. Python" value={f.name} maxLength={40} onChange={(e) => setF({ ...f, name: e.target.value })} />
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor={`${listId}-cat`} className="text-[13px] font-semibold">Category</Label>
-              <Input id={`${listId}-cat`} list={listId} value={f.category} maxLength={40} onChange={(e) => setF({ ...f, category: e.target.value })} />
+              <Input id={`${listId}-cat`} placeholder="e.g. Programming" list={listId} value={f.category} maxLength={40} onChange={(e) => setF({ ...f, category: e.target.value })} />
               <datalist id={listId}>{categories.map((c) => <option key={c} value={c} />)}</datalist>
             </div>
             <div className="space-y-1.5">
