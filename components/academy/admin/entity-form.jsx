@@ -20,9 +20,13 @@ const toLocalInput = (iso) => {
  * bound to what it saves (for example saveEntityAction.bind(null, "category", id)). The server validates again, shows its message
  * at the field, and the database enforces who may do it. Nothing here decides a price, a permission or a status.
  */
+// A dropdown with no blank choice shows its first option, so the form must really start with that option chosen; otherwise the box
+// looks filled in while the value sent is empty ("Choose one from the list").
+const firstChoice = (f) => (f.type === "select" && !f.allowEmpty ? (f.options?.[0]?.value ?? "") : "");
+
 export function EntityForm({ fields, initial = {}, extra = {}, action, submitLabel = "Save", resetOnSuccess = false, onDoneHref = null, compact = false }) {
   const router = useRouter();
-  const start = () => Object.fromEntries(fields.map((f) => [f.name, f.type === "datetime" ? toLocalInput(initial[f.name]) : f.type === "checkbox" ? Boolean(initial[f.name] ?? f.default ?? false) : f.type === "multi" ? (initial[f.name] ?? []) : (initial[f.name] ?? f.default ?? "")]));
+  const start = () => Object.fromEntries(fields.map((f) => [f.name, f.type === "datetime" ? toLocalInput(initial[f.name]) : f.type === "checkbox" ? Boolean(initial[f.name] ?? f.default ?? false) : f.type === "multi" ? (initial[f.name] ?? []) : (initial[f.name] ?? f.default ?? firstChoice(f))]));
   const [values, setValues] = useState(start);
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState(null);
