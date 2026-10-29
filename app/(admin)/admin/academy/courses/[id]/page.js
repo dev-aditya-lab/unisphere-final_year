@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { EntityForm } from "@/components/academy/admin/entity-form";
 import { CoverUpload, PricePreview, ResourceUploader } from "@/components/academy/admin/course-tools";
 import { CourseCover } from "@/components/academy/ui/course-cover";
+import { Readiness, readinessItems } from "@/components/academy/admin/readiness";
 import {
   assignMentorAction, assignTemplateFormAction, deleteEntityAction, deleteQuizQuestionAction, deleteResourceAction, moveEntityAction,
   saveEntityAction, saveLessonContentAction, saveQuizQuestionAction, setCoursePricingAction, setCourseStatusAction, unassignMentorAction,
@@ -54,7 +55,9 @@ export default async function CourseEditor({ params, searchParams }) {
   const [categories, mentors, options] = await Promise.all([categoriesAll(), mentorsAll(), courseOptions()]);
   const publish = await (async () => (await (await createClient()).rpc("has_permission", { p_permission: "academy.courses.publish", p_college_id: null })).data === true)();
   const pricing = await (async () => (await (await createClient()).rpc("has_permission", { p_permission: "academy.pricing.manage", p_college_id: null })).data === true)();
-  const { data: templates } = await (await createClient()).from("academy_cert_templates").select("id, name").order("name");
+  const { data: templates } = await (await createClient()).from("academy_cert_templates").select("id, name, is_default, active").order("name");
+  const { count: upcomingClasses } = await (await createClient()).from("academy_live_sessions").select("id", { count: "exact", head: true }).eq("course_id", id).in("status", ["scheduled", "live"]);
+  const hasCertificateTemplate = Boolean(course.certificate_template_id) || (templates ?? []).some((t) => t.is_default && t.active);
   void held;
   const href = (t) => `/admin/academy/courses/${id}?tab=${t}`;
   const lessonsOf = (m) => ws.lessons.filter((l) => l.module_id === m.id);
@@ -72,6 +75,9 @@ export default async function CourseEditor({ params, searchParams }) {
           {publish && course.status !== "draft" && course.status !== "archived" && !ws.hasOrders && <QuickAction label="Back to draft" action={setCourseStatusAction.bind(null, id, "draft")} args={{}} />}
         </>}
       />
+      {course.status !== "archived" && (
+        <Readiness items={readinessItems({ course, lessonCount: ws.lessons.length, mentorCount: ws.mentors.length, upcomingClasses: upcomingClasses ?? 0, hasCertificateTemplate, tab: href })} />
+      )}
       <nav aria-label="Sections" className="mb-5 flex flex-wrap gap-1.5">
         {TABS.map(([t, label]) => <Link key={t} href={href(t)} aria-current={t === tab ? "page" : undefined} className={`rounded-md border px-3 py-1.5 text-[13px] font-medium ${t === tab ? "bg-accent border-transparent" : "text-muted-foreground hover:bg-muted"}`}>{label}</Link>)}
       </nav>

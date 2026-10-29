@@ -265,3 +265,33 @@ describe("offers shown from a quote", () => {
     expect(couponSchema.parse({ ...base, public_label: "ignored" }).couponRow).toMatchObject({ auto_apply: false, public_label: null });
   });
 });
+
+describe("class and teaching notifications", () => {
+  const UUID = "7f9c2c1e-3b0a-4e44-9d0e-1a2b3c4d5e6f";
+  it("tells a student about a new, moved or cancelled class and links to the schedule", () => {
+    const base = { title: "Doubt session", course_title: "Web Dev", starts_at: "2030-01-10T13:30:00Z", role: "student" };
+    expect(describeNotification({ type: "academy_live_scheduled", data: { ...base, event: "scheduled" } })).toMatchObject({ text: "New live class: Doubt session", href: "/academy/schedule" });
+    expect(describeNotification({ type: "academy_live_scheduled", data: { ...base, event: "rescheduled" } }).text).toBe("Doubt session was moved");
+    const cancelled = describeNotification({ type: "academy_live_scheduled", data: { ...base, event: "cancelled" } });
+    expect(cancelled.text).toBe("Doubt session was cancelled");
+    expect(cancelled.detail).toBe("Web Dev");
+  });
+  it("sends an instructor to the teaching page, not the student's course page", () => {
+    expect(describeNotification({ type: "academy_live_scheduled", data: { event: "scheduled", title: "X", role: "instructor" } }).href).toBe("/academy/teach");
+    expect(describeNotification({ type: "academy_live_started", data: { title: "X", role: "mentor" } }).href).toBe("/academy/teach");
+    expect(describeNotification({ type: "academy_live_reminder", data: { title: "X", hours: 1, role: "instructor", course_id: UUID } }).href).toBe("/academy/teach");
+    expect(describeNotification({ type: "academy_live_reminder", data: { title: "X", hours: 1, course_id: UUID } }).href).toBe(`/academy/learn/${UUID}#live`);
+  });
+  it("says a class is live now", () => {
+    expect(describeNotification({ type: "academy_live_started", data: { title: "Week 2", course_title: "Web Dev" } })).toMatchObject({ text: "Week 2 is live now", href: "/academy/dashboard" });
+  });
+  it("tells mentors about an assignment, an enrolment and being added to a course", () => {
+    expect(describeNotification({ type: "academy_mentor_assigned", data: { title: "Web Dev", role: "lead" } }).text).toBe("You were added as the lead mentor on Web Dev");
+    expect(describeNotification({ type: "academy_submission_received", data: { student: "Asha", assignment: "Project 1", course_title: "Web Dev" } })).toMatchObject({ text: "Asha handed in Project 1", href: "/admin/academy/assignments" });
+    expect(describeNotification({ type: "academy_student_enrolled", data: { student: "Asha", title: "Web Dev" } }).text).toBe("Asha enrolled in Web Dev");
+  });
+  it("files them all under the Academy notification switches", async () => {
+    const { notificationCategory: categoryOf } = await import("@/lib/notification-text");
+    for (const t of ["academy_live_scheduled", "academy_live_started", "academy_mentor_assigned", "academy_submission_received", "academy_student_enrolled"]) expect(categoryOf(t)).toBe("academy");
+  });
+});

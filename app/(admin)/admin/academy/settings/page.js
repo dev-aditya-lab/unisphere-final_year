@@ -50,6 +50,7 @@ export default async function AcademySettings({ searchParams }) {
               <SettingRow settingKey="issuing_organization" label="Issuing organisation" hint="Printed on certificates and shown when one is verified." initial={v(all, "issuing_organization", "UniSphere Academy")} />
               <SettingRow settingKey="support_email" label="Support email" hint="Shown to students and to people verifying a certificate, for questions and disputes." initial={v(all, "support_email", "")} />
               <SettingRow settingKey="code_prefix" label="Course code prefix" hint="First part of new course codes (USA-WD-001). Existing codes never change." initial={v(all, "code_prefix", "USA")} />
+              <SettingRow settingKey="certificate_auto_issue" type="checkbox" label="Issue certificates automatically" hint="A student gets their certificate the moment they meet the course requirements (and, where the course asks, a mentor has approved it). Switch off to issue every certificate by hand." initial={v(all, "certificate_auto_issue", true) === true} />
               <SettingRow settingKey="certificate_prefix" label="Certificate ID prefix" hint="First part of new certificate IDs (US-2026-WD-00142). Existing IDs never change." initial={v(all, "certificate_prefix", "US")} />
             </div>
           </Panel>

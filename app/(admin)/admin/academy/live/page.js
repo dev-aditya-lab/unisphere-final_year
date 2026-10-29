@@ -42,7 +42,7 @@ export default async function LiveAndNews() {
             <p className="bg-muted mb-4 rounded-lg px-4 py-3 text-sm" role="status">{google.data.status === "needs_reconnect" ? "Google needs to be reconnected" : "Google is not connected"}, so classes cannot create a Meet or send invitations yet. <a className="text-primary-text underline" href="/admin/academy/settings">Connect it in Academy settings</a>.</p>
           )}
           <Panel title="Schedule a class" description="Reminders go to enrolled students automatically (see Academy settings for the times). The link is shown only to eligible students, from an hour before the start." className="mb-6">
-            <EntityForm fields={LIVE_FIELDS(active, mentors)} initial={{ status: "scheduled" }} action={saveLiveSessionAction.bind(null, null)} submitLabel="Schedule" resetOnSuccess />
+            <EntityForm fields={LIVE_FIELDS(active, mentors)} initial={{ auto_meet: Boolean(google.data?.connected) }} action={saveLiveSessionAction.bind(null, null)} submitLabel="Schedule" resetOnSuccess />
           </Panel>
           <Panel title="Classes" className="mb-8">
             <ul className="divide-y text-sm">
@@ -52,7 +52,7 @@ export default async function LiveAndNews() {
                   <li key={s.id} className="py-3"><details>
                     <summary className="flex cursor-pointer flex-wrap items-center gap-2"><strong>{s.title}</strong><span className="font-mono text-xs">{s.course?.code}</span><StatusBadge value={s.status === "scheduled" ? "pending" : s.status} /><span className="text-muted-foreground text-xs">{fmtDateTime(s.starts_at)}</span>{s.auto_meet && <GoogleState g={googleBy.get(s.id)} />}</summary>
                     <div className="mt-4 space-y-3">
-                      <EntityForm fields={LIVE_FIELDS(active, mentors)} initial={{ ...s, meeting_url: l?.meeting_url ?? "", recording_url: l?.recording_url ?? "" }} action={saveLiveSessionAction.bind(null, s.id)} />
+                      <EntityForm fields={LIVE_FIELDS(active, mentors)} initial={{ ...s, cancelled: s.status === "cancelled", meeting_url: l?.meeting_url ?? "", recording_url: l?.recording_url ?? "" }} action={saveLiveSessionAction.bind(null, s.id)} />
                       {s.auto_meet && googleBy.get(s.id)?.sync === "failed" && <ActionDialog label="Try Google again" title="Try the Google sync again?" askReason={false} action={retryGoogleSyncAction.bind(null, s.id)} args={{}} confirmLabel="Try again" />}
                       <ActionDialog label="Delete class" destructive askReason={false} title="Delete this class?" action={deleteEntityAction.bind(null, "live_session", s.id)} args={{}} confirmLabel="Delete" />
                     </div>

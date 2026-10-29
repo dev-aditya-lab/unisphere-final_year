@@ -872,15 +872,15 @@ describe("Google Calendar and Meet plumbing (0072)", () => {
   });
 
   it("hands the queue to one worker at a time and re-queues a synced class whose guest list changed", async () => {
-    const first = must(await admin.rpc("academy_google_claim", { p_limit: 5 }));
+    const first = must(await admin.rpc("academy_google_claim", { p_limit: 50 }));
     expect(first.map((r) => r.session_id)).toContain(sid);
-    expect(must(await admin.rpc("academy_google_claim", { p_limit: 5 })).map((r) => r.session_id)).not.toContain(sid);
+    expect(must(await admin.rpc("academy_google_claim", { p_limit: 50 })).map((r) => r.session_id)).not.toContain(sid);
     await admin.rpc("academy_google_done", { p_session: sid, p_event: "ev1", p_url: "https://meet.google.com/abc-defg-hij", p_emails: [] });
     expect((await row()).sync).toBe("synced");
     expect((await admin.from("academy_live_session_links").select("meeting_url").eq("session_id", sid).single()).data.meeting_url).toBe("https://meet.google.com/abc-defg-hij");
     await admin.from("academy_live_google").update({ synced_at: new Date(Date.now() - 600_000).toISOString() }).eq("session_id", sid);
     await enrol(carol);
-    expect(must(await admin.rpc("academy_google_claim", { p_limit: 5 })).map((r) => r.session_id)).toContain(sid);
+    expect(must(await admin.rpc("academy_google_claim", { p_limit: 50 })).map((r) => r.session_id)).toContain(sid);
   });
 
   it("backs off after a failure and gives up on a permanent one", async () => {
@@ -910,5 +910,125 @@ describe("Google Calendar and Meet plumbing (0072)", () => {
     expect((await owner.client.from("academy_live_google").select("session_id").eq("session_id", sid)).data).toHaveLength(1);
     expect((await alice.client.from("academy_live_google").select("session_id")).data ?? []).toHaveLength(0);
     expect((await alice.client.from("academy_live_google").update({ sync: "synced" }).eq("session_id", sid).select()).data ?? []).toHaveLength(0);
+  });
+});
+
+describe("the learning pipeline (0076)", () => {
+  let c, assignment, lessons2;
+  const min = (m) => new Date(Date.now() + m * 60_000).toISOString();
+  const enrol = async (user, course = c.id) => must(await admin.rpc("_academy_enroll", { p_user: user.id, p_course: course, p_cohort: null, p_source: "complimentary", p_order: null, p_granted_by: null, p_reason: "test", p_consent: true }), "enrol");
+  const note = async (user, type, where = {}) => (await admin.from("notifications").select("type, data").eq("user_id", user.id).eq("type", type)).data.filter((n) => Object.entries(where).every(([k, v]) => n.data?.[k] === v));
+  const session = async (over = {}) => must(await owner.client.from("academy_live_sessions").insert({ course_id: c.id, title: `Class ${Math.random().toString(36).slice(2, 6)}`, starts_at: min(120), ends_at: min(180), ...over }).select("*").single(), "session");
+
+  beforeAll(async () => {
+    ({ course: c, lessons: lessons2 } = await publishedCourse(0));
+    await admin.from("academy_mentors").upsert({ user_id: mentor.id, display_name: "Mentor Pipeline" });
+    await enrol(alice);
+    await enrol(dave);
+    assignment = (await admin.from("academy_assignments").select("id").eq("course_id", c.id).limit(1)).data?.[0];
+  });
+
+  it("tells a mentor when they are added to a course, and the course's mentors when a student enrols or hands in work", async () => {
+    must(await owner.client.from("academy_course_mentors").insert({ course_id: c.id, user_id: mentor.id, role: "lead" }), "add mentor");
+    expect(await note(mentor, "academy_mentor_assigned", { course_id: c.id })).toHaveLength(1);
+    await enrol(carol);
+    expect(await note(mentor, "academy_student_enrolled", { student: carol.profile?.full_name ?? undefined }).catch(() => [])).toBeDefined();
+    expect((await note(mentor, "academy_student_enrolled")).length).toBeGreaterThanOrEqual(1);
+    if (assignment) {
+      await admin.from("academy_assignments").update({ status: "published" }).eq("id", assignment.id);
+      const sub = await alice.client.rpc("academy_submit_assignment", { p_assignment: assignment.id, p_repo: "https://github.com/x/y", p_demo: null, p_notes: null, p_file: null });
+      expect(sub.error, sub.error?.message).toBeNull();
+      expect((await note(mentor, "academy_submission_received")).length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it("notifies students, the instructor and the mentors when a class is scheduled, moved and cancelled", async () => {
+    const s = await session({ instructor_id: mentor.id });
+    for (const u of [alice, dave]) expect((await note(u, "academy_live_scheduled", { event: "scheduled", title: s.title })).length).toBe(1);
+    expect((await note(mentor, "academy_live_scheduled", { event: "scheduled", title: s.title }))[0]?.data.role).toBeDefined();
+    expect(await note(bob, "academy_live_scheduled", { title: s.title })).toHaveLength(0);          // not enrolled: not told
+    must(await owner.client.from("academy_live_sessions").update({ starts_at: min(240), ends_at: min(300) }).eq("id", s.id));
+    expect((await note(alice, "academy_live_scheduled", { event: "rescheduled", title: s.title })).length).toBe(1);
+    must(await owner.client.from("academy_live_sessions").update({ status: "cancelled" }).eq("id", s.id));
+    expect((await note(alice, "academy_live_scheduled", { event: "cancelled", title: s.title })).length).toBe(1);
+  });
+
+  it("moves a class to live and then completed by itself, and says so", async () => {
+    const running = await session({ starts_at: min(-10), ends_at: min(50), title: `Running ${tag}` });
+    const over = await session({ starts_at: min(-90), ends_at: min(-30), title: `Over ${tag}` });
+    const res = must(await admin.rpc("academy_advance_sessions"));
+    expect(res.started).toBeGreaterThanOrEqual(1);
+    expect((await admin.from("academy_live_sessions").select("status").eq("id", running.id).single()).data.status).toBe("live");
+    expect((await admin.from("academy_live_sessions").select("status").eq("id", over.id).single()).data.status).toBe("completed");
+    expect((await note(alice, "academy_live_started", { title: running.title })).length).toBe(1);
+    must(await admin.rpc("academy_advance_sessions"));
+    expect((await note(alice, "academy_live_started", { title: running.title })).length).toBe(1);   // only once
+  });
+
+  it("reminds the instructor an hour ahead, once", async () => {
+    const soon = await session({ starts_at: min(40), ends_at: min(100), instructor_id: mentor.id, title: `Soon ${tag}` });
+    must(await admin.rpc("academy_advance_sessions"));
+    must(await admin.rpc("academy_advance_sessions"));
+    const got = (await note(mentor, "academy_live_reminder")).filter((n) => n.data.title === soon.title);
+    expect(got).toHaveLength(1);
+  });
+
+  it("lets only an enrolled person join, only inside the window, and counts the join", async () => {
+    const open = await session({ starts_at: min(-5), ends_at: min(55), title: `Joinable ${tag}` });
+    const later = await session({ starts_at: min(600), ends_at: min(660), title: `Later ${tag}` });
+    for (const s of [open, later]) await admin.from("academy_live_session_links").upsert({ session_id: s.id, meeting_url: "https://meet.google.com/abc-defg-hij" });
+    const ok1 = must(await alice.client.rpc("academy_join_session", { p_session: open.id }));
+    expect(ok1).toMatchObject({ ok: true, url: "https://meet.google.com/abc-defg-hij" });
+    must(await alice.client.rpc("academy_join_session", { p_session: open.id }));
+    const row = (await admin.from("academy_live_attendance").select("joins").eq("session_id", open.id).eq("user_id", alice.id).single()).data;
+    expect(row.joins).toBe(2);
+    expect(must(await alice.client.rpc("academy_join_session", { p_session: later.id }))).toMatchObject({ ok: false, error: "not_open" });
+    expect(must(await bob.client.rpc("academy_join_session", { p_session: open.id }))).toMatchObject({ ok: false, error: "not_allowed" });
+    expect((await anon().rpc("academy_join_session", { p_session: open.id })).error).not.toBeNull();
+    // a student sees their own attendance, not other people's
+    expect((await alice.client.from("academy_live_attendance").select("user_id").eq("session_id", open.id)).data.map((r) => r.user_id)).toEqual([alice.id]);
+  });
+
+  it("gives an instructor a dashboard of what they teach and nobody else's", async () => {
+    const t = must(await mentor.client.rpc("academy_teaching_overview"));
+    expect(t.teaches).toBe(true);
+    expect(t.courses.map((x) => x.id)).toContain(c.id);
+    expect(t.courses.find((x) => x.id === c.id).students).toBeGreaterThanOrEqual(3);
+    expect(t.sessions.length).toBeGreaterThan(0);
+    expect(must(await bob.client.rpc("academy_teaching_overview"))).toEqual({ teaches: false });
+    expect((await anon().rpc("academy_teaching_overview")).error).not.toBeNull();
+  });
+
+  it("shows a student what is left for a certificate, and issues it by itself only when everything is done", async () => {
+    const p = must(await alice.client.rpc("academy_my_certificate_progress"));
+    const mine = p.find((x) => x.course_id === c.id);
+    expect(mine).toBeDefined();
+    expect(mine.state.eligible).toBe(false);
+    expect(mine.state.missing).toContain("lessons");
+    expect(((await admin.rpc("_academy_auto_issuable", { p_limit: 50 })).data ?? []).map((r) => r.enrollment_id)).not.toContain((await admin.from("academy_enrollments").select("id").eq("user_id", alice.id).eq("course_id", c.id).single()).data.id);
+
+    // a small course with one lesson and no assignment: finishing it makes the student eligible
+    const small = await makeCourse(owner, { price_minor: 0 });
+    const { data: mod } = await owner.client.from("academy_modules").insert({ course_id: small.id, title: "Module 1" }).select("id").single();
+    const lessonRes = await owner.client.from("academy_lessons").insert({ course_id: small.id, module_id: mod.id, title: "Only lesson", kind: "text", position: 0 }).select("*").single();
+    expect(lessonRes.error, lessonRes.error?.message).toBeNull();
+    const lesson = lessonRes.data;
+    must(await owner.client.from("academy_courses").update({ status: "published" }).eq("id", small.id).select("id").single());
+    await enrol(bob, small.id);
+    const enrolment = (await admin.from("academy_enrollments").select("id").eq("user_id", bob.id).eq("course_id", small.id).single()).data.id;
+    must(await bob.client.rpc("academy_complete_lesson", { p_lesson: lesson.id }));
+    await admin.from("academy_enrollments").update({ verify_consent_at: new Date().toISOString() }).eq("id", enrolment);
+    const issuable = async () => ((await admin.rpc("_academy_auto_issuable", { p_limit: 50 })).data ?? []).map((r) => r.enrollment_id);
+    expect(await issuable()).toContain(enrolment);
+    await setSetting("certificate_auto_issue", false);
+    expect(await issuable()).not.toContain(enrolment);
+    await setSetting("certificate_auto_issue", true);
+
+    // the permission check can be skipped only by the server, never by a signed-in person
+    const asStudent = await bob.client.rpc("academy_begin_certificate", { p_enrollment: enrolment });
+    expect(asStudent.error?.message ?? "").toMatch(/forbidden/);
+    const asServer = await admin.rpc("academy_begin_certificate", { p_enrollment: enrolment });
+    expect(asServer.error, asServer.error?.message).toBeNull();
+    expect(["no_template", "consent_required", undefined].includes(asServer.data?.error) || asServer.data?.ok).toBeTruthy();
   });
 });

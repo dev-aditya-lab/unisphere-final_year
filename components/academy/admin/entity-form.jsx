@@ -24,14 +24,26 @@ const toLocalInput = (iso) => {
 // looks filled in while the value sent is empty ("Choose one from the list").
 const firstChoice = (f) => (f.type === "select" && !f.allowEmpty ? (f.options?.[0]?.value ?? "") : "");
 
-export function EntityForm({ fields, initial = {}, extra = {}, action, submitLabel = "Save", resetOnSuccess = false, onDoneHref = null, compact = false }) {
+// A heading between groups of fields ({ section: "The basics", hint: "..." }): not a field, it has no value.
+const isField = (f) => !f.section;
+const slugify = (t) => String(t ?? "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+
+export function EntityForm({ fields: allFields, initial = {}, extra = {}, action, submitLabel = "Save", resetOnSuccess = false, onDoneHref = null, compact = false }) {
   const router = useRouter();
+  const fields = allFields.filter(isField);
   const start = () => Object.fromEntries(fields.map((f) => [f.name, f.type === "datetime" ? toLocalInput(initial[f.name]) : f.type === "checkbox" ? Boolean(initial[f.name] ?? f.default ?? false) : f.type === "multi" ? (initial[f.name] ?? []) : (initial[f.name] ?? f.default ?? firstChoice(f))]));
   const [values, setValues] = useState(start);
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState(null);
   const [pending, startTransition] = useTransition();
-  const set = (name, v) => setValues((s) => ({ ...s, [name]: v }));
+  // A field marked `slugFrom: "title"` follows that field until someone edits it by hand, so nobody has to invent a web address.
+  const set = (name, v) => setValues((s) => {
+    const next = { ...s, [name]: v };
+    for (const f of fields) {
+      if (f.slugFrom === name && (!s[f.name] || s[f.name] === slugify(s[name]))) next[f.name] = slugify(v);
+    }
+    return next;
+  });
 
   function submit(e) {
     e.preventDefault();
@@ -59,7 +71,15 @@ export function EntityForm({ fields, initial = {}, extra = {}, action, submitLab
   return (
     <form onSubmit={submit} noValidate className="space-y-4">
       <div className={compact ? "grid gap-3 sm:grid-cols-2" : "grid gap-4 sm:grid-cols-2"}>
-        {fields.map((f) => {
+        {allFields.map((f) => {
+          if (f.section) {
+            return (
+              <div key={`section-${f.section}`} className="border-b pt-4 pb-1 sm:col-span-2">
+                <h3 className="text-sm font-bold">{f.section}</h3>
+                {f.hint && <p className="text-muted-foreground mt-0.5 text-xs">{f.hint}</p>}
+              </div>
+            );
+          }
           const id = `f-${f.name}`;
           const err = errors[f.name];
           const wide = f.wide || f.type === "textarea" || f.type === "multi";

@@ -8,19 +8,28 @@ import { EmptyBlock } from "@/components/academy/ui/section";
 import { formatDateLong } from "@/lib/academy/cert-vars";
 import { verifyUrl } from "@/lib/academy/urls";
 import { requireProfile } from "@/lib/auth/session";
-import { getMyCertificates, getMyEnrollments } from "@/lib/services/academy";
+import { getCertificateProgress, getMyCertificates, getMyEnrollments } from "@/lib/services/academy";
+import { CertificateProgress } from "@/components/academy/member/certificate-progress";
 
 export const metadata = { title: "Certificates" };
 
 export default async function CertificatesPage() {
   const { user } = await requireProfile();
-  const [certs, enrollments] = await Promise.all([getMyCertificates(user.id), getMyEnrollments(user.id)]);
+  const [certs, enrollments, progress] = await Promise.all([getMyCertificates(user.id), getMyEnrollments(user.id), getCertificateProgress()]);
   const withCert = new Set(certs.map((c) => c.enrollment_id));
   const waiting = enrollments.filter((e) => e.status === "completed" && !withCert.has(e.id));
 
   return (
     <div className="space-y-8 py-8">
       <header><h1 className="font-heading text-3xl font-extrabold">Certificates</h1><p className="text-muted-foreground mt-1">Proof of what you completed. Anyone can check a certificate with its ID or QR code.</p></header>
+
+      {progress.length > 0 && (
+        <section aria-labelledby="coming" className="space-y-3">
+          <h2 id="coming" className="ac-display text-2xl">Coming up</h2>
+          <p className="text-muted-foreground text-sm">Your certificates are issued automatically the moment every step is done. This is what is left.</p>
+          <CertificateProgress items={progress} />
+        </section>
+      )}
 
       {waiting.length > 0 && (
         <section aria-label="Waiting for a certificate" className="space-y-3">

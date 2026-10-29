@@ -75,18 +75,40 @@ finance approval) followed by the gateway moving the money; an order is marked r
 * Academy receipts and Academy-only notification emails come from `ACADEMY_EMAIL_FROM` (docs/EMAIL.md).
 * Continue with Google, and live classes on Google Calendar + Meet: docs/GOOGLE.md.
 
+## The learning pipeline (2.10.0)
+
+What happens by itself, who sees what, and where.
+
+| Moment | What happens | Who is told | Where it shows |
+|---|---|---|---|
+| A mentor is added to a course | Notification | The mentor | Teaching |
+| A student enrols | Notification (and Google invitations are refreshed) | The course's mentors | Teaching, New students |
+| A class is scheduled, moved or cancelled | Notification; Google Calendar event follows | Enrolled students, the instructor, the course's mentors | Student: Overview, Schedule; Teacher: Teaching |
+| An hour before a class | Reminder | Students (24 h and 1 h) and the instructor (1 h) | Bell, push, email |
+| A class starts | Status becomes **live** by itself; "is live now" notification | Everyone above | Overview card "Live now" with **Join now** |
+| A class ends | Status becomes **completed** by itself | | Recent classes, with how many joined |
+| A student presses Join | The join is counted, the meeting opens | | Teaching: "n of m joined" (it cannot see inside Google Meet) |
+| A student hands in work | Notification | The course's mentors | Teaching, Work waiting |
+| A student meets every certificate rule | The certificate is issued by itself (needs R2 and a design) | The student | Certificates; the worker issues up to 5 per run |
+
+* **Student pages:** Overview (live now card, classes, deadlines, certificates coming up), **Schedule** (weekly timetable of their courses, dated classes and deadlines for the week, "Add to my calendar" .ics), Certificates (a checklist of what is left, each line from the same check the database uses).
+* **Instructor page:** Academy, **Teaching** (appears only for active mentors): next class with Join, upcoming classes with how many students are expected, work waiting, courses with student counts, new students, recent classes.
+* **Admin:** every course starts with a **checklist** (price, lessons, instructor, live class or timetable, certificate design, cover) saying what to do next. The live-class form has no status to type: it goes live and finishes by the clock; the only thing chosen by hand is *Cancel this class*. Forms are grouped under plain headings, and the web address fills in from the title.
+* **Settings:** *Issue certificates automatically* (default on). Turn it off to issue every certificate by hand.
+* **Where it runs:** `academy_advance_sessions()` and the automatic certificate issuing run in the cron tick (`academyHousekeeping`). Without something calling `/api/cron/tick` every few minutes, statuses and automatic certificates lag. Pages refresh themselves every minute while open.
+
 ## Notifications
 
 Category **Academy** (own In app / Push / Email switches). Types: `academy_enrolled`, `academy_payment`, `academy_refund`,
-`academy_live_reminder`, `academy_assignment_due`, `academy_feedback`, `academy_completed`, `academy_certificate`,
-`academy_announcement`. All go through `notify()`. Reminders and expired-order clean-up run in the worker tick
+`academy_live_reminder`, `academy_live_scheduled`, `academy_live_started`, `academy_assignment_due`, `academy_feedback`, `academy_completed`, `academy_certificate`,
+`academy_announcement`, and for the people who teach: `academy_mentor_assigned`, `academy_submission_received`, `academy_student_enrolled`. All go through `notify()`. Reminders and expired-order clean-up run in the worker tick
 (`academyHousekeeping`), each reminder once (`academy_reminders_sent`). See `docs/NOTIFICATIONS.md`.
 
 ## Setup checklist (what is code, what is yours)
 
 Implemented and tested: everything above. **Needs you:**
 
-1. Apply migrations 0065 to 0073 (`supabase db push --linked`).
+1. Apply migrations 0065 to 0077 (`supabase db push --linked`).
 2. Connect a payment gateway (`PAYMENT_GATEWAY` and keys, docs/PAYMENTS.md) and test it in the gateway's test mode. The Academy cannot sell until
    this works and Admin, Academy, Settings, "Paid enrolment is open" is on. The webhook address is the existing `/api/payments/webhook`.
 3. File storage (Cloudflare R2) must be configured for uploads, templates and certificate PDFs.
@@ -108,7 +130,7 @@ Implemented and tested: everything above. **Needs you:**
 
 ## Tests
 
-`npm run test:unit` (pricing display, offers, certificate drawing, forms, notifications, routes, mail, Google) and
+`npm run test:unit` (pricing display, offers, certificate drawing, forms, notifications, routes, mail, Google, class stages and the student's week) and the browser test `tests/e2e/academy-pipeline.spec.js` and
 `npx vitest run --project integration tests/integration/academy.test.js` (pricing engine, coupon race, payment settlement and refunds,
 grading, access rules, certificates and verification, against a real database).
 

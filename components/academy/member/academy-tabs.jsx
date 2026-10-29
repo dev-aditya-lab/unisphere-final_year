@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 const LINKS = [
   { href: "/academy/dashboard", label: "Overview" },
   { href: "/academy/my-learning", label: "My learning" },
+  { href: "/academy/schedule", label: "Schedule" },
   { href: "/academy/assignments", label: "Assignments" },
   { href: "/academy/certificates", label: "Certificates" },
   { href: "/academy/payments", label: "Payments" },
@@ -14,12 +15,13 @@ const LINKS = [
 ];
 
 /** Section tabs for the signed-in Academy pages, inside the normal UniSphere app (same sidebar, bell, profile and settings). */
-export function AcademyTabs() {
+export function AcademyTabs({ teacher = false }) {
   const pathname = usePathname();
+  const links = teacher ? [...LINKS.slice(0, 2), { href: "/academy/teach", label: "Teaching" }, ...LINKS.slice(2)] : LINKS;
   return (
     <nav aria-label="Academy" className="border-b">
       <div className="flex gap-1 overflow-x-auto px-1">
-        {LINKS.map((l) => {
+        {links.map((l) => {
           const active = !l.external && (pathname === l.href || pathname.startsWith(`${l.href}/`));
           return (
             <Link key={l.href} href={l.href} aria-current={active ? "page" : undefined} className={cn("relative shrink-0 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors", active ? "text-foreground" : "text-muted-foreground hover:text-foreground")}>

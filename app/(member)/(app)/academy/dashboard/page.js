@@ -9,7 +9,11 @@ import { RevealGroup, RevealItem } from "@/components/academy/ui/reveal";
 import { formatMoney } from "@/lib/academy/money";
 import { ORDER_STATUSES } from "@/lib/academy/constants";
 import { requireProfile } from "@/lib/auth/session";
-import { getDashboard } from "@/lib/services/academy";
+import { getCertificateProgress, getDashboard } from "@/lib/services/academy";
+import { AutoRefresh } from "@/components/academy/member/auto-refresh";
+import { LiveClassRow, NowCard } from "@/components/academy/member/live-class";
+import { CertificateProgress } from "@/components/academy/member/certificate-progress";
+import { canJoin, nowMs, sessionStage } from "@/lib/academy/live";
 
 export const metadata = { title: "Your learning" };
 
@@ -28,9 +32,19 @@ function Panel({ icon: Icon, title, href, children }) {
   );
 }
 
-export default async function Dashboard() {
+const CLASS_NOTE = {
+  not_open: "That class link is not open yet. It opens an hour before the start.",
+  not_allowed: "You are not enrolled in that class.",
+  slow_down: "Too many tries. Please wait a moment.",
+  not_found: "That class was not found.",
+};
+
+export default async function Dashboard({ searchParams }) {
   const { user, profile } = await requireProfile();
-  const d = await getDashboard(user.id);
+  const sp = await searchParams;
+  const [d, certProgress] = await Promise.all([getDashboard(user.id), getCertificateProgress()]);
+  const now = nowMs();
+  const nowCard = d.sessions.find((s) => sessionStage(s, now) === "live") ?? d.sessions.find((s) => canJoin(s, now) || sessionStage(s, now) === "today");
   const first = String(profile.full_name ?? "").split(" ")[0] || "there";
   const inProgress = d.active.filter((e) => e.status === "active");
   const graded = d.assignments.flatMap((a) => a.submissions.filter((s) => s.status === "graded").map((s) => ({ ...s, assignment: a }))).sort((a, b) => new Date(b.graded_at) - new Date(a.graded_at)).slice(0, 4);
@@ -42,6 +56,9 @@ export default async function Dashboard() {
         <p className="ac-kicker" style={{ "--i": 0 }}>Your learning</p>
         <h1 className="ac-display mt-3 text-[clamp(2rem,4vw,3rem)]" style={{ "--i": 1 }}>Welcome back, {first}</h1>
       </header>
+      <AutoRefresh seconds={60} />
+      {typeof sp?.class === "string" && CLASS_NOTE[sp.class] && <p role="status" className="bg-muted rounded-lg px-4 py-3 text-sm">{CLASS_NOTE[sp.class]}</p>}
+      {nowCard && <NowCard session={nowCard} now={now} />}
 
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[["In progress", inProgress.length], ["Due soon", d.due.length], ["Completed", d.enrollments.filter((e) => e.status === "completed").length], ["Certificates", issued.length]].map(([label, n]) => (
@@ -69,11 +86,9 @@ export default async function Dashboard() {
       </section>
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <Panel icon={CalendarClock} title="Upcoming live classes">
-          {d.sessions.length === 0 ? <p className="text-muted-foreground text-sm">No live classes are scheduled for your courses.</p> : (
-            <ul className="divide-y">{d.sessions.map((s) => (
-              <li key={s.id} className="flex items-start justify-between gap-3 py-3 text-sm"><div><p className="font-semibold">{s.title}</p><p className="text-muted-foreground">{s.course?.title}</p></div><time dateTime={s.starts_at} className="text-muted-foreground shrink-0 text-right text-xs">{when(s.starts_at)}</time></li>
-            ))}</ul>
+        <Panel icon={CalendarClock} title="Live classes" href="/academy/schedule" hrefLabel="My schedule">
+          {d.sessions.length === 0 ? <p className="text-muted-foreground text-sm">No live classes are scheduled for your courses. When one is, you are notified and it shows here.</p> : (
+            <ul className="divide-y">{d.sessions.map((s) => <LiveClassRow key={s.id} session={s} now={now} />)}</ul>
           )}
         </Panel>
 
@@ -94,7 +109,8 @@ export default async function Dashboard() {
         </Panel>
 
         <Panel icon={Award} title="Certificates" href="/academy/certificates">
-          {issued.length === 0 ? <p className="text-muted-foreground text-sm">Finish a course and its certificate is issued here, with a link anyone can use to verify it.</p> : (
+          {certProgress.length > 0 && <div className="mb-4"><p className="mb-2 text-xs font-semibold tracking-wide uppercase">Coming up</p><CertificateProgress items={certProgress.slice(0, 2)} compact /></div>}
+          {issued.length === 0 && certProgress.length > 0 ? null : issued.length === 0 ? <p className="text-muted-foreground text-sm">Finish a course and its certificate is issued here, with a link anyone can use to verify it.</p> : (
             <ul className="divide-y">{issued.slice(0, 3).map((c) => (
               <li key={c.id} className="flex items-center justify-between gap-3 py-3 text-sm"><div><p className="font-semibold">{c.snapshot?.course_title}</p><p className="text-muted-foreground font-mono text-xs">{c.certificate_id}</p></div><Link className="text-primary-text underline" href={`/academy/verify/${c.certificate_id}`}>Verify</Link></li>
             ))}</ul>
