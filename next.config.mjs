@@ -9,6 +9,11 @@ const mediaHost = (() => {
   }
 })();
 
+// Render's free plan has 512 MB of memory. By default Next starts one build worker per CPU core it can see (47 on Render's build machines),
+// and each one loads the whole app, which runs the build out of memory right after "Collecting page data". Render sets RENDER=true; set
+// LOW_MEMORY_BUILD=1 to get the same careful build anywhere else.
+const lowMemoryBuild = process.env.RENDER === "true" || process.env.LOW_MEMORY_BUILD === "1";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Lets a verification build (CI, a local production check) run beside a development server without sharing `.next`.
@@ -16,7 +21,10 @@ const nextConfig = {
   productionBrowserSourceMaps: false,
   poweredByHeader: false,
   // Next.js buffers a request body for the proxy; keep that ceiling equal to MAX_UPLOAD_BODY_BYTES (lib/storage/policy.js).
-  experimental: { proxyClientMaxBodySize: "12mb" },
+  experimental: {
+    proxyClientMaxBodySize: "12mb",
+    ...(lowMemoryBuild ? { cpus: 1, memoryBasedWorkersCount: true, workerThreads: false, staticGenerationMaxConcurrency: 1 } : {}),
+  },
   // sheryjs (landing page image effects) ships its shaders as .glsl files and imports a debug-panel library we never use.
   turbopack: {
     rules: {

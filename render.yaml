@@ -11,13 +11,16 @@ services:
     runtime: node
     plan: free
     region: singapore          # closest to Jharkhand among Render regions
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci --no-audit --no-fund && npm run build
     startCommand: npm run start
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
       - { key: NODE_VERSION, value: "22" }
       - { key: NODE_ENV, value: production }
+      # Keep the build inside the free plan's 512 MB: next.config.mjs runs a single build worker when RENDER=true (set by Render), and
+      # this caps Node's heap just under the limit so it collects garbage instead of being killed.
+      - { key: NODE_OPTIONS, value: "--max-old-space-size=400" }
       - { key: NEXT_PUBLIC_APP_URL, sync: false }           # e.g. https://unisphere.onrender.com
       - { key: NEXT_PUBLIC_SUPABASE_URL, sync: false }
       - { key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, sync: false }

@@ -131,7 +131,13 @@ is why UptimeRobot does the frequent calls.
    minutes, so it rarely sleeps.
 5. Set `NEXT_PUBLIC_APP_URL` to the `https://<name>.onrender.com` address (or your custom domain) **before** building.
 
-**If the free build runs out of memory:** the free instance is small. Deploy to Vercel (option A) instead, or build once
+**Out-of-memory fix built in (2.9.0).** The log stops right after `Collecting page data using 47 workers` when the free 512 MB instance
+is killed: Next started a worker per visible CPU core. `next.config.mjs` now runs one worker when Render sets `RENDER=true`, and
+`render.yaml` sets `NODE_OPTIONS=--max-old-space-size=400`. If you created the service by hand (not from the Blueprint), add that
+environment variable yourself in Render → Environment, and set the build command to `npm ci --no-audit --no-fund && npm run build`.
+A constrained local build (`LOW_MEMORY_BUILD=1 NODE_OPTIONS=--max-old-space-size=400 npm run build`) succeeds.
+
+**If the free build still runs out of memory:** the free instance is small. Deploy to Vercel (option A) instead, or build once
 on a larger Render plan and scale back down.
 
 Free-plan realities: it is fine for trying UniSphere out and for a small community, but expect a cold start after idle
