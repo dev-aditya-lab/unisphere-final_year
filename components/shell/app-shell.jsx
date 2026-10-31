@@ -79,14 +79,16 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
                   type="search"
                   enterKeyHint="search"
                   placeholder="Search people, posts, projects…"
-                  className="bg-muted placeholder:text-faint hover:bg-accent focus-visible:bg-card focus-visible:border-ring focus-visible:ring-ring/25 h-9 w-full min-w-0 rounded-full border border-transparent pr-3 pl-9 text-sm outline-none focus-visible:ring-[3px]"
+                  className="bg-muted placeholder:text-faint hover:bg-accent focus-visible:bg-card focus-visible:border-ring focus-visible:ring-ring/25 h-10 w-full min-w-0 rounded-full border border-transparent pr-3 pl-9 text-base outline-none sm:h-9 sm:text-sm focus-visible:ring-[3px]"
                 />
               </div>
             </form>
             <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
-              <Suspense fallback={<OrbitPillSkeleton />}>
-                <OrbitHeaderPill />
-              </Suspense>
+              <div className="hidden sm:block">
+                <Suspense fallback={<OrbitPillSkeleton />}>
+                  <OrbitHeaderPill />
+                </Suspense>
+              </div>
               <ThemeToggle className="hidden sm:inline-flex" />
               <NotificationBell key={bellCount} userId={profile.id} initialCount={bellCount} />
               <UserMenu profile={profile} isStaff={isStaff} />
@@ -97,7 +99,7 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
         <InstallBanner />
         <NativePush configured={getIntegrations().fcm} />
 
-        <main id="main" data-shell="main" tabIndex={-1} className="mx-auto w-full max-w-6xl py-4 pr-[max(0.75rem,env(safe-area-inset-right))] pb-[calc(5.5rem+env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))] outline-none sm:px-6 sm:py-6 lg:pb-10">
+        <main id="main" data-shell="main" tabIndex={-1} className="mx-auto w-full max-w-6xl py-4 pr-[max(0.75rem,env(safe-area-inset-right))] pb-[calc(6.5rem+env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))] outline-none sm:px-6 sm:py-6 lg:pb-10">
           {children}
         </main>
       </div>

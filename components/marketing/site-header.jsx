@@ -32,7 +32,7 @@ export async function SiteHeader() {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-1">
-          <ThemeToggle />
+          <ThemeToggle className="max-sm:hidden" />
           {user ? (
             <Button asChild size="sm" className="rounded-full px-4">
               <Link href="/feed">Open UniSphere</Link>
@@ -53,27 +53,33 @@ export async function SiteHeader() {
                 <Menu />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72">
+            <SheetContent side="right" className="w-[min(20rem,88vw)] pt-safe pb-safe">
               <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
+                <SheetTitle className="font-display text-xl font-bold">Menu</SheetTitle>
                 <SheetDescription className="sr-only">Site navigation</SheetDescription>
               </SheetHeader>
               <nav aria-label="Mobile" className="flex flex-col gap-1 px-4">
                 {MARKETING_LINKS.map((l) => (
                   <SheetClose asChild key={l.href}>
-                    <Link href={l.href} className="hover:bg-accent rounded-md px-3 py-3 text-base font-medium">
+                    <Link href={l.href} className="hover:bg-accent active:bg-accent flex min-h-12 items-center rounded-xl px-3 text-lg font-semibold">
                       {l.label}
                     </Link>
                   </SheetClose>
                 ))}
+              </nav>
+              <div className="mt-auto flex flex-col gap-2 border-t px-4 py-4">
+                <div className="flex items-center justify-between px-1 pb-1">
+                  <span className="text-muted-foreground text-sm font-medium">Appearance</span>
+                  <ThemeToggle />
+                </div>
                 {!user && (
                   <SheetClose asChild>
-                    <Link href="/login" className="hover:bg-accent rounded-md px-3 py-3 text-base font-medium">
-                      Log in
-                    </Link>
+                    <Button asChild variant="outline" size="lg" className="rounded-full">
+                      <Link href="/login">Log in</Link>
+                    </Button>
                   </SheetClose>
                 )}
-              </nav>
+              </div>
             </SheetContent>
           </Sheet>
         </div>

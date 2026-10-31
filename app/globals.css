@@ -513,7 +513,8 @@
   --shell-bottom: 0px;
 }
 @media (max-width: 1023.98px) {
-  :root { --shell-bottom: calc(3.5rem + 1px + env(safe-area-inset-bottom)); }
+  /* the floating bar: 4rem tall, lifted by max(0.5rem, home indicator), plus a little air above it */
+  :root { --shell-bottom: calc(4.5rem + max(0.5rem, env(safe-area-inset-bottom))); }
 }
 .chat-frame {
   height: calc(100dvh - var(--shell-top) - var(--shell-bottom) - var(--kb, 0px));
