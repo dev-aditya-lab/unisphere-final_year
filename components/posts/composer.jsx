@@ -368,9 +368,9 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
   const nearLimit = remaining <= 500;
 
   return (
-    <section id={community ? undefined : "compose"} aria-label="Create a post" className="bg-card scroll-mt-20 rounded-2xl border p-3 shadow-card sm:p-4">
+    <section id={community ? undefined : "compose"} aria-label="Create a post" className="bg-card shadow-card scroll-mt-20 rounded-2xl border p-2.5 sm:p-4">
       {/* Compact prompt: a real input that opens the full editor. */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3">
         <UserAvatar name={profile.full_name} avatarKey={profile.avatar_key} size="md" className="shrink-0" />
         <input
           type="text"
@@ -387,9 +387,13 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
           }}
           className="bg-muted placeholder:text-faint hover:bg-accent focus-visible:ring-ring/40 h-11 min-w-0 flex-1 cursor-text rounded-full border border-transparent px-4 text-sm transition-colors outline-none focus-visible:ring-[3px]"
         />
+        {/* On a phone the row of post types below is folded away (the + in the tab bar and this prompt cover it); a photo stays one tap. */}
+        <button type="button" onClick={() => fileInput.current?.click()} disabled={uploads.length >= MAX_IMAGES} aria-label="Add a photo" className="tap text-leaf-text hover:bg-accent grid size-11 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 disabled:opacity-50 sm:hidden">
+          <ImagePlus className="size-[22px]" aria-hidden="true" />
+        </button>
       </div>
       {/* One tap to start the kind of post you have in mind: the editor opens already set to that type. */}
-      <div className="scrollbar-none -mx-1 mt-2.5 flex gap-0.5 overflow-x-auto px-1 max-sm:[mask-image:linear-gradient(to_right,black_calc(100%-1.75rem),transparent)] sm:gap-1">
+      <div className="scrollbar-none -mx-1 mt-2.5 flex gap-0.5 overflow-x-auto px-1 max-sm:hidden sm:gap-1">
         <button type="button" onClick={() => fileInput.current?.click()} disabled={uploads.length >= MAX_IMAGES} className="tap text-muted-foreground hover:bg-accent hover:text-foreground flex h-10 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-[13px] font-semibold outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 disabled:opacity-50 sm:px-3">
           <ImagePlus className="text-leaf-text size-[18px]" aria-hidden="true" />
           Photo

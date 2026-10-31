@@ -225,12 +225,12 @@ export function OrbitsStrip({ initial }) {
 
   return (
     <section aria-label="Your Orbits today" className="orbit-enter xl:hidden">
-      <div className="bg-card/90 flex min-h-14 items-center gap-1 rounded-2xl border border-[var(--orbit-line)] bg-[var(--orbit-wash)] py-1 pr-1.5 pl-1">
+      <div className="bg-card/90 flex min-h-12 items-center gap-1 rounded-2xl border border-[var(--orbit-line)] bg-[var(--orbit-wash)] py-0.5 pr-1.5 pl-1">
         <Link href="/orbits" className={cn(focus, "relative flex min-w-0 items-center gap-1")}>
-          <OrbitalIcon size={48} scale={0.62} bump={bump} />
+          <OrbitalIcon size={44} scale={0.62} bump={bump} />
           <span className="min-w-0">
             <span className="eyebrow block !text-[10px] leading-none">Orbits</span>
-            <span className="font-heading block text-lg leading-tight font-extrabold" data-testid="strip-orbit-balance">
+            <span className="font-heading block text-base leading-tight font-extrabold" data-testid="strip-orbit-balance">
               <AnimatedNumber value={glance.balance} />
             </span>
           </span>

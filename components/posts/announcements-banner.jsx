@@ -17,21 +17,21 @@ function Announcement({ a }) {
         aria-expanded={open}
         aria-controls={bodyId}
         onClick={() => setOpen((o) => !o)}
-        className="focus-visible:ring-ring/40 flex min-h-12 w-full items-center gap-3 px-3.5 py-2.5 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-inset"
+        className="focus-visible:ring-ring/40 flex min-h-11 w-full items-center gap-2.5 px-3 py-2 text-left sm:min-h-12 sm:gap-3 sm:px-3.5 sm:py-2.5 outline-none focus-visible:ring-[3px] focus-visible:ring-inset"
       >
-        <span className="bg-primary text-primary-foreground grid size-8 shrink-0 place-items-center rounded-full">
+        <span className="bg-primary text-primary-foreground grid size-7 shrink-0 place-items-center rounded-full sm:size-8">
           <Megaphone className="size-4" aria-hidden="true" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="text-primary-text flex items-center gap-1.5 text-[11px] font-bold tracking-wide uppercase">
-            Official announcement
+          <span className="text-primary-text flex items-center gap-1.5 text-[10px] font-bold tracking-wide uppercase sm:text-[11px]">
+            Announcement
             {a.pinned && (
               <span className="inline-flex items-center gap-0.5 normal-case">
                 <Pin className="size-3" aria-hidden="true" /> Pinned
               </span>
             )}
           </span>
-          <span className={cn("font-heading block text-sm font-bold", !open && "truncate")}>{a.title}</span>
+          <span className={cn("font-heading block text-[13px] leading-snug font-bold sm:text-sm", !open && "truncate")}>{a.title}</span>
         </span>
         <time dateTime={a.published_at} suppressHydrationWarning className="text-muted-foreground hidden shrink-0 text-xs sm:block">
           {timeAgo(a.published_at)}
@@ -40,7 +40,7 @@ function Announcement({ a }) {
       </button>
       <div id={bodyId} className={cn("grid transition-[grid-template-rows] duration-200 ease-out", open ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}>
         <div className="min-h-0 overflow-hidden" inert={open ? undefined : true}>
-          <p className="px-3.5 pb-3.5 pl-[3.625rem] text-sm whitespace-pre-wrap">{a.body}</p>
+          <p className="px-3 pb-3 pl-[2.875rem] text-sm sm:px-3.5 sm:pb-3.5 sm:pl-[3.625rem] whitespace-pre-wrap">{a.body}</p>
         </div>
       </div>
     </article>
