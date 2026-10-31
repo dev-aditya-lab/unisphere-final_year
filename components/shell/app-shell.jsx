@@ -66,8 +66,8 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
       <div className="lg:pl-64">
         <header data-shell="header" className="bg-card/90 supports-[backdrop-filter]:bg-card/80 pt-safe pl-safe pr-safe sticky top-0 z-20 border-b backdrop-blur-md">
           <div className="flex h-14 items-center gap-2 px-3 sm:gap-3 sm:px-6">
-            <Logo href="/" showWordmark={false} className="lg:hidden" />
-            <form action="/search" role="search" className="w-full max-w-md min-w-0 flex-1">
+            <Logo href="/" wordmarkClassName="sm:hidden" className="lg:hidden" />
+            <form action="/search" role="search" className="w-full max-w-md min-w-0 flex-1 max-sm:hidden">
               <label htmlFor="global-search" className="sr-only">
                 Search UniSphere
               </label>
@@ -84,6 +84,11 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
               </div>
             </form>
             <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
+              <Button asChild variant="ghost" size="icon" className="size-11 rounded-full sm:hidden">
+                <Link href="/search" aria-label="Search UniSphere">
+                  <Search className="size-[22px]" aria-hidden="true" />
+                </Link>
+              </Button>
               <div className="hidden sm:block">
                 <Suspense fallback={<OrbitPillSkeleton />}>
                   <OrbitHeaderPill />

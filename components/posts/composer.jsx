@@ -368,7 +368,7 @@ export function Composer({ profile, defaultCategory = "general", defaultVisibili
   const nearLimit = remaining <= 500;
 
   return (
-    <section id={community ? undefined : "compose"} aria-label="Create a post" className="bg-card shadow-card scroll-mt-20 rounded-2xl border p-2.5 sm:p-4">
+    <section id={community ? undefined : "compose"} aria-label="Create a post" className={cn("bg-card shadow-card scroll-mt-20 rounded-2xl border p-2.5 sm:p-4", !community && "max-sm:-mx-3 max-sm:rounded-none max-sm:border-x-0 max-sm:px-4 max-sm:shadow-none")}>
       {/* Compact prompt: a real input that opens the full editor. */}
       <div className="flex items-center gap-2.5 sm:gap-3">
         <UserAvatar name={profile.full_name} avatarKey={profile.avatar_key} size="md" className="shrink-0" />

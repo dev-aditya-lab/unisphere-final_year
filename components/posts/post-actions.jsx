@@ -35,8 +35,8 @@ function MountOnOpen({ open, children }) {
 
 // Every action is a soft pill, 40px tall with 8px between them (a comfortable thumb target on a phone). Rest state is a quiet grey
 // pill with the icon and the count; hover darkens it; a reaction tints the Like pill in its own colour; press shrinks it a little.
-const PILL = "text-muted-foreground bg-muted/70 hover:bg-muted hover:text-foreground group/act h-10 gap-1.5 rounded-full px-3.5 text-sm font-semibold";
-const ICON_PILL = "text-muted-foreground hover:bg-muted hover:text-foreground size-10 rounded-full";
+const PILL = "text-muted-foreground bg-muted/70 hover:bg-muted hover:text-foreground group/act h-10 gap-1.5 rounded-full px-3.5 text-sm font-semibold max-sm:h-11 max-sm:px-3";
+const ICON_PILL = "text-muted-foreground hover:bg-muted hover:text-foreground size-10 rounded-full max-sm:size-11";
 
 const HOLD_MS = 380; // a touch held this long opens the tray (long enough to tell from a tap, short enough not to feel stuck)
 const HOVER_OPEN_MS = 450; // a mouse resting on Like this long opens it, so passing over the button on the way elsewhere does not
@@ -241,7 +241,7 @@ export function PostActions({ post, viewerId, className }) {
                   type="button"
                   variant="ghost"
                   size="icon-sm"
-                  className={cn("text-muted-foreground hover:text-foreground h-10 w-9 rounded-l-none rounded-r-full pr-1 pl-0.5", mine ? cn(mine.tone, "bg-(--tone)/15 text-(--tone-text) hover:bg-(--tone)/25") : "bg-muted/70 hover:bg-muted")}
+                  className={cn("text-muted-foreground hover:text-foreground h-10 w-9 rounded-l-none rounded-r-full pr-1 pl-0.5 max-sm:h-11", mine ? cn(mine.tone, "bg-(--tone)/15 text-(--tone-text) hover:bg-(--tone)/25") : "bg-muted/70 hover:bg-muted")}
                   aria-label="Choose a reaction"
                   aria-expanded={reactOpen}
                   onClick={() => {
@@ -304,7 +304,7 @@ export function PostActions({ post, viewerId, className }) {
             </Link>
           </Button>
         )}
-        <ReactionStack counts={kinds} className="mr-1 ml-0.5" />
+        <ReactionStack counts={kinds} className="mr-1 ml-0.5 max-sm:hidden" />
 
         {/* Comment */}
         <Button asChild variant="ghost" size="sm" className={PILL}>
@@ -333,7 +333,7 @@ export function PostActions({ post, viewerId, className }) {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : post.repost_count > 0 ? (
-          <span className="text-muted-foreground bg-muted/70 flex h-10 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold">
+          <span className="text-muted-foreground bg-muted/70 flex h-10 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold max-sm:h-11">
             <Repeat2 className="size-5" aria-hidden="true" />
             <span className="tabular-nums">{post.repost_count}</span>
             <span className="sr-only"> reposts</span>

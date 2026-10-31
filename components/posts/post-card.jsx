@@ -14,6 +14,9 @@ import { cn } from "@/lib/utils";
 const VISIBILITY_ICON = { public: Globe, college: GraduationCap, connections: Users, private: Lock, community: Users };
 const VISIBILITY_LABEL = { public: "All members", college: "College", connections: "Connections", private: "Only you", community: "Community" };
 
+// A feed shows the start of a long post (a few lines on a phone), and "Read more" opens the rest.
+const EXCERPT = 300;
+
 export function postPath(post) {
   return `${post.category === "ideas" ? "/ideas/" : "/posts/"}${post.slug}`;
 }
@@ -48,10 +51,10 @@ export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed,
   const href = postPath(post);
   const isRepost = Boolean(post.repost_of_id);
   const isPlainRepost = isRepost && !post.body;
-  const long = !full && post.body.length > 500;
+  const long = !full && post.body.length > EXCERPT;
   const VisIcon = VISIBILITY_ICON[post.visibility] ?? Globe;
   const narrowAudience = post.visibility && post.visibility !== "public";
-  const shell = "feed-card bg-card border-border-strong/60 shadow-card rounded-2xl border p-4 transition-shadow duration-200 sm:rounded-3xl sm:p-5 sm:hover:shadow-[var(--lift-shadow)]";
+  const shell = "feed-card bg-card border-border-strong/60 shadow-card rounded-2xl border p-4 transition-shadow duration-200 max-sm:pt-3.5 max-sm:pb-2 sm:rounded-3xl sm:p-5 sm:hover:shadow-[var(--lift-shadow)]";
 
   if (post.status === "removed") {
     return (
@@ -108,9 +111,9 @@ export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed,
       </div>
 
       {!isPlainRepost && (
-        <div className="mt-3.5">
+        <div className="mt-3">
           {post.title && (
-            <Heading className="font-heading text-lg leading-snug font-bold tracking-tight [overflow-wrap:anywhere] sm:text-xl">
+            <Heading className="font-heading text-[17px] leading-snug font-bold tracking-tight [overflow-wrap:anywhere] sm:text-xl">
               {full ? (
                 post.title
               ) : (
@@ -120,7 +123,7 @@ export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed,
               )}
             </Heading>
           )}
-          <MarkdownText text={long ? markdownExcerpt(post.body, 500) : post.body} className={cn("text-base leading-relaxed", post.title && "mt-1.5")} />
+          <MarkdownText text={long ? markdownExcerpt(post.body, EXCERPT) : post.body} className={cn("text-[15px] leading-normal sm:text-base sm:leading-relaxed", post.title && "mt-1")} />
           {long && (
             <Link href={href} className="text-primary-text group/more mt-1.5 inline-flex min-h-8 items-center gap-1 text-sm font-semibold">
               <span className="group-hover/more:underline">Read more</span>
@@ -133,9 +136,9 @@ export function PostCard({ post, viewerId, full = false, onDeleted, onDismissed,
       {canSummarize && !isRepost && post.body.length >= 600 && <PostSummary post={post} />}
 
       {isRepost && <OriginalEmbed post={post} />}
-      <PostMedia items={post.attachments} className="mt-3.5 rounded-2xl" />
+      <PostMedia items={post.attachments} className="mt-3.5 rounded-2xl max-sm:-mx-4 max-sm:w-[calc(100%+2rem)] max-sm:max-w-none max-sm:rounded-none max-sm:ring-0" />
 
-      <PostActions post={post} viewerId={viewerId} className="mt-4" />
+      <PostActions post={post} viewerId={viewerId} className="mt-3 sm:mt-4" />
     </article>
   );
 }

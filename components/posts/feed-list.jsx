@@ -13,7 +13,8 @@ import { forgetPost, readFeedCache, writeFeedCache } from "@/lib/client/feed-cac
 // Each card parses its text and builds its menus; without this every "load more" or delete re-ran all of them. The
 // post objects are replaced only when they change, and `onDeleted` is stable, so unaffected cards skip rendering.
 const FeedItem = memo(function FeedItem({ post, viewerId, onDeleted, onDismissed, canSummarize }) {
-  return <PostCard post={post} viewerId={viewerId} onDeleted={onDeleted} onDismissed={onDismissed} canSummarize={canSummarize} />;
+  // On a phone the feed is one flat column: each post runs edge to edge (the page gutter is 0.75rem), separated by a hairline.
+  return <PostCard post={post} viewerId={viewerId} onDeleted={onDeleted} onDismissed={onDismissed} canSummarize={canSummarize} className="max-sm:-mx-3 max-sm:rounded-none max-sm:border-x-0 max-sm:border-t-0 max-sm:border-border max-sm:shadow-none" />;
 });
 
 /**
@@ -122,7 +123,7 @@ export function FeedList({ initialItems, initialCursor, scope, category, viewerI
   return (
     <div>
       {items.length > 6 && <BackToTop />}
-      <ul className="space-y-3 sm:space-y-4" aria-label="Posts">
+      <ul className="max-sm:divide-y-0 sm:space-y-4" aria-label="Posts">
         {items.map((post, i) => (
           <li key={post.id} className="feed-item" style={{ "--i": i < 6 ? i : 0 }}>
             <FeedItem post={post} viewerId={viewerId} onDeleted={removePost} onDismissed={scope === "for_you" ? removePost : undefined} canSummarize={canSummarize} />
