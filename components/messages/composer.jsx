@@ -161,7 +161,7 @@ export function Composer({ conversationId, firstName }) {
   }
 
   return (
-    <form onSubmit={submit} className="bg-card/60 border-t px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+    <form onSubmit={submit} className="bg-card pl-safe pr-safe shrink-0 border-t px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:px-3">
       {items.length > 0 && (
         <ul className="mb-2 flex flex-wrap gap-2" aria-label="Attachments">
           {items.map((i) => (
@@ -208,7 +208,7 @@ export function Composer({ conversationId, firstName }) {
       )}
       <div className="flex items-end gap-2">
         <input ref={fileInput} type="file" accept={ACCEPT} multiple className="sr-only" tabIndex={-1} aria-label="Attach files" onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
-        <Button type="button" variant="ghost" size="icon" disabled={items.length >= LIMITS.maxFiles} onClick={() => fileInput.current?.click()} aria-label="Attach a file" className="shrink-0">
+        <Button type="button" variant="ghost" size="icon" disabled={items.length >= LIMITS.maxFiles} onClick={() => fileInput.current?.click()} aria-label="Attach a file" className="size-11 shrink-0 rounded-full md:size-9">
           <Paperclip />
         </Button>
         <label htmlFor="message-input" className="sr-only">
@@ -235,7 +235,7 @@ export function Composer({ conversationId, firstName }) {
           }}
           onKeyDown={onKeyDown}
           hidden={preview}
-          className="bg-background placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/40 max-h-[10.5rem] min-h-10 min-w-0 flex-1 resize-none rounded-xl border px-3.5 py-2 text-base outline-none focus-visible:ring-[3px] md:text-sm"
+          className="bg-muted placeholder:text-muted-foreground focus-visible:ring-ring/40 max-h-[10.5rem] min-h-11 min-w-0 flex-1 resize-none rounded-3xl border border-transparent px-4 py-2.5 text-base outline-none focus-visible:ring-[3px] md:min-h-10 md:text-sm"
         />
         {text.trim() && (
           <Button type="button" variant="ghost" size="icon" onClick={() => setPreview((v) => !v)} aria-pressed={preview} aria-label={preview ? "Back to writing" : "Preview how it will look"} className="shrink-0">
@@ -243,7 +243,7 @@ export function Composer({ conversationId, firstName }) {
           </Button>
         )}
         <span className="hidden sm:block"><FormattingHelp /></span>
-        <Button type="submit" variant="soft" size="icon" disabled={!canSend} aria-label="Send message" className="shrink-0">
+        <Button type="submit" size="icon" disabled={!canSend} aria-label="Send message" className="size-11 shrink-0 rounded-full md:size-9">
           {/* The paper plane flies off once for each message that is actually sent. */}
           {busy ? <Loader2 className="animate-spin" /> : <AnimatedIcon name="send" size={24} pulse={sent} />}
         </Button>

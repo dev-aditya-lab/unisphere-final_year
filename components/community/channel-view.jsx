@@ -378,8 +378,8 @@ export function ChannelView({ channel, seed, slug, aiAvailable = false }) {
 
   return (
     <section className="flex h-full min-h-0 flex-col" aria-label={`Channel ${channel.name}`}>
-      <header className="flex items-center gap-1.5 border-b px-2 py-2 sm:px-4">
-        <Button asChild variant="ghost" size="icon-sm" className="md:hidden">
+      <header className="bg-card max-md:pt-safe pl-safe pr-safe flex shrink-0 items-center gap-1 border-b px-2 py-2 sm:px-4">
+        <Button asChild variant="ghost" size="icon" className="size-11 rounded-full md:hidden">
           <Link href={`/communities/${slug}/channels`} aria-label="All channels"><ChevronLeft /></Link>
         </Button>
         <ChannelIcon type={channel.type} className="text-muted-foreground size-5 shrink-0" />

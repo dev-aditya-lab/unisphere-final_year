@@ -2,13 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AnimatedIcon } from "@/components/icons/animated-icon";
 import { CountBadge } from "@/components/motion/count-badge";
 import { Button } from "@/components/ui/button";
 import { useRealtimeChannel } from "@/hooks/use-realtime-channel";
+import { announceNotification } from "@/components/notifications/announce";
 
-/** Bell with an unread badge that updates live when a notification arrives (Supabase Realtime, RLS-filtered). */
+/** Bell with an unread badge that updates live when a notification arrives (Supabase Realtime, RLS-filtered), and a heads-up toast for it. */
 export function NotificationBell({ userId, initialCount }) {
+  const router = useRouter();
   const [count, setCount] = useState(initialCount);
   const [rings, setRings] = useState(0); // increments only for a live arrival, so the bell never rings on page load
 
@@ -20,6 +23,7 @@ export function NotificationBell({ userId, initialCount }) {
           setCount((c) => c + 1);
           setRings((r) => r + 1);
         }
+        if (!payload.new?.read_at) announceNotification(payload.new, (href) => router.push(href));
       });
     },
     { idle: true },

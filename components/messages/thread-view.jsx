@@ -178,19 +178,19 @@ export function ThreadView({ conversationId, viewerId, onBack }) {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <header className="flex items-center gap-3 border-b px-3 py-2.5">
-        <button type="button" onClick={onBack} className="text-muted-foreground hover:text-foreground -ml-1 grid size-9 place-items-center rounded-lg md:hidden" aria-label="Back to conversations">
+      <header className="bg-card max-md:pt-safe pl-safe pr-safe flex shrink-0 items-center gap-2 border-b px-2 py-2 md:px-4">
+        <button type="button" onClick={onBack} className="text-foreground hover:bg-muted active:bg-muted grid size-11 shrink-0 place-items-center rounded-full md:hidden" aria-label="Back to conversations">
           <ArrowLeft className="size-5" />
         </button>
-        {person ? <UserAvatar name={person.full_name} avatarKey={person.avatar_key} size="sm" /> : <Skeleton className="size-8 rounded-full" />}
+        {person ? <UserAvatar name={person.full_name} avatarKey={person.avatar_key} size="md" /> : <Skeleton className="size-10 rounded-full" />}
         <div className="min-w-0 flex-1 leading-tight">
           {person ? (
             person.username ? (
-              <Link href={`/u/${person.username}`} className="block truncate text-sm font-semibold hover:underline">
+              <Link href={`/u/${person.username}`} className="block truncate text-base font-semibold hover:underline">
                 {person.full_name}
               </Link>
             ) : (
-              <span className="block truncate text-sm font-semibold">{person.full_name}</span>
+              <span className="block truncate text-base font-semibold">{person.full_name}</span>
             )
           ) : (
             <Skeleton className="h-4 w-32" />
@@ -201,7 +201,7 @@ export function ThreadView({ conversationId, viewerId, onBack }) {
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm" aria-label="Conversation options">
+            <Button variant="ghost" size="icon" className="size-11 rounded-full md:size-9" aria-label="Conversation options">
               <MoreHorizontal />
             </Button>
           </DropdownMenuTrigger>
@@ -234,7 +234,7 @@ export function ThreadView({ conversationId, viewerId, onBack }) {
       )}
 
       <div className="relative min-h-0 flex-1">
-        <div ref={scroller} onScroll={onScroll} role="log" aria-label={`Conversation with ${person?.full_name ?? "this person"}`} className="h-full overflow-y-auto overscroll-contain px-3 py-3 [overflow-anchor:none] sm:px-4">
+        <div ref={scroller} onScroll={onScroll} role="log" aria-label={`Conversation with ${person?.full_name ?? "this person"}`} className="pl-safe pr-safe h-full overflow-y-auto overscroll-contain px-3 py-3 [overflow-anchor:none] sm:px-6">
           <div ref={content}>
           {loadingFirst ? (
             <Skeletons />

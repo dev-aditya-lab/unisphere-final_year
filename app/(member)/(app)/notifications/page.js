@@ -21,12 +21,12 @@ export default async function NotificationsPage({ searchParams }) {
   return (
     <div className="mx-auto max-w-2xl">
       <PageHeader eyebrow="Inbox" title="Notifications" actions={<Button asChild variant="outline" size="sm"><Link href="/settings/notifications">Preferences</Link></Button>} />
-      <nav aria-label="Filter notifications" className="-mx-1 mb-4 overflow-x-auto pb-1">
+      <nav aria-label="Filter notifications" className="scrollbar-none -mx-3 mb-4 overflow-x-auto px-3 pb-1 sm:mx-0 sm:px-0">
         <ul className="flex min-w-max gap-1.5 px-1">
           {[{ value: null, label: "All" }, ...NOTIFICATION_CATEGORIES.filter((c) => c.value !== "messages")].map((c) => (
             <li key={c.value ?? "all"}>
               <Link href={c.value ? `/notifications?category=${c.value}` : "/notifications"} aria-current={category === c.value ? "true" : undefined}
-                className={cn("block rounded-full border px-3 py-1 text-[13px] font-medium", category === c.value ? "border-primary bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}>
+                className={cn("flex h-9 items-center rounded-full border px-4 text-[13px] font-semibold", category === c.value ? "border-primary bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}>
                 {c.value ? SHORT[c.value] : "All"}
               </Link>
             </li>

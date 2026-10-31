@@ -40,7 +40,7 @@ export function ReviewBanner({ kind, version }) {
   }
 
   return (
-    <aside aria-label="Privacy" className="bg-info-soft text-info-text border-info/40 mb-5 flex items-start gap-3 rounded-xl border px-3.5 py-2.5 text-[13px]">
+    <aside data-shell="banner" aria-label="Privacy" className="bg-info-soft text-info-text border-info/40 mb-5 flex items-start gap-3 rounded-xl border px-3.5 py-2.5 text-[13px]">
       <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
       <p className="min-w-0 flex-1">
         {kind === "soft" ? (

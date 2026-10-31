@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { ChannelSidebar } from "@/components/community/channel-sidebar";
+import { Immersive } from "@/components/shell/immersive";
 import { cn } from "@/lib/utils";
 
 /**
@@ -38,12 +39,10 @@ export function WorkspaceFrame({ slug, children }) {
   const frame = useRef(null);
   useKeyboardInset(frame);
   return (
-    <div
-      ref={frame}
-      className="surface grid h-[calc(100dvh-9.5rem-var(--kb,0px))] min-h-[22rem] grid-cols-1 overflow-hidden md:grid-cols-[16rem_minmax(0,1fr)] lg:h-[calc(100dvh-8rem)] xl:grid-cols-[17.5rem_minmax(0,1fr)]"
-    >
+    <div ref={frame} className="chat-frame bg-card grid grid-cols-1 overflow-hidden md:grid-cols-[16rem_minmax(0,1fr)] xl:grid-cols-[17.5rem_minmax(0,1fr)]">
+      <Immersive mode={inChannel ? "thread" : "inbox"} />
       <ChannelSidebar slug={slug} className={cn("border-r max-md:border-r-0", inChannel && "max-md:hidden")} />
-      <div className={cn("min-h-0 min-w-0", !inChannel && "max-md:hidden")}>{children}</div>
+      <div className={cn("bg-card min-h-0 min-w-0", !inChannel && "max-md:hidden")}>{children}</div>
     </div>
   );
 }

@@ -16,7 +16,7 @@ export function Providers({ children }) {
       <PwaProvider />
       <NativeBridge />
       <RouteProgress />
-      <Toaster position="bottom-right" />
+      <Toaster />
     </ThemeProvider>
   );
 }

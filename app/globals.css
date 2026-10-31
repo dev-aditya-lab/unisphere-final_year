@@ -503,6 +503,36 @@
 @utility pl-safe { padding-left: env(safe-area-inset-left); }
 @utility pr-safe { padding-right: env(safe-area-inset-right); }
 
+/* ── Chat screens ───────────────────────────────────────────────────────────────
+   A conversation is the whole screen, like a messaging app: on a phone the top bar and the tab bar step aside (the
+   conversation has its own back button), and on a computer the frame fills everything beside the sidebar. The
+   <Immersive> component (components/shell/immersive.jsx) sets html[data-immersive] to "inbox" (the list: bars stay) or
+   "thread" (an open conversation). --shell-top / --shell-bottom are the heights of the bars that are still showing. */
+:root {
+  --shell-top: calc(3.5rem + 1px + env(safe-area-inset-top));
+  --shell-bottom: 0px;
+}
+@media (max-width: 1023.98px) {
+  :root { --shell-bottom: calc(3.5rem + 1px + env(safe-area-inset-bottom)); }
+}
+.chat-frame {
+  height: calc(100dvh - var(--shell-top) - var(--shell-bottom) - var(--kb, 0px));
+  min-height: 0;
+}
+html[data-immersive] [data-shell="main"] { max-width: none; padding: 0; }
+html[data-immersive] [data-shell="banner"] { display: none; }
+html[data-immersive] body { overflow: hidden; }
+@media (max-width: 1023.98px) {
+  html[data-immersive] [data-shell="main"] { padding-bottom: var(--shell-bottom); }
+}
+/* Only where the inbox is not beside the conversation (a phone) do the bars leave: a tablet keeps its navigation. */
+@media (max-width: 767.98px) {
+  html[data-immersive="thread"] { --shell-top: 0px; --shell-bottom: 0px; }
+  html[data-immersive="thread"] [data-shell="header"],
+  html[data-immersive="thread"] [data-shell="bottom-nav"] { display: none; }
+  html[data-immersive="thread"] [data-shell="main"] { padding-bottom: 0; }
+}
+
 /* ── Keyframes ───────────────────────────────────────────────────────────────── */
 @keyframes pop {
   0% { transform: scale(0.92); opacity: 0; }

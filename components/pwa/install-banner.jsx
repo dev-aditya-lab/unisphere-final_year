@@ -36,7 +36,7 @@ export function InstallBanner() {
   }
 
   return (
-    <div className="bg-card flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-2 text-[13px]" role="region" aria-label="Install UniSphere">
+    <div data-shell="banner" className="bg-card flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-2 text-[13px]" role="region" aria-label="Install UniSphere">
       <Download className="text-coral-text size-4 shrink-0" aria-hidden="true" />
       <p className="min-w-0 flex-1">
         <strong>Install UniSphere</strong> <span className="text-muted-foreground">for one-tap access and notifications, like a real app.</span>

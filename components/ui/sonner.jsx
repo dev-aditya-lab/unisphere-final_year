@@ -19,9 +19,9 @@ const Toaster = ({
     <Sonner
       theme={theme}
       className="toaster group"
-      position="bottom-center"
-      offset={{ bottom: "calc(env(safe-area-inset-bottom) + 76px)" }}
-      mobileOffset={{ bottom: "calc(env(safe-area-inset-bottom) + 76px)" }}
+      position="top-center"
+      offset={{ top: "calc(env(safe-area-inset-top) + 64px)" }}
+      mobileOffset={{ top: "calc(env(safe-area-inset-top) + 12px)" }}
       icons={{
         success: <CircleCheckIcon className="size-4" />,
         info: <InfoIcon className="size-4" />,

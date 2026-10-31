@@ -64,7 +64,7 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
       </aside>
 
       <div className="lg:pl-64">
-        <header className="bg-card/90 supports-[backdrop-filter]:bg-card/80 pt-safe pl-safe pr-safe sticky top-0 z-20 border-b backdrop-blur-md">
+        <header data-shell="header" className="bg-card/90 supports-[backdrop-filter]:bg-card/80 pt-safe pl-safe pr-safe sticky top-0 z-20 border-b backdrop-blur-md">
           <div className="flex h-14 items-center gap-2 px-3 sm:gap-3 sm:px-6">
             <Logo href="/" showWordmark={false} className="lg:hidden" />
             <form action="/search" role="search" className="w-full max-w-md min-w-0 flex-1">
@@ -97,7 +97,7 @@ export async function AppShell({ profile, children, counts = {}, bellCount = 0 }
         <InstallBanner />
         <NativePush configured={getIntegrations().fcm} />
 
-        <main id="main" tabIndex={-1} className="mx-auto w-full max-w-6xl py-4 pr-[max(0.75rem,env(safe-area-inset-right))] pb-[calc(5.5rem+env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))] outline-none sm:px-6 sm:py-6 lg:pb-10">
+        <main id="main" data-shell="main" tabIndex={-1} className="mx-auto w-full max-w-6xl py-4 pr-[max(0.75rem,env(safe-area-inset-right))] pb-[calc(5.5rem+env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))] outline-none sm:px-6 sm:py-6 lg:pb-10">
           {children}
         </main>
       </div>

@@ -6,6 +6,7 @@ import { MessageCircle } from "@/components/icons/lucide-compat";
 import { ConversationList } from "@/components/messages/conversation-list";
 import { MessagesProvider } from "@/components/messages/messages-provider";
 import { ThreadView } from "@/components/messages/thread-view";
+import { Immersive } from "@/components/shell/immersive";
 
 const UUID = /^\/messages\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i;
 
@@ -52,24 +53,23 @@ function Frame({ viewerId, children }) {
   }, []);
 
   return (
-    <div
-      ref={frame}
-      className="surface grid h-[calc(100dvh-9.5rem-var(--kb,0px))] min-h-[22rem] grid-cols-1 overflow-hidden md:grid-cols-[20rem_minmax(0,1fr)] lg:h-[calc(100dvh-8rem)] xl:grid-cols-[22rem_minmax(0,1fr)]"
-    >
+    <div ref={frame} className="chat-frame bg-card grid grid-cols-1 overflow-hidden md:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[23rem_minmax(0,1fr)]">
+      <Immersive mode={activeId ? "thread" : "inbox"} />
       {/* Page children render nothing visible: they only seed the engine from the server's first answer. */}
       {children}
       <section aria-label="Inbox" className={`${activeId ? "max-md:hidden" : ""} flex min-h-0 flex-col border-r`}>
-        <h1 className="font-heading px-4 pt-3 pb-1 text-lg font-bold">Messages</h1>
         <ConversationList activeId={activeId} onOpen={open} />
       </section>
-      <section aria-label="Conversation" className={`${activeId ? "" : "max-md:hidden"} min-h-0 min-w-0`}>
+      <section aria-label="Conversation" className={`${activeId ? "" : "max-md:hidden"} bg-sunken min-h-0 min-w-0`}>
         {activeId ? (
           <ThreadView key={activeId} conversationId={activeId} viewerId={viewerId} onBack={back} />
         ) : (
           <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-2 p-8 text-center">
-            <MessageCircle className="size-8" aria-hidden="true" />
-            <p className="text-foreground font-heading font-bold">Select a conversation</p>
-            <p className="max-w-xs text-sm">Or start a new one from a person&rsquo;s profile. You can message people who allow messages from you.</p>
+            <span className="bg-card grid size-16 place-items-center rounded-full border shadow-xs">
+              <MessageCircle className="size-7" aria-hidden="true" />
+            </span>
+            <p className="text-foreground font-heading mt-2 text-lg font-bold">Your messages</p>
+            <p className="max-w-xs text-sm">Pick a conversation, or start one from a person&rsquo;s profile. You can message people who allow messages from you.</p>
           </div>
         )}
       </section>

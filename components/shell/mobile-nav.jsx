@@ -127,6 +127,7 @@ export function BottomNav({ items, counts = {} }) {
   return (
     <nav
       aria-label="Quick navigation"
+      data-shell="bottom-nav"
       className="bg-card/95 supports-[backdrop-filter]:bg-card/85 pl-safe pr-safe fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur-md lg:hidden"
     >
       <div className="pb-safe">

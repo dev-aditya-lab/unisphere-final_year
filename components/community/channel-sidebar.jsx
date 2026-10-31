@@ -52,7 +52,7 @@ function ChannelLink({ channel, active, slug, unread, mutedChannel }) {
       href={`/communities/${slug}/channels/${channel.id}`}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "focus-visible:ring-ring/45 group flex min-h-9 items-center gap-2 rounded-lg px-2.5 text-sm outline-none focus-visible:ring-[3px]",
+        "focus-visible:ring-ring/45 group flex min-h-11 items-center gap-2 rounded-lg px-2.5 text-[0.9375rem] md:min-h-9 md:text-sm outline-none focus-visible:ring-[3px]",
         active ? "bg-accent text-foreground font-semibold" : hasUnread ? "text-foreground hover:bg-accent/60 font-semibold" : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
       )}
     >
